@@ -9,6 +9,10 @@ console.log(
 
 const fs = require("fs");
 const path = require("path");
+
+
+loadEnv();
+
 const express = require("express");
 const {
   collectBrazugStreams,
@@ -45,7 +49,6 @@ function resolvePort() {
   return Number(process.env.PORT) || 3002;
 }
 
-loadEnv();
 const PORT = resolvePort();
 const app = express();
 
