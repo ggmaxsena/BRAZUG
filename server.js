@@ -42,7 +42,7 @@ function resolvePort() {
     const n = Number(args[i + 1]);
     if (n > 0) return n;
   }
-  return Number(process.env.PORT) || 3000;
+  return Number(process.env.PORT) || 3002;
 }
 
 loadEnv();
