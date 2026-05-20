@@ -34,6 +34,22 @@
             <a href="/admin.html">painel admin</a>.
           </p>
         </div>
+
+        <div id="mural-modal" class="mural-modal" hidden>
+          <div class="mural-modal-backdrop" data-action="close"></div>
+          <div class="mural-modal-panel" role="dialog" aria-modal="true" aria-labelledby="mural-modal-title">
+            <button type="button" class="mural-modal-close" data-action="close" aria-label="Fechar">×</button>
+            <div class="mural-modal-image-wrap">
+              <img id="mural-modal-img" class="mural-modal-img" src="" alt="" />
+            </div>
+            <div class="mural-modal-copy">
+              <p id="mural-modal-date" class="mural-modal-date"></p>
+              <h2 id="mural-modal-title" class="mural-modal-title"></h2>
+              <p id="mural-modal-body" class="mural-modal-body"></p>
+              <p id="mural-modal-author" class="mural-modal-author"></p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section id="lives" class="panel panel-lives" data-panel="lives">
