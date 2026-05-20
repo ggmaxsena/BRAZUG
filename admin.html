@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin — Mural BRAZUG</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="icon" href="assets/branding/logo.png" type="image/png" />
+  </head>
+  <body class="admin-page">
+    <header class="admin-header">
+      <a href="/" class="logo">
+        <img class="logo-img" src="assets/branding/logo.png" alt="" width="36" height="36" />
+        <span class="logo-text">BRAZUG Admin</span>
+      </a>
+      <button type="button" id="btn-logout" class="btn btn-secondary" hidden>Sair</button>
+    </header>
+
+    <main class="admin-main">
+      <section id="login-panel" class="admin-card admin-login">
+        <h1>Mural de Aventuras</h1>
+        <p class="admin-hint">Acesso restrito a oficiais da guilda.</p>
+        <form id="login-form">
+          <label>
+            Senha admin
+            <input type="password" id="login-password" required autocomplete="current-password" />
+          </label>
+          <button type="submit" class="btn btn-horde">Entrar</button>
+          <p id="login-error" class="admin-error" hidden></p>
+        </form>
+      </section>
+
+      <section id="dashboard-panel" class="admin-dashboard" hidden>
+        <div class="admin-card">
+          <h2>Nova aventura</h2>
+          <form id="adventure-form" class="admin-form">
+            <div class="form-row">
+              <label>
+                Título *
+                <input type="text" name="title" required maxlength="120" />
+              </label>
+              <label>
+                Data
+                <input type="date" name="event_date" />
+              </label>
+            </div>
+            <label>
+              Autor / personagem
+              <input type="text" name="author" maxlength="80" placeholder="Ex.: Thrall — Líder" />
+            </label>
+            <label>
+              História *
+              <textarea name="body" rows="4" required maxlength="2000"></textarea>
+            </label>
+            <label>
+              URL da imagem
+              <input type="url" name="image_url" placeholder="https://..." />
+            </label>
+            <label class="checkbox-label">
+              <input type="file" name="image_file" accept="image/*" />
+              ou envie arquivo (máx. 5 MB)
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" name="published" checked />
+              Publicar no mural
+            </label>
+            <button type="submit" class="btn btn-horde">Salvar aventura</button>
+            <p id="form-msg" class="admin-msg" hidden></p>
+          </form>
+        </div>
+
+        <div class="admin-card">
+          <h2>Aventuras cadastradas</h2>
+          <ul id="admin-list" class="admin-list"></ul>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/admin.js"></script>
+  </body>
+</html>

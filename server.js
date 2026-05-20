@@ -14,6 +14,8 @@ const {
   collectBrazugStreams,
   liveStreamsPayload,
 } = require("./lib/twitch.cjs");
+const db = require("./lib/db.cjs");
+const { createAdminRouter } = require("./lib/admin-routes.cjs");
 
 function loadEnv() {
   const envPath = path.join(__dirname, ".env");
@@ -47,16 +49,32 @@ loadEnv();
 const PORT = resolvePort();
 const app = express();
 
+app.use(express.json({ limit: "1mb" }));
+
+const uploadsDir = path.join(__dirname, "data", "uploads");
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+app.use("/uploads", express.static(uploadsDir));
+
 app.get("/api/health", function (req, res) {
   res.json({
     ok: true,
     port: PORT,
     node: process.version,
-    cwd: process.cwd(),
+    admin: !!process.env.ADMIN_PASSWORD,
     twitch: !!(
       process.env.TWITCH_CLIENT_ID && process.env.TWITCH_CLIENT_SECRET
     ),
   });
+});
+
+app.get("/api/adventures", async function (req, res) {
+  try {
+    const adventures = await db.listAdventures(true);
+    res.json({ adventures: adventures });
+  } catch (err) {
+    console.error("[BRAZUG] adventures:", err.message);
+    res.status(500).json({ error: err.message, adventures: [] });
+  }
 });
 
 app.get("/api/live-streams", async function (req, res) {
@@ -64,7 +82,7 @@ app.get("/api/live-streams", async function (req, res) {
     const streams = await collectBrazugStreams();
     res.json(liveStreamsPayload(streams));
   } catch (err) {
-    console.error("[BRAZUG] live-streams error:", err.message);
+    console.error("[BRAZUG] live-streams:", err.message);
     res.status(500).json({
       error: err.message,
       streams: [],
@@ -73,21 +91,27 @@ app.get("/api/live-streams", async function (req, res) {
   }
 });
 
+app.use("/api/admin", createAdminRouter());
+
 app.use(express.static(__dirname));
 
 app.use(function (req, res) {
   res.status(404).send("Not found");
 });
 
-const server = app.listen(PORT, "0.0.0.0", function () {
-  console.log("[BRAZUG] Express online http://0.0.0.0:" + PORT);
-  if (!process.env.TWITCH_CLIENT_ID) {
-    console.log("[BRAZUG] aviso: TWITCH_CLIENT_ID ausente no painel");
-  }
-});
+async function start() {
+  await db.initDb();
+  const server = app.listen(PORT, "0.0.0.0", function () {
+    console.log("[BRAZUG] Express online http://0.0.0.0:" + PORT);
+  });
+  server.on("error", function (err) {
+    console.error("[BRAZUG] listen error:", err.message);
+    process.exit(1);
+  });
+}
 
-server.on("error", function (err) {
-  console.error("[BRAZUG] listen error:", err.message);
+start().catch(function (err) {
+  console.error("[BRAZUG] startup failed:", err);
   process.exit(1);
 });
 

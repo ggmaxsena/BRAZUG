@@ -1,18 +1,20 @@
 :root {
-  --bg: #0a0e12;
-  --bg-panel-guild: #0f1419;
-  --bg-panel-addon: #0d1218;
-  --bg-panel-lives: #0b1016;
-  --bg-card: #1a222d;
-  --text: #e8e4dc;
-  --text-muted: #9aa5b5;
-  --accent: #008066;
-  --accent-hover: #00b388;
+  --bg: #0c0808;
+  --bg-panel: #120e0e;
+  --bg-card: #1a1412;
+  --text: #e8dfd0;
+  --text-muted: #a89888;
+  --horde-red: #c41e3a;
+  --horde-red-glow: #ff4458;
+  --horde-dark: #5c1018;
   --gold: #c9a227;
+  --gold-light: #e8c55a;
+  --green-br: #2d6a3e;
   --live: #9146ff;
-  --border: #2a3544;
+  --border: #3d2c28;
+  --border-gold: #6b5520;
   --font: "Segoe UI", system-ui, sans-serif;
-  --header-h: 3.25rem;
+  --header-h: 3.5rem;
 }
 
 *,
@@ -35,19 +37,32 @@ body {
   line-height: 1.6;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(196, 30, 58, 0.18), transparent),
+    radial-gradient(ellipse 40% 30% at 10% 90%, rgba(45, 106, 62, 0.08), transparent),
+    radial-gradient(ellipse 40% 30% at 90% 80%, rgba(201, 162, 39, 0.06), transparent);
+  z-index: 0;
+}
+
 code {
   font-size: 0.88em;
   background: var(--bg-card);
   padding: 0.12em 0.35em;
   border-radius: 4px;
-  color: var(--gold);
+  color: var(--gold-light);
 }
 
-.highlight {
-  color: var(--accent-hover);
+.highlight-gold {
+  color: var(--gold-light);
+  text-shadow: 0 0 24px rgba(201, 162, 39, 0.35);
 }
 
-/* Header fixo */
+/* Header */
 .site-header {
   position: fixed;
   top: 0;
@@ -59,33 +74,53 @@ code {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.25rem;
-  background: rgba(10, 14, 18, 0.85);
+  background: rgba(12, 8, 8, 0.92);
   border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 
 .logo {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--accent-hover);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   text-decoration: none;
-  letter-spacing: 0.06em;
 }
 
+.logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(196, 30, 58, 0.5));
+}
+
+.logo-text {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--gold-light);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-link,
 .header-discord {
   font-size: 0.85rem;
   color: var(--text-muted);
   text-decoration: none;
 }
 
+.header-link:hover,
 .header-discord:hover {
-  color: var(--text);
+  color: var(--gold-light);
 }
 
 .section-dots {
   display: flex;
   gap: 0.5rem;
-  align-items: center;
 }
 
 .dot {
@@ -94,24 +129,27 @@ code {
   border-radius: 50%;
   background: var(--border);
   text-decoration: none;
-  transition: transform 0.2s, background 0.2s;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
 .dot:hover {
-  background: var(--text-muted);
+  background: var(--horde-red);
 }
 
 .dot.is-active {
-  background: var(--accent-hover);
+  background: var(--horde-red-glow);
+  box-shadow: 0 0 10px var(--horde-red);
   transform: scale(1.25);
 }
 
-/* Scroll infinito = snap em tela cheia */
+/* Scroll */
 .scroll-root {
   height: 100vh;
   overflow-y: auto;
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
+  position: relative;
+  z-index: 1;
 }
 
 .panel {
@@ -126,15 +164,33 @@ code {
 }
 
 .panel-guild {
-  background: radial-gradient(ellipse at 50% 0%, #143028 0%, var(--bg-panel-guild) 55%);
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(196, 30, 58, 0.12) 0%, transparent 55%),
+    var(--bg-panel);
 }
 
-.panel-addon {
-  background: radial-gradient(ellipse at 80% 50%, #1a2530 0%, var(--bg-panel-addon) 50%);
+.panel-mural {
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(201, 162, 39, 0.08) 0%, transparent 50%),
+    var(--bg);
+  align-items: flex-start;
+  padding-top: calc(var(--header-h) + 2rem);
 }
 
 .panel-lives {
-  background: radial-gradient(ellipse at 20% 80%, #1f1430 0%, var(--bg-panel-lives) 45%);
+  background:
+    radial-gradient(ellipse at 70% 60%, rgba(145, 70, 255, 0.08) 0%, transparent 45%),
+    var(--bg-panel);
+}
+
+.panel-addon {
+  background:
+    radial-gradient(ellipse at 50% 80%, rgba(92, 16, 24, 0.2) 0%, transparent 50%),
+    var(--bg-panel);
+}
+
+.panel-addon .scroll-indicator {
+  display: none;
 }
 
 .panel-inner {
@@ -143,27 +199,55 @@ code {
 }
 
 .panel-inner-wide {
-  max-width: 920px;
+  max-width: 1000px;
+  width: 100%;
   text-align: left;
+}
+
+.panel-guild-inner {
+  max-width: 520px;
+}
+
+.guild-hero-logo {
+  width: min(100%, 380px);
+  height: auto;
+  margin: 0 auto 0.5rem;
+  display: block;
+  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.6));
+}
+
+.guild-tag {
+  font-size: 0.8rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--horde-red-glow);
+  margin: 0 0 1rem;
+  font-weight: 700;
+}
+
+.guild-lead {
+  text-align: center;
 }
 
 .eyebrow {
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   font-size: 0.72rem;
-  color: var(--accent-hover);
+  color: var(--horde-red-glow);
   margin: 0 0 0.5rem;
+  font-weight: 600;
 }
 
 .panel h1,
 .panel h2 {
-  font-size: clamp(2rem, 6vw, 3rem);
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
   line-height: 1.15;
   margin: 0 0 1rem;
+  font-weight: 800;
 }
 
 .lead {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: var(--text-muted);
   margin: 0 0 1.5rem;
 }
@@ -186,8 +270,8 @@ code {
   background: var(--bg-card);
   border: 1px solid var(--border);
   padding: 0.4rem 0.85rem;
-  border-radius: 999px;
-  font-size: 0.9rem;
+  border-radius: 4px;
+  font-size: 0.88rem;
   color: var(--text-muted);
 }
 
@@ -200,30 +284,34 @@ code {
 
 .btn {
   display: inline-block;
-  padding: 0.65rem 1.25rem;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: 0.7rem 1.35rem;
+  border-radius: 4px;
+  font-weight: 700;
   text-decoration: none;
-  transition: background 0.15s, border-color 0.15s;
+  letter-spacing: 0.04em;
+  transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
 }
 
-.btn-primary {
-  background: var(--accent);
+.btn-horde {
+  background: linear-gradient(180deg, var(--horde-red) 0%, var(--horde-dark) 100%);
   color: #fff;
+  border: 1px solid var(--horde-red-glow);
+  box-shadow: 0 4px 20px rgba(196, 30, 58, 0.35);
 }
 
-.btn-primary:hover {
-  background: var(--accent-hover);
+.btn-horde:hover {
+  box-shadow: 0 6px 28px rgba(255, 68, 88, 0.45);
 }
 
 .btn-secondary {
   background: transparent;
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-gold);
 }
 
 .btn-secondary:hover {
-  border-color: var(--text-muted);
+  border-color: var(--gold-light);
+  color: var(--gold-light);
 }
 
 .scroll-indicator {
@@ -233,7 +321,7 @@ code {
   transform: translateX(-50%);
   font-size: 1.25rem;
   color: var(--text-muted);
-  opacity: 0.5;
+  opacity: 0.45;
   animation: bounce 2s ease-in-out infinite;
 }
 
@@ -247,11 +335,91 @@ code {
   }
 }
 
-.panel-lives .scroll-indicator {
-  display: none;
+/* Mural */
+.mural-inner {
+  max-height: calc(100vh - var(--header-h) - 2rem);
+  overflow-y: auto;
+  padding-bottom: 2rem;
 }
 
-/* Addon grid */
+.mural-status,
+.mural-empty {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.mural-empty a {
+  color: var(--gold-light);
+}
+
+.mural-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.mural-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.mural-card:hover {
+  border-color: var(--border-gold);
+  transform: translateY(-3px);
+}
+
+.mural-card-img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #000;
+  display: block;
+}
+
+.mural-card-img.placeholder {
+  background: linear-gradient(135deg, var(--horde-dark), var(--bg));
+  min-height: 120px;
+}
+
+.mural-card-body {
+  padding: 1rem 1.1rem 1.15rem;
+}
+
+.mural-card-meta {
+  font-size: 0.75rem;
+  color: var(--horde-red-glow);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.35rem;
+}
+
+.mural-card-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: var(--gold-light);
+}
+
+.mural-card-text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mural-card-author {
+  margin: 0.65rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Addon */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -269,7 +437,7 @@ code {
 .card h3 {
   margin: 0 0 0.4rem;
   font-size: 1rem;
-  color: var(--gold);
+  color: var(--gold-light);
 }
 
 .card p {
@@ -281,14 +449,19 @@ code {
 .version {
   font-size: 0.85rem;
   color: var(--text-muted);
-  margin: 0;
 }
 
 /* Streams */
-.streams-status {
+.streams-status,
+.streams-empty,
+.streams-error {
   font-size: 0.95rem;
   color: var(--text-muted);
   margin-bottom: 1rem;
+}
+
+.streams-error {
+  color: #e07a6a;
 }
 
 .streams-list {
@@ -304,7 +477,7 @@ code {
   display: block;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
@@ -326,41 +499,38 @@ code {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
 .stream-live-badge {
   position: absolute;
   top: 0.5rem;
   left: 0.5rem;
-  background: #e91916;
+  background: var(--horde-red);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.2rem 0.45rem;
   border-radius: 4px;
-  text-transform: uppercase;
 }
 
 .stream-viewers {
   position: absolute;
   bottom: 0.5rem;
   left: 0.5rem;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.8);
   font-size: 0.75rem;
   padding: 0.2rem 0.45rem;
   border-radius: 4px;
 }
 
 .stream-body {
-  padding: 0.85rem 1rem 1rem;
+  padding: 0.85rem 1rem;
 }
 
 .stream-channel {
   font-weight: 700;
   color: var(--live);
   margin: 0 0 0.25rem;
-  font-size: 0.95rem;
 }
 
 .stream-title {
@@ -373,17 +543,11 @@ code {
   overflow: hidden;
 }
 
-.streams-empty,
-.streams-error {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-}
-
-.streams-error {
-  color: #e07a6a;
-}
-
 @media (max-width: 600px) {
+  .header-actions .header-link {
+    display: none;
+  }
+
   .guild-pillars {
     flex-direction: column;
     align-items: center;
