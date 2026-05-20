@@ -9,7 +9,6 @@ import { fileURLToPath } from "node:url";
 import { collectBrazugStreams, liveStreamsPayload } from "./lib/twitch.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = Number(process.env.PORT) || 3000;
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -38,6 +37,16 @@ function loadEnv() {
 }
 
 loadEnv();
+
+const PORT = Number(process.env.PORT) || 3000;
+
+function sendJson(res, status, body) {
+  res.writeHead(status, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Access-Control-Allow-Origin": "*",
+  });
+  res.end(JSON.stringify(body));
+}
 
 function serveStatic(req, res) {
   let urlPath = req.url.split("?")[0];
@@ -68,22 +77,28 @@ function serveStatic(req, res) {
 }
 
 const server = http.createServer(async (req, res) => {
-  if (req.url.startsWith("/api/live-streams")) {
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.setHeader("Access-Control-Allow-Origin", "*");
+  const urlPath = req.url.split("?")[0];
+
+  if (urlPath === "/api/health") {
+    sendJson(res, 200, {
+      ok: true,
+      port: PORT,
+      node: process.version,
+      twitch: !!(process.env.TWITCH_CLIENT_ID && process.env.TWITCH_CLIENT_SECRET),
+    });
+    return;
+  }
+
+  if (urlPath.startsWith("/api/live-streams")) {
     try {
       const streams = await collectBrazugStreams();
-      res.writeHead(200);
-      res.end(JSON.stringify(liveStreamsPayload(streams)));
+      sendJson(res, 200, liveStreamsPayload(streams));
     } catch (e) {
-      res.writeHead(500);
-      res.end(
-        JSON.stringify({
-          error: e.message,
-          streams: [],
-          ...liveStreamsPayload([]),
-        })
-      );
+      sendJson(res, 500, {
+        error: e.message,
+        streams: [],
+        ...liveStreamsPayload([]),
+      });
     }
     return;
   }
@@ -97,10 +112,28 @@ const server = http.createServer(async (req, res) => {
   serveStatic(req, res);
 });
 
+server.on("error", (err) => {
+  console.error("Erro ao iniciar servidor:", err.message);
+  process.exit(1);
+});
+
 server.listen(PORT, "0.0.0.0", () => {
-  console.log("BRAZUG site: http://localhost:" + PORT);
-  console.log("API Node:     http://localhost:" + PORT + "/api/live-streams");
+  console.log(
+    "[BRAZUG] online port=" +
+      PORT +
+      " node=" +
+      process.version +
+      " cwd=" +
+      process.cwd()
+  );
   if (!process.env.TWITCH_CLIENT_ID) {
-    console.log("Aviso: defina TWITCH_CLIENT_ID e TWITCH_CLIENT_SECRET no .env");
+    console.log("[BRAZUG] aviso: TWITCH_CLIENT_ID ausente (painel Hostinger ou .env)");
   }
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("uncaughtException:", err);
+});
+process.on("unhandledRejection", (err) => {
+  console.error("unhandledRejection:", err);
 });
