@@ -7,8 +7,9 @@
   },
   "scripts": {
     "dev": "node server.mjs",
-    "build": "npm run check",
+    "build": "npm run check && node scripts/build-dist.mjs",
     "start": "node server.mjs",
+    "start:dist": "node dist/server.mjs",
     "check": "node --check server.mjs && node --check lib/twitch.mjs",
     "pm2:start": "pm2 start ecosystem.config.cjs",
     "pm2:reload": "pm2 reload ecosystem.config.cjs --update-env"

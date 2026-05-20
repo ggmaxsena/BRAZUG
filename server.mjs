@@ -36,9 +36,20 @@ function loadEnv() {
   }
 }
 
+/** Hostinger pode passar porta como: npm start -- -p $PORT */
+function resolvePort() {
+  const args = process.argv;
+  const i = args.indexOf("-p");
+  if (i !== -1 && args[i + 1]) {
+    const n = Number(args[i + 1]);
+    if (n > 0) return n;
+  }
+  return Number(process.env.PORT) || 3000;
+}
+
 loadEnv();
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = resolvePort();
 
 function sendJson(res, status, body) {
   res.writeHead(status, {
