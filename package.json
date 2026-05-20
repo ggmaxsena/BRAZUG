@@ -7,9 +7,10 @@
   },
   "scripts": {
     "dev": "node server.js",
+    "prisma:prepare": "node -e \"const fs=require('fs');const p=require('path');const dir=p.join(process.cwd(),'node_modules','.prisma','client');if(!fs.existsSync(dir)){require('child_process').execSync('npx prisma generate',{stdio:'inherit'})}else{console.log('Prisma client already exists, skipping generation.')}\"",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
-    "build": "npm run prisma:generate && node --check server.js && node --check lib/twitch.cjs && node --check lib/db.cjs && node --check lib/auth.cjs && node --check lib/admin-routes.cjs",
+    "build": "npm run prisma:prepare && node -e \"if(process.env.SKIP_DB_PUSH !== '1'){require('child_process').execSync('npm run prisma:push',{stdio:'inherit'})}\" && node --check server.js && node --check lib/twitch.cjs && node --check lib/db.cjs && node --check lib/auth.cjs && node --check lib/admin-routes.cjs",
     "start": "node server.js",
     "check": "npm run build"
   },
