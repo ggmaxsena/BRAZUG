@@ -11,6 +11,7 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "build": "npm run prisma:prepare && node -e \"if(process.env.SKIP_DB_PUSH !== '1'){require('child_process').execSync('npm run prisma:push',{stdio:'inherit'})}\" && node --check server.js && node --check lib/twitch.cjs && node --check lib/db.cjs && node --check lib/auth.cjs && node --check lib/admin-routes.cjs",
+    "build:skipdb": "SKIP_DB_PUSH=1 npm run build",
     "start": "node server.js",
     "check": "npm run build"
   },
