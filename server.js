@@ -15,7 +15,6 @@ const {
   liveStreamsPayload,
 } = require("./lib/twitch.cjs");
 const db = require("./lib/db.cjs");
-const { createAdminRouter } = require("./lib/admin-routes.cjs");
 
 function loadEnv() {
   const envPath = path.join(__dirname, ".env");
@@ -50,10 +49,6 @@ const PORT = resolvePort();
 const app = express();
 
 app.use(express.json({ limit: "1mb" }));
-
-const uploadsDir = path.join(__dirname, "data", "uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-app.use("/uploads", express.static(uploadsDir));
 
 app.get("/api/health", function (req, res) {
   res.json({
@@ -91,8 +86,6 @@ app.get("/api/live-streams", async function (req, res) {
   }
 });
 
-app.use("/api/admin", createAdminRouter());
-
 app.use(express.static(__dirname));
 
 app.use(function (req, res) {
@@ -100,7 +93,6 @@ app.use(function (req, res) {
 });
 
 async function start() {
-  await db.initDb();
   const server = app.listen(PORT, "0.0.0.0", function () {
     console.log("[BRAZUG] Express online http://0.0.0.0:" + PORT);
   });
