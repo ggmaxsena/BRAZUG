@@ -14,7 +14,7 @@
   --border: #3d2c28;
   --border-gold: #6b5520;
   --font: "Segoe UI", system-ui, sans-serif;
-  --header-h: 3.5rem;
+  --header-h: 7.5rem;
 }
 
 *,
@@ -69,14 +69,42 @@ code {
   left: 0;
   right: 0;
   z-index: 100;
-  height: var(--header-h);
+  min-height: var(--header-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.25rem;
-  background: rgba(12, 8, 8, 0.92);
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+  background: rgba(12, 8, 8, 0.96);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("assets/branding/contentbra (1).png");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 90px auto;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.header-left,
+.header-center,
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.header-center {
+  flex: 1;
+  justify-content: center;
+  min-width: 320px;
 }
 
 .logo {
@@ -87,17 +115,44 @@ code {
 }
 
 .logo-img {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
-  filter: drop-shadow(0 0 8px rgba(196, 30, 58, 0.5));
+  filter: drop-shadow(0 0 10px rgba(196, 30, 58, 0.55));
 }
 
 .logo-text {
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   color: var(--gold-light);
+}
+
+.spotify-player {
+  width: min(520px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.spotify-player-header {
+  width: min(520px, 100%);
+}
+
+.spotify-player iframe {
+  border-radius: 12px;
+  min-height: 72px;
+}
+
+.spotify-player-note {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  display: none;
+}
+
+main.scroll-root {
+  padding-top: calc(var(--header-h) + 1.5rem);
 }
 
 .header-actions {
