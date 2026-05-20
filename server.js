@@ -15,6 +15,7 @@ const {
   liveStreamsPayload,
 } = require("./lib/twitch.cjs");
 const db = require("./lib/db.cjs");
+const adminRoutes = require("./lib/admin-routes.cjs");
 
 function loadEnv() {
   const envPath = path.join(__dirname, ".env");
@@ -86,6 +87,8 @@ app.get("/api/live-streams", async function (req, res) {
   }
 });
 
+app.use("/api/admin", adminRoutes.createAdminRouter());
+app.use("/uploads", express.static(path.join(__dirname, "data", "uploads")));
 app.use(express.static(__dirname));
 
 app.use(function (req, res) {
