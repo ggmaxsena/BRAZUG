@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="BRAZUG — guilda WoW Classic Era, addon de conquistas e lives da comunidade."
+    />
+    <title>BRAZUG — Guilda · Addon · Lives</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="logo" href="#guilda">BRAZUG</a>
+      <nav class="section-dots" aria-label="Seções">
+        <a href="#guilda" class="dot is-active" data-section="guilda" aria-label="Guilda"></a>
+        <a href="#addon" class="dot" data-section="addon" aria-label="Addon"></a>
+        <a href="#lives" class="dot" data-section="lives" aria-label="Lives"></a>
+      </nav>
+      <a
+        class="header-discord"
+        href="https://discord.gg/3KChDhux2D"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Discord</a
+      >
+    </header>
+
+    <main id="scroll-root" class="scroll-root">
+      <!-- 1ª seção: Guilda -->
+      <section id="guilda" class="panel panel-guild" data-panel="guilda">
+        <div class="panel-inner">
+          <p class="eyebrow">WoW Classic Era</p>
+          <h1>Guilda <span class="highlight">BRAZUG</span></h1>
+          <p class="lead">
+            Uma comunidade hardcore unida por desafios, ranking interno e
+            progressão compartilhada. Jogamos com regras claras, respeito ao
+            grupo e celebração de cada conquista.
+          </p>
+          <ul class="guild-pillars">
+            <li>Hardcore com responsabilidade</li>
+            <li>Ranking e metas de guilda</li>
+            <li>Streams e presença na Twitch</li>
+          </ul>
+          <div class="panel-actions">
+            <a
+              class="btn btn-primary"
+              href="https://discord.gg/3KChDhux2D"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Entrar no Discord</a
+            >
+            <a class="btn btn-secondary scroll-hint" href="#addon"
+              >Conhecer o addon ↓</a
+            >
+          </div>
+        </div>
+        <span class="scroll-indicator" aria-hidden="true">↓</span>
+      </section>
+
+      <!-- 2ª seção: Addon -->
+      <section id="addon" class="panel panel-addon" data-panel="addon">
+        <div class="panel-inner panel-inner-wide">
+          <p class="eyebrow">Addon oficial</p>
+          <h2>Conquistas BRAZUG no jogo</h2>
+          <p class="lead lead-left">
+            Rastreie progresso, dispute o leaderboard da guilda e registre quem
+            foi o primeiro em cada desafio — com sync P2P entre membros.
+          </p>
+          <div class="grid">
+            <article class="card">
+              <h3>Conquistas Classic</h3>
+              <p>
+                Nível, masmorra, raide, reputação e meta — com solo, duo e
+                multiplicadores hardcore.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Primeiro da guilda</h3>
+              <p>
+                Quem completa primeiro fica registrado para toda a guilda via
+                sincronização entre clientes.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Leaderboard</h3>
+              <p>
+                Ranking de pontos e progresso visível no painel do addon.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Instalação</h3>
+              <p>
+                Pasta <code>BRAZUG</code> em
+                <code>Interface\AddOns\</code> — comando
+                <code>/brazug</code> no jogo.
+              </p>
+            </article>
+          </div>
+          <p class="version">
+            Versão <span id="addon-version">1.8.8</span> · dados em
+            <code>HardcoreAchievementsDB</code>
+          </p>
+        </div>
+        <span class="scroll-indicator" aria-hidden="true">↓</span>
+      </section>
+
+      <!-- 3ª seção: Streamers -->
+      <section id="lives" class="panel panel-lives" data-panel="lives">
+        <div class="panel-inner panel-inner-wide">
+          <p class="eyebrow">Ao vivo agora</p>
+          <h2>Streams <span class="highlight">&lt;BRAZUG&gt;</span></h2>
+          <p class="lead lead-left">
+            Canais online com <code>&lt;BRAZUG&gt;</code> no título da live.
+            Atualização automática a cada minuto.
+          </p>
+
+          <div id="streams-status" class="streams-status" role="status">
+            Buscando lives…
+          </div>
+
+          <ul id="streams-list" class="streams-list" hidden></ul>
+
+          <p id="streams-empty" class="streams-empty" hidden>
+            Ninguém ao vivo com <code>&lt;BRAZUG&gt;</code> no título no momento.
+            Coloque a tag no título da sua live para aparecer aqui.
+          </p>
+
+          <p id="streams-error" class="streams-error" hidden></p>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/scroll.js"></script>
+    <script src="js/streams.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

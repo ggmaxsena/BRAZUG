@@ -1,0 +1,61 @@
+# Deploy Node na Hostinger (VPS / SSH + PM2).
+#
+# Secrets: SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, DEPLOY_PATH,
+#          TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
+# Opcional: SSH_PORT, APP_PORT
+
+name: Deploy (Hostinger)
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enviar arquivos (SCP)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "index.html,server.mjs,package.json,ecosystem.config.cjs,css,js,lib,assets"
+          target: ${{ secrets.DEPLOY_PATH }}
+          rm: false
+
+      - name: Reiniciar app Node (PM2)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ secrets.DEPLOY_PATH }}"
+            umask 077
+            printf '%s\n' \
+              "TWITCH_CLIENT_ID=${{ secrets.TWITCH_CLIENT_ID }}" \
+              "TWITCH_CLIENT_SECRET=${{ secrets.TWITCH_CLIENT_SECRET }}" \
+              "PORT=${{ secrets.APP_PORT || '3000' }}" \
+              "NODE_ENV=production" > .env
+            chmod 600 .env
+            export PATH="$HOME/.nvm/versions/node/$(ls $HOME/.nvm/versions/node 2>/dev/null | tail -1)/bin:$PATH:/usr/local/bin:$PATH"
+            if ! command -v node >/dev/null 2>&1; then
+              echo "Node não encontrado. Instale Node 18+ na Hostinger."
+              exit 1
+            fi
+            node --version
+            npm run check
+            if command -v pm2 >/dev/null 2>&1; then
+              pm2 reload ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
+              pm2 save
+            else
+              nohup node server.mjs >> app.log 2>&1 &
+            fi
