@@ -46,17 +46,7 @@ npm install
 
 ## Configuração
 
-Crie um arquivo `.env` na raiz do projeto com as variáveis necessárias:
 
-```dotenv
-TWITCH_CLIENT_ID=seu_client_id
-TWITCH_CLIENT_SECRET=seu_client_secret
-ADMIN_PASSWORD=senha_forte_admin_aqui
-NODE_ENV=production
-PORT=3002
-MONGODB_DB=Brazug
-MONGODB_URI=mongodb+srv://usuario:senha@cluster.mongodb.net/Brazug?retryWrites=true&w=majority
-```
 
 ### Notas
 
