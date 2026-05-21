@@ -63,6 +63,8 @@ app.get("/api/health", function (req, res) {
     twitch: !!(
       process.env.TWITCH_CLIENT_ID && process.env.TWITCH_CLIENT_SECRET
     ),
+    database: process.env.MONGODB_URI ? "mongodb" : "json",
+    mongodb: !!process.env.MONGODB_URI,
   });
 });
 

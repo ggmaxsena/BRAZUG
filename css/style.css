@@ -76,10 +76,11 @@ code {
   gap: 1rem;
   padding: 0.9rem 1.25rem;
   background: rgba(12, 8, 8, 0.96);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
   position: relative;
   overflow: hidden;
+  flex-wrap: wrap;
 }
 
 .site-header::before {
@@ -89,8 +90,8 @@ code {
   background-image: url("assets/branding/contentbra (1).png");
   background-repeat: no-repeat;
   background-position: right center;
-  background-size: 90px auto;
-  opacity: 0.12;
+  background-size: 84px auto;
+  opacity: 0.1;
   pointer-events: none;
 }
 
@@ -101,10 +102,33 @@ code {
   align-items: center;
 }
 
+.header-left,
+.header-actions {
+  flex: 0 1 auto;
+}
+
 .header-center {
-  flex: 1;
+  flex: 1 1 320px;
   justify-content: center;
-  min-width: 320px;
+  min-width: 240px;
+}
+
+.header-discord {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  transition: background 0.2s, transform 0.2s, border-color 0.2s;
+}
+
+.header-discord:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--gold-light);
 }
 
 .logo {
@@ -129,29 +153,32 @@ code {
 }
 
 .spotify-player {
-  width: min(520px, 100%);
+  width: min(560px, 100%);
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
+  margin: 0 auto;
 }
 
 .spotify-player-header {
-  width: min(520px, 100%);
+  width: min(560px, 100%);
 }
 
 .spotify-player iframe {
-  border-radius: 12px;
+  border-radius: 16px;
   min-height: 72px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
 }
 
 .spotify-player-note {
   margin: 0;
   font-size: 0.82rem;
   color: var(--text-muted);
-  display: none;
+  opacity: 0.9;
 }
 
 main.scroll-root {
+  min-height: 100vh;
   padding-top: calc(var(--header-h) + 1.5rem);
 }
 
@@ -215,7 +242,7 @@ main.scroll-root {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--header-h) + 1.5rem) 1.5rem 3rem;
+  padding: calc(var(--header-h) + 1.25rem) 1.25rem 2.5rem;
 }
 
 .panel-guild {
@@ -392,8 +419,8 @@ main.scroll-root {
 
 /* Mural */
 .mural-inner {
-  max-height: calc(100vh - var(--header-h) - 2rem);
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
   padding-bottom: 2rem;
 }
 
@@ -416,14 +443,17 @@ main.scroll-root {
 .mural-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 18px;
   overflow: hidden;
-  transition: border-color 0.2s, transform 0.2s;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
 }
 
-.mural-card:hover {
+.mural-card:hover,
+.mural-card:focus-within {
   border-color: var(--border-gold);
   transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
 }
 
 .mural-card-img {
@@ -696,22 +726,89 @@ main.scroll-root {
   overflow: hidden;
 }
 
+@media (max-width: 900px) {
+  .site-header {
+    padding: 0.85rem 1rem;
+    justify-content: center;
+  }
+
+  .header-left,
+  .header-actions,
+  .header-center {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .header-center {
+    order: 3;
+    margin-top: 0.4rem;
+  }
+
+  .site-header::before {
+    background-position: center top;
+    background-size: 70px auto;
+    opacity: 0.08;
+  }
+
+  .panel {
+    padding: calc(var(--header-h) + 1rem) 1rem 1.8rem;
+  }
+
+  .mural-grid,
+  .streams-list {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+
+  .panel h1,
+  .panel h2 {
+    font-size: clamp(1.75rem, 6vw, 2.2rem);
+  }
+}
+
 @media (max-width: 600px) {
-  .header-actions .header-link {
+  .site-header {
+    padding: 0.7rem 0.9rem;
+    gap: 0.75rem;
+  }
+
+  .logo-text {
+    font-size: 1.1rem;
+  }
+
+  .spotify-player iframe {
+    min-height: 64px;
+  }
+
+  .spotify-player-note {
     display: none;
   }
 
-  .guild-pillars {
-    flex-direction: column;
-    align-items: center;
+  .mural-card-body {
+    padding: 0.95rem 1rem 1rem;
   }
 
-  .panel-actions {
-    flex-direction: column;
+  .panel {
+    padding: calc(var(--header-h) + 1rem) 0.85rem 1.5rem;
+  }
+
+  .panel-inner,
+  .panel-inner-wide {
     width: 100%;
   }
 
-  .panel-actions .btn {
-    text-align: center;
+  .mural-card-title {
+    font-size: 1.15rem;
+  }
+
+  .mural-card-text {
+    -webkit-line-clamp: 5;
+  }
+
+  .stream-body {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .stream-title {
+    font-size: 0.84rem;
   }
 }
