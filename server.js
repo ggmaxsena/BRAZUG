@@ -89,9 +89,11 @@ const PORT = resolvePort();
 
 const app = express();
 
-app.use(express.json({
-  limit: "10mb",
-}));
+app.use(
+  express.json({
+    limit: "10mb",
+  })
+);
 
 /* =========================================
    ENSURE UPLOADS FOLDER
@@ -160,60 +162,100 @@ app.get("/api/health", function (req, res) {
 });
 
 /* =========================================
-   ADVENTURES
+   PUBLIC ADVENTURES
 ========================================= */
 
 app.get("/api/adventures", async function (req, res) {
   try {
-    const adventures =
-      await db.listAdventures(true);
+    const shadowKey = String(
+      req.query.shadow || ""
+    )
+      .trim()
+      .toLowerCase();
+
+    const showShadow =
+      shadowKey ===
+      "que as sombras mostram meu destino";
+
+    /*
+      IMPORTANTÍSSIMO:
+      pega TODAS do banco
+    */
+
+    let adventures =
+      await db.listAdventures(
+        true,
+        null
+      );
+
+    adventures = adventures.filter(
+      function (a) {
+
+        const visibility =
+          String(
+            a.visibility || "public"
+          ).toLowerCase();
+
+        /*
+          MODO SOMBRAS
+        */
+
+        if (showShadow) {
+          return visibility === "shadow";
+        }
+
+        /*
+          MODO NORMAL
+        */
+
+        return visibility !== "shadow";
+      }
+    );
 
     res.json({
-      ok: true,
-      total: adventures.length,
       adventures: adventures,
     });
 
   } catch (err) {
     console.error(
       "[BRAZUG] adventures:",
-      err
+      err.message
     );
 
     res.status(500).json({
-      ok: false,
       error: err.message,
       adventures: [],
     });
   }
 });
-
 /* =========================================
    LIVE STREAMS
 ========================================= */
 
-app.get("/api/live-streams", async function (req, res) {
-  try {
-    const streams =
-      await collectBrazugStreams();
+app.get(
+  "/api/live-streams",
+  async function (req, res) {
+    try {
+      const streams =
+        await collectBrazugStreams();
 
-    res.json(
-      liveStreamsPayload(streams)
-    );
+      res.json(
+        liveStreamsPayload(streams)
+      );
+    } catch (err) {
+      console.error(
+        "[BRAZUG] live-streams:",
+        err
+      );
 
-  } catch (err) {
-    console.error(
-      "[BRAZUG] live-streams:",
-      err
-    );
-
-    res.status(500).json({
-      error: err.message,
-      streams: [],
-      ...liveStreamsPayload([]),
-    });
+      res.status(500).json({
+        error: err.message,
+        streams: [],
+        ...liveStreamsPayload([]),
+      });
+    }
   }
-});
+);
 
 /* =========================================
    ADMIN
@@ -245,7 +287,7 @@ async function start() {
     function () {
       console.log(
         "[BRAZUG] Express online http://0.0.0.0:" +
-        PORT
+          PORT
       );
     }
   );
