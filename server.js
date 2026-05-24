@@ -126,7 +126,10 @@ app.use(
    ENSURE UPLOADS FOLDER
 ========================================= */
 
-const uploadsDir = path.resolve(__dirname, "data", "uploads");
+// Verifica se existe a pasta de uploads fora da pasta nodejs (para persistência no deploy)
+const externalUploads = path.resolve(__dirname, "..", "uploads");
+const internalUploads = path.resolve(__dirname, "data", "uploads");
+const uploadsDir = fs.existsSync(externalUploads) ? externalUploads : internalUploads;
 
 try {
   if (!fs.existsSync(uploadsDir)) {
