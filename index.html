@@ -41,6 +41,21 @@
           <div id="mural-grid" class="mural-grid" hidden></div>
           <p id="mural-empty" class="mural-empty" hidden>Nenhuma aventura publicada ainda.</p>
         </div>
+
+        <!-- MODAL DAS AVENTURAS (NECESSÁRIO PARA MURAL.JS) -->
+        <div id="mural-modal" class="mural-modal" hidden>
+          <div class="mural-modal-backdrop" data-action="close"></div>
+          <div class="mural-modal-panel" role="dialog" aria-modal="true">
+            <button type="button" class="mural-modal-close" data-action="close">×</button>
+            <div class="mural-modal-image-wrap"><img id="mural-modal-img" class="mural-modal-img" src="" alt="" /></div>
+            <div class="mural-modal-copy">
+              <p id="mural-modal-date" class="mural-modal-date"></p>
+              <h2 id="mural-modal-title" class="mural-modal-title"></h2>
+              <p id="mural-modal-body" class="mural-modal-body"></p>
+              <p id="mural-modal-author" class="mural-modal-author"></p>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section id="herois" class="panel panel-herois" data-panel="herois">
@@ -65,22 +80,5 @@
     <script src="/js/mural.js"></script>
     <script src="/js/streams.js"></script>
     <script src="/js/heroes-mural.js"></script>
-    <script>
-      (function () {
-        'use strict';
-        var SECRET_PHRASE = 'que as sombras mostram meu destino';
-        var input = document.createElement('input'); // Just to keep the search logic if needed
-        async function loadShadows() {
-          try {
-            var res = await fetch('/api/adventures?shadow=' + encodeURIComponent(SECRET_PHRASE));
-            var data = await res.json();
-            var list = data.adventures || [];
-            if (!list.length) return;
-            document.getElementById('shadow-grid').innerHTML = list.map(a => '<article class="mural-card"><h3>'+a.title+'</h3><p>'+a.body+'</p></article>').join('');
-            document.getElementById('shadow-panel').hidden = false;
-          } catch (err) { console.error(err); }
-        }
-      })();
-    </script>
   </body>
 </html>

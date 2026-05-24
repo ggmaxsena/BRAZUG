@@ -27,6 +27,7 @@
                     <span></span><span></span><span></span>
                 </button>
             </div>
+            
             <nav class="header-nav" id="header-nav">
                 <ul class="nav-list">
                     <li><a href="/#lives" class="nav-link">Lives</a></li>
@@ -35,6 +36,21 @@
                     ${authItems}
                 </ul>
             </nav>
+
+            <div class="header-center">
+                <div class="spotify-player spotify-player-header">
+                  <iframe
+                    title="Spotify player"
+                    src="https://open.spotify.com/embed/playlist/7dHRaqukEPMaQZSESR5v4C?utm_source=generator&autoplay=1"
+                    width="100%"
+                    height="80"
+                    frameborder="0"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"
+                  ></iframe>
+                </div>
+            </div>
+
             <div class="header-actions">
                 <a class="header-discord" href="https://discord.gg/2Qt92YqjG" target="_blank" rel="noopener noreferrer">Discord</a>
             </div>

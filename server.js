@@ -152,6 +152,7 @@ app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "index.html")));
 app.get("/admin.html", (req, res) => res.sendFile(path.resolve(__dirname, "admin.html")));
 app.get("/ficha.html", (req, res) => res.sendFile(path.resolve(__dirname, "ficha.html")));
+app.get("/personagem.html", (req, res) => res.sendFile(path.resolve(__dirname, "personagem.html")));
 
 /* =========================================
    HEALTH
