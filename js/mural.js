@@ -1,9 +1,14 @@
 (function () {
   "use strict";
 
+  /* =========================================
+     ELEMENTS
+  ========================================= */
+
   var statusEl = document.getElementById("mural-status");
   var gridEl = document.getElementById("mural-grid");
   var emptyEl = document.getElementById("mural-empty");
+
   var modalEl = document.getElementById("mural-modal");
   var modalImg = document.getElementById("mural-modal-img");
   var modalTitle = document.getElementById("mural-modal-title");
@@ -13,74 +18,151 @@
 
   var adventuresCache = [];
 
-  if (!statusEl || !gridEl || !modalEl) return;
+  if (
+    !statusEl ||
+    !gridEl ||
+    !emptyEl ||
+    !modalEl
+  ) {
+    console.error("[BRAZUG] mural elements missing");
+    return;
+  }
+
+  /* =========================================
+     HELPERS
+  ========================================= */
 
   function escapeHtml(str) {
     var div = document.createElement("div");
-    div.textContent = str;
+
+    div.textContent = String(str || "");
+
     return div.innerHTML;
   }
 
-  function formatDate(iso) {
-    if (!iso) return "";
+  function formatDate(dateString) {
+    if (!dateString) {
+      return "";
+    }
+
     try {
-      var d = new Date(iso + "T12:00:00");
-      return d.toLocaleDateString("pt-BR", {
+      var date = new Date(dateString + "T12:00:00");
+
+      return date.toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "short",
         year: "numeric",
       });
-    } catch (e) {
-      return iso;
+    } catch (err) {
+      return dateString;
     }
   }
 
-  function renderCard(a) {
-    var imgBlock = a.image_url
-      ? '<img class="mural-card-img" src="' +
-        escapeHtml(a.image_url) +
-        '" alt="' +
-        escapeHtml(a.title) +
-        '" loading="lazy" />'
-      : '<div class="mural-card-img placeholder" aria-hidden="true"></div>';
+  function getImageUrl(url) {
+    if (!url) {
+      return "";
+    }
+
+    return String(url).trim();
+  }
+
+  /* =========================================
+     CARD
+  ========================================= */
+
+  function renderCard(adventure) {
+    var imageUrl = getImageUrl(adventure.image_url);
+
+    var imageBlock = imageUrl
+      ? (
+          '<img ' +
+          'class="mural-card-img" ' +
+          'src="' + escapeHtml(imageUrl) + '" ' +
+          'alt="' + escapeHtml(adventure.title || "Aventura") + '" ' +
+          'loading="lazy" />'
+        )
+      : (
+          '<div class="mural-card-img placeholder"></div>'
+        );
 
     return (
-      '<article class="mural-card" data-adventure-id="' +
-      escapeHtml(String(a.id)) +
+      '<article class="mural-card" ' +
+      'data-adventure-id="' +
+      escapeHtml(adventure.id) +
       '">' +
-      imgBlock +
+
+      imageBlock +
+
       '<div class="mural-card-body">' +
+
       '<p class="mural-card-meta">' +
-      escapeHtml(formatDate(a.event_date)) +
+      escapeHtml(formatDate(adventure.event_date)) +
       "</p>" +
-      "<h3 class=\"mural-card-title\">" +
-      escapeHtml(a.title) +
+
+      '<h3 class="mural-card-title">' +
+      escapeHtml(adventure.title || "Sem título") +
       "</h3>" +
+
       '<p class="mural-card-text">' +
-      escapeHtml(a.body) +
+      escapeHtml(adventure.body || "") +
       "</p>" +
-      (a.author
-        ? '<p class="mural-card-author">— ' + escapeHtml(a.author) + "</p>"
-        : "") +
-      "</div></article>"
+
+      (
+        adventure.author
+          ? (
+              '<p class="mural-card-author">' +
+              "— " +
+              escapeHtml(adventure.author) +
+              "</p>"
+            )
+          : ""
+      ) +
+
+      "</div>" +
+      "</article>"
     );
   }
 
+  /* =========================================
+     MODAL
+  ========================================= */
+
   function openModal(adventure) {
-    if (!adventure) return;
-    modalImg.src = adventure.image_url || "";
-    modalImg.alt = adventure.title ? escapeHtml(adventure.title) : "Aventura";
-    modalTitle.textContent = adventure.title || "Aventura";
-    modalDate.textContent = formatDate(adventure.event_date);
-    modalBody.textContent = adventure.body || "";
-    modalAuthor.textContent = adventure.author ? "— " + adventure.author : "";
+    if (!adventure) {
+      return;
+    }
+
+    var imageUrl = getImageUrl(adventure.image_url);
+
+    modalImg.src = imageUrl || "";
+
+    modalImg.alt =
+      adventure.title || "Aventura";
+
+    modalTitle.textContent =
+      adventure.title || "Aventura";
+
+    modalDate.textContent =
+      formatDate(adventure.event_date);
+
+    modalBody.textContent =
+      adventure.body || "";
+
+    modalAuthor.textContent =
+      adventure.author
+        ? "— " + adventure.author
+        : "";
+
     modalEl.hidden = false;
+
     document.body.style.overflow = "hidden";
   }
 
   function closeModal() {
     modalEl.hidden = true;
+
     modalImg.src = "";
+
     document.body.style.overflow = "";
   }
 
@@ -90,56 +172,128 @@
     });
   }
 
+  /* =========================================
+     EVENTS
+  ========================================= */
+
   gridEl.addEventListener("click", function (event) {
-    var cardEl = event.target.closest(".mural-card");
-    if (!cardEl) return;
-    var id = cardEl.getAttribute("data-adventure-id");
-    var adventure = findAdventureById(id);
+    var card = event.target.closest(".mural-card");
+
+    if (!card) {
+      return;
+    }
+
+    var id =
+      card.getAttribute("data-adventure-id");
+
+    var adventure =
+      findAdventureById(id);
+
     if (adventure) {
       openModal(adventure);
     }
   });
 
   modalEl.addEventListener("click", function (event) {
-    var action = event.target.getAttribute("data-action");
+    var action =
+      event.target.getAttribute("data-action");
+
     if (action === "close") {
       closeModal();
     }
   });
 
   document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && !modalEl.hidden) {
+    if (
+      event.key === "Escape" &&
+      !modalEl.hidden
+    ) {
       closeModal();
     }
   });
 
+  /* =========================================
+     LOAD FROM DATABASE
+  ========================================= */
+
   async function loadMural() {
-    statusEl.textContent = "Carregando mural…";
     statusEl.hidden = false;
+    statusEl.textContent = "Carregando mural...";
+
     gridEl.hidden = true;
     emptyEl.hidden = true;
 
     try {
-      var res = await fetch("/api/adventures");
-      var data = await res.json();
-      var list = data.adventures || [];
-      adventuresCache = list;
+      var response = await fetch(
+        "/api/adventures",
+        {
+          method: "GET",
+          headers: {
+            "Accept": "application/json",
+          },
+        }
+      );
 
-      if (!list.length) {
+      if (!response.ok) {
+        throw new Error(
+          "API returned " + response.status
+        );
+      }
+
+      var data = await response.json();
+
+      console.log(
+        "[BRAZUG] adventures:",
+        data
+      );
+
+      var adventures =
+        Array.isArray(data.adventures)
+          ? data.adventures
+          : [];
+
+      adventuresCache = adventures;
+
+      if (!adventures.length) {
         statusEl.hidden = true;
+
         emptyEl.hidden = false;
+
         return;
       }
 
-      gridEl.innerHTML = list.map(renderCard).join("");
-      statusEl.textContent = list.length + " aventura(s) no mural";
-      statusEl.hidden = false;
+      gridEl.innerHTML =
+        adventures
+          .map(renderCard)
+          .join("");
+
       gridEl.hidden = false;
+
+      statusEl.hidden = false;
+
+      statusEl.textContent =
+        adventures.length === 1
+          ? "1 aventura no mural"
+          : adventures.length +
+            " aventuras no mural";
+
     } catch (err) {
-      statusEl.textContent = "Erro ao carregar o mural.";
-      console.error(err);
+      console.error(
+        "[BRAZUG] mural load failed:",
+        err
+      );
+
+      statusEl.hidden = false;
+
+      statusEl.textContent =
+        "Erro ao carregar mural.";
     }
   }
 
+  /* =========================================
+     START
+  ========================================= */
+
   loadMural();
+
 })();
