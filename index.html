@@ -20,7 +20,21 @@
 
           <span class="logo-text">BRAZUG</span>
         </a>
+
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
+
+      <nav class="header-nav" id="header-nav">
+        <ul class="nav-list">
+          <li><a href="#lives" class="nav-link">Lives</a></li>
+          <li><a href="#mural" class="nav-link">Mural</a></li>
+          <li><a href="/admin.html" class="nav-link">Login</a></li>
+        </ul>
+      </nav>
 
       <div class="header-center">
         <div class="spotify-player spotify-player-header">
@@ -182,7 +196,7 @@
 
         async function loadShadows() {
           try {
-            var res = await fetch('/api/adventures?visibility=secret');
+            var res = await fetch('/api/adventures?shadow=' + encodeURIComponent(SECRET_PHRASE));
 
             var data = await res.json();
 

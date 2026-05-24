@@ -20,7 +20,34 @@ const {
 } = require("./lib/twitch.cjs");
 
 const db = require("./lib/db.cjs");
+const auth = require("./lib/auth.cjs");
 const adminRoutes = require("./lib/admin-routes.cjs");
+
+/* =========================================
+   INITIALIZATION
+========================================= */
+
+async function ensureAdminUser() {
+  try {
+    const users = await db.listUsers();
+    
+    if (users.length === 0) {
+      const defaultPassword = process.env.ADMIN_PASSWORD || "admin123";
+      
+      console.log("[BRAZUG] No users found. Creating default 'admin' user...");
+      
+      await db.createUser({
+        username: "admin",
+        password: auth.hashPassword(defaultPassword),
+        role: "admin"
+      });
+      
+      console.log("[BRAZUG] Default admin user created successfully.");
+    }
+  } catch (err) {
+    console.error("[BRAZUG] Failed to ensure admin user:", err.message);
+  }
+}
 
 /* =========================================
    ENV
@@ -130,7 +157,14 @@ app.use(
   express.static(uploadsDir)
 );
 
-app.use(express.static(__dirname));
+// Servir apenas pastas específicas de assets
+app.use("/css", express.static(path.join(__dirname, "css")));
+app.use("/js", express.static(path.join(__dirname, "js")));
+app.use("/assets", express.static(path.join(__dirname, "assets")));
+
+// Servir arquivos HTML específicos
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/admin.html", (req, res) => res.sendFile(path.join(__dirname, "admin.html")));
 
 /* =========================================
    HEALTH
@@ -139,25 +173,8 @@ app.use(express.static(__dirname));
 app.get("/api/health", function (req, res) {
   res.json({
     ok: true,
-
-    port: PORT,
-
-    node: process.version,
-
-    admin: !!process.env.ADMIN_PASSWORD,
-
-    twitch: !!(
-      process.env.TWITCH_CLIENT_ID &&
-      process.env.TWITCH_CLIENT_SECRET
-    ),
-
-    database: process.env.MONGODB_URI
-      ? "mongodb"
-      : "json",
-
-    mongodb: !!process.env.MONGODB_URI,
-
-    uploads: uploadsDir,
+    status: "online",
+    database: process.env.MONGODB_URI ? "mongodb" : "json"
   });
 });
 
@@ -281,6 +298,8 @@ app.use(function (req, res) {
 ========================================= */
 
 async function start() {
+  await ensureAdminUser();
+
   const server = app.listen(
     PORT,
     "0.0.0.0",
