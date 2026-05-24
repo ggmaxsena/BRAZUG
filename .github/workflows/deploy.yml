@@ -2,7 +2,8 @@
 #
 # Secrets: SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, DEPLOY_PATH,
 #          TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, MONGODB_URI
-# Opcional: SSH_PORT, APP_PORT, ADMIN_PASSWORD, MONGODB_DB
+# Opcional: SSH_PORT, APP_PORT, ADMIN_PASSWORD, MONGODB_DB,
+#           MONGODB_URI_STANDARD (recomendado na Hostinger se SRV falhar)
 
 name: Deploy (Hostinger)
 
@@ -53,6 +54,7 @@ jobs:
             set_env TWITCH_CLIENT_ID "${{ secrets.TWITCH_CLIENT_ID }}"
             set_env TWITCH_CLIENT_SECRET "${{ secrets.TWITCH_CLIENT_SECRET }}"
             set_env MONGODB_URI "${{ secrets.MONGODB_URI }}"
+            set_env MONGODB_URI_STANDARD "${{ secrets.MONGODB_URI_STANDARD }}"
             set_env MONGODB_DB "${{ secrets.MONGODB_DB }}"
             set_env ADMIN_PASSWORD "${{ secrets.ADMIN_PASSWORD }}"
             set_env PORT "${{ secrets.APP_PORT || '3000' }}"
@@ -64,6 +66,7 @@ jobs:
               exit 1
             fi
             node --version
+            npm ci --omit=dev 2>/dev/null || npm install --omit=dev
             npm run check
             if command -v pm2 >/dev/null 2>&1; then
               pm2 reload ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs

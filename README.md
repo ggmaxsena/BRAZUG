@@ -75,14 +75,38 @@ npm install
 
 ## Deploy
 
-O projeto pode ser hospedado em qualquer serviço Node.js compatível. No Hostinger, por exemplo:
+O projeto pode ser hospedado em qualquer serviço Node.js compatível. No Hostinger:
 
-- `Entry` / `Start script`: `server.js`
-- `Output` / `Public directory`: `.`
-- `Build command`: `npm run build`
+| Campo | Valor |
+|--------|--------|
+| Entry / Start | `server.js` |
+| Root / Output | `.` |
+| **Build** | `npm install && npm run build` |
+| **Start** | `npm start` |
+
+### Variáveis de ambiente (painel Hostinger)
+
+| Nome | Obrigatório | Exemplo |
+|------|-------------|---------|
+| `MONGODB_URI` | Sim* | `mongodb+srv://user:senha@cluster0.xxx.mongodb.net/Brazug?...` |
+| `MONGODB_URI_STANDARD` | Se SRV falhar | URI **Standard** do Atlas (`mongodb://...:27017,...`) |
+| `MONGODB_DB` | Não | `Brazug` |
+| `TWITCH_CLIENT_ID` | Sim (streams) | — |
+| `TWITCH_CLIENT_SECRET` | Sim (streams) | — |
+| `ADMIN_PASSWORD` | Recomendado | senha do admin inicial |
+
+\* Ou só `MONGODB_URI_STANDARD` se preferir.
+
+### Checklist Hostinger × Atlas
+
+1. **Conexão recusada / ENOTFOUND** — Atlas → **Network Access** → `0.0.0.0/0`. Na Hostinger, use `MONGODB_URI_STANDARD` (`npm run mongo:standard-uri` no PC).
+2. **Falha na autenticação** — Senha do usuário em **Database Access** (não a senha da conta Atlas). Caracteres especiais na senha devem ser URL-encoded na URI.
+3. **Módulo não encontrado: mongodb** — Build deve rodar `npm install` (não só `npm run build`).
+4. **Variável indefinida** — Salvar `MONGODB_URI` em **Implantações → Variáveis de ambiente** e reiniciar o app.
+
+Teste: `GET /api/health` → `"mongo": { "ok": true }`.
 
 ## Observações
 
 - A página principal usa JavaScript para carregar aventuras e streams dinamicamente.
-- O `package.json` define `node >=18`.
-- Em produção, configure `MONGODB_URI` no painel Hostinger (Node.js → Environment variables) com a connection string copiada do Atlas.
+- O `package.json` define `node >=18` e inclui `mongodb` nas dependências.
