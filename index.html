@@ -175,8 +175,9 @@
         }
 
         function renderCard(a) {
+          var fallback = a.image_data || "";
           var image = a.image_url
-            ? '<img class="mural-card-img" src="' + escapeHtml(a.image_url) + '">'
+            ? '<img class="mural-card-img" src="' + escapeHtml(a.image_url) + '" data-fallback-src="' + escapeHtml(fallback) + '" onerror="if(window._muralFallback) window._muralFallback(this)">'
             : '<div class="mural-card-img placeholder"></div>';
 
           return (

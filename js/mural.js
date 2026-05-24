@@ -32,6 +32,15 @@
      HELPERS
   ========================================= */
 
+  window._muralFallback = function(img) {
+    var backup = img.getAttribute("data-fallback-src");
+    if (backup && backup.startsWith("data:image") && !img.dataset.fallbackApplied) {
+      img.src = backup;
+      img.dataset.fallbackApplied = "true";
+      console.log("[BRAZUG] Imagem recuperada via backup (Base64)");
+    }
+  };
+
   function escapeHtml(str) {
     var div = document.createElement("div");
 
@@ -72,12 +81,15 @@
 
   function renderCard(adventure) {
     var imageUrl = getImageUrl(adventure.image_url);
+    var fallbackData = adventure.image_data || "";
 
     var imageBlock = imageUrl
       ? (
           '<img ' +
           'class="mural-card-img" ' +
           'src="' + escapeHtml(imageUrl) + '" ' +
+          'data-fallback-src="' + escapeHtml(fallbackData) + '" ' +
+          'onerror="_muralFallback(this)" ' +
           'alt="' + escapeHtml(adventure.title || "Aventura") + '" ' +
           'loading="lazy" />'
         )
@@ -133,6 +145,14 @@
     }
 
     var imageUrl = getImageUrl(adventure.image_url);
+    var fallbackData = adventure.image_data || "";
+
+    // Reset fallback state for modal image
+    delete modalImg.dataset.fallbackApplied;
+    modalImg.setAttribute("data-fallback-src", fallbackData);
+    modalImg.onerror = function() {
+      window._muralFallback(modalImg);
+    };
 
     modalImg.src = imageUrl || "";
 
