@@ -1,0 +1,33 @@
+# Apenas PostgreSQL na VPS. O site (Node) roda na Hostinger ou localmente.
+#
+# Na VPS:
+#   cp .env.db.example .env
+#   docker compose up -d
+#
+# No app (Hostinger): DATABASE_URL=postgresql://user:senha@IP_DA_VPS:5432/brazug
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PUBLISH:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-brazug}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:-brazug}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-brazug} -d ${POSTGRES_DB:-brazug}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

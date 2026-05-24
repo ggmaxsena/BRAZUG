@@ -10,12 +10,14 @@
     "build": "node --check server.js && node --check lib/twitch.cjs && node --check lib/db.cjs && node --check lib/auth.cjs && node --check lib/admin-routes.cjs",
     "start": "node server.js",
     "check": "npm run build",
-    "mongo:standard-uri": "node scripts/print-mongo-standard-uri.cjs"
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f db"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "express": "^4.21.2",
-    "mongodb": "^7.2.0",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.16.0"
   }
 }

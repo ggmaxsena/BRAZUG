@@ -105,7 +105,7 @@ function resolvePort() {
     }
   }
 
-  return Number(process.env.PORT) || 3002;
+  return Number(process.env.PORT) || 3000;
 }
 
 const PORT = resolvePort();
@@ -157,13 +157,13 @@ app.get("/admin.html", (req, res) => res.sendFile(path.resolve(__dirname, "admin
 ========================================= */
 
 app.get("/api/health", async function (req, res) {
-  const mongo = await db.pingMongo();
+  const postgres = await db.pingPostgres();
 
   res.json({
-    ok: mongo.ok,
+    ok: postgres.ok,
     status: "online",
-    database: "mongodb",
-    mongo: mongo,
+    database: "postgresql",
+    postgres: postgres,
   });
 });
 
@@ -216,17 +216,9 @@ app.get("/api/adventures", async function (req, res) {
       err
     );
 
-    const msg = String(err.message || "");
-    const hint = /ssl|tls|alert number 80/i.test(msg)
-      ? "Libere o IP da Hostinger no Atlas (Network Access → Add IP → Allow from anywhere 0.0.0.0/0)."
-      : /enotfound|querysrv/i.test(msg)
-        ? "Confira MONGODB_URI no painel Hostinger ou use MONGODB_URI_STANDARD (connection string Standard do Atlas)."
-        : null;
-
     res.status(500).json({
       error: "Erro interno ao carregar aventuras",
       details: err.message,
-      hint: hint,
       adventures: [],
     });
   }
@@ -284,6 +276,7 @@ app.use(function (req, res) {
 ========================================= */
 
 async function start() {
+  await db.init();
   await ensureAdminUser();
 
   const server = app.listen(
@@ -339,3 +332,15 @@ process.on(
     );
   }
 );
+
+process.on("SIGTERM", function () {
+  db.closePool().finally(function () {
+    process.exit(0);
+  });
+});
+
+process.on("SIGINT", function () {
+  db.closePool().finally(function () {
+    process.exit(0);
+  });
+});

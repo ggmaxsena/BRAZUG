@@ -1,10 +1,27 @@
 node_modules/
 dist/
+
+# Segredos (app Hostinger + Postgres na VPS)
 .env
-data/*.db
+.env.*
+!.env.example
+!.env.db.example
+
+# Dados locais / VPS
 data/uploads/*
 !data/uploads/.gitkeep
-.DS_Store
-Thumbs.db
+data/postgres/
+pgdata/
+
+# Docker (volume bind ou dumps na VPS)
+docker-data/
+*.sql.gz
+*.dump
+
+# Logs
 *.log
 app.log
+npm-debug.log*
+
+.DS_Store
+Thumbs.db
