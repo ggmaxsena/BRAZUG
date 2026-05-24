@@ -14,7 +14,7 @@
   var authTitle = document.getElementById("auth-title");
   var authHint = document.getElementById("auth-hint");
   var btnLogout = document.getElementById("btn-logout");
-  
+
   // Header user display
   var userBadge = document.getElementById("user-badge");
   var userDisplayName = document.getElementById("user-display-name");
@@ -67,11 +67,11 @@
   function showDashboard(show) {
     var role = getRole();
     var username = getUsername();
-    
+
     loginPanel.hidden = show;
     dashboardPanel.hidden = !show;
     btnLogout.hidden = !show;
-    
+
     if (userBadge) {
       userBadge.hidden = !show;
       if (show) {
@@ -83,7 +83,7 @@
     if (show) {
       // Admin only panel
       usersPanel.hidden = (role !== "admin");
-      
+
       // Guildmember can't create adventures
       if (adventurePanel) {
         adventurePanel.hidden = (role === "guildmember");
@@ -249,7 +249,7 @@
       usersList.innerHTML = "";
       list.forEach(function (u) {
         var li = document.createElement("li");
-        li.innerHTML = 
+        li.innerHTML =
           '<div class="admin-list-info">' +
           "<strong>" + escapeHtml(u.username) + "</strong>" +
           "<span>Role: " + escapeHtml(u.role) + "</span>" +
@@ -264,8 +264,8 @@
           var newPass = prompt("Digite a nova senha para o usuário '" + u.username + "':");
           if (!newPass) return;
           try {
-            await api("/users/" + u.id + "/reset-password", { 
-              method: "POST", 
+            await api("/users/" + u.id + "/reset-password", {
+              method: "POST",
               headers: authHeaders(),
               body: JSON.stringify({ password: newPass })
             });
@@ -334,7 +334,7 @@
 
       authSuccess.textContent = "Conta criada! Agora você já pode fazer login.";
       authSuccess.hidden = false;
-      
+
       // Volta para o login após 2 segundos
       setTimeout(function() {
         toggleToLogin.click();
