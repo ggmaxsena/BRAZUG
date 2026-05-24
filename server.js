@@ -126,45 +126,31 @@ app.use(
    ENSURE UPLOADS FOLDER
 ========================================= */
 
-const uploadsDir = path.join(
-  __dirname,
-  "data",
-  "uploads"
-);
+const uploadsDir = path.resolve(__dirname, "data", "uploads");
 
 try {
-  fs.mkdirSync(uploadsDir, {
-    recursive: true,
-  });
-
-  console.log(
-    "[BRAZUG] uploads dir:",
-    uploadsDir
-  );
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  console.log("[BRAZUG] uploads dir:", uploadsDir);
 } catch (err) {
-  console.error(
-    "[BRAZUG] failed to create uploads dir:",
-    err.message
-  );
+  console.error("[BRAZUG] failed to create uploads dir:", err.message);
 }
 
 /* =========================================
    STATIC FILES
 ========================================= */
 
-app.use(
-  "/uploads",
-  express.static(uploadsDir)
-);
+app.use("/uploads", express.static(uploadsDir));
 
 // Servir apenas pastas específicas de assets
-app.use("/css", express.static(path.join(__dirname, "css")));
-app.use("/js", express.static(path.join(__dirname, "js")));
-app.use("/assets", express.static(path.join(__dirname, "assets")));
+app.use("/css", express.static(path.resolve(__dirname, "css")));
+app.use("/js", express.static(path.resolve(__dirname, "js")));
+app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 
 // Servir arquivos HTML específicos
-app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
-app.get("/admin.html", (req, res) => res.sendFile(path.join(__dirname, "admin.html")));
+app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "index.html")));
+app.get("/admin.html", (req, res) => res.sendFile(path.resolve(__dirname, "admin.html")));
 
 /* =========================================
    HEALTH
