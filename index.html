@@ -37,6 +37,10 @@
       </div>
 
       <div class="header-actions">
+        <div class="shadow-search">
+          <input type="text" id="shadow-input" placeholder="..." autocomplete="off" spellcheck="false" />
+        </div>
+
         <a class="header-discord" href="https://discord.gg/2Qt92YqjG" target="_blank" rel="noopener noreferrer">
           Discord
         </a>
@@ -76,7 +80,15 @@
       </section>
 
       <!-- MURAL DE AVENTURAS -->
+      <section id="shadow-panel" class="panel panel-sombras" hidden>
+        <div class="panel-inner panel-inner-wide">
+          <p class="eyebrow">As Sombras Respondem</p>
 
+          <h2>Arquivos Ocultos</h2>
+
+          <div id="shadow-grid" class="mural-grid"></div>
+        </div>
+      </section>
       <section id="mural" class="panel panel-mural" data-panel="mural">
         <div class="panel-inner panel-inner-wide mural-inner">
           <p class="eyebrow">Crônicas da guilda</p>
@@ -124,5 +136,86 @@
 
     <script src="/js/mural.js"></script>
     <script src="/js/streams.js"></script>
+    <script>
+      (function () {
+        'use strict';
+
+        var SECRET_PHRASE = 'que as sombras mostram meu destino';
+
+        var input = document.getElementById('shadow-input');
+
+        var panel = document.getElementById('shadow-panel');
+
+        var grid = document.getElementById('shadow-grid');
+
+        if (!input || !panel || !grid) {
+          return;
+        }
+
+        function escapeHtml(str) {
+          var div = document.createElement('div');
+
+          div.textContent = str;
+
+          return div.innerHTML;
+        }
+
+        function renderCard(a) {
+          var image = a.image_url
+            ? '<img class="mural-card-img" src="' + escapeHtml(a.image_url) + '">'
+            : '<div class="mural-card-img placeholder"></div>';
+
+          return (
+            '<article class="mural-card">' +
+            image +
+            '<div class="mural-card-body">' +
+            '<h3 class="mural-card-title">' +
+            escapeHtml(a.title) +
+            '</h3>' +
+            '<p class="mural-card-text">' +
+            escapeHtml(a.body) +
+            '</p>' +
+            '</div>' +
+            '</article>'
+          );
+        }
+
+        async function loadShadows() {
+          try {
+            var res = await fetch('/api/adventures?visibility=secret');
+
+            var data = await res.json();
+
+            var list = data.adventures || [];
+
+            if (!list.length) {
+              return;
+            }
+
+            grid.innerHTML = list.map(renderCard).join('');
+
+            panel.hidden = false;
+
+            panel.scrollIntoView({
+              behavior: 'smooth',
+            });
+          } catch (err) {
+            console.error(err);
+          }
+        }
+
+        input.addEventListener('change', function () {
+          var value = input.value.trim().toLowerCase();
+
+          if (value === SECRET_PHRASE) {
+            loadShadows();
+
+            input.value = '';
+
+            input.placeholder = 'As sombras ouviram...';
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

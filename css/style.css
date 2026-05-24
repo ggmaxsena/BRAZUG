@@ -644,4 +644,32 @@ code {
   .lead {
     font-size: 1rem;
   }
+    .shadow-search input {
+      width: 180px;
+      padding: 0.65rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.25);
+      color: #888;
+      outline: none;
+      transition: all 0.25s;
+    }
+
+    .shadow-search input:focus {
+      border-color: #6f42ff;
+      color: #c7b8ff;
+      box-shadow: 0 0 20px rgba(111, 66, 255, 0.25);
+    }
+
+    .shadow-search input::placeholder {
+      color: rgba(255, 255, 255, 0.15);
+    }
+
+    .panel-sombras {
+      background:
+        radial-gradient(ellipse at center,
+          rgba(111, 66, 255, 0.08),
+          transparent 60%),
+        #0b0812;
+    }
 }
