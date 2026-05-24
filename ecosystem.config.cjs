@@ -3,7 +3,7 @@ module.exports = {
   apps: [
     {
       name: "brazug-web",
-      script: "server.mjs",
+      script: "server.js",
       cwd: __dirname,
       instances: 1,
       autorestart: true,

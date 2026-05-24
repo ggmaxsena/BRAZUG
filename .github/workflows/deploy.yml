@@ -1,8 +1,8 @@
 # Deploy Node na Hostinger (VPS / SSH + PM2).
 #
 # Secrets: SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, DEPLOY_PATH,
-#          TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET
-# Opcional: SSH_PORT, APP_PORT
+#          TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, MONGODB_URI
+# Opcional: SSH_PORT, APP_PORT, ADMIN_PASSWORD, MONGODB_DB
 
 name: Deploy (Hostinger)
 
@@ -23,7 +23,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
-          source: "index.html,server.mjs,package.json,ecosystem.config.cjs,css,js,lib,assets"
+          source: "index.html,admin.html,server.js,package.json,package-lock.json,ecosystem.config.cjs,css,js,lib,assets"
           target: ${{ secrets.DEPLOY_PATH }}
           rm: false
 
@@ -39,11 +39,24 @@ jobs:
             set -e
             cd "${{ secrets.DEPLOY_PATH }}"
             umask 077
-            printf '%s\n' \
-              "TWITCH_CLIENT_ID=${{ secrets.TWITCH_CLIENT_ID }}" \
-              "TWITCH_CLIENT_SECRET=${{ secrets.TWITCH_CLIENT_SECRET }}" \
-              "PORT=${{ secrets.APP_PORT || '3000' }}" \
-              "NODE_ENV=production" > .env
+            touch .env
+            set_env() {
+              key="$1"
+              val="$2"
+              [ -z "$val" ] && return 0
+              if grep -q "^${key}=" .env 2>/dev/null; then
+                sed -i.bak "s|^${key}=.*|${key}=${val}|" .env && rm -f .env.bak
+              else
+                printf '%s=%s\n' "$key" "$val" >> .env
+              fi
+            }
+            set_env TWITCH_CLIENT_ID "${{ secrets.TWITCH_CLIENT_ID }}"
+            set_env TWITCH_CLIENT_SECRET "${{ secrets.TWITCH_CLIENT_SECRET }}"
+            set_env MONGODB_URI "${{ secrets.MONGODB_URI }}"
+            set_env MONGODB_DB "${{ secrets.MONGODB_DB }}"
+            set_env ADMIN_PASSWORD "${{ secrets.ADMIN_PASSWORD }}"
+            set_env PORT "${{ secrets.APP_PORT || '3000' }}"
+            set_env NODE_ENV production
             chmod 600 .env
             export PATH="$HOME/.nvm/versions/node/$(ls $HOME/.nvm/versions/node 2>/dev/null | tail -1)/bin:$PATH:/usr/local/bin:$PATH"
             if ! command -v node >/dev/null 2>&1; then
@@ -56,5 +69,5 @@ jobs:
               pm2 reload ecosystem.config.cjs --update-env || pm2 start ecosystem.config.cjs
               pm2 save
             else
-              nohup node server.mjs >> app.log 2>&1 &
+              nohup node server.js >> app.log 2>&1 &
             fi
