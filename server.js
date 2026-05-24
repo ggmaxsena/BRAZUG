@@ -180,10 +180,7 @@ app.get("/api/adventures", async function (req, res) {
       shadowKey ===
       "que as sombras mostram meu destino";
 
-    /*
-      IMPORTANTÍSSIMO:
-      pega TODAS do banco
-    */
+    console.log(`[BRAZUG] Buscando aventuras públicas. Modo Sombra: ${showShadow}`);
 
     let adventures =
       await db.listAdventures(
@@ -193,23 +190,14 @@ app.get("/api/adventures", async function (req, res) {
 
     adventures = adventures.filter(
       function (a) {
-
         const visibility =
           String(
             a.visibility || "public"
           ).toLowerCase();
 
-        /*
-          MODO SOMBRAS
-        */
-
         if (showShadow) {
           return visibility === "shadow";
         }
-
-        /*
-          MODO NORMAL
-        */
 
         return visibility !== "shadow";
       }
@@ -221,12 +209,13 @@ app.get("/api/adventures", async function (req, res) {
 
   } catch (err) {
     console.error(
-      "[BRAZUG] adventures:",
-      err.message
+      "[BRAZUG] Erro crítico na rota /api/adventures:",
+      err
     );
 
     res.status(500).json({
-      error: err.message,
+      error: "Erro interno ao carregar aventuras",
+      details: err.message,
       adventures: [],
     });
   }
