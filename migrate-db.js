@@ -47,6 +47,10 @@ async function run() {
       await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS sec2_name TEXT DEFAULT ''");
       await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS sec2_300 BOOLEAN DEFAULT FALSE");
 
+      console.log("[MIGRATION] Adicionando colunas de redes sociais...");
+      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS twitch_url TEXT DEFAULT ''");
+      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS youtube_url TEXT DEFAULT ''");
+
       console.log("[MIGRATION] Criando índices...");
       await client.query("CREATE INDEX IF NOT EXISTS idx_characters_user_id ON wow_characters (user_id)");
       await client.query("CREATE INDEX IF NOT EXISTS idx_characters_visibility ON wow_characters (visibility)");

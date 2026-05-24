@@ -4,147 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="BRAZUG — Lives ao vivo com <BRAZUG> no título da stream." />
-
     <title>BRAZUG — Lives ao vivo</title>
-
     <link rel="stylesheet" href="/css/style.css" />
-
     <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
   </head>
-
   <body>
-    <header class="site-header">
-      <div class="header-left">
-        <a class="logo" href="#lives">
-          <img class="logo-img" src="/assets/branding/contentbra.png" alt="BRAZUG" width="40" height="40" />
-
-          <span class="logo-text">BRAZUG</span>
-        </a>
-
-        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </div>
-
-      <nav class="header-nav" id="header-nav">
-        <ul class="nav-list" id="nav-list">
-          <li><a href="#lives" class="nav-link">Lives</a></li>
-          <li><a href="#mural" class="nav-link">Mural</a></li>
-          <li><a href="#herois" class="nav-link">Heróis</a></li>
-          <li id="nav-auth-item"><a href="/admin.html" class="nav-link" id="nav-auth-link">Login</a></li>
-        </ul>
-      </nav>
-
-      <div class="header-center">
-        <div class="spotify-player spotify-player-header">
-          <iframe
-            title="Spotify player"
-            src="https://open.spotify.com/embed/playlist/7dHRaqukEPMaQZSESR5v4C?utm_source=generator&autoplay=1"
-            width="100%"
-            height="80"
-            frameborder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-          ></iframe>
-        </div>
-      </div>
-
-      <div class="header-actions">
-        <div class="shadow-search">
-          <input type="text" id="shadow-input" placeholder="..." autocomplete="off" spellcheck="false" />
-        </div>
-
-        <a class="header-discord" href="https://discord.gg/2Qt92YqjG" target="_blank" rel="noopener noreferrer">
-          Discord
-        </a>
-      </div>
-    </header>
+    <header class="site-header" id="universal-header"></header>
 
     <main class="scroll-root">
-      <!-- LIVES PRIMEIRO -->
-
       <section id="lives" class="panel panel-lives" data-panel="lives">
         <div class="panel-inner panel-inner-wide">
           <p class="eyebrow">Ao vivo</p>
-
-          <h2>
-            Streams
-            <span class="highlight-gold">&lt;BRAZUG&gt;</span>
-          </h2>
-
-          <p class="lead lead-left">
-            Canais ao vivo que mencionam
-            <code>&lt;BRAZUG&gt;</code>
-            no título.
-          </p>
-
+          <h2>Streams <span class="highlight-gold">&lt;BRAZUG&gt;</span></h2>
+          <p class="lead lead-left">Canais ao vivo que mencionam <code>&lt;BRAZUG&gt;</code> no título.</p>
           <div id="streams-status" class="streams-status" role="status">Buscando lives…</div>
-
           <ul id="streams-list" class="streams-list" hidden></ul>
-
-          <p id="streams-empty" class="streams-empty" hidden>
-            Ninguém ao vivo com
-            <code>&lt;BRAZUG&gt;</code>
-            no título agora.
-          </p>
-
+          <p id="streams-empty" class="streams-empty" hidden>Ninguém ao vivo com <code>&lt;BRAZUG&gt;</code> no título agora.</p>
           <p id="streams-error" class="streams-error" hidden></p>
         </div>
       </section>
 
-      <!-- MURAL DE AVENTURAS -->
       <section id="shadow-panel" class="panel panel-sombras" hidden>
         <div class="panel-inner panel-inner-wide">
           <p class="eyebrow">As Sombras Respondem</p>
-
           <h2>Arquivos Ocultos</h2>
-
           <div id="shadow-grid" class="mural-grid"></div>
         </div>
       </section>
+
       <section id="mural" class="panel panel-mural" data-panel="mural">
         <div class="panel-inner panel-inner-wide mural-inner">
           <p class="eyebrow">Crônicas da guilda</p>
-
-          <h1>
-            Mural de
-            <span class="highlight-gold"> Aventuras </span>
-          </h1>
-
+          <h1>Mural de <span class="highlight-gold"> Aventuras </span></h1>
           <p class="lead lead-left">Mortes heroicas, conquistas e histórias de guilda registradas aqui.</p>
-
           <div id="mural-status" class="mural-status" role="status">Carregando mural…</div>
-
           <div id="mural-grid" class="mural-grid" hidden></div>
-
-          <p id="mural-empty" class="mural-empty" hidden>
-            Nenhuma aventura publicada ainda. Oficiais podem adicionar no
-            <a href="/admin.html"> painel admin </a>.
-          </p>
-        </div>
-
-        <div id="mural-modal" class="mural-modal" hidden>
-          <div class="mural-modal-backdrop" data-action="close"></div>
-
-          <div class="mural-modal-panel" role="dialog" aria-modal="true" aria-labelledby="mural-modal-title">
-            <button type="button" class="mural-modal-close" data-action="close" aria-label="Fechar">×</button>
-
-            <div class="mural-modal-image-wrap">
-              <img id="mural-modal-img" class="mural-modal-img" src="" alt="" />
-            </div>
-
-            <div class="mural-modal-copy">
-              <p id="mural-modal-date" class="mural-modal-date"></p>
-
-              <h2 id="mural-modal-title" class="mural-modal-title"></h2>
-
-              <p id="mural-modal-body" class="mural-modal-body"></p>
-
-              <p id="mural-modal-author" class="mural-modal-author"></p>
-            </div>
-          </div>
+          <p id="mural-empty" class="mural-empty" hidden>Nenhuma aventura publicada ainda.</p>
         </div>
       </section>
 
@@ -152,13 +47,11 @@
         <div class="panel-inner panel-inner-wide">
           <p class="eyebrow">A Força de Brazug</p>
           <h1>Mural dos <span class="highlight-gold">Heróis</span></h1>
-          
           <div class="mural-heroes-container">
             <div id="heroes-alive-section">
               <h2 class="section-title">Personagens Ativos</h2>
               <div id="heroes-alive-grid" class="heroes-grid"></div>
             </div>
-            
             <div id="heroes-dead-section" style="margin-top: 50px;">
               <h2 class="section-title fallen">Cemitério / Hall da Fama</h2>
               <div id="heroes-dead-grid" class="heroes-grid"></div>
@@ -166,122 +59,27 @@
           </div>
         </div>
       </section>
-
     </main>
 
+    <script src="/js/header.js"></script>
     <script src="/js/mural.js"></script>
     <script src="/js/streams.js"></script>
     <script src="/js/heroes-mural.js"></script>
     <script>
-      (function() {
-        function updateNav() {
-          const token = localStorage.getItem("brazug_admin_token");
-          const username = localStorage.getItem("brazug_admin_user");
-          const authLink = document.getElementById("nav-auth-link");
-          const authItem = document.getElementById("nav-auth-item");
-
-          if (token && username) {
-            authLink.textContent = username;
-            authLink.href = "/ficha.html";
-            
-            if (!document.getElementById("nav-logout-item")) {
-              const logoutItem = document.createElement("li");
-              logoutItem.id = "nav-logout-item";
-              logoutItem.innerHTML = '<a href="#" class="nav-link" style="color: #ff4444;">Sair</a>';
-              logoutItem.onclick = function(e) {
-                e.preventDefault();
-                localStorage.removeItem("brazug_admin_token");
-                localStorage.removeItem("brazug_admin_user");
-                localStorage.removeItem("brazug_admin_role");
-                window.location.reload();
-              };
-              authItem.parentNode.appendChild(logoutItem);
-            }
-          }
-        }
-        updateNav();
-      })();
-    </script>
-    <script>
       (function () {
         'use strict';
-
         var SECRET_PHRASE = 'que as sombras mostram meu destino';
-
-        var input = document.getElementById('shadow-input');
-
-        var panel = document.getElementById('shadow-panel');
-
-        var grid = document.getElementById('shadow-grid');
-
-        if (!input || !panel || !grid) {
-          return;
-        }
-
-        function escapeHtml(str) {
-          var div = document.createElement('div');
-
-          div.textContent = str;
-
-          return div.innerHTML;
-        }
-
-        function renderCard(a) {
-          var fallback = a.image_data || "";
-          var image = a.image_url
-            ? '<img class="mural-card-img" src="' + escapeHtml(a.image_url) + '" data-fallback-src="' + escapeHtml(fallback) + '" onerror="if(window._muralFallback) window._muralFallback(this)">'
-            : '<div class="mural-card-img placeholder"></div>';
-
-          return (
-            '<article class="mural-card">' +
-            image +
-            '<div class="mural-card-body">' +
-            '<h3 class="mural-card-title">' +
-            escapeHtml(a.title) +
-            '</h3>' +
-            '<p class="mural-card-text">' +
-            escapeHtml(a.body) +
-            '</p>' +
-            '</div>' +
-            '</article>'
-          );
-        }
-
+        var input = document.createElement('input'); // Just to keep the search logic if needed
         async function loadShadows() {
           try {
             var res = await fetch('/api/adventures?shadow=' + encodeURIComponent(SECRET_PHRASE));
-
             var data = await res.json();
-
             var list = data.adventures || [];
-
-            if (!list.length) {
-              return;
-            }
-
-            grid.innerHTML = list.map(renderCard).join('');
-
-            panel.hidden = false;
-
-            panel.scrollIntoView({
-              behavior: 'smooth',
-            });
-          } catch (err) {
-            console.error(err);
-          }
+            if (!list.length) return;
+            document.getElementById('shadow-grid').innerHTML = list.map(a => '<article class="mural-card"><h3>'+a.title+'</h3><p>'+a.body+'</p></article>').join('');
+            document.getElementById('shadow-panel').hidden = false;
+          } catch (err) { console.error(err); }
         }
-
-        input.addEventListener('change', function () {
-          var value = input.value.trim().toLowerCase();
-
-          if (value === SECRET_PHRASE) {
-            loadShadows();
-
-            input.value = '';
-
-            input.placeholder = 'As sombras ouviram...';
-          }
-        });
       })();
     </script>
   </body>
