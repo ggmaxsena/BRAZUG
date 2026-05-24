@@ -22,6 +22,40 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS wow_characters (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  class TEXT NOT NULL,
+  race TEXT NOT NULL,
+  level INTEGER NOT NULL DEFAULT 1,
+  guild TEXT NOT NULL DEFAULT 'BRAZUG',
+  prof1 TEXT DEFAULT '',
+  prof2 TEXT DEFAULT '',
+  str INTEGER DEFAULT 0,
+  agi INTEGER DEFAULT 0,
+  sta INTEGER DEFAULT 0,
+  int INTEGER DEFAULT 0,
+  spi INTEGER DEFAULT 0,
+  armor INTEGER DEFAULT 0,
+  lore TEXT DEFAULT '',
+  visibility TEXT NOT NULL DEFAULT 'public',
+  is_dead BOOLEAN NOT NULL DEFAULT FALSE,
+  death_cause TEXT DEFAULT '',
+  death_location TEXT DEFAULT '',
+  death_level INTEGER DEFAULT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_characters_user_id
+  ON wow_characters (user_id);
+CREATE INDEX IF NOT EXISTS idx_characters_visibility
+  ON wow_characters (visibility);
+
+CREATE INDEX IF NOT EXISTS idx_characters_created_at
+  ON wow_characters (created_at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_adventures_event_date
   ON adventures (event_date DESC, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_adventures_published

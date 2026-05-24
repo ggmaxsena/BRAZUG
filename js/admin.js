@@ -255,9 +255,24 @@
           "<span>Role: " + escapeHtml(u.role) + "</span>" +
           "</div>" +
           '<div class="admin-list-actions">' +
+          '<button type="button" class="btn-small edit" data-reset-pw="' + u.id + '">Senha</button>' +
           '<button type="button" class="btn-small danger" data-del-user="' + u.id + '">Excluir</button>' +
           "</div>";
         usersList.appendChild(li);
+
+        li.querySelector("[data-reset-pw]").addEventListener("click", async function() {
+          var newPass = prompt("Digite a nova senha para o usuário '" + u.username + "':");
+          if (!newPass) return;
+          try {
+            await api("/users/" + u.id + "/reset-password", { 
+              method: "POST", 
+              headers: authHeaders(),
+              body: JSON.stringify({ password: newPass })
+            });
+            alert("Senha alterada com sucesso!");
+          } catch(e) { alert(e.message); }
+        });
+
         li.querySelector("[data-del-user]").addEventListener("click", async function() {
           if (!confirm("Excluir este usuário?")) return;
           try {

@@ -29,10 +29,11 @@
       </div>
 
       <nav class="header-nav" id="header-nav">
-        <ul class="nav-list">
+        <ul class="nav-list" id="nav-list">
           <li><a href="#lives" class="nav-link">Lives</a></li>
           <li><a href="#mural" class="nav-link">Mural</a></li>
-          <li><a href="/admin.html" class="nav-link">Login</a></li>
+          <li><a href="#herois" class="nav-link">Heróis</a></li>
+          <li id="nav-auth-item"><a href="/admin.html" class="nav-link" id="nav-auth-link">Login</a></li>
         </ul>
       </nav>
 
@@ -146,10 +147,61 @@
           </div>
         </div>
       </section>
+
+      <section id="herois" class="panel panel-herois" data-panel="herois">
+        <div class="panel-inner panel-inner-wide">
+          <p class="eyebrow">A Força de Brazug</p>
+          <h1>Mural dos <span class="highlight-gold">Heróis</span></h1>
+          
+          <div class="mural-heroes-container">
+            <div id="heroes-alive-section">
+              <h2 class="section-title">Personagens Ativos</h2>
+              <div id="heroes-alive-grid" class="heroes-grid"></div>
+            </div>
+            
+            <div id="heroes-dead-section" style="margin-top: 50px;">
+              <h2 class="section-title fallen">Cemitério / Hall da Fama</h2>
+              <div id="heroes-dead-grid" class="heroes-grid"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <script src="/js/mural.js"></script>
     <script src="/js/streams.js"></script>
+    <script src="/js/heroes-mural.js"></script>
+    <script>
+      (function() {
+        function updateNav() {
+          const token = localStorage.getItem("brazug_admin_token");
+          const username = localStorage.getItem("brazug_admin_user");
+          const authLink = document.getElementById("nav-auth-link");
+          const authItem = document.getElementById("nav-auth-item");
+
+          if (token && username) {
+            authLink.textContent = username;
+            authLink.href = "/ficha.html";
+            
+            if (!document.getElementById("nav-logout-item")) {
+              const logoutItem = document.createElement("li");
+              logoutItem.id = "nav-logout-item";
+              logoutItem.innerHTML = '<a href="#" class="nav-link" style="color: #ff4444;">Sair</a>';
+              logoutItem.onclick = function(e) {
+                e.preventDefault();
+                localStorage.removeItem("brazug_admin_token");
+                localStorage.removeItem("brazug_admin_user");
+                localStorage.removeItem("brazug_admin_role");
+                window.location.reload();
+              };
+              authItem.parentNode.appendChild(logoutItem);
+            }
+          }
+        }
+        updateNav();
+      })();
+    </script>
     <script>
       (function () {
         'use strict';

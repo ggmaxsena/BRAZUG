@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Meu Perfil Brazuguer - BRAZUG</title>
+
+<style>
+
+body{
+    background:#111;
+    color:#eee;
+    font-family:Arial, sans-serif;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    color:#00ff88;
+}
+
+.card{
+    background:#1b1b1b;
+    border:1px solid #333;
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:15px;
+}
+
+label{
+    display:block;
+    margin-bottom:5px;
+    color:#00ff88;
+    font-weight:bold;
+}
+
+input, select, textarea{
+    width:100%;
+    padding:10px;
+    background:#222;
+    border:1px solid #444;
+    color:#fff;
+    border-radius:6px;
+    box-sizing:border-box;
+}
+
+textarea{
+    min-height:120px;
+    resize:vertical;
+}
+
+button{
+    background:#00aa66;
+    color:#fff;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin-right:10px;
+}
+
+button:hover{
+    background:#00cc77;
+}
+
+.auth-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.characters{
+    margin-top:30px;
+}
+
+.character-card{
+    background:#1a1a1a;
+    border:1px solid #333;
+    border-radius:10px;
+    padding:15px;
+    margin-bottom:15px;
+    position: relative;
+}
+
+.character-card h3{
+    margin-top:0;
+    color:#00ff88;
+}
+
+.visibility-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #333;
+}
+
+.badge-public { color: #00ff88; }
+.badge-private { color: #ff8800; }
+
+/* Status de Morte */
+.character-card.dead {
+    filter: grayscale(0.8) sepia(0.2);
+    border-color: #555;
+    opacity: 0.8;
+}
+
+.character-card.dead h3 {
+    color: #888;
+    text-decoration: line-through;
+}
+
+.rip-banner {
+    background: #440000;
+    color: #ffaaaa;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #660000;
+}
+
+.death-details {
+    background: #221111;
+    border-left: 3px solid #aa0000;
+    padding: 10px;
+    margin: 10px 0;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+    background-color: #1b1b1b;
+    margin: 10% auto;
+    padding: 25px;
+    border: 1px solid #444;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.section-title {
+    margin-top: 40px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+    color: #00ff88;
+}
+
+.section-title.fallen {
+    color: #ff4444;
+    border-bottom-color: #660000;
+}
+
+/* PROFISSOES LISTBOX */
+.prof-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.prof-row select {
+    flex: 1;
+}
+
+.prof-check-box {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #222;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    white-space: nowrap;
+}
+
+.prof-check-box input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.prof-check-box label {
+    margin: 0;
+    font-size: 13px;
+    color: #00ff88;
+    cursor: pointer;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="auth-header" id="auth-status">
+    <!-- Preenchido via JS -->
+</div>
+
+<h1 id="form-title">Meu Perfil e Personagens</h1>
+
+<div id="form-container">
+    <div class="card">
+        <div class="grid">
+            <div>
+                <label>Nome do Personagem</label>
+                <input type="text" id="name">
+            </div>
+            <div>
+                <label>Classe</label>
+                <select id="class">
+                    <option>Warrior</option>
+                    <option>Hunter</option>
+                    <option>Rogue</option>
+                    <option>Mage</option>
+                    <option>Warlock</option>
+                    <option>Priest</option>
+                    <option>Druid</option>
+                    <option>Shaman</option>
+                    <option>Paladin</option>
+                </select>
+            </div>
+            <div>
+                <label>Raça</label>
+                <select id="race">
+                    <option>Orc</option>
+                    <option>Troll</option>
+                    <option>Tauren</option>
+                    <option>Undead</option>
+                    <option>Human</option>
+                    <option>Dwarf</option>
+                    <option>Night Elf</option>
+                    <option>Gnome</option>
+                </select>
+            </div>
+            <div>
+                <label>Level</label>
+                <input type="number" id="level" value="1">
+            </div>
+            <div>
+                <label>Guilda</label>
+                <input type="text" id="guild" value="BRAZUG">
+            </div>
+            <div>
+                <label>Visibilidade</label>
+                <select id="visibility">
+                    <option value="public">Público (Todos veem)</option>
+                    <option value="private">Privado (Só eu e admins)</option>
+                </select>
+            </div>
+            <div>
+                <label>Status</label>
+                <select id="status" onchange="toggleDeathFields()">
+                    <option value="alive">Vivo</option>
+                    <option value="dead">Morto</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="form-death-fields" style="display: none; margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">
+            <div class="grid">
+                <div>
+                    <label>Causa da Morte</label>
+                    <input type="text" id="form_death_cause">
+                </div>
+                <div>
+                    <label>Local da Morte</label>
+                    <input type="text" id="form_death_location">
+                </div>
+                <div>
+                    <label>Level da Morte</label>
+                    <input type="number" id="form_death_level">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 25px;">
+            <h3 style="color: #00ff88; margin-bottom: 15px;">Profissões</h3>
+            
+            <div class="grid">
+                <div>
+                    <label>Profissão Primária 1</label>
+                    <div class="prof-row">
+                        <select id="prof1_name">
+                            <option value="">Nenhuma</option>
+                            <option>Alchemy</option>
+                            <option>Blacksmithing</option>
+                            <option>Enchanting</option>
+                            <option>Engineering</option>
+                            <option>Herbalism</option>
+                            <option>Leatherworking</option>
+                            <option>Mining</option>
+                            <option>Skinning</option>
+                            <option>Tailoring</option>
+                        </select>
+                        <div class="prof-check-box">
+                            <input type="checkbox" id="prof1_300">
+                            <label for="prof1_300">300</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label>Profissão Primária 2</label>
+                    <div class="prof-row">
+                        <select id="prof2_name">
+                            <option value="">Nenhuma</option>
+                            <option>Alchemy</option>
+                            <option>Blacksmithing</option>
+                            <option>Enchanting</option>
+                            <option>Engineering</option>
+                            <option>Herbalism</option>
+                            <option>Leatherworking</option>
+                            <option>Mining</option>
+                            <option>Skinning</option>
+                            <option>Tailoring</option>
+                        </select>
+                        <div class="prof-check-box">
+                            <input type="checkbox" id="prof2_300">
+                            <label for="prof2_300">300</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label>Secundária 1</label>
+                    <div class="prof-row">
+                        <select id="sec1_name">
+                            <option value="">Nenhuma</option>
+                            <option>Cooking</option>
+                            <option>First Aid</option>
+                            <option>Fishing</option>
+                        </select>
+                        <div class="prof-check-box">
+                            <input type="checkbox" id="sec1_300">
+                            <label for="sec1_300">300</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label>Secundária 2</label>
+                    <div class="prof-row">
+                        <select id="sec2_name">
+                            <option value="">Nenhuma</option>
+                            <option>Cooking</option>
+                            <option>First Aid</option>
+                            <option>Fishing</option>
+                        </select>
+                        <div class="prof-check-box">
+                            <input type="checkbox" id="sec2_300">
+                            <label for="sec2_300">300</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-top: 15px;">
+            <div>
+                <label>URL da Imagem</label>
+                <input type="url" id="image_url" placeholder="https://...">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Lore / História</h2>
+        <textarea id="lore"></textarea>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+        <button id="btn-save" onclick="saveCharacter()">Criar Personagem</button>
+        <button id="btn-cancel-edit" onclick="cancelEdit()" style="background: #444; display: none;">Cancelar Edição</button>
+    </div>
+</div>
+
+<div id="login-notice" class="card" style="text-align: center; display: none;">
+    <p>Você precisa estar logado para ver seu perfil.</p>
+    <button onclick="window.location.href='/admin.html'">Fazer Login / Cadastro</button>
+</div>
+
+<div class="characters" id="characters-alive"></div>
+<div class="characters" id="characters-dead"></div>
+
+</div>
+
+<!-- RIP Modal -->
+<div id="rip-modal" class="modal">
+    <div class="modal-content">
+        <h2 style="color: #ff4444; margin-top: 0;">Confirmar Morte Definitiva</h2>
+        <p>Preencha os detalhes da queda heroica deste personagem.</p>
+        
+        <div style="margin-bottom: 15px;">
+            <label>Causa da Morte</label>
+            <input type="text" id="death_cause" placeholder="Ex: Puxei 3 murlocs em Elwynn Forest">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label>Local da Morte</label>
+            <input type="text" id="death_location" placeholder="Ex: Westfall">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label>Level da Morte</label>
+            <input type="number" id="death_level">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button onclick="closeRipModal()" style="background: #444;">Cancelar</button>
+            <button onclick="confirmRip()" style="background: #aa0000;">RIP - Confirmar Morte</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+let currentRipId = null;
+let editingId = null;
+let allCharacters = [];
+
+const PROF_FIELDS = ['prof1_name', 'prof1_300', 'prof2_name', 'prof2_300', 'sec1_name', 'sec1_300', 'sec2_name', 'sec2_300'];
+
+function openRipModal(id, level){
+    currentRipId = id;
+    document.getElementById("death_level").value = level;
+    document.getElementById("rip-modal").style.display = "block";
+}
+
+function closeRipModal(){
+    currentRipId = null;
+    document.getElementById("rip-modal").style.display = "none";
+}
+
+function toggleDeathFields(){
+    const status = document.getElementById("status").value;
+    document.getElementById("form-death-fields").style.display = status === "dead" ? "block" : "none";
+}
+
+async function confirmRip(){
+    if(!currentRipId) return;
+    const { token } = getAuth();
+    
+    const data = {
+        death_cause: document.getElementById("death_cause").value,
+        death_location: document.getElementById("death_location").value,
+        death_level: parseInt(document.getElementById("death_level").value)
+    };
+
+    try {
+        const res = await fetch(`/api/characters/${currentRipId}/rip`, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+            closeRipModal();
+            renderCharacters();
+        } else {
+            alert("Erro ao marcar como morto.");
+        }
+    } catch (err) {
+        alert("Erro de conexão.");
+    }
+}
+
+function getAuth(){
+    const token = localStorage.getItem("brazug_admin_token");
+    const user = {
+        username: localStorage.getItem("brazug_admin_user"),
+        role: localStorage.getItem("brazug_admin_role")
+    };
+    return { token, user: user.username ? user : null };
+}
+
+function updateAuthUI(){
+    const { user } = getAuth();
+    const header = document.getElementById("auth-status");
+    const form = document.getElementById("form-container");
+    const notice = document.getElementById("login-notice");
+
+    if(user){
+        header.innerHTML = `<span>Logado como <b>${user.username}</b> (${user.role})</span> | <a href="/" style="color: #00ff88; margin-left: 10px;">Voltar ao Início</a> | <a href="#" onclick="logout()" style="color: #ff4444; margin-left: 10px;">Sair</a>`;
+        form.style.display = "block";
+        notice.style.display = "none";
+    } else {
+        header.innerHTML = `<a href="/admin.html" style="color: #00ff88;">Entrar / Criar Conta</a>`;
+        form.style.display = "none";
+        notice.style.display = "block";
+    }
+}
+
+function logout(){
+    localStorage.removeItem("brazug_admin_token");
+    localStorage.removeItem("brazug_admin_role");
+    localStorage.removeItem("brazug_admin_user");
+    window.location.href = "/";
+}
+
+async function getCharacters(){
+    try {
+        const { token } = getAuth();
+        const headers = {};
+        if(token) headers["Authorization"] = "Bearer " + token;
+
+        const res = await fetch("/api/characters", { headers });
+        allCharacters = await res.json();
+        return allCharacters;
+    } catch (err) {
+        console.error("Erro ao buscar personagens:", err);
+        return [];
+    }
+}
+
+function editCharacter(id) {
+    const char = allCharacters.find(c => c.id === id);
+    if (!char) return;
+
+    editingId = id;
+    document.getElementById("name").value = char.name;
+    document.getElementById("class").value = char.class;
+    document.getElementById("race").value = char.race;
+    document.getElementById("level").value = char.level;
+    document.getElementById("guild").value = char.guild;
+    document.getElementById("visibility").value = char.visibility;
+    document.getElementById("status").value = char.is_dead ? "dead" : "alive";
+    document.getElementById("image_url").value = char.image_url;
+    document.getElementById("lore").value = char.lore;
+    
+    document.getElementById("form_death_cause").value = char.death_cause || "";
+    document.getElementById("form_death_location").value = char.death_location || "";
+    document.getElementById("form_death_level").value = char.death_level || "";
+    
+    // Preencher profissoes
+    document.getElementById("prof1_name").value = char.prof1_name || "";
+    document.getElementById("prof1_300").checked = !!char.prof1_300;
+    document.getElementById("prof2_name").value = char.prof2_name || "";
+    document.getElementById("prof2_300").checked = !!char.prof2_300;
+    document.getElementById("sec1_name").value = char.sec1_name || "";
+    document.getElementById("sec1_300").checked = !!char.sec1_300;
+    document.getElementById("sec2_name").value = char.sec2_name || "";
+    document.getElementById("sec2_300").checked = !!char.sec2_300;
+
+    toggleDeathFields();
+    
+    document.getElementById("btn-save").textContent = "Salvar Alterações";
+    document.getElementById("btn-cancel-edit").style.display = "inline-block";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelEdit() {
+    editingId = null;
+    document.getElementById("name").value = "";
+    document.getElementById("image_url").value = "";
+    document.getElementById("lore").value = "";
+    document.getElementById("status").value = "alive";
+    document.getElementById("form_death_cause").value = "";
+    document.getElementById("form_death_location").value = "";
+    document.getElementById("form_death_level").value = "";
+    
+    document.getElementById("prof1_name").value = "";
+    document.getElementById("prof1_300").checked = false;
+    document.getElementById("prof2_name").value = "";
+    document.getElementById("prof2_300").checked = false;
+    document.getElementById("sec1_name").value = "";
+    document.getElementById("sec1_300").checked = false;
+    document.getElementById("sec2_name").value = "";
+    document.getElementById("sec2_300").checked = false;
+
+    toggleDeathFields();
+    
+    document.getElementById("btn-save").textContent = "Criar Personagem";
+    document.getElementById("btn-cancel-edit").style.display = "none";
+}
+
+async function saveCharacter(){
+    const { token } = getAuth();
+    if(!token) return alert("Sessão expirada. Faça login novamente.");
+
+    const character = {
+        name: document.getElementById("name").value,
+        class: document.getElementById("class").value,
+        race: document.getElementById("race").value,
+        level: parseInt(document.getElementById("level").value) || 1,
+        guild: document.getElementById("guild").value,
+        visibility: document.getElementById("visibility").value,
+        image_url: document.getElementById("image_url").value,
+        lore: document.getElementById("lore").value,
+        is_dead: document.getElementById("status").value === "dead",
+        death_cause: document.getElementById("form_death_cause").value,
+        death_location: document.getElementById("form_death_location").value,
+        death_level: parseInt(document.getElementById("form_death_level").value) || null,
+        
+        prof1_name: document.getElementById("prof1_name").value,
+        prof1_300: document.getElementById("prof1_300").checked,
+        prof2_name: document.getElementById("prof2_name").value,
+        prof2_300: document.getElementById("prof2_300").checked,
+        sec1_name: document.getElementById("sec1_name").value,
+        sec1_300: document.getElementById("sec1_300").checked,
+        sec2_name: document.getElementById("sec2_name").value,
+        sec2_300: document.getElementById("sec2_300").checked
+    };
+
+    if (!character.name) return alert("Informe o nome do personagem.");
+
+    const url = editingId ? `/api/characters/${editingId}` : "/api/characters";
+    const method = editingId ? "PUT" : "POST";
+
+    try {
+        const res = await fetch(url, {
+            method: method,
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(character)
+        });
+
+        if (res.ok) {
+            cancelEdit();
+            renderCharacters();
+            alert(editingId ? "Personagem atualizado!" : "Personagem criado!");
+        } else {
+            const err = await res.json();
+            alert("Erro: " + (err.error || "Falha ao salvar"));
+        }
+    } catch (err) {
+        alert("Erro de conexão.");
+    }
+}
+
+async function renderCharacters(){
+    const { user } = getAuth();
+    const chars = await getCharacters();
+    const aliveContainer = document.getElementById("characters-alive");
+    const deadContainer = document.getElementById("characters-dead");
+    
+    aliveContainer.innerHTML = "<h2 class='section-title'>Seus Personagens Ativos</h2>";
+    deadContainer.innerHTML = "<h2 class='section-title fallen'>Seus Personagens Caídos</h2>";
+
+    if (!chars || chars.length === 0) {
+        aliveContainer.innerHTML += "<p style='text-align:center; color:#888'>Nenhum personagem encontrado.</p>";
+        deadContainer.innerHTML = "";
+        return;
+    }
+
+    const filteredChars = (user && user.role === 'admin') ? chars : chars.filter(c => user && c.owner_username === user.username);
+
+    const aliveChars = filteredChars.filter(c => !c.is_dead);
+    const deadChars = filteredChars.filter(c => c.is_dead);
+
+    if (aliveChars.length === 0) {
+        aliveContainer.innerHTML += "<p style='text-align:center; color:#888'>Nenhum vivo.</p>";
+    }
+
+    if (deadChars.length === 0) {
+        deadContainer.innerHTML = "";
+    }
+
+    const renderChar = (char) => {
+        const isOwner = user && user.username === char.owner_username;
+        const isAdmin = user && user.role === 'admin';
+        
+        const badgeClass = char.visibility === 'public' ? 'badge-public' : 'badge-private';
+        const badgeLabel = char.visibility === 'public' ? 'Público' : 'Privado';
+
+        let deathHtml = "";
+        let armoryHtml = "";
+
+        if (char.is_dead) {
+            deathHtml = `
+            <div class="rip-banner">FALECIDO - LEVEL ${char.death_level || char.level}</div>
+            <div class="death-details">
+                <b>Causa da morte:</b> ${char.death_cause || "Desconhecida"}<br>
+                <b>Local:</b> ${char.death_location || "Desconhecido"}
+            </div>
+            `;
+        } else {
+            const armoryUrl = `https://classic-armory.org/character/us/classic-hardcore/doomhowl/${char.name.toLowerCase()}`;
+            armoryHtml = `
+            <div style="margin: 10px 0;">
+                <a href="${armoryUrl}" target="_blank" style="color: #00ff88; font-size: 0.9em; text-decoration: none; border: 1px solid #00ff88; padding: 4px 8px; border-radius: 4px; display: inline-block;">
+                    Ver Classic Armory ↗
+                </a>
+            </div>
+            `;
+        }
+
+        // Listar profissoes formatadas
+        const profs = [];
+        if(char.prof1_name) profs.push(`${char.prof1_name}${char.prof1_300 ? ' (300)' : ''}`);
+        if(char.prof2_name) profs.push(`${char.prof2_name}${char.prof2_300 ? ' (300)' : ''}`);
+        if(char.sec1_name) profs.push(`${char.sec1_name}${char.sec1_300 ? ' (300)' : ''}`);
+        if(char.sec2_name) profs.push(`${char.sec2_name}${char.sec2_300 ? ' (300)' : ''}`);
+
+        const profsHtml = profs.length > 0 
+            ? `<p style="font-size: 0.85em; color: #00ff88;"><b>Profissões:</b> ${profs.join(', ')}</p>` 
+            : "";
+
+        return `
+        <div class="character-card ${char.is_dead ? 'dead' : ''}">
+            <span class="visibility-badge ${badgeClass}">${badgeLabel}</span>
+            
+            ${char.image_url ? `<img src="${char.image_url}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; border: 1px solid #333;">` : ''}
+
+            <h3>${char.name} - Lv ${char.is_dead ? (char.death_level || char.level) : char.level}</h3>
+            
+            ${deathHtml}
+            ${armoryHtml}
+
+            <p style="color: #888; font-size: 0.9em;">Dono: <b>${char.owner_username || 'Desconhecido'}</b></p>
+            
+            <p><b>Classe:</b> ${char.class} | <b>Raça:</b> ${char.race}</p>
+            
+            ${profsHtml}
+            
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                ${(isOwner || isAdmin) ? `
+                    ${!char.is_dead ? `
+                    <button onclick="openRipModal('${char.id}', ${char.level})" style="background: #660000; flex: 1;">
+                        RIP
+                    </button>
+                    ` : ''}
+                    <button onclick="editCharacter('${char.id}')" style="background: #222; border: 1px solid #555; flex: 1;">
+                        Editar
+                    </button>
+                    <button onclick="deleteCharacter('${char.id}')" style="background: #444; font-size: 12px;">
+                        Excluir
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+        `;
+    };
+
+    aliveChars.forEach(char => {
+        aliveContainer.innerHTML += renderChar(char);
+    });
+
+    deadChars.forEach(char => {
+        deadContainer.innerHTML += renderChar(char);
+    });
+}
+
+async function deleteCharacter(id){
+    if (!confirm("Excluir permanentemente este personagem?")) return;
+    const { token } = getAuth();
+
+    try {
+        const res = await fetch("/api/characters/" + id, {
+            method: "DELETE",
+            headers: { "Authorization": "Bearer " + token }
+        });
+
+        if (res.ok) {
+            renderCharacters();
+        } else {
+            const err = await res.json();
+            alert("Erro ao excluir: " + (err.error || "Sem permissão"));
+        }
+    } catch (err) {
+        console.error("Erro:", err);
+    }
+}
+
+updateAuthUI();
+renderCharacters();
+
+</script>
+
+</body>
+</html>

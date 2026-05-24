@@ -151,6 +151,7 @@ app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 // Servir arquivos HTML específicos
 app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "index.html")));
 app.get("/admin.html", (req, res) => res.sendFile(path.resolve(__dirname, "admin.html")));
+app.get("/ficha.html", (req, res) => res.sendFile(path.resolve(__dirname, "ficha.html")));
 
 /* =========================================
    HEALTH
@@ -251,6 +252,60 @@ app.get(
     }
   }
 );
+
+/* =========================================
+   CHARACTERS (WOW HARDCORE)
+========================================= */
+
+app.get("/api/characters", async (req, res) => {
+  try {
+    const header = req.headers.authorization || "";
+    const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+    const user = auth.verifyToken(token);
+    
+    const chars = await db.listCharacters(user);
+    res.json(chars);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/characters", auth.authMiddleware, async (req, res) => {
+  try {
+    const user = await db.getUserByUsername(req.user.username);
+    const char = await db.createCharacter(req.body, user ? user.id : null);
+    res.json(char);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put("/api/characters/:id", auth.authMiddleware, async (req, res) => {
+  try {
+    const char = await db.updateCharacter(req.params.id, req.body, req.user);
+    res.json(char);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/characters/:id", auth.authMiddleware, async (req, res) => {
+  try {
+    const ok = await db.deleteCharacter(req.params.id, req.user);
+    res.json({ ok });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/characters/:id/rip", auth.authMiddleware, async (req, res) => {
+  try {
+    const char = await db.markCharacterAsDead(req.params.id, req.body, req.user);
+    res.json(char);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 /* =========================================
    ADMIN
