@@ -156,11 +156,14 @@ app.get("/admin.html", (req, res) => res.sendFile(path.resolve(__dirname, "admin
    HEALTH
 ========================================= */
 
-app.get("/api/health", function (req, res) {
+app.get("/api/health", async function (req, res) {
+  const mongo = await db.pingMongo();
+
   res.json({
-    ok: true,
+    ok: mongo.ok,
     status: "online",
-    database: process.env.MONGODB_URI ? "mongodb" : "json"
+    database: "mongodb",
+    mongo: mongo,
   });
 });
 
@@ -213,9 +216,17 @@ app.get("/api/adventures", async function (req, res) {
       err
     );
 
+    const msg = String(err.message || "");
+    const hint = /ssl|tls|alert number 80/i.test(msg)
+      ? "Libere o IP da Hostinger no Atlas (Network Access → Add IP → Allow from anywhere 0.0.0.0/0)."
+      : /enotfound|querysrv/i.test(msg)
+        ? "Confira MONGODB_URI no painel Hostinger ou use MONGODB_URI_STANDARD (connection string Standard do Atlas)."
+        : null;
+
     res.status(500).json({
       error: "Erro interno ao carregar aventuras",
       details: err.message,
+      hint: hint,
       adventures: [],
     });
   }
