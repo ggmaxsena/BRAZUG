@@ -178,6 +178,25 @@ button:hover{ background:#00cc77; }
     <div style="display: flex; gap: 10px;"><button id="btn-save" onclick="saveCharacter()">Criar Personagem</button><button id="btn-cancel-edit" onclick="cancelEdit()" style="background: #444; display: none;">Cancelar Edição</button></div>
 </div>
 
+<div class="card" id="change-password-panel" style="margin-top: 20px;">
+    <h2>Alterar Senha</h2>
+    <div class="grid">
+        <div>
+            <label>Senha Atual</label>
+            <input type="password" id="oldPassword">
+        </div>
+        <div>
+            <label>Nova Senha</label>
+            <input type="password" id="newPassword">
+        </div>
+        <div>
+            <label>Confirmar Nova Senha</label>
+            <input type="password" id="confirmPassword">
+        </div>
+    </div>
+    <button onclick="changePassword()" style="margin-top: 15px; background: #2d6a3e;">Atualizar Senha</button>
+</div>
+
 <div id="login-notice" class="card" style="text-align: center; display: none;"><p>Você precisa estar logado para ver seu perfil.</p><button onclick="window.location.href='/admin.html'">Fazer Login / Cadastro</button></div>
 
 <div class="characters" id="characters-alive"></div>
@@ -200,6 +219,46 @@ function cancelEdit() { editingId = null; document.getElementById("name").value 
 async function saveCharacter(){ const token = localStorage.getItem("brazug_admin_token"); if(!token) return alert("Sessão expirada."); const character = { name: document.getElementById("name").value, class: document.getElementById("class").value, race: document.getElementById("race").value, level: parseInt(document.getElementById("level").value) || 1, guild: document.getElementById("guild").value, visibility: document.getElementById("visibility").value, image_url: document.getElementById("image_url").value, lore: document.getElementById("lore").value, is_dead: document.getElementById("status").value === "dead", death_cause: document.getElementById("form_death_cause").value, death_location: document.getElementById("form_death_location").value, death_level: parseInt(document.getElementById("form_death_level").value) || null, twitch_url: document.getElementById("twitch_url").value, youtube_url: document.getElementById("youtube_url").value, prof1_name: document.getElementById("prof1_name").value, prof1_300: document.getElementById("prof1_300").checked, prof2_name: document.getElementById("prof2_name").value, prof2_300: document.getElementById("prof2_300").checked, sec1_name: document.getElementById("sec1_name").value, sec1_300: document.getElementById("sec1_300").checked, sec2_name: document.getElementById("sec2_name").value, sec2_300: document.getElementById("sec2_300").checked }; if (!character.name) return alert("Informe o nome."); const url = editingId ? `/api/characters/${editingId}` : "/api/characters"; const method = editingId ? "PUT" : "POST"; try { const res = await fetch(url, { method: method, headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, body: JSON.stringify(character) }); if (res.ok) { cancelEdit(); renderCharacters(); alert(editingId ? "Atualizado!" : "Criado!"); } else { const err = await res.json(); alert("Erro: " + (err.error || "Falha")); } } catch (err) { alert("Erro de conexão."); } }
 async function renderCharacters(){ const username = localStorage.getItem("brazug_admin_user"); const role = localStorage.getItem("brazug_admin_role"); const chars = await getCharacters(); const aliveContainer = document.getElementById("characters-alive"); const deadContainer = document.getElementById("characters-dead"); aliveContainer.innerHTML = "<h2 class='section-title'>Seus Personagens Ativos</h2>"; deadContainer.innerHTML = "<h2 class='section-title fallen'>Seus Personagens Caídos</h2>"; if (!chars || chars.length === 0) { aliveContainer.innerHTML += "<p style='text-align:center; color:#888'>Nenhum personagem.</p>"; return; } const filteredChars = (role === 'admin') ? chars : chars.filter(c => c.owner_username === username); const aliveChars = filteredChars.filter(c => !c.is_dead); const deadChars = filteredChars.filter(c => c.is_dead); const renderChar = (char) => { const badgeClass = char.visibility === 'public' ? 'badge-public' : 'badge-private'; const badgeLabel = char.visibility === 'public' ? 'Público' : 'Privado'; let deathHtml = char.is_dead ? `<div class="rip-banner">FALECIDO - LV ${char.death_level || char.level}</div>` : ""; const profs = []; if(char.prof1_name) profs.push(`${char.prof1_name}${char.prof1_300 ? ' (300)' : ''}`); if(char.prof2_name) profs.push(`${char.prof2_name}${char.prof2_300 ? ' (300)' : ''}`); return `<div class="character-card ${char.is_dead ? 'dead' : ''}"><span class="visibility-badge ${badgeClass}">${badgeLabel}</span>${char.image_url ? `<img src="${char.image_url}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">` : ''}<h3>${char.name} - Lv ${char.is_dead ? (char.death_level || char.level) : char.level}</h3>${deathHtml}<p><b>Classe:</b> ${char.class} | <b>Raça:</b> ${char.race}</p>${profs.length ? `<p style="font-size:12px; color:#00ff88"><b>300:</b> ${profs.join(', ')}</p>` : ""}<div style="display: flex; gap: 10px; margin-top: 15px;">${!char.is_dead ? `<button onclick="openRipModal('${char.id}', ${char.level})" style="background: #660000; flex: 1;">RIP</button>` : ''}<button onclick="editCharacter('${char.id}')" style="background: #222; border: 1px solid #555; flex: 1;">Editar</button><button onclick="deleteCharacter('${char.id}')" style="background: #444;">Excluir</button></div></div>`; }; aliveChars.forEach(c => aliveContainer.innerHTML += renderChar(c)); deadChars.forEach(c => deadContainer.innerHTML += renderChar(c)); }
 async function deleteCharacter(id){ if (!confirm("Excluir permanentemente?")) return; const token = localStorage.getItem("brazug_admin_token"); try { const res = await fetch("/api/characters/" + id, { method: "DELETE", headers: { "Authorization": "Bearer " + token } }); if (res.ok) renderCharacters(); } catch (err) { console.error(err); } }
+
+async function changePassword() {
+    const oldPassword = document.getElementById("oldPassword").value;
+    const newPassword = document.getElementById("newPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const token = localStorage.getItem("brazug_admin_token");
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+        return alert("Preencha todos os campos de senha.");
+    }
+
+    if (newPassword !== confirmPassword) {
+        return alert("As novas senhas não coincidem.");
+    }
+
+    try {
+        const res = await fetch("/api/admin/change-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({ oldPassword, newPassword, confirmPassword })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("Senha alterada com sucesso!");
+            document.getElementById("oldPassword").value = "";
+            document.getElementById("newPassword").value = "";
+            document.getElementById("confirmPassword").value = "";
+        } else {
+            alert("Erro: " + (data.error || "Falha ao alterar senha."));
+        }
+    } catch (err) {
+        alert("Erro de conexão.");
+    }
+}
+
 (function(){ const token = localStorage.getItem("brazug_admin_token"); if(!token) { document.getElementById("form-container").style.display = "none"; document.getElementById("login-notice").style.display = "block"; } else { renderCharacters(); } })();
 </script>
 </body>
