@@ -4,15 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="BRAZUG — Lives ao vivo com <BRAZUG> no título da stream." />
+
     <title>BRAZUG — Lives ao vivo</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="icon" href="assets/branding/contentbra (1).png" type="image/png" />
+
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
   </head>
+
   <body>
     <header class="site-header">
       <div class="header-left">
         <a class="logo" href="#lives">
-          <img class="logo-img" src="assets/branding/contentbra (1).png" alt="BRAZUG" width="40" height="40" />
+          <img class="logo-img" src="/assets/branding/contentbra.png" alt="BRAZUG" width="40" height="40" />
+
           <span class="logo-text">BRAZUG</span>
         </a>
       </div>
@@ -32,59 +37,92 @@
       </div>
 
       <div class="header-actions">
-        <a class="header-discord" href="https://discord.gg/2Qt92YqjG" target="_blank" rel="noopener noreferrer"
-          >Discord</a
-        >
+        <a class="header-discord" href="https://discord.gg/2Qt92YqjG" target="_blank" rel="noopener noreferrer">
+          Discord
+        </a>
       </div>
     </header>
 
     <main class="scroll-root">
+      <!-- LIVES PRIMEIRO -->
+
+      <section id="lives" class="panel panel-lives" data-panel="lives">
+        <div class="panel-inner panel-inner-wide">
+          <p class="eyebrow">Ao vivo</p>
+
+          <h2>
+            Streams
+            <span class="highlight-gold">&lt;BRAZUG&gt;</span>
+          </h2>
+
+          <p class="lead lead-left">
+            Canais ao vivo que mencionam
+            <code>&lt;BRAZUG&gt;</code>
+            no título.
+          </p>
+
+          <div id="streams-status" class="streams-status" role="status">Buscando lives…</div>
+
+          <ul id="streams-list" class="streams-list" hidden></ul>
+
+          <p id="streams-empty" class="streams-empty" hidden>
+            Ninguém ao vivo com
+            <code>&lt;BRAZUG&gt;</code>
+            no título agora.
+          </p>
+
+          <p id="streams-error" class="streams-error" hidden></p>
+        </div>
+      </section>
+
+      <!-- MURAL DE AVENTURAS -->
+
       <section id="mural" class="panel panel-mural" data-panel="mural">
         <div class="panel-inner panel-inner-wide mural-inner">
           <p class="eyebrow">Crônicas da guilda</p>
-          <h1>Mural de <span class="highlight-gold">Aventuras</span></h1>
+
+          <h1>
+            Mural de
+            <span class="highlight-gold"> Aventuras </span>
+          </h1>
+
           <p class="lead lead-left">Mortes heroicas, conquistas e histórias de guilda registradas aqui.</p>
+
           <div id="mural-status" class="mural-status" role="status">Carregando mural…</div>
+
           <div id="mural-grid" class="mural-grid" hidden></div>
+
           <p id="mural-empty" class="mural-empty" hidden>
             Nenhuma aventura publicada ainda. Oficiais podem adicionar no
-            <a href="/admin.html">painel admin</a>.
+            <a href="/admin.html"> painel admin </a>.
           </p>
         </div>
 
         <div id="mural-modal" class="mural-modal" hidden>
           <div class="mural-modal-backdrop" data-action="close"></div>
+
           <div class="mural-modal-panel" role="dialog" aria-modal="true" aria-labelledby="mural-modal-title">
             <button type="button" class="mural-modal-close" data-action="close" aria-label="Fechar">×</button>
+
             <div class="mural-modal-image-wrap">
               <img id="mural-modal-img" class="mural-modal-img" src="" alt="" />
             </div>
+
             <div class="mural-modal-copy">
               <p id="mural-modal-date" class="mural-modal-date"></p>
+
               <h2 id="mural-modal-title" class="mural-modal-title"></h2>
+
               <p id="mural-modal-body" class="mural-modal-body"></p>
+
               <p id="mural-modal-author" class="mural-modal-author"></p>
             </div>
           </div>
         </div>
       </section>
-
-      <section id="lives" class="panel panel-lives" data-panel="lives">
-        <div class="panel-inner panel-inner-wide">
-          <p class="eyebrow">Ao vivo</p>
-          <h2>Streams <span class="highlight-gold">&lt;BRAZUG&gt;</span></h2>
-          <p class="lead lead-left">Canais ao vivo que mencionam <code>&lt;BRAZUG&gt;</code> no título.</p>
-          <div id="streams-status" class="streams-status" role="status">Buscando lives…</div>
-          <ul id="streams-list" class="streams-list" hidden></ul>
-          <p id="streams-empty" class="streams-empty" hidden>
-            Ninguém ao vivo com <code>&lt;BRAZUG&gt;</code> no título agora.
-          </p>
-          <p id="streams-error" class="streams-error" hidden></p>
-        </div>
-      </section>
     </main>
 
-    <script src="js/mural.js"></script>
-    <script src="js/streams.js"></script>
+    <script src="/js/mural.js"></script>
+    <script src="/js/streams.js"></script>
   </body>
 </html>
