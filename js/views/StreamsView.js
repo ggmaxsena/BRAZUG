@@ -13,13 +13,15 @@
       statusEl.hidden = true;
       container.hidden = false;
       container.innerHTML = streams.map(s => `
-        <li class="stream-item" style="list-style:none; margin-bottom: 20px;">
+        <div class="card">
           <a href="${s.url}" target="_blank" style="text-decoration:none; color:inherit;">
-            <img src="${this.escape(s.thumbnailUrl)}" alt="Preview" style="width:100%; border-radius:8px; margin-bottom: 5px;">
-            <div style="font-weight:bold;">${this.escape(s.displayName)}</div>
-            <div style="font-size:0.9em; color:#aaa;">${this.escape(s.title)}</div>
+            <img src="${this.escape(s.thumbnailUrl)}" class="mural-card-img" alt="Preview">
+            <div class="mural-card-body">
+                <h3 class="mural-card-title">${this.escape(s.displayName)}</h3>
+                <p class="mural-card-text">${this.escape(s.title)}</p>
+            </div>
           </a>
-        </li>
+        </div>
       `).join("");
     },
 

@@ -4,54 +4,57 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cadastro de Aventura — BRAZUG</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/admin.css" />
-    <link rel="icon" href="assets/branding/contentbra.png" type="image/png" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
   </head>
-  <body class="admin-page">
+  <body>
     <header class="site-header" id="universal-header"></header>
     
-    <main class="admin-main">
-      <section class="admin-card">
-        <h2>Nova Aventura</h2>
-        <form id="adventure-form" class="admin-form">
-          <div class="form-row">
-            <label>Título *<input type="text" name="title" required maxlength="120" /></label>
-            <label>Data<input type="date" name="event_date" /></label>
+    <main class="container">
+      <section class="card">
+        <h2 class="section-title">Nova Aventura</h2>
+        <form id="adventure-form" style="display: flex; flex-direction: column; gap: 20px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div><label>Título *</label><input type="text" name="title" required maxlength="120" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;"></div>
+            <div><label>Data</label><input type="date" name="event_date" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;"></div>
           </div>
           
-          <label>Autor / Personagem (Selecione ou escreva)
-            <select name="author_select" id="author-select">
-              <option value="">Nenhum selecionado...</option>
-            </select>
-            <input type="text" name="author_text" id="author-text" placeholder="Ou digite o autor manualmente" style="margin-top: 0.5rem;" />
-          </label>
+          <div>
+              <label>Autor / Personagem</label>
+              <select name="author_select" id="author-select" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff; margin-bottom: 10px;">
+                  <option value="">Selecione um personagem...</option>
+              </select>
+              <input type="text" name="author_text" id="author-text" placeholder="Ou digite manualmente" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;">
+          </div>
 
-          <label>História *<textarea name="body" rows="6" required maxlength="4000"></textarea></label>
+          <div><label>História *</label><textarea name="body" rows="6" required maxlength="4000" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;"></textarea></div>
           
-          <label>URL da Imagem <input type="url" name="image_url" placeholder="https://..." /></label>
+          <div>
+              <label>Imagem da Aventura</label>
+              <input type="file" name="image_file" accept="image/*" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff; margin-bottom: 10px;">
+              <input type="url" name="image_url" placeholder="Ou cole a URL da imagem aqui" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;">
+          </div>
           
-          <div class="form-row">
-            <label class="checkbox-label">
-              <input type="checkbox" name="published" checked /> Publicar no mural
-            </label>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label><input type="checkbox" name="published" checked /> Publicar no mural</label>
             <label>Visibilidade
-              <select name="visibility" id="visibility-select">
+              <select name="visibility" id="visibility-select" style="padding: 5px; background: #111; border: 1px solid #333; color: #fff;">
                 <option value="public" selected>Pública</option>
               </select>
             </label>
           </div>
 
-          <button type="submit" class="btn btn-secondary" style="margin-top: 1rem;">Salvar Aventura</button>
-          <p id="form-msg" class="admin-msg" hidden></p>
+          <button type="submit" class="discord-btn" style="border: none; width: 100%; cursor: pointer;">Salvar Aventura</button>
         </form>
-        
-        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
-            <a href="/admin.html" class="btn-small">← Voltar ao painel</a>
+        <div style="margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">
+            <a href="/admin.html" style="color: var(--gold);">← Voltar ao painel</a>
         </div>
       </section>
     </main>
 
+    <script src="/js/models/AdminModel.js"></script>
+    <script src="/js/controllers/AdminController.js"></script>
+    <script src="/js/header.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const role = localStorage.getItem("brazug_admin_role");
@@ -64,7 +67,5 @@
         }
       });
     </script>
-    <script src="js/admin.js"></script>
-    <script src="js/header.js"></script>
   </body>
 </html>

@@ -4,84 +4,79 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel Administrativo — BRAZUG</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/admin.css" />
-    <link rel="icon" href="assets/branding/contentbra.png" type="image/png" />
-    <style>
-      #user-edit-modal[hidden] { display: none !important; }
-    </style>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
   </head>
-  <body class="admin-page">
-    <header id="universal-header"></header>
+  <body>
+    <header class="site-header" id="universal-header"></header>
 
-    <main class="admin-main" id="app-content">
-      <section id="dashboard-panel" class="admin-dashboard" hidden>
-        <div id="users-panel" class="admin-card" hidden>
-          <h2>Gestão de Usuários</h2>
-          <form id="user-form" class="admin-form">
-            <div class="form-row">
-              <label>Nome <input type="text" name="username" required /></label>
-              <label>Senha <input type="password" name="password" required /></label>
-              <label>Cargo
-                <select name="role">
+    <main class="container">
+      <section id="dashboard-panel" hidden>
+        <!-- GESTÃO DE USUÁRIOS -->
+        <div id="users-panel" class="card" hidden>
+          <h2 class="section-title" style="font-size: 28px;">Gestão de Usuários</h2>
+          <form id="user-form" style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+              <div><label>Nome</label><input type="text" name="username" required style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;"></div>
+              <div><label>Senha</label><input type="password" name="password" required style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;"></div>
+              <div>
+                <label>Cargo</label>
+                <select name="role" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;">
                   <option value="admin">Admin</option>
                   <option value="guildmaster">Guildmaster</option>
                   <option value="officer">Officer</option>
                   <option value="guildmember">Guildmember</option>
                 </select>
-              </label>
+              </div>
             </div>
-            <button type="submit" class="btn btn-secondary">Adicionar Usuário</button>
+            <button type="submit" class="discord-btn" style="border-radius: 4px; border: none; cursor: pointer;">Adicionar Usuário</button>
           </form>
-          <input type="text" id="user-search" placeholder="Buscar por nome..." style="width: 100%; padding: 0.8rem; margin-top: 1rem;" />
-          <ul id="users-list" class="admin-list" style="margin-top: 1rem;"></ul>
+          <input type="text" id="user-search" placeholder="Buscar por nome..." style="width: 100%; padding: 10px; margin-top: 20px; background: #000; border: 1px solid #444; color: #fff;" />
+          <ul id="users-list" style="list-style: none; margin-top: 20px;"></ul>
         </div>
 
-        <div id="logs-panel" class="admin-card" hidden>
-          <h2>Relatório do Sistema</h2>
-          <ul id="logs-list" class="admin-list"></ul>
+        <!-- RELATÓRIO -->
+        <div id="logs-panel" class="card" hidden style="margin-top: 30px;">
+          <h2 class="section-title" style="font-size: 28px;">Relatório do Sistema</h2>
+          <ul id="logs-list" style="list-style: none;"></ul>
         </div>
 
-        <div class="admin-card">
-          <h2>Conteúdo</h2>
-          <a href="/cadastro-aventura.html" class="btn btn-secondary">Nova Aventura</a>
-          <ul id="admin-list" class="admin-list" style="margin-top: 1rem;"></ul>
+        <!-- CONTEÚDO -->
+        <div class="card" style="margin-top: 30px;">
+          <h2 class="section-title" style="font-size: 28px;">Aventuras</h2>
+          <a href="/cadastro-aventura.html" class="discord-btn" style="display: inline-block; margin-bottom: 20px;">Nova Aventura</a>
+          <ul id="admin-list" style="list-style: none;"></ul>
         </div>
       </section>
     </main>
 
-    <!-- User Edit Modal -->
-    <div id="user-edit-modal" class="modal" hidden onclick="if(event.target==this) this.hidden=true">
-        <div class="modal-content">
+    <!-- MODAL DE EDIÇÃO -->
+    <div id="user-edit-modal" class="mural-modal" hidden onclick="if(event.target==this) this.hidden=true">
+        <div class="mural-modal-panel" style="padding: 30px;">
+            <button type="button" class="mural-modal-close" onclick="document.getElementById('user-edit-modal').hidden = true">×</button>
             <h2>Editar Usuário</h2>
-            <form id="user-edit-form" class="admin-form">
+            <form id="user-edit-form" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
                 <input type="hidden" id="edit-user-id" />
-                <label>Nome <input type="text" id="edit-username" required /></label>
-                <label>Nova Senha (deixar vazio para manter)<input type="password" id="edit-password" /></label>
-                <label>Cargo
-                    <select id="edit-role">
-                        <option value="admin">Admin</option>
-                        <option value="guildmaster">Guildmaster</option>
-                        <option value="officer">Officer</option>
-                        <option value="guildmember">Guildmember</option>
-                    </select>
-                </label>
-                <div style="margin-top: 1rem; display: flex; gap: 10px;">
-                    <button type="submit" class="btn btn-secondary">Salvar Alterações</button>
-                    <button type="button" class="btn btn-small" onclick="closeUserEditModal()">Cancelar</button>
+                <label>Nome</label><input type="text" id="edit-username" required style="padding: 10px; background: #111; border: 1px solid #333; color: #fff;" />
+                <label>Nova Senha (vazio para manter)</label><input type="password" id="edit-password" style="padding: 10px; background: #111; border: 1px solid #333; color: #fff;" />
+                <label>Cargo</label>
+                <select id="edit-role" style="padding: 10px; background: #111; border: 1px solid #333; color: #fff;">
+                    <option value="admin">Admin</option>
+                    <option value="guildmaster">Guildmaster</option>
+                    <option value="officer">Officer</option>
+                    <option value="guildmember">Guildmember</option>
+                </select>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button type="submit" class="discord-btn" style="border: none;">Salvar Alterações</button>
+                    <button type="button" class="discord-btn" style="background: #444; border: none;" onclick="document.getElementById('user-edit-modal').hidden = true">Cancelar</button>
                 </div>
-                </form>
-                </div>
-                </div>
+            </form>
+        </div>
+    </div>
 
-                <script>
-                function closeUserEditModal() {
-                document.getElementById('user-edit-modal').hidden = true;
-                }
-                </script>
-    <script src="js/models/AdminModel.js"></script>
-    <script src="js/views/AdminView.js"></script>
-    <script src="js/controllers/AdminController.js"></script>
-    <script src="js/header.js"></script>
+    <script src="/js/models/AdminModel.js"></script>
+    <script src="/js/views/AdminView.js"></script>
+    <script src="/js/controllers/AdminController.js"></script>
+    <script src="/js/header.js"></script>
   </body>
 </html>

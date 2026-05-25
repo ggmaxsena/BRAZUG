@@ -4,46 +4,45 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Perfil — BRAZUG</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/admin.css" />
-    <link rel="icon" href="assets/branding/contentbra.png" type="image/png" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
   </head>
-  <body class="admin-page">
+  <body>
     <header class="site-header" id="universal-header"></header>
 
-    <main class="admin-main">
-      <section id="profile-panel" class="admin-card">
-        <h2>Meu Perfil</h2>
-        <div id="user-info">
+    <main class="container">
+      <section id="profile-panel" class="card">
+        <h2 class="section-title">Meu Perfil</h2>
+        <div id="user-info" style="margin-bottom: 30px;">
           <p><strong>Usuário:</strong> <span id="profile-username"></span></p>
           <p><strong>Cargo:</strong> <span id="profile-role"></span></p>
         </div>
 
         <div style="margin-top: 2rem;">
-          <h3>Segurança</h3>
-          <form id="password-form" class="admin-form">
-            <input type="password" name="oldPassword" placeholder="Senha atual" required />
-            <input type="password" name="newPassword" placeholder="Nova senha" required />
-            <input type="password" name="confirmPassword" placeholder="Confirmar nova senha" required />
-            <button type="submit" class="btn btn-secondary">Alterar Senha</button>
+          <h3 style="color: var(--gold); margin-bottom: 15px;">Segurança</h3>
+          <form id="password-form" style="display: flex; flex-direction: column; gap: 15px; max-width: 400px;">
+            <input type="password" name="oldPassword" placeholder="Senha atual" required style="padding: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;" />
+            <input type="password" name="newPassword" placeholder="Nova senha" required style="padding: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;" />
+            <input type="password" name="confirmPassword" placeholder="Confirmar nova senha" required style="padding: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;" />
+            <button type="submit" class="discord-btn" style="border: none; width: 100%;">Alterar Senha</button>
           </form>
-          <p id="password-msg" class="admin-msg" hidden></p>
+          <p id="password-msg" hidden style="margin-top: 10px;"></p>
         </div>
 
-        <div id="admin-actions" style="margin-top: 2rem;" hidden>
-          <h3>Ações da Guilda</h3>
-          <a href="/cadastro-aventura.html" class="btn btn-horde">Cadastrar Nova Aventura</a>
+        <div id="admin-actions" style="margin-top: 30px;" hidden>
+          <h3 style="color: var(--gold); margin-bottom: 15px;">Ações Rápidas</h3>
+          <a href="/cadastro-aventura.html" class="discord-btn" style="display: inline-block;">Cadastrar Nova Aventura</a>
         </div>
 
-        <div style="margin-top: 2rem;">
-          <h3>Minhas Fichas</h3>
-          <a href="/ficha.html" class="btn btn-secondary">Criar/Gerenciar Fichas</a>
+        <div style="margin-top: 30px;">
+          <h3 style="color: var(--gold); margin-bottom: 15px;">Minhas Fichas</h3>
+          <a href="/ficha.html" class="discord-btn" style="display: inline-block;">Gerenciar Personagens</a>
         </div>
       </section>
 
-      <section class="admin-card" style="margin-top: 2rem;">
-        <h2>Minhas Aventuras Cadastradas</h2>
-        <ul id="user-adventures-list" class="admin-list"></ul>
+      <section class="card" style="margin-top: 2rem;">
+        <h2 class="section-title" style="font-size: 28px;">Minhas Aventuras</h2>
+        <ul id="user-adventures-list" style="list-style: none;"></ul>
       </section>
     </main>
 

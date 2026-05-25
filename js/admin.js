@@ -54,22 +54,75 @@
         }
 
         if (elements.adventureForm) {
+            // Check for edit mode
+            const params = new URLSearchParams(window.location.search);
+            const editId = params.get('id');
+            
+            if (editId) {
+                // Fetch adventure details and populate form
+                api("/adventures", { headers: authHeaders() }).then(data => {
+                    const adv = (data.adventures || []).find(a => a.id === editId);
+                    if (adv) {
+                        elements.adventureForm.title.value = adv.title;
+                        elements.adventureForm.event_date.value = adv.event_date;
+                        elements.adventureForm.body.value = adv.body;
+                        elements.adventureForm.image_url.value = adv.image_url;
+                        elements.adventureForm.published.checked = !!adv.published;
+                        elements.adventureForm.visibility.value = adv.visibility;
+                        elements.adventureForm.author_text.value = adv.author;
+                    }
+                });
+            }
+
             elements.adventureForm.onsubmit = async (e) => {
                 e.preventDefault();
                 const fd = new FormData(elements.adventureForm);
+                const token = getToken();
+                let imageUrl = fd.get("image_url");
+
+                // Handle file upload if present
+                const imageFile = elements.adventureForm.image_file.files[0];
+                if (imageFile) {
+                    const upData = new FormData();
+                    upData.append("image", imageFile);
+                    try {
+                        const upRes = await fetch("/api/admin/upload", {
+                            method: "POST",
+                            headers: { "Authorization": "Bearer " + token },
+                            body: upData
+                        });
+                        const upResData = await upRes.json();
+                        if (!upRes.ok) throw new Error(upResData.error || "Upload falhou");
+                        imageUrl = upResData.url;
+                    } catch (err) {
+                        return alert("Erro no upload: " + err.message);
+                    }
+                }
+
                 const payload = {
                   title: fd.get("title"),
                   event_date: fd.get("event_date"),
                   body: fd.get("body"),
-                  image_url: fd.get("image_url"),
+                  image_url: imageUrl,
                   published: !!fd.get("published"),
                   visibility: fd.get("visibility"),
                   author: fd.get("author_text") || fd.get("author_select") || ""
                 };
+
                 try {
-                  await api("/adventures", "POST", payload, authHeaders());
+                  const method = editId ? "PUT" : "POST";
+                  const path = editId ? "/adventures/" + editId : "/adventures";
+                  await api(path, { 
+                      method: method, 
+                      headers: authHeaders(),
+                      body: JSON.stringify(payload)
+                  });
                   alert("Aventura salva!");
-                  elements.adventureForm.reset();
+                  if (editId) {
+                      window.location.href = "/admin.html";
+                  } else {
+                      elements.adventureForm.reset();
+                  }
                 } catch(e) { alert(e.message); }
             };
         }

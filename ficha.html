@@ -5,173 +5,159 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meu Perfil Brazuguer - BRAZUG</title>
 <link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
 <style>
-body{ background:#111; color:#eee; font-family:Arial, sans-serif; margin:0; padding:20px; padding-top: 100px; }
-.container{ max-width:1200px; margin:auto; }
-h1{ text-align:center; color:#00ff88; }
-.card{ background:#1b1b1b; border:1px solid #333; border-radius:10px; padding:20px; margin-bottom:20px; }
-.grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:15px; }
-label{ display:block; margin-bottom:5px; color:#00ff88; font-weight:bold; }
-input, select, textarea{ width:100%; padding:10px; background:#222; border:1px solid #444; color:#fff; border-radius:6px; box-sizing:border-box; }
-textarea{ min-height:120px; resize:vertical; }
-button{ background:#00aa66; color:#fff; border:none; padding:12px 20px; border-radius:8px; cursor:pointer; font-size:16px; margin-right:10px; }
-button:hover{ background:#00cc77; }
-.characters{ margin-top:30px; }
-.character-card{ background:#1a1a1a; border:1px solid #333; border-radius:10px; padding:15px; margin-bottom:15px; position: relative; }
-.character-card h3{ margin-top:0; color:#00ff88; }
-.visibility-badge { position: absolute; top: 15px; right: 15px; padding: 4px 8px; border-radius: 4px; font-size: 12px; background: #333; }
-.badge-public { color: #00ff88; }
-.badge-private { color: #ff8800; }
-.character-card.dead { filter: grayscale(0.8) sepia(0.2); border-color: #555; opacity: 0.8; }
-.character-card.dead h3 { color: #888; text-decoration: line-through; }
-.rip-banner { background: #440000; color: #ffaaaa; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-weight: bold; border: 1px solid #660000; }
-.death-details { background: #221111; border-left: 3px solid #aa0000; padding: 10px; margin: 10px 0; font-style: italic; font-size: 0.9em; }
-.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); }
-.modal-content { background-color: #1b1b1b; margin: 10% auto; padding: 25px; border: 1px solid #444; width: 90%; max-width: 500px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-.section-title { margin-top: 40px; padding-bottom: 10px; border-bottom: 2px solid #333; color: #00ff88; }
-.section-title.fallen { color: #ff4444; border-bottom-color: #660000; }
-.prof-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.prof-row select { flex: 1; }
-.prof-check-box { display: flex; align-items: center; gap: 5px; background: #222; padding: 8px 12px; border-radius: 6px; border: 1px solid #444; white-space: nowrap; }
-.prof-check-box input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
-.prof-check-box label { margin: 0; font-size: 13px; color: #00ff88; cursor: pointer; }
-.social-links-container { display: flex; gap: 10px; margin-top: 10px; }
-.social-link-btn { padding: 5px 10px; border-radius: 4px; font-size: 12px; text-decoration: none; display: flex; align-items: center; gap: 5px; color: #fff; transition: opacity 0.2s; }
-.btn-twitch { background: #9146ff; }
-.btn-youtube { background: #ff0000; }
+    .prof-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-top: 15px;
+    }
+    .prof-item {
+        display: flex;
+        align-items: flex-end;
+        gap: 10px;
+    }
+    .prof-item div:first-child { flex: 1; }
+    .prof-item div:last-child { width: 80px; }
+    .prof-item label { font-size: 13px; color: var(--text-muted); }
 </style>
 </head>
 <body>
 
-<header id="universal-header"></header>
+<header class="site-header" id="universal-header"></header>
 
 <div class="container">
-<h1 id="form-title">Personagens</h1>
+    <h1 class="section-title">Meu Perfil e Personagens</h1>
 
-<div id="form-container">
-    <div class="card">
-        <h2>Criar/Editar Personagem</h2>
-        <div class="grid">
-            <div>
-                <label>Nome do Personagem</label>
-                <input type="text" id="name">
-            </div>
-            <div>
-                <label>Classe</label>
-                <select id="class">
-                    <option>Warrior</option>
-                    <option>Hunter</option>
-                    <option>Rogue</option>
-                    <option>Mage</option>
-                    <option>Warlock</option>
-                    <option>Priest</option>
-                    <option>Druid</option>
-                    <option>Shaman</option>
-                    <option>Paladin</option>
-                </select>
-            </div>
-            <div>
-                <label>Raça</label>
-                <select id="race">
-                    <option>Orc</option>
-                    <option>Troll</option>
-                    <option>Tauren</option>
-                    <option>Undead</option>
-                    <option>Human</option>
-                    <option>Dwarf</option>
-                    <option>Night Elf</option>
-                    <option>Gnome</option>
-                </select>
-            </div>
-            <div>
-                <label>Level</label>
-                <input type="number" id="level" value="1">
-            </div>
-            <div>
-                <label>Guilda</label>
-                <input type="text" id="guild" value="BRAZUG">
-            </div>
-            <div>
-                <label>Visibilidade</label>
-                <select id="visibility">
-                    <option value="public">Público (Todos veem)</option>
-                    <option value="private">Privado (Só eu e admins)</option>
-                </select>
-            </div>
-            <div>
-                <label>Status</label>
-                <select id="status">
-                    <option value="alive">Vivo</option>
-                    <option value="dead">Morto</option>
-                </select>
-            </div>
-        </div>
-        
-        <div style="margin-top: 25px;">
-            <h3 style="color: #00ff88; margin-bottom: 15px;">Profissões</h3>
-            <div class="grid">
+    <div id="form-container">
+        <div class="card" id="character-form-card">
+            <h2 style="color: var(--gold); margin-bottom: 20px;">Criar/Editar Personagem</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div><label>Nome do Personagem</label><input type="text" id="name" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
                 <div>
-                    <label>Profissão Primária 1</label>
-                    <div class="prof-row">
-                        <select id="prof1_name">
-                            <option value="">Nenhuma</option>
-                            <option>Alchemy</option>
-                            <option>Blacksmithing</option>
-                            <option>Enchanting</option>
-                            <option>Engineering</option>
-                            <option>Herbalism</option>
-                            <option>Leatherworking</option>
-                            <option>Mining</option>
-                            <option>Skinning</option>
-                            <option>Tailoring</option>
-                        </select>
-                        <div class="prof-check-box"><input type="checkbox" id="prof1_300"><label for="prof1_300">300</label></div>
-                    </div>
+                    <label>Classe</label>
+                    <select id="class" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                        <option>Warrior</option><option>Hunter</option><option>Rogue</option><option>Mage</option><option>Warlock</option><option>Priest</option><option>Druid</option><option>Shaman</option><option>Paladin</option>
+                    </select>
                 </div>
                 <div>
-                    <label>Profissão Primária 2</label>
-                    <div class="prof-row">
-                        <select id="prof2_name"><option value="">Nenhuma</option><option>Alchemy</option><option>Blacksmithing</option><option>Enchanting</option><option>Engineering</option><option>Herbalism</option><option>Leatherworking</option><option>Mining</option><option>Skinning</option><option>Tailoring</option></select>
-                        <div class="prof-check-box"><input type="checkbox" id="prof2_300"><label for="prof2_300">300</label></div>
-                    </div>
+                    <label>Raça</label>
+                    <select id="race" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                        <option>Orc</option><option>Troll</option><option>Tauren</option><option>Undead</option><option>Human</option><option>Dwarf</option><option>Night Elf</option><option>Gnome</option>
+                    </select>
+                </div>
+                <div><label>Level</label><input type="number" id="level" value="1" min="1" max="60" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
+                <div><label>Guilda</label><input type="text" id="guild" value="BRAZUG" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
+                <div>
+                    <label>Visibilidade</label>
+                    <select id="visibility" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                        <option value="public">Público</option><option value="private">Privado</option>
+                    </select>
                 </div>
                 <div>
-                    <label>Secundária 1</label>
-                    <div class="prof-row">
-                        <select id="sec1_name"><option value="">Nenhuma</option><option>Cooking</option><option>First Aid</option><option>Fishing</option></select>
-                        <div class="prof-check-box"><input type="checkbox" id="sec1_300"><label for="sec1_300">300</label></div>
-                    </div>
-                </div>
-                <div>
-                    <label>Secundária 2</label>
-                    <div class="prof-row">
-                        <select id="sec2_name"><option value="">Nenhuma</option><option>Cooking</option><option>First Aid</option><option>Fishing</option></select>
-                        <div class="prof-check-box"><input type="checkbox" id="sec2_300"><label for="sec2_300">300</label></div>
-                    </div>
+                    <label>Status</label>
+                    <select id="status" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                        <option value="alive">Vivo</option><option value="dead">Morto</option>
+                    </select>
                 </div>
             </div>
-        </div>
+            
+            <div style="margin-top: 30px;">
+                <h3 style="color: var(--gold); margin-bottom: 5px;">Profissões</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Informe o nome e o nível atual da profissão (máx. 300)</p>
+                
+                <div class="prof-grid">
+                    <!-- Primária 1 -->
+                    <div class="prof-item">
+                        <div>
+                            <label>Primária 1</label>
+                            <select id="prof1_name" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                                <option value="">Nenhuma</option>
+                                <option>Alchemy</option><option>Blacksmithing</option><option>Enchanting</option><option>Engineering</option>
+                                <option>Herbalism</option><option>Leatherworking</option><option>Mining</option><option>Skinning</option><option>Tailoring</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Lvl</label>
+                            <input type="number" id="prof1_lvl" value="0" min="0" max="300" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                        </div>
+                    </div>
 
-        <div class="grid" style="margin-top: 15px;">
-            <div><label>URL da Imagem</label><input type="url" id="image_url" placeholder="https://..."></div>
-            <div><label>Twitch</label><input type="url" id="twitch_url" placeholder="https://..."></div>
-            <div><label>YouTube</label><input type="url" id="youtube_url" placeholder="https://..."></div>
+                    <!-- Primária 2 -->
+                    <div class="prof-item">
+                        <div>
+                            <label>Primária 2</label>
+                            <select id="prof2_name" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                                <option value="">Nenhuma</option>
+                                <option>Alchemy</option><option>Blacksmithing</option><option>Enchanting</option><option>Engineering</option>
+                                <option>Herbalism</option><option>Leatherworking</option><option>Mining</option><option>Skinning</option><option>Tailoring</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Lvl</label>
+                            <input type="number" id="prof2_lvl" value="0" min="0" max="300" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                        </div>
+                    </div>
+
+                    <!-- Cooking -->
+                    <div class="prof-item">
+                        <div><label>Culinária (Cooking)</label><input type="text" value="Cooking" disabled style="width:100%; padding:8px; background:#000; border:1px solid #222; color:#555; border-radius: 4px;"></div>
+                        <div><label>Lvl</label><input type="number" id="prof_cooking_lvl" value="0" min="0" max="300" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
+                    </div>
+
+                    <!-- First Aid -->
+                    <div class="prof-item">
+                        <div><label>Primeiros Socorros (First Aid)</label><input type="text" value="First Aid" disabled style="width:100%; padding:8px; background:#000; border:1px solid #222; color:#555; border-radius: 4px;"></div>
+                        <div><label>Lvl</label><input type="number" id="prof_aid_lvl" value="0" min="0" max="300" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
+                    </div>
+
+                    <!-- Fishing -->
+                    <div class="prof-item">
+                        <div><label>Pescaria (Fishing)</label><input type="text" value="Fishing" disabled style="width:100%; padding:8px; background:#000; border:1px solid #222; color:#555; border-radius: 4px;"></div>
+                        <div><label>Lvl</label><input type="number" id="prof_fishing_lvl" value="0" min="0" max="300" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 25px;">
+                <div>
+                    <label>Imagem do Personagem</label>
+                    <input type="file" id="image_file" accept="image/*" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px; margin-bottom: 10px;">
+                    <input type="url" id="image_url" placeholder="Ou cole a URL da imagem aqui" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <label>Lore / História / Biografia</label>
+                <textarea id="lore" placeholder="Conte a jornada deste herói..." style="width:100%; height:120px; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button id="btn-save" class="discord-btn" style="border: none; flex: 1; cursor: pointer;">Criar Personagem</button>
+                <button id="btn-cancel-edit" class="discord-btn" style="border: none; background: #444; display: none; cursor: pointer;" onclick="location.reload()">Cancelar</button>
+            </div>
         </div>
     </div>
-    <div class="card"><h2>Lore / História</h2><textarea id="lore"></textarea></div>
-    <div style="display: flex; gap: 10px;"><button id="btn-save">Criar Personagem</button></div>
-</div>
 
-<div class="card" id="filter-panel" style="margin-bottom: 20px;">
-    <h3>Filtros de Listagem</h3>
-    <div class="grid">
-        <select id="filter-class"><option value="">Todas as Classes</option><option>Warrior</option><option>Hunter</option><option>Rogue</option><option>Mage</option><option>Warlock</option><option>Priest</option><option>Druid</option><option>Shaman</option><option>Paladin</option></select>
-        <select id="filter-race"><option value="">Todas as Raças</option><option>Orc</option><option>Troll</option><option>Tauren</option><option>Undead</option><option>Human</option><option>Dwarf</option><option>Night Elf</option><option>Gnome</option></select>
-        <input type="text" id="filter-owner" placeholder="Filtrar por dono (Admin only)" style="display:none;" />
+    <div class="card" id="filter-panel" style="margin-top: 30px;">
+        <h3 style="color: var(--gold); margin-bottom: 15px;">Filtros de Listagem</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <select id="filter-class" style="padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"><option value="">Todas as Classes</option><option>Warrior</option><option>Hunter</option><option>Rogue</option><option>Mage</option><option>Warlock</option><option>Priest</option><option>Druid</option><option>Shaman</option><option>Paladin</option></select>
+            <select id="filter-race" style="padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"><option value="">Todas as Raças</option><option>Orc</option><option>Troll</option><option>Tauren</option><option>Undead</option><option>Human</option><option>Dwarf</option><option>Night Elf</option><option>Gnome</option></select>
+            <input type="text" id="filter-owner" placeholder="Filtrar por dono (Admin only)" style="display:none; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;" />
+        </div>
+    </div>
+
+    <div id="character-list-alive-section">
+        <h2 class="section-title">Seus Personagens Ativos</h2>
+        <div id="character-list-alive" class="grid-layout"></div>
+    </div>
+
+    <div id="character-list-dead-section" style="margin-top: 50px;">
+        <h2 class="section-title fallen">Cemitério / Hall da Fama</h2>
+        <div id="character-list-dead" class="grid-layout"></div>
     </div>
 </div>
-
-<div id="character-list"></div>
 
 <script src="/js/models/CharacterModel.js"></script>
 <script src="/js/views/CharacterView.js"></script>

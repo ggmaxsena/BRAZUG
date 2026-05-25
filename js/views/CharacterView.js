@@ -11,12 +11,15 @@
         const canEdit = isAdmin || isOwner;
         
         return `
-        <div class="hero-card">
-          ${c.image_url ? `<img src="${this.escape(c.image_url)}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px 4px 0 0;" alt="${this.escape(c.name)}">` : ""}
-          <div style="padding: 10px;">
-            <h3>${this.escape(c.name)}</h3>
-            <p>${this.escape(c.class || "Sem classe")}</p>
-            ${canEdit ? `<button class="btn-small" onclick="CharacterController.edit('${c.id}')">Editar</button>` : ""}
+        <div class="hero-card ${c.is_dead ? 'dead' : ''}">
+          ${c.image_url ? `<img src="${this.escape(c.image_url)}" class="mural-card-img" alt="${this.escape(c.name)}">` : ""}
+            <div class="mural-card-body">
+            <h3 class="mural-card-title">${this.escape(c.name)}</h3>
+            <p class="mural-card-text">${this.escape(c.class || "Sem classe")} - Lvl ${c.is_dead ? (c.death_level || c.level) : c.level}</p>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
+              <button class="discord-btn" style="border:none; width:100%; cursor:pointer; background: var(--gold); color: #000;" onclick="CharacterController.view('${c.id}')">Ver Ficha Pública</button>
+              ${canEdit ? `<button class="discord-btn" style="border:none; width:100%; cursor:pointer;" onclick="CharacterController.edit('${c.id}')">Editar</button>` : ""}
+            </div>
           </div>
         </div>
       `;

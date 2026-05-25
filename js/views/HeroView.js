@@ -7,8 +7,8 @@
       const deadGrid = document.getElementById("heroes-dead-grid");
       if (!aliveGrid || !deadGrid) return;
 
-      const alive = characters.filter(c => !c.dead);
-      const dead = characters.filter(c => c.dead);
+      const alive = characters.filter(c => !c.is_dead);
+      const dead = characters.filter(c => c.is_dead);
 
       aliveGrid.innerHTML = alive.map(c => this.createCard(c)).join("");
       deadGrid.innerHTML = dead.map(c => this.createCard(c)).join("");
@@ -16,14 +16,14 @@
 
     createCard(c) {
       const imgHtml = c.image_url 
-        ? `<img src="${this.escape(c.image_url)}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px 4px 0 0;" alt="${this.escape(c.name)}">` 
+        ? `<img src="${this.escape(c.image_url)}" class="mural-card-img" alt="${this.escape(c.name)}">` 
         : "";
       return `
         <div class="hero-card" style="cursor: pointer;" onclick="HeroController.select('${c.id}')">
           ${imgHtml}
-          <div style="padding: 10px;">
-            <h3>${this.escape(c.name)}</h3>
-            <p>${this.escape(c.class || "")} - Lvl ${c.level || 1}</p>
+          <div class="mural-card-body">
+            <h3 class="mural-card-title">${this.escape(c.name)}</h3>
+            <p class="mural-card-text">${this.escape(c.class || "")} - Lvl ${c.level || 1}</p>
           </div>
         </div>
       `;
