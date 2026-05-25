@@ -7,8 +7,10 @@
       if (!token) return window.location.href = "/login.html";
 
       try {
+        const username = localStorage.getItem("brazug_admin_user");
+        const role = localStorage.getItem("brazug_admin_role");
         const chars = await CharacterModel.fetchAll(token);
-        CharacterView.renderList(chars, document.getElementById("character-list"));
+        CharacterView.renderList(chars, document.getElementById("character-list"), username, role);
       } catch (e) {
         console.error(e);
       }
