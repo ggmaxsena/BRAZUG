@@ -29,6 +29,7 @@
             const password = prompt("As sombras pedem sua senha:");
             if (password === "destino das sombras") {
               const shadowAdventures = await AdventureModel.fetchAll("que as sombras mostram meu destino");
+              adventures = shadowAdventures; // Atualiza a variável local para que o event listener encontre os novos itens
               AdventureView.renderGrid(shadowAdventures, container);
             }
           }
