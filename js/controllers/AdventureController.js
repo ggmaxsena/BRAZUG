@@ -49,7 +49,13 @@
     openModal(adventure) {
       const modal = document.getElementById("mural-modal");
       if (!modal) return;
-      document.getElementById("mural-modal-img").src = adventure.image_url || "";
+      const img = document.getElementById("mural-modal-img");
+      img.src = adventure.image_url || "";
+      img.style.maxHeight = "400px";
+      img.style.width = "100%";
+      img.style.objectFit = "cover";
+      img.style.borderRadius = "8px";
+      
       document.getElementById("mural-modal-title").textContent = adventure.title;
       document.getElementById("mural-modal-body").textContent = adventure.body;
       document.getElementById("mural-modal-date").textContent = adventure.event_date;
@@ -61,7 +67,6 @@
       modal.querySelector("[data-action='close']").onclick = close;
       modal.querySelector(".mural-modal-backdrop").onclick = close;
     }
-  };
 
   document.addEventListener("DOMContentLoaded", () => AdventureController.init());
 })();
