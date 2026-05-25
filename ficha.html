@@ -46,10 +46,11 @@ button:hover{ background:#00cc77; }
 <header id="universal-header"></header>
 
 <div class="container">
-<h1 id="form-title">Meu Perfil e Personagens</h1>
+<h1 id="form-title">Personagens</h1>
 
 <div id="form-container">
     <div class="card">
+        <h2>Criar/Editar Personagem</h2>
         <div class="grid">
             <div>
                 <label>Nome do Personagem</label>
@@ -159,6 +160,15 @@ button:hover{ background:#00cc77; }
     </div>
     <div class="card"><h2>Lore / História</h2><textarea id="lore"></textarea></div>
     <div style="display: flex; gap: 10px;"><button id="btn-save">Criar Personagem</button></div>
+</div>
+
+<div class="card" id="filter-panel" style="margin-bottom: 20px;">
+    <h3>Filtros de Listagem</h3>
+    <div class="grid">
+        <select id="filter-class"><option value="">Todas as Classes</option><option>Warrior</option><option>Hunter</option><option>Rogue</option><option>Mage</option><option>Warlock</option><option>Priest</option><option>Druid</option><option>Shaman</option><option>Paladin</option></select>
+        <select id="filter-race"><option value="">Todas as Raças</option><option>Orc</option><option>Troll</option><option>Tauren</option><option>Undead</option><option>Human</option><option>Dwarf</option><option>Night Elf</option><option>Gnome</option></select>
+        <input type="text" id="filter-owner" placeholder="Filtrar por dono (Admin only)" style="display:none;" />
+    </div>
 </div>
 
 <div id="character-list"></div>

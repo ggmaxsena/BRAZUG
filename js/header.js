@@ -2,9 +2,8 @@
     "use strict";
 
     const headerContainer = document.getElementById('universal-header');
-    if (!headerContainer) return;
-
-    function renderHeader() {
+    
+    function renderHeader(container) {
         const token = localStorage.getItem("brazug_admin_token");
         const username = localStorage.getItem("brazug_admin_user");
         const role = localStorage.getItem("brazug_admin_role");
@@ -21,7 +20,7 @@
             `;
         }
 
-        headerContainer.innerHTML = `
+        container.innerHTML = `
             <div class="header-left">
                 <a class="logo" href="/">
                     <img class="logo-img" src="/assets/branding/contentbra.png" alt="BRAZUG" width="40" height="40" />
@@ -59,6 +58,8 @@
                 <a class="header-discord" href="https://discord.gg/2Qt92YqjG" target="_blank" rel="noopener noreferrer">Discord</a>
             </div>
         `;
+        
+        container.classList.add('header-ready');
 
         const toggle = document.getElementById('menu-toggle');
         const nav = document.getElementById('header-nav');
@@ -78,5 +79,5 @@
         }
     }
 
-    renderHeader();
+    if (headerContainer) renderHeader(headerContainer);
 })();

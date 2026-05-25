@@ -6,14 +6,36 @@
       const token = localStorage.getItem("brazug_admin_token");
       if (!token) return window.location.href = "/login.html";
 
+      const username = localStorage.getItem("brazug_admin_user");
+      const role = localStorage.getItem("brazug_admin_role");
+      if (role === 'admin') document.getElementById('filter-owner').style.display = 'block';
+
       try {
-        const username = localStorage.getItem("brazug_admin_user");
-        const role = localStorage.getItem("brazug_admin_role");
         const chars = await CharacterModel.fetchAll(token);
-        CharacterView.renderList(chars, document.getElementById("character-list"), username, role);
+        this.allChars = chars;
+        this.render(chars, username, role);
+
+        document.getElementById('filter-class').onchange = () => this.render(this.allChars, username, role);
+        document.getElementById('filter-race').onchange = () => this.render(this.allChars, username, role);
+        document.getElementById('filter-owner').oninput = () => this.render(this.allChars, username, role);
       } catch (e) {
         console.error(e);
       }
+    },
+
+    render(chars, username, role) {
+      const classFilter = document.getElementById('filter-class').value;
+      const raceFilter = document.getElementById('filter-race').value;
+      const ownerFilter = document.getElementById('filter-owner').value.toLowerCase();
+
+      let filtered = chars.filter(c => {
+        const matchClass = !classFilter || c.class === classFilter;
+        const matchRace = !raceFilter || c.race === raceFilter;
+        const matchOwner = !ownerFilter || (c.owner_username && c.owner_username.toLowerCase().includes(ownerFilter));
+        return matchClass && matchRace && matchOwner;
+      });
+
+      CharacterView.renderList(filtered, document.getElementById("character-list"), username, role);
     },
 
     async edit(id) {

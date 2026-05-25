@@ -13,9 +13,11 @@
       statusEl.hidden = true;
       container.hidden = false;
       container.innerHTML = streams.map(s => `
-        <li class="stream-item">
-          <a href="${s.url}" target="_blank">
-            <strong>${this.escape(s.user_name)}</strong> — ${this.escape(s.title)}
+        <li class="stream-item" style="list-style:none; margin-bottom: 20px;">
+          <a href="${s.url}" target="_blank" style="text-decoration:none; color:inherit;">
+            <img src="${this.escape(s.thumbnailUrl)}" alt="Preview" style="width:100%; border-radius:8px; margin-bottom: 5px;">
+            <div style="font-weight:bold;">${this.escape(s.displayName)}</div>
+            <div style="font-size:0.9em; color:#aaa;">${this.escape(s.title)}</div>
           </a>
         </li>
       `).join("");

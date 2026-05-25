@@ -14,7 +14,7 @@
   <body class="admin-page">
     <header id="universal-header"></header>
 
-    <main class="admin-main">
+    <main class="admin-main" id="app-content">
       <section id="dashboard-panel" class="admin-dashboard" hidden>
         <div id="users-panel" class="admin-card" hidden>
           <h2>Gestão de Usuários</h2>
@@ -76,7 +76,6 @@
 
                 <script>
                 function closeUserEditModal() {
-                console.log("Fechando modal...");
                 document.getElementById('user-edit-modal').hidden = true;
                 }
                 </script>
