@@ -51,10 +51,10 @@
       if (!modal) return;
       const img = document.getElementById("mural-modal-img");
       img.src = adventure.image_url || "";
-      img.style.maxHeight = "400px";
-      img.style.width = "100%";
-      img.style.objectFit = "cover";
-      img.style.borderRadius = "8px";
+      img.style.maxHeight = "";
+      img.style.width = "";
+      img.style.objectFit = "";
+      img.style.borderRadius = "";
       
       document.getElementById("mural-modal-title").textContent = adventure.title;
       document.getElementById("mural-modal-body").textContent = adventure.body;
