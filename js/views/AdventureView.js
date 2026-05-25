@@ -9,8 +9,8 @@
         return;
       }
       container.innerHTML = adventures.map(a => `
-        <div class="mural-card" data-adventure-id="${a.id}">
-          ${a.image_data ? `<img src="${a.image_data}" alt="${this.escapeHtml(a.title)}" style="width:100%; height:150px; object-fit:cover; border-radius:8px 8px 0 0;">` : ""}
+        <div class="mural-card" data-adventure-id="${a.id}" style="cursor: pointer;">
+          ${a.image_url ? `<img src="${this.escapeHtml(a.image_url)}" alt="${this.escapeHtml(a.title)}" style="width:100%; height:150px; object-fit:cover; border-radius:8px 8px 0 0;">` : ""}
           <div style="padding: 10px;">
             <h3>${this.escapeHtml(a.title)}</h3>
             <p>${this.escapeHtml(a.author)}</p>
