@@ -72,6 +72,10 @@
         document.getElementById("prof_aid_lvl").value = char.prof_aid_lvl || 0;
         document.getElementById("prof_fishing_lvl").value = char.prof_fishing_lvl || 0;
         
+        // Redes Sociais
+        document.getElementById("twitch_url").value = char.twitch_url || "";
+        document.getElementById("youtube_url").value = char.youtube_url || "";
+        
         // Mudar botão de salvar para update e mostrar cancelar
         const saveBtn = document.getElementById("btn-save");
         saveBtn.textContent = "Salvar Alterações";
@@ -122,7 +126,11 @@
           prof2_lvl: parseInt(document.getElementById("prof2_lvl").value) || 0,
           prof_cooking_lvl: parseInt(document.getElementById("prof_cooking_lvl").value) || 0,
           prof_aid_lvl: parseInt(document.getElementById("prof_aid_lvl").value) || 0,
-          prof_fishing_lvl: parseInt(document.getElementById("prof_fishing_lvl").value) || 0
+          prof_fishing_lvl: parseInt(document.getElementById("prof_fishing_lvl").value) || 0,
+
+          // Redes Sociais
+          twitch_url: document.getElementById("twitch_url").value,
+          youtube_url: document.getElementById("youtube_url").value
       };
       
       try {

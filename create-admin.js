@@ -21,11 +21,13 @@ async function run() {
     const existing = users.find(u => u.username === username);
     
     if (existing) {
-       console.log(`[SETUP] Usuário '${username}' encontrado. Removendo para atualizar a senha...`);
-       await db.deleteUser(existing.id);
+       console.log(`[SETUP] Usuário '${username}' encontrado. Atualizando senha...`);
+       await db.updateUserPassword(existing.id, auth.hashPassword(password));
+       console.log(`[SETUP] Sucesso! Senha do usuário '${username}' atualizada.`);
+       process.exit(0);
     }
 
-    console.log(`[SETUP] Criando usuário '${username}' com a nova senha...`);
+    console.log(`[SETUP] Criando novo usuário '${username}'...`);
     await db.createUser({
       username: username,
       password: auth.hashPassword(password),

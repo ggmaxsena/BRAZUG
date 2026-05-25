@@ -27,25 +27,14 @@ async function run() {
       await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS region TEXT DEFAULT 'us'");
       await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS realm TEXT DEFAULT 'doomhowl'");
 
-      console.log("[MIGRATION] Adicionando colunas de profissões...");
-      const profs = [
-        'prof_alchemy', 'prof_blacksmithing', 'prof_enchanting', 'prof_engineering',
-        'prof_herbalism', 'prof_leatherworking', 'prof_mining', 'prof_skinning',
-        'prof_tailoring', 'prof_cooking', 'prof_first_aid', 'prof_fishing'
-      ];
-      for (const p of profs) {
-        await client.query(`ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS ${p} BOOLEAN NOT NULL DEFAULT FALSE`);
-      }
-
       console.log("[MIGRATION] Adicionando novas colunas de profissão (ListBox)...");
       await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS prof1_name TEXT DEFAULT ''");
-      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS prof1_300 BOOLEAN DEFAULT FALSE");
+      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS prof1_lvl INTEGER DEFAULT 0");
       await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS prof2_name TEXT DEFAULT ''");
-      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS prof2_300 BOOLEAN DEFAULT FALSE");
-      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS sec1_name TEXT DEFAULT ''");
-      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS sec1_300 BOOLEAN DEFAULT FALSE");
-      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS sec2_name TEXT DEFAULT ''");
-      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS sec2_300 BOOLEAN DEFAULT FALSE");
+      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS prof2_lvl INTEGER DEFAULT 0");
+      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS prof_cooking_lvl INTEGER DEFAULT 0");
+      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS prof_aid_lvl INTEGER DEFAULT 0");
+      await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS prof_fishing_lvl INTEGER DEFAULT 0");
 
       console.log("[MIGRATION] Adicionando colunas de redes sociais...");
       await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS twitch_url TEXT DEFAULT ''");
