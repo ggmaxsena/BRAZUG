@@ -7,7 +7,7 @@
       const trigger = document.querySelector(".js-long-press");
       
       try {
-        const adventures = await AdventureModel.fetchAll();
+        let adventures = await AdventureModel.fetchAll();
         AdventureView.renderGrid(adventures, container);
 
         // Click trigger for shadow
@@ -29,8 +29,9 @@
             const password = prompt("As sombras pedem sua senha:");
             if (password === "destino das sombras") {
               const shadowAdventures = await AdventureModel.fetchAll("que as sombras mostram meu destino");
-              adventures = shadowAdventures; // Atualiza a variável local para que o event listener encontre os novos itens
-              AdventureView.renderGrid(shadowAdventures, container);
+              // Update the mutable variable defined in the outer scope
+              adventures = shadowAdventures; 
+              AdventureView.renderGrid(adventures, container);
             }
           }
         });
