@@ -15,20 +15,29 @@
         // Carregar agenda atual
         const res = await fetch("/api/admin/settings/weekly_agenda");
         const data = await res.json();
+        const isManagement = ["admin", "guildmaster"].includes(role);
         
         if (data.value) {
             agendaImg.src = data.value;
+            agendaImg.style.display = "block";
             agendaContainer.style.display = "block";
-        } else if (["admin", "guildmaster"].includes(role)) {
-            // Se for admin/gm e não tiver agenda, mostra o container para ele poder colocar
+        } else if (isManagement) {
+            // Se for admin/gm e não tiver agenda, mostra o container com texto de aviso
             agendaContainer.style.display = "block";
             agendaImg.style.display = "none";
+            const title = agendaContainer.querySelector('.section-title');
+            if (title) title.textContent = "Agenda da Semana (Vazio)";
+        } else {
+            // Usuário comum sem agenda: esconde tudo
+            agendaContainer.style.display = "none";
         }
 
-        // Mostrar ações administrativas
-        if (["admin", "guildmaster"].includes(role)) {
+        // Mostrar ações administrativas (botão)
+        if (isManagement) {
             adminActions.style.display = "block";
             updateBtn.onclick = () => this.updateAgenda(token);
+        } else {
+            adminActions.style.display = "none";
         }
 
       } catch (e) {
@@ -53,7 +62,7 @@
                 const uploadRes = await fetch("/api/admin/upload", {
                     method: "POST",
                     headers: { "Authorization": "Bearer " + token },
-                    body: formData
+                    body: formData // Contém o campo 'image' que o multer espera
                 });
                 const uploadData = await uploadRes.json();
                 if (!uploadRes.ok) throw new Error(uploadData.error || "Upload falhou");
