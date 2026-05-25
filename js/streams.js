@@ -1,114 +1,183 @@
 (function () {
   "use strict";
 
-  var API_URL = "/api/live-streams";
-  var REFRESH_MS = 60 * 1000;
+  const API_URL = "/api/live-streams";
+  const REFRESH_MS = 60_000;
 
-  var statusEl = document.getElementById("streams-status");
-  var listEl = document.getElementById("streams-list");
-  var emptyEl = document.getElementById("streams-empty");
-  var errorEl = document.getElementById("streams-error");
+  const elements = {
+    status: document.getElementById("streams-status"),
+    list: document.getElementById("streams-list"),
+    empty: document.getElementById("streams-empty"),
+    error: document.getElementById("streams-error"),
+  };
 
-  if (!statusEl) return;
+  if (!elements.status) return;
 
-  function formatViewers(n) {
-    if (n >= 1000) {
-      return (n / 1000).toFixed(1).replace(/\.0$/, "") + " mil";
-    }
-    return String(n);
-  }
+  /* =========================
+     HELPERS
+  ========================== */
 
-  function escapeHtml(str) {
-    var div = document.createElement("div");
+  const formatViewers = (n = 0) =>
+    n >= 1000
+      ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")} mil`
+      : String(n);
+
+  const escapeHtml = (str = "") => {
+    const div = document.createElement("div");
     div.textContent = str;
     return div.innerHTML;
+  };
+
+  const twitchThumb = (login) =>
+    `https://static-cdn.jtvnw.net/previews-ttv/live_user_${encodeURIComponent(
+      login
+    )}-440x248.jpg`;
+
+  const setView = (view) => {
+    elements.status.hidden = view !== "loading" && view !== "success";
+    elements.list.hidden = view !== "success";
+    elements.empty.hidden = view !== "empty";
+    elements.error.hidden = view !== "error";
+  };
+
+  /* =========================
+     CARD
+  ========================== */
+
+  function createStreamCard(stream) {
+    const li = document.createElement("li");
+
+    const thumb =
+      stream.thumbnailUrl ||
+      twitchThumb(stream.login);
+
+    li.innerHTML = `
+      <a
+        class="stream-card"
+        href="${escapeHtml(stream.url)}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+
+        <div class="stream-thumb-wrap">
+
+          <img
+            class="stream-thumb"
+            src="${escapeHtml(thumb)}"
+            alt="${escapeHtml(stream.displayName)}"
+            loading="lazy"
+          />
+
+          <span class="stream-live-badge">
+            ● AO VIVO
+          </span>
+
+          <span class="stream-viewers">
+            ${escapeHtml(formatViewers(stream.viewers))}
+            espectadores
+          </span>
+
+        </div>
+
+        <div class="stream-body">
+
+          <p class="stream-channel">
+            ${escapeHtml(stream.displayName || stream.login)}
+          </p>
+
+          <p class="stream-title">
+            ${escapeHtml(stream.title)}
+          </p>
+
+        </div>
+
+      </a>
+    `;
+
+    return li;
   }
+
+  /* =========================
+     RENDER
+  ========================== */
 
   function renderStreams(streams) {
-    listEl.innerHTML = "";
+    const fragment = document.createDocumentFragment();
 
-    streams.forEach(function (s) {
-      var li = document.createElement("li");
-      var a = document.createElement("a");
-      a.className = "stream-card";
-      a.href = s.url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-
-      var thumbSrc =
-        s.thumbnailUrl ||
-        "https://static-cdn.jtvnw.net/previews-ttv/live_user_" +
-          encodeURIComponent(s.login) +
-          "-440x248.jpg";
-
-      a.innerHTML =
-        '<div class="stream-thumb-wrap">' +
-        '<img class="stream-thumb" src="' +
-        escapeHtml(thumbSrc) +
-        '" alt="" loading="lazy" />' +
-        '<span class="stream-live-badge">Ao vivo</span>' +
-        '<span class="stream-viewers">' +
-        escapeHtml(formatViewers(s.viewers)) +
-        " espectadores</span>" +
-        "</div>" +
-        '<div class="stream-body">' +
-        '<p class="stream-channel">' +
-        escapeHtml(s.displayName || s.login) +
-        "</p>" +
-        '<p class="stream-title">' +
-        escapeHtml(s.title) +
-        "</p>" +
-        "</div>";
-
-      li.appendChild(a);
-      listEl.appendChild(li);
+    streams.forEach((stream) => {
+      fragment.appendChild(createStreamCard(stream));
     });
+
+    elements.list.innerHTML = "";
+    elements.list.appendChild(fragment);
   }
 
-  function setVisible(which) {
-    statusEl.hidden = which !== "loading";
-    listEl.hidden = which !== "list";
-    emptyEl.hidden = which !== "empty";
-    errorEl.hidden = which !== "error";
+  /* =========================
+     FETCH
+  ========================== */
+
+  async function fetchStreams() {
+    const response = await fetch(API_URL, {
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Erro ao buscar lives (${response.status})`
+      );
+    }
+
+    return response.json();
   }
+
+  /* =========================
+     LOAD
+  ========================== */
 
   async function loadStreams() {
-    setVisible("loading");
-    statusEl.textContent = "Buscando lives com <BRAZUG> no título…";
-    errorEl.textContent = "";
-
     try {
-      var res = await fetch(API_URL);
-      var data = await res.json();
+      setView("loading");
 
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao buscar lives (" + res.status + ")");
-      }
+      elements.status.textContent =
+        "Buscando lives da Guilda Brazug...";
 
-      var streams = data.streams || [];
+      const data = await fetchStreams();
 
-      if (streams.length === 0) {
-        setVisible("empty");
-        statusEl.textContent = "";
+      const streams = data.streams || [];
+
+      if (!streams.length) {
+        setView("empty");
         return;
       }
 
       renderStreams(streams);
-      setVisible("list");
-      statusEl.textContent =
+
+      setView("success");
+
+      elements.status.textContent =
         streams.length === 1
-          ? "1 canal ao vivo"
-          : streams.length + " canais ao vivo";
-      statusEl.hidden = false;
-    } catch (err) {
-      setVisible("error");
-      errorEl.textContent =
-        (err && err.message) ||
-        "Não foi possível carregar as lives. Verifique se o servidor Node está no ar e as credenciais Twitch no .env.";
-      statusEl.textContent = "";
+          ? "1 aventureiro ao vivo"
+          : `${streams.length} aventureiros ao vivo`;
+
+    } catch (error) {
+      console.error(error);
+
+      setView("error");
+
+      elements.error.textContent =
+        error.message ||
+        "Não foi possível carregar as transmissões.";
     }
   }
 
+  /* =========================
+     INIT
+  ========================== */
+
   loadStreams();
+
   setInterval(loadStreams, REFRESH_MS);
+
 })();
