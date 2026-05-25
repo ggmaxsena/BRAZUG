@@ -67,6 +67,7 @@
       modal.querySelector("[data-action='close']").onclick = close;
       modal.querySelector(".mural-modal-backdrop").onclick = close;
     }
+  };
 
   document.addEventListener("DOMContentLoaded", () => AdventureController.init());
 })();
