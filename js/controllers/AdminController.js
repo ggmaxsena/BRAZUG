@@ -15,7 +15,13 @@
           e.preventDefault();
           const fd = new FormData(userForm);
           try {
-            await AdminModel.createUser(fd.get("username"), fd.get("password"), fd.get("role"), token);
+            await AdminModel.createUser(
+                fd.get("username"), 
+                fd.get("email"), 
+                fd.get("password"), 
+                fd.get("role"), 
+                token
+            );
             alert("Usuário criado!");
             userForm.reset();
             this.init();
@@ -70,10 +76,11 @@
         this.init();
     },
 
-    openEditModal(id, username, role) {
+    openEditModal(id, username, role, email) {
         const modal = document.getElementById("user-edit-modal");
         document.getElementById("edit-user-id").value = id;
         document.getElementById("edit-username").value = username;
+        document.getElementById("edit-email").value = email || "";
         document.getElementById("edit-role").value = role;
         document.getElementById("edit-password").value = "";
         modal.hidden = false;
@@ -102,6 +109,7 @@
             const id = document.getElementById("edit-user-id").value;
             const data = {
                 username: document.getElementById("edit-username").value,
+                email: document.getElementById("edit-email").value,
                 role: document.getElementById("edit-role").value
             };
             const pass = document.getElementById("edit-password").value;

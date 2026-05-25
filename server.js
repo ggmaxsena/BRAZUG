@@ -21,6 +21,7 @@ const {
 
 const db = require("./lib/db.cjs");
 const auth = require("./lib/auth.cjs");
+const authRoutes = require("./lib/auth-routes.cjs");
 const adminRoutes = require("./lib/admin-routes.cjs");
 
 /* =========================================
@@ -159,6 +160,9 @@ app.get("/perfil.html", (req, res) => res.sendFile(path.resolve(__dirname, "perf
 app.get("/cadastro-aventura.html", (req, res) => res.sendFile(path.resolve(__dirname, "cadastro-aventura.html")));
 app.get("/ficha.html", (req, res) => res.sendFile(path.resolve(__dirname, "ficha.html")));
 app.get("/personagem.html", (req, res) => res.sendFile(path.resolve(__dirname, "personagem.html")));
+app.get("/register.html", (req, res) => res.sendFile(path.resolve(__dirname, "register.html")));
+app.get("/forgot-password.html", (req, res) => res.sendFile(path.resolve(__dirname, "forgot-password.html")));
+app.get("/reset-password.html", (req, res) => res.sendFile(path.resolve(__dirname, "reset-password.html")));
 
 /* =========================================
    HEALTH
@@ -321,6 +325,11 @@ app.post("/api/characters/:id/rip", auth.authMiddleware, async (req, res) => {
 app.use(
   "/api/admin",
   adminRoutes.createAdminRouter()
+);
+
+app.use(
+  "/api/auth",
+  authRoutes.createAuthRouter()
 );
 
 /* =========================================

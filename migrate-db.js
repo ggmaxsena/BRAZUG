@@ -1,9 +1,22 @@
 "use strict";
 
 const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
+
+// Carregar .env se existir
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+  const env = fs.readFileSync(envPath, 'utf8');
+  env.split('\n').forEach(line => {
+    const [key, value] = line.split('=');
+    if (key && value) process.env[key.trim()] = value.trim().replace(/^["']|["']$/g, '');
+  });
+}
 
 async function run() {
-  const connectionString = "postgresql://brazug:BrazugUgjd8dO2Gmabs!25@2.24.124.162:5432/brazug";
+  const connectionString = process.env.DATABASE_URL || "postgresql://brazug:BrazugUgjd8dO2Gmabs!25@localhost:5432/brazug";
+  console.log("[MIGRATION] Usando banco:", connectionString.split('@')[1] || "local");
   const pool = new Pool({ connectionString });
 
   try {
@@ -39,6 +52,13 @@ async function run() {
       console.log("[MIGRATION] Adicionando colunas de redes sociais...");
       await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS twitch_url TEXT DEFAULT ''");
       await client.query("ALTER TABLE wow_characters ADD COLUMN IF NOT EXISTS youtube_url TEXT DEFAULT ''");
+
+      console.log("[MIGRATION] Adicionando colunas de e-mail e verificação na tabela users...");
+      await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT UNIQUE");
+      await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN NOT NULL DEFAULT FALSE");
+      await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token TEXT");
+      await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT");
+      await client.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_expires TIMESTAMPTZ");
 
       console.log("[MIGRATION] Criando índices...");
       await client.query("CREATE INDEX IF NOT EXISTS idx_characters_user_id ON wow_characters (user_id)");

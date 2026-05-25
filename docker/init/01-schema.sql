@@ -18,8 +18,13 @@ CREATE TABLE IF NOT EXISTS adventures (
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   username TEXT NOT NULL UNIQUE,
+  email TEXT UNIQUE,
   password TEXT NOT NULL,
   role TEXT NOT NULL DEFAULT 'guildmember',
+  is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  verification_token TEXT,
+  reset_token TEXT,
+  reset_expires TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

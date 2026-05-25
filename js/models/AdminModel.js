@@ -22,8 +22,8 @@
       return await this.api("/users/" + id, "PUT", userData, token);
     },
 
-    async createUser(username, password, role, token) {
-      return await this.api("/users", "POST", { username, password, role }, token);
+    async createUser(username, email, password, role, token) {
+      return await this.api("/users", "POST", { username, email, password, role }, token);
     },
 
     async fetchUsers(token) {
