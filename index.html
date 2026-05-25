@@ -35,8 +35,11 @@
       <section id="mural" class="panel panel-mural" data-panel="mural">
         <div class="panel-inner panel-inner-wide mural-inner">
           <p class="eyebrow">Crônicas da guilda</p>
-          <h1>Mural de <span class="highlight-gold"> Aventuras </span></h1>
-          <p class="lead lead-left">Mortes heroicas, conquistas e histórias de guilda registradas aqui.</p>
+          <h1>Mural das <span class="highlight-gold" style="position: relative;"> 
+            Aventuras 
+            <span class="js-long-press" style="position: absolute; top:0; left:0; width:100%; height:100%;"></span>
+          </span></h1>
+          <p class="lead lead-left">Mortes heroicas, conquistas lendárias e histórias da Guilda são eternizadas neste mural. Entre batalhas, traições e segredos ocultos nas Sombras, aventureiros publicam missões criadas pelos próprios jogadores, desafiando outros mercenários em busca de glória, riquezas e reconhecimento. Cada anúncio carrega perigos desconhecidos, e cada relato fortalece as lendas da Guilda nas Sombras do mundo.</p>
           <div id="mural-status" class="mural-status" role="status">Carregando mural…</div>
           <div id="mural-grid" class="mural-grid" hidden></div>
           <p id="mural-empty" class="mural-empty" hidden>Nenhuma aventura publicada ainda.</p>
@@ -77,8 +80,14 @@
     </main>
 
     <script src="/js/header.js"></script>
-    <script src="/js/mural.js"></script>
-    <script src="/js/streams.js"></script>
-    <script src="/js/heroes-mural.js"></script>
+    <script src="/js/models/AdventureModel.js"></script>
+    <script src="/js/views/AdventureView.js"></script>
+    <script src="/js/controllers/AdventureController.js"></script>
+    <script src="/js/models/StreamsModel.js"></script>
+    <script src="/js/views/StreamsView.js"></script>
+    <script src="/js/controllers/StreamsController.js"></script>
+    <script src="/js/models/HeroModel.js"></script>
+    <script src="/js/views/HeroView.js"></script>
+    <script src="/js/controllers/HeroController.js"></script>
   </body>
 </html>

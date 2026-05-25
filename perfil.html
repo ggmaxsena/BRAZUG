@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfil — BRAZUG</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="icon" href="assets/branding/contentbra.png" type="image/png" />
+  </head>
+  <body class="admin-page">
+    <header class="site-header" id="universal-header"></header>
+
+    <main class="admin-main">
+      <section id="profile-panel" class="admin-card">
+        <h2>Meu Perfil</h2>
+        <div id="user-info">
+          <p><strong>Usuário:</strong> <span id="profile-username"></span></p>
+          <p><strong>Cargo:</strong> <span id="profile-role"></span></p>
+        </div>
+
+        <div style="margin-top: 2rem;">
+          <h3>Segurança</h3>
+          <form id="password-form" class="admin-form">
+            <input type="password" name="oldPassword" placeholder="Senha atual" required />
+            <input type="password" name="newPassword" placeholder="Nova senha" required />
+            <input type="password" name="confirmPassword" placeholder="Confirmar nova senha" required />
+            <button type="submit" class="btn btn-secondary">Alterar Senha</button>
+          </form>
+          <p id="password-msg" class="admin-msg" hidden></p>
+        </div>
+
+        <div id="admin-actions" style="margin-top: 2rem;" hidden>
+          <h3>Ações da Guilda</h3>
+          <a href="/cadastro-aventura.html" class="btn btn-horde">Cadastrar Nova Aventura</a>
+        </div>
+
+        <div style="margin-top: 2rem;">
+          <h3>Minhas Fichas</h3>
+          <a href="/ficha.html" class="btn btn-secondary">Criar/Gerenciar Fichas</a>
+        </div>
+      </section>
+
+      <section class="admin-card" style="margin-top: 2rem;">
+        <h2>Minhas Aventuras Cadastradas</h2>
+        <ul id="user-adventures-list" class="admin-list"></ul>
+      </section>
+    </main>
+
+    <script src="/js/auth-guard.js"></script>
+    <script src="/js/models/ProfileModel.js"></script>
+    <script src="/js/views/ProfileView.js"></script>
+    <script src="/js/controllers/ProfileController.js"></script>
+    <script src="/js/header.js"></script>
+  </body>
+</html>

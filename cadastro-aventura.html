@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro de Aventura — BRAZUG</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="icon" href="assets/branding/contentbra.png" type="image/png" />
+  </head>
+  <body class="admin-page">
+    <header id="universal-header"></header>
+    
+    <main class="admin-main">
+      <section class="admin-card">
+        <h2>Nova Aventura</h2>
+        <form id="adventure-form" class="admin-form">
+          <div class="form-row">
+            <label>Título *<input type="text" name="title" required maxlength="120" /></label>
+            <label>Data<input type="date" name="event_date" /></label>
+          </div>
+          
+          <label>Autor / Personagem (Selecione ou escreva)
+            <select name="author_select" id="author-select">
+              <option value="">Nenhum selecionado...</option>
+            </select>
+            <input type="text" name="author_text" id="author-text" placeholder="Ou digite o autor manualmente" style="margin-top: 0.5rem;" />
+          </label>
+
+          <label>História *<textarea name="body" rows="6" required maxlength="4000"></textarea></label>
+          
+          <label>URL da Imagem <input type="url" name="image_url" placeholder="https://..." /></label>
+          
+          <div class="form-row">
+            <label class="checkbox-label">
+              <input type="checkbox" name="published" checked /> Publicar no mural
+            </label>
+            <label>Visibilidade
+              <select name="visibility" id="visibility-select">
+                <option value="public" selected>Pública</option>
+              </select>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-secondary" style="margin-top: 1rem;">Salvar Aventura</button>
+          <p id="form-msg" class="admin-msg" hidden></p>
+        </form>
+        
+        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <a href="/admin.html" class="btn-small">← Voltar ao painel</a>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const role = localStorage.getItem("brazug_admin_role");
+        if (role === 'admin' || role === 'guildmaster') {
+            const select = document.getElementById('visibility-select');
+            const opt = document.createElement('option');
+            opt.value = 'shadow';
+            opt.textContent = 'Shadow / Sombras';
+            select.appendChild(opt);
+        }
+      });
+    </script>
+    <script src="js/admin.js"></script>
+    <script src="js/header.js"></script>
+  </body>
+</html>

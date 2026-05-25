@@ -7,12 +7,16 @@
     function renderHeader() {
         const token = localStorage.getItem("brazug_admin_token");
         const username = localStorage.getItem("brazug_admin_user");
+        const role = localStorage.getItem("brazug_admin_role");
 
-        let authItems = `<li><a href="/admin.html" class="nav-link" id="nav-auth-link">Login</a></li>`;
+        let authItems = `<li><a href="/login.html" class="nav-link">Login</a></li>`;
 
         if (token && username) {
+            const isAuthorized = ['admin', 'guildmaster', 'officer'].includes(role);
             authItems = `
-                <li><a href="/ficha.html" class="nav-link">${username}</a></li>
+                <li><a href="/perfil.html" class="nav-link">Perfil</a></li>
+                ${isAuthorized ? '<li><a href="/cadastro-aventura.html" class="nav-link">Nova Aventura</a></li>' : ''}
+                ${role === 'admin' ? '<li><a href="/admin.html" class="nav-link">Admin</a></li>' : ''}
                 <li><a href="#" class="nav-link" style="color: #ff4444;" id="nav-logout-btn">Sair</a></li>
             `;
         }
@@ -56,7 +60,6 @@
             </div>
         `;
 
-        // Re-attach event listeners
         const toggle = document.getElementById('menu-toggle');
         const nav = document.getElementById('header-nav');
         if (toggle && nav) {

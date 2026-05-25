@@ -3,78 +3,86 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin — Mural BRAZUG</title>
+    <title>Painel Administrativo — BRAZUG</title>
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/admin.css" />
     <link rel="icon" href="assets/branding/contentbra.png" type="image/png" />
+    <style>
+      #user-edit-modal[hidden] { display: none !important; }
+    </style>
   </head>
   <body class="admin-page">
     <header id="universal-header"></header>
 
     <main class="admin-main">
-      <!-- LOGIN / REGISTER -->
-      <section id="login-panel" class="admin-card admin-login">
-        <h1 id="auth-title">Mural de Aventuras</h1>
-        <p id="auth-hint" class="admin-hint">Acesso restrito a oficiais da guilda.</p>
-        <form id="login-form">
-          <label>Usuário<input type="text" id="login-username" required autocomplete="username" /></label>
-          <label>Senha<input type="password" id="login-password" required autocomplete="current-password" /></label>
-          <button type="submit" class="btn btn-horde">Entrar</button>
-          <p style="margin-top: 1.5rem; font-size: 0.85rem;">Não tem conta? <a href="#" id="toggle-to-register" style="color: var(--gold-light);">Cadastre-se aqui</a></p>
-        </form>
-        <form id="register-form" hidden>
-          <label>Novo Usuário<input type="text" id="reg-username" required /></label>
-          <label>Senha<input type="password" id="reg-password" required /></label>
-          <label>Palavra-passe da Guilda<input type="password" id="reg-secret" required placeholder="Fornecida pelo líder" /></label>
-          <button type="submit" class="btn btn-secondary">Criar minha conta</button>
-          <p style="margin-top: 1.5rem; font-size: 0.85rem;">Já tem conta? <a href="#" id="toggle-to-login" style="color: var(--gold-light);">Voltar ao login</a></p>
-        </form>
-        <p id="auth-error" class="admin-error" hidden></p>
-        <p id="auth-success" class="admin-msg" style="color: #2d6a3e;" hidden></p>
-      </section>
-
       <section id="dashboard-panel" class="admin-dashboard" hidden>
         <div id="users-panel" class="admin-card" hidden>
-          <h2>Gerenciar usuários</h2>
+          <h2>Gestão de Usuários</h2>
           <form id="user-form" class="admin-form">
             <div class="form-row">
-              <label>Novo usuário<input type="text" name="username" required /></label>
-              <label>Senha<input type="password" name="password" required /></label>
-              <label>Role<select name="role"><option value="admin">Admin</option><option value="guildmaster">Guildmaster</option><option value="officer">Officer</option><option value="guildmember">Guildmember</option></select></label>
+              <label>Nome <input type="text" name="username" required /></label>
+              <label>Senha <input type="password" name="password" required /></label>
+              <label>Cargo
+                <select name="role">
+                  <option value="admin">Admin</option>
+                  <option value="guildmaster">Guildmaster</option>
+                  <option value="officer">Officer</option>
+                  <option value="guildmember">Guildmember</option>
+                </select>
+              </label>
             </div>
-            <button type="submit" class="btn btn-secondary">Criar usuário</button>
+            <button type="submit" class="btn btn-secondary">Adicionar Usuário</button>
           </form>
-          <ul id="users-list" class="admin-list" style="margin-top: 20px;"></ul>
+          <input type="text" id="user-search" placeholder="Buscar por nome..." style="width: 100%; padding: 0.8rem; margin-top: 1rem;" />
+          <ul id="users-list" class="admin-list" style="margin-top: 1rem;"></ul>
         </div>
-        <div id="adventure-panel" class="admin-card">
-          <h2>Nova aventura</h2>
-          <form id="adventure-form" class="admin-form">
-            <div class="form-row">
-              <label>Título *<input type="text" name="title" required maxlength="120" /></label>
-              <label>Data<input type="date" name="event_date" /></label>
-            </div>
-            <label>Autor / personagem<input type="text" name="author" maxlength="80" placeholder="Ex.: Thrall — Líder" /></label>
-            <label>História *<textarea name="body" rows="6" required maxlength="4000"></textarea></label>
-            <label>URL da imagem<input type="url" name="image_url" placeholder="https://..." /></label>
-            <label class="checkbox-label"><input type="file" name="image_file" accept="image/*" /> ou envie arquivo (máx. 5 MB)</label>
-            <label class="checkbox-label"><input type="checkbox" name="published" checked /> Publicar no mural</label>
-            <label>Tipo da aventura<select name="visibility"><option value="public" selected>Pública</option><option value="shadow">Shadow / Sombras</option></select></label>
-            <button type="submit" class="btn btn-horde">Salvar aventura</button>
-            <p id="form-msg" class="admin-msg" hidden></p>
-          </form>
+
+        <div id="logs-panel" class="admin-card" hidden>
+          <h2>Relatório do Sistema</h2>
+          <ul id="logs-list" class="admin-list"></ul>
         </div>
+
         <div class="admin-card">
-          <h2>Aventuras cadastradas</h2>
-          <ul id="admin-list" class="admin-list"></ul>
+          <h2>Conteúdo</h2>
+          <a href="/cadastro-aventura.html" class="btn btn-secondary">Nova Aventura</a>
+          <ul id="admin-list" class="admin-list" style="margin-top: 1rem;"></ul>
         </div>
       </section>
     </main>
 
-    <!-- Hidden elements required by admin.js but now handled by header.js -->
-    <div id="user-badge" hidden><span id="user-display-name"></span><span id="user-display-role"></span></div>
-    <button id="btn-logout" hidden></button>
+    <!-- User Edit Modal -->
+    <div id="user-edit-modal" class="modal" hidden onclick="if(event.target==this) this.hidden=true">
+        <div class="modal-content">
+            <h2>Editar Usuário</h2>
+            <form id="user-edit-form" class="admin-form">
+                <input type="hidden" id="edit-user-id" />
+                <label>Nome <input type="text" id="edit-username" required /></label>
+                <label>Nova Senha (deixar vazio para manter)<input type="password" id="edit-password" /></label>
+                <label>Cargo
+                    <select id="edit-role">
+                        <option value="admin">Admin</option>
+                        <option value="guildmaster">Guildmaster</option>
+                        <option value="officer">Officer</option>
+                        <option value="guildmember">Guildmember</option>
+                    </select>
+                </label>
+                <div style="margin-top: 1rem; display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-secondary">Salvar Alterações</button>
+                    <button type="button" class="btn btn-small" onclick="closeUserEditModal()">Cancelar</button>
+                </div>
+                </form>
+                </div>
+                </div>
 
-    <script src="/js/admin.js"></script>
-    <script src="/js/header.js"></script>
+                <script>
+                function closeUserEditModal() {
+                console.log("Fechando modal...");
+                document.getElementById('user-edit-modal').hidden = true;
+                }
+                </script>
+    <script src="js/models/AdminModel.js"></script>
+    <script src="js/views/AdminView.js"></script>
+    <script src="js/controllers/AdminController.js"></script>
+    <script src="js/header.js"></script>
   </body>
 </html>

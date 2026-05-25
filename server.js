@@ -154,6 +154,9 @@ app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 // Servir arquivos HTML específicos
 app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "index.html")));
 app.get("/admin.html", (req, res) => res.sendFile(path.resolve(__dirname, "admin.html")));
+app.get("/login.html", (req, res) => res.sendFile(path.resolve(__dirname, "login.html")));
+app.get("/perfil.html", (req, res) => res.sendFile(path.resolve(__dirname, "perfil.html")));
+app.get("/cadastro-aventura.html", (req, res) => res.sendFile(path.resolve(__dirname, "cadastro-aventura.html")));
 app.get("/ficha.html", (req, res) => res.sendFile(path.resolve(__dirname, "ficha.html")));
 app.get("/personagem.html", (req, res) => res.sendFile(path.resolve(__dirname, "personagem.html")));
 

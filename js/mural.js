@@ -196,6 +196,33 @@
      EVENTS
   ========================================= */
 
+  (function () {
+    var trigger = document.querySelector(".js-long-press");
+    if (!trigger) return;
+
+    var timer;
+    var duration = 10000;
+
+    function startPress() {
+      timer = setTimeout(function () {
+        var password = prompt("As sombras pedem sua senha:");
+        if (password === "destino das sombras") {
+          loadMural(true, password);
+        }
+      }, duration);
+    }
+
+    function endPress() {
+      clearTimeout(timer);
+    }
+
+    trigger.addEventListener("mousedown", startPress);
+    trigger.addEventListener("mouseup", endPress);
+    trigger.addEventListener("mouseleave", endPress);
+    trigger.addEventListener("touchstart", startPress);
+    trigger.addEventListener("touchend", endPress);
+  })();
+
   gridEl.addEventListener("click", function (event) {
     var card = event.target.closest(".mural-card");
 
@@ -236,7 +263,7 @@
      LOAD FROM DATABASE
   ========================================= */
 
-  async function loadMural() {
+  async function loadMural(shadow, password) {
     statusEl.hidden = false;
     statusEl.textContent = "Carregando mural...";
 
@@ -244,15 +271,20 @@
     emptyEl.hidden = true;
 
     try {
-      var response = await fetch(
-        "/api/adventures",
-        {
-          method: "GET",
-          headers: {
-            "Accept": "application/json",
-          },
-        }
-      );
+      var url = "/api/adventures";
+      if (shadow) {
+        url += "?shadow=que+as+sombras+mostram+meu+destino";
+      }
+
+      var headers = { "Accept": "application/json" };
+      if (password) {
+        headers["X-Shadow-Password"] = password;
+      }
+
+      var response = await fetch(url, {
+        method: "GET",
+        headers: headers,
+      });
 
       if (!response.ok) {
         throw new Error(

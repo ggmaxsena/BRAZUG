@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acesso — BRAZUG</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="icon" href="assets/branding/contentbra.png" type="image/png" />
+    <style>
+      .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 20px;
+      }
+      .admin-card {
+        width: 100%;
+        max-width: 400px;
+        padding: 2.5rem;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      }
+      .admin-card h1 {
+        margin-bottom: 0.5rem;
+        text-align: center;
+        color: var(--gold-light);
+      }
+      .admin-hint {
+        text-align: center;
+        margin-bottom: 2rem;
+        opacity: 0.7;
+      }
+      .admin-form label {
+        display: block;
+        margin-bottom: 1rem;
+        font-weight: bold;
+      }
+      .admin-form input {
+        width: 100%;
+        padding: 0.8rem;
+        margin-top: 0.4rem;
+        background: #000;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 4px;
+      }
+      .admin-form button {
+        width: 100%;
+        padding: 1rem;
+        margin-top: 1rem;
+        cursor: pointer;
+      }
+      .auth-footer {
+        margin-top: 1.5rem;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body class="admin-page">
+    <header id="universal-header"></header>
+
+    <main class="login-container">
+      <section class="admin-card">
+        <h1>Entrar na Guilda</h1>
+        <p class="admin-hint">Bem-vindo de volta, aventureiro.</p>
+        
+        <form id="login-form" class="admin-form">
+          <label>Usuário
+            <input type="text" id="login-username" required autocomplete="username" placeholder="Seu nome na guilda" />
+          </label>
+          <label>Senha
+            <input type="password" id="login-password" required autocomplete="current-password" placeholder="••••••••" />
+          </label>
+          <button type="submit" class="btn btn-horde" id="login-btn">Acessar Perfil</button>
+        </form>
+
+        <p id="auth-error" class="admin-error" style="margin-top: 1rem;" hidden></p>
+        
+        <div class="auth-footer">
+          <p>Não possui cadastro? <a href="/admin.html" style="color: var(--gold-light);">Solicitar acesso</a></p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (function() {
+        var loginForm = document.getElementById("login-form");
+        var loginBtn = document.getElementById("login-btn");
+        var authError = document.getElementById("auth-error");
+
+        loginForm.addEventListener("submit", async function(e) {
+          e.preventDefault();
+          authError.hidden = true;
+          loginBtn.textContent = "Autenticando...";
+          loginBtn.disabled = true;
+
+          try {
+            var res = await fetch("/api/admin/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                username: document.getElementById("login-username").value,
+                password: document.getElementById("login-password").value,
+              }),
+            });
+
+            var data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Login falhou");
+
+            localStorage.setItem("brazug_admin_token", data.token);
+            localStorage.setItem("brazug_admin_role", data.user.role);
+            localStorage.setItem("brazug_admin_user", data.user.username);
+
+            window.location.href = "/perfil.html";
+          } catch (err) {
+            authError.textContent = err.message;
+            authError.hidden = false;
+            loginBtn.textContent = "Acessar Perfil";
+            loginBtn.disabled = false;
+          }
+        });
+      })();
+    </script>
+    <script src="/js/header.js"></script>
+  </body>
+</html>
