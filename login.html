@@ -11,64 +11,98 @@
     <header class="site-header" id="universal-header"></header>
 
     <main class="container">
-      <section class="card" style="max-width: 500px; margin: 0 auto;">
-        <h1 class="section-title" style="text-align: center;">Entrar na Guilda</h1>
-        <p class="subtitle" style="text-align: center; margin-bottom: 20px; color: var(--text-muted);">Bem-vindo de volta, aventureiro.</p>
-        
-        <form id="login-form" style="display: flex; flex-direction: column; gap: 20px;">
+      <section class="card" style="max-width: 500px; margin: 0 auto">
+        <h1 class="section-title" style="text-align: center">Entrar na Guilda</h1>
+        <p class="subtitle" style="text-align: center; margin-bottom: 20px; color: var(--text-muted)">
+          Bem-vindo de volta, aventureiro.
+        </p>
+
+        <form id="login-form" style="display: flex; flex-direction: column; gap: 20px">
           <div>
-              <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px;">Usuário</label>
-              <input type="text" id="login-username" required autocomplete="username" placeholder="Seu nome na guilda" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;">
+            <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px">Usuário</label>
+            <input
+              type="text"
+              id="login-username"
+              required
+              autocomplete="username"
+              placeholder="Seu nome na guilda"
+              style="
+                width: 100%;
+                padding: 12px;
+                background: #111;
+                border: 1px solid #333;
+                color: #fff;
+                border-radius: 6px;
+              "
+            />
           </div>
           <div>
-              <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px;">Senha</label>
-              <input type="password" id="login-password" required autocomplete="current-password" placeholder="••••••••" style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;">
+            <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px">Senha</label>
+            <input
+              type="password"
+              id="login-password"
+              required
+              autocomplete="current-password"
+              placeholder="••••••••"
+              style="
+                width: 100%;
+                padding: 12px;
+                background: #111;
+                border: 1px solid #333;
+                color: #fff;
+                border-radius: 6px;
+              "
+            />
           </div>
-          <button type="submit" class="discord-btn" id="login-btn" style="border: none; width: 100%; cursor: pointer;">Acessar Perfil</button>
+          <button type="submit" class="discord-btn" id="login-btn" style="border: none; width: 100%; cursor: pointer">
+            Acessar Perfil
+          </button>
         </form>
 
-        <p id="auth-error" style="color: #ff4444; margin-top: 15px; text-align: center;" hidden></p>
-        
-        <div style="margin-top: 25px; text-align: center; font-size: 0.9rem;">
-          <p>Não possui cadastro? <a href="/admin.html" style="color: var(--gold);">Solicitar acesso</a></p>
+        <p id="auth-error" style="color: #ff4444; margin-top: 15px; text-align: center" hidden></p>
+
+        <div style="margin-top: 25px; text-align: center; font-size: 0.9rem">
+          <p>
+            Não possui cadastro? <a href="https://discord.gg/2Qt92YqjG" style="color: var(--gold)">Solicitar acesso</a>
+          </p>
         </div>
       </section>
     </main>
 
     <script>
-      (function() {
-        var loginForm = document.getElementById("login-form");
-        var loginBtn = document.getElementById("login-btn");
-        var authError = document.getElementById("auth-error");
+      (function () {
+        var loginForm = document.getElementById('login-form');
+        var loginBtn = document.getElementById('login-btn');
+        var authError = document.getElementById('auth-error');
 
-        loginForm.addEventListener("submit", async function(e) {
+        loginForm.addEventListener('submit', async function (e) {
           e.preventDefault();
           authError.hidden = true;
-          loginBtn.textContent = "Autenticando...";
+          loginBtn.textContent = 'Autenticando...';
           loginBtn.disabled = true;
 
           try {
-            var res = await fetch("/api/admin/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
+            var res = await fetch('/api/admin/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                username: document.getElementById("login-username").value,
-                password: document.getElementById("login-password").value,
+                username: document.getElementById('login-username').value,
+                password: document.getElementById('login-password').value,
               }),
             });
 
             var data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Login falhou");
+            if (!res.ok) throw new Error(data.error || 'Login falhou');
 
-            localStorage.setItem("brazug_admin_token", data.token);
-            localStorage.setItem("brazug_admin_role", data.user.role);
-            localStorage.setItem("brazug_admin_user", data.user.username);
+            localStorage.setItem('brazug_admin_token', data.token);
+            localStorage.setItem('brazug_admin_role', data.user.role);
+            localStorage.setItem('brazug_admin_user', data.user.username);
 
-            window.location.href = "/perfil.html";
+            window.location.href = '/perfil.html';
           } catch (err) {
             authError.textContent = err.message;
             authError.hidden = false;
-            loginBtn.textContent = "Acessar Perfil";
+            loginBtn.textContent = 'Acessar Perfil';
             loginBtn.disabled = false;
           }
         });
