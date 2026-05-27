@@ -54,6 +54,29 @@
         }
 
         if (elements.adventureForm) {
+            // Initialize Quill
+            const quill = new Quill('#editor-container', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'header': 1 }, { 'header': 2 }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'direction': 'rtl' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'font': [] }],
+                        [{ 'align': [] }],
+                        ['clean'],
+                        ['link', 'image']
+                    ]
+                }
+            });
+
             // Check for edit mode
             const params = new URLSearchParams(window.location.search);
             const editId = params.get('id');
@@ -65,7 +88,7 @@
                     if (adv) {
                         elements.adventureForm.title.value = adv.title;
                         elements.adventureForm.event_date.value = adv.event_date;
-                        elements.adventureForm.body.value = adv.body;
+                        quill.root.innerHTML = adv.body || "";
                         elements.adventureForm.image_url.value = adv.image_url;
                         elements.adventureForm.published.checked = !!adv.published;
                         elements.adventureForm.visibility.value = adv.visibility;
@@ -102,7 +125,7 @@
                 const payload = {
                   title: fd.get("title"),
                   event_date: fd.get("event_date"),
-                  body: fd.get("body"),
+                  body: quill.root.innerHTML,
                   image_url: imageUrl,
                   published: !!fd.get("published"),
                   visibility: fd.get("visibility"),

@@ -30,6 +30,111 @@
       }
 
       try {
+        // Adventure Form Logic (for cadastro-aventura.html)
+        const adventureForm = document.getElementById("adventure-form");
+        if (adventureForm) {
+            // Initialize Quill
+            let quill;
+            if (typeof Quill !== 'undefined') {
+                quill = new Quill('#editor-container', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            ['bold', 'italic', 'underline', 'strike'],
+                            ['blockquote', 'code-block'],
+                            [{ 'header': 1 }, { 'header': 2 }],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'script': 'sub'}, { 'script': 'super' }],
+                            [{ 'indent': '-1'}, { 'indent': '+1' }],
+                            [{ 'direction': 'rtl' }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],
+                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'font': [] }],
+                            [{ 'align': [] }],
+                            ['clean'],
+                            ['link', 'image']
+                        ]
+                    }
+                });
+            }
+
+            // Populate author select
+            const authorSelect = document.getElementById("author-select");
+            if (authorSelect) {
+                try {
+                    const chars = await fetch("/api/characters").then(r => r.json());
+                    chars.filter(c => !c.is_dead).forEach(c => {
+                        const opt = document.createElement("option");
+                        opt.value = c.name;
+                        opt.textContent = `${c.name} (${c.class})`;
+                        authorSelect.appendChild(opt);
+                    });
+                } catch (e) { console.error("Erro ao carregar autores:", e); }
+            }
+
+            // Edit Mode Check
+            const params = new URLSearchParams(window.location.search);
+            const editId = params.get('id');
+            if (editId) {
+                document.querySelector(".section-title").textContent = "Editar Aventura";
+                const advRes = await AdminModel.fetchAdventures(token);
+                const adventures = Array.isArray(advRes) ? advRes : (advRes.adventures || []);
+                const adv = adventures.find(a => a.id === editId);
+                if (adv) {
+                    adventureForm.title.value = adv.title;
+                    adventureForm.event_date.value = adv.event_date;
+                    if (quill) quill.root.innerHTML = adv.body || "";
+                    adventureForm.image_url.value = adv.image_url;
+                    adventureForm.published.checked = !!adv.published;
+                    adventureForm.visibility.value = adv.visibility;
+                    document.getElementById("author-text").value = adv.author;
+                }
+            }
+
+            adventureForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const fd = new FormData(adventureForm);
+                let imageUrl = fd.get("image_url");
+
+                const imageFile = adventureForm.image_file.files[0];
+                if (imageFile) {
+                    const upData = new FormData();
+                    upData.append("image", imageFile);
+                    try {
+                        const upRes = await fetch("/api/admin/upload", {
+                            method: "POST",
+                            headers: { "Authorization": "Bearer " + token },
+                            body: upData
+                        });
+                        const upResData = await upRes.json();
+                        if (!upRes.ok) throw new Error(upResData.error || "Upload falhou");
+                        imageUrl = upResData.url;
+                    } catch (err) { return alert("Erro no upload: " + err.message); }
+                }
+
+                const payload = {
+                  title: fd.get("title"),
+                  event_date: fd.get("event_date"),
+                  body: quill ? quill.root.innerHTML : fd.get("body"),
+                  image_url: imageUrl,
+                  published: adventureForm.published.checked,
+                  visibility: fd.get("visibility"),
+                  author: fd.get("author_text") || fd.get("author_select") || ""
+                };
+
+                try {
+                  if (editId) {
+                      await AdminModel.updateAdventure(editId, payload, token);
+                  } else {
+                      await AdminModel.api("/adventures", "POST", payload, token);
+                  }
+                  alert("Aventura salva!");
+                  window.location.href = "/admin.html";
+                } catch(e) { alert(e.message); }
+            };
+        }
+
         const advRes = await AdminModel.fetchAdventures(token);
         const adventures = Array.isArray(advRes) ? advRes : (advRes.adventures || []);
         AdminView.renderAdventures(adventures);

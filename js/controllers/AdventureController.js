@@ -64,7 +64,7 @@
       }
       
       document.getElementById("mural-modal-title").textContent = adventure.title;
-      document.getElementById("mural-modal-body").textContent = adventure.body;
+      document.getElementById("mural-modal-body").innerHTML = adventure.body;
       document.getElementById("mural-modal-date").textContent = adventure.event_date;
       document.getElementById("mural-modal-author").textContent = "Relato de: " + adventure.author;
       
