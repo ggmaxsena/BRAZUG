@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Armory - BRAZUG</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        :root { --rarity-poor: #9d9d9d; --rarity-common: #ffffff; --rarity-uncommon: #1eff00; --rarity-rare: #0070dd; --rarity-epic: #a335ee; --rarity-legendary: #ff8000; }
+        body { background-color: #0b0b0b; color: #ccc; font-family: sans-serif; }
+        .armory-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .armory-header { display: flex; align-items: center; gap: 40px; margin-bottom: 60px; flex-wrap: wrap; }
+        .avatar-frame { width: 180px; height: 180px; border-radius: 24px; border: 2px solid var(--gold); overflow: hidden; background: #111; }
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+        .char-info h1 { font-size: 72px; font-weight: 900; text-transform: uppercase; font-style: italic; line-height: 0.9; margin-bottom: 10px; color: #fff; }
+        .armory-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 60px; }
+        .section-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3em; color: #444; display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
+        .section-label::after { content: ""; height: 1px; flex: 1; background: #222; }
+        .gear-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 60px; }
+        .item-card { background: rgba(30, 30, 30, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: help; }
+        .item-icon { width: 40px; height: 40px; border-radius: 8px; background: #000; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 900; color: #222; flex-shrink: 0; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #1a1a1a; }
+        .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #555; }
+        .stat-value { font-size: 18px; font-weight: 900; font-style: italic; color: #fff; }
+        .spec-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 30px; }
+        .talent-tree-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .talent-tree { background: rgba(0,0,0,0.3); border: 1px solid #222; padding: 15px; border-radius: 8px; }
+        .talent-node { display: flex; align-items: center; gap: 10px; padding: 4px; border-radius: 4px; background: rgba(0,0,0,0.2); margin-bottom: 5px; border: 1px solid #1a1a1a; }
+        .talent-icon { width: 32px; height: 32px; border: 1px solid #333; border-radius: 4px; }
+        .talent-name { font-size: 11px; color: #ccc; font-weight: 700; }
+        .talent-rank { font-size: 10px; font-family: monospace; color: var(--gold); margin-left: auto; }
+        
+        /* Tooltip Styles */
+        .item-tooltip {
+            position: fixed;
+            background: rgba(0,0,0,0.95);
+            border: 2px solid white;
+            padding: 12px;
+            font-size: 13px;
+            z-index: 99999;
+            display: none;
+            color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            border-radius: 6px;
+            pointer-events: none;
+            line-height: 1.4;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+<div id="item-tooltip" class="item-tooltip"></div>
+<header class="site-header" id="universal-header"></header>
+<main class="armory-container" id="armory-content"><div style="text-align: center; padding: 100px;">Sincronizando Herói...</div></main>
+<script src="/js/header.js"></script>
+<script>
+(function() {
+    const pathParts = window.location.pathname.split('/').filter(p => p !== "");
+    const name = pathParts[pathParts.length - 1];
+    const realm = pathParts[pathParts.length - 2];
+    
+    const rarityColors = { 'POOR': '#9d9d9d', 'COMMON': '#ffffff', 'UNCOMMON': '#1eff00', 'RARE': '#0070dd', 'EPIC': '#a335ee', 'LEGENDARY': '#ff8000', 'ARTIFACT': '#e6cc80', 'HEIRLOOM': '#00ccff' };
+    const slotNames = { 'HEAD': 'Cabeça', 'NECK': 'Pescoço', 'SHOULDER': 'Ombros', 'CHEST': 'Torso', 'WAIST': 'Cintura', 'LEGS': 'Pernas', 'FEET': 'Pés', 'WRIST': 'Pulsos', 'HANDS': 'Mãos', 'BACK': 'Costas', 'MAIN_HAND': 'Mão Princ.', 'OFF_HAND': 'Mão Sec.' };
+    const slots = ['HEAD', 'NECK', 'SHOULDER', 'CHEST', 'WAIST', 'LEGS', 'FEET', 'WRIST', 'HANDS', 'BACK', 'MAIN_HAND', 'OFF_HAND'];
+
+    async function loadArmory() {
+        try {
+            const res = await fetch(`/api/armory/full/${realm}/${name}`);
+            if (!res.ok) return;
+            render(await res.json());
+        } catch(e) { console.error(e); }
+    }
+
+    // Delegação de evento robusta no document
+    const tooltip = document.getElementById('item-tooltip');
+    document.addEventListener('mousemove', e => {
+        const card = e.target.closest('.item-card');
+        if (card) {
+            tooltip.style.display = 'block';
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY + 15) + 'px';
+            tooltip.style.borderColor = card.dataset.color;
+            tooltip.innerHTML = `
+                <div style="font-weight:bold; color:${card.dataset.color}">${card.dataset.name}</div>
+                <div style="font-size:11px; color:#aaa;">Nível ${card.dataset.level} | ${card.dataset.slot}</div>
+                <div style="font-size:11px; color:${card.dataset.color}">${card.dataset.quality}</div>
+                ${card.dataset.stats ? `<div style="font-size:11px; color:#fff; margin-top:5px;">${card.dataset.stats}</div>` : ''}
+                ${card.dataset.description ? `<div style="font-size:10px; color:#777; margin-top:5px; font-style:italic;">"${card.dataset.description}"</div>` : ''}
+            `;
+        } else {
+            tooltip.style.display = 'none';
+        }
+    });
+
+    function render(char) {
+        const container = document.getElementById('armory-content');
+        const gearHtml = slots.map(slot => {
+            const item = char.items.find(i => i.slot === slot) || {};
+            const color = item.quality ? rarityColors[item.quality] : '#1a1a1a';
+            const iconUrl = item.icon_filename ? `/assets/icons/${item.icon_filename}` : null;
+            return `
+                <div class="item-card" 
+                     data-name="${item.name || 'Vazio'}" 
+                     data-quality="${item.quality || ''}" 
+                     data-slot="${slotNames[slot] || slot}" 
+                     data-level="${item.itemLevel || ''}"
+                     data-stats="${item.stats_text || ''}"
+                     data-description="${item.description || ''}"
+                     data-color="${color}">
+                    <div class="item-icon" style="${item.name ? `box-shadow: inset 0 0 10px ${color}33;` : ''}">
+                        ${iconUrl ? `<img src="${iconUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='/assets/branding/contentbra.png'">` : slot.substring(0,4)}
+                    </div>
+                    <div class="item-details">
+                        <p class="item-slot">${slotNames[slot] || slot}</p>
+                        <p class="item-name" style="color: ${item.name ? color : '#333'}">${item.name || 'Vazio'}</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const stats = char.extra_data?.statistics || {};
+        
+        const talentTreesHtml = (char.extra_data?.specializations?.specialization_groups || []).flatMap(g => g.specializations).map(s => {
+            const points = s.talents?.reduce((acc, t) => acc + (t.talent_rank || 1), 0) || 0;
+            return `
+                <div class="talent-tree">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #222; padding-bottom:10px;">
+                        <span style="font-size:11px; font-weight:900; color:#888; text-transform:uppercase;">${s.specialization_name}</span>
+                        <span style="font-size:11px; font-weight:900; color:var(--gold);">${points} pts</span>
+                    </div>
+                    ${s.talents?.map(t => {
+                        const iconFilename = t.talent.icon ? `${t.talent.icon.split('/').pop()}.jpg` : null;
+                        return `
+                        <div class="talent-node">
+                            <div class="talent-icon" style="${iconFilename ? `background-image: url('/assets/icons/${iconFilename}');` : ''} background-size:cover;"></div>
+                            <span class="talent-name">${t.spell_tooltip?.spell?.name || 'Talento'}</span>
+                            <span class="talent-rank">(${t.talent_rank})</span>
+                        </div>
+                    `}).join('') || '<div style="font-size:10px; color:#444; font-style:italic;">Sem pontos</div>'}
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = `
+            <header class="armory-header">
+                <div class="avatar-frame"><img src="${char.avatarUrl || '/assets/branding/contentbra.png'}" class="avatar-img"></div>
+                <div class="char-info"><h1>${char.name}</h1><p class="char-subtitle">Level <b>${char.level}</b> ${char.race} <b>${char.class}</b></p></div>
+            </header>
+            <div class="armory-grid">
+                <div>
+                    <h2 class="section-label">Equipamento</h2>
+                    <div class="gear-grid">${gearHtml}</div>
+                    <h2 class="section-label">Talentos</h2>
+                    <div class="talent-tree-grid">${talentTreesHtml || '<p style="color:#444; font-size:12px; font-style:italic;">Nenhum registro.</p>'}</div>
+                </div>
+                <div>
+                    <h2 class="section-label">Atributos</h2>
+                    <div class="spec-card">
+                        <div class="stat-row"><span class="stat-label">Vida</span><span class="stat-value" style="color:#22c55e;">${stats.health || '--'}</span></div>
+                        <div class="stat-row"><span class="stat-label">Vigor</span><span class="stat-value">${stats.stamina?.effective || '--'}</span></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    loadArmory();
+})();
+</script>
+</body>
+</html>

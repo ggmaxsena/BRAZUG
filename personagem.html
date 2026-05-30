@@ -21,17 +21,15 @@
     const id = params.get('id');
 
     async function loadDetail() {
-        if(!id) return;
+        if(!id && !params.get('name')) return;
         try {
-            const res = await fetch(`/api/characters`); 
-            const chars = await res.json();
-            const char = chars.find(c => c.id === id);
-
-            if(!char) {
+            let url = id ? `/api/characters/${id}` : `/api/characters/search?name=${encodeURIComponent(params.get('name'))}`;
+            const res = await fetch(url);
+            if (!res.ok) {
                 document.getElementById('hero-detail').innerHTML = '<h1>Herói não encontrado</h1>';
                 return;
             }
-
+            const char = await res.json();
             render(char);
         } catch(e) {
             console.error(e);
@@ -77,8 +75,9 @@
                         <p style="color: var(--text-muted); font-size: 18px;">${char.race} | ${char.guild}</p>
                         <p style="font-size: 14px; margin-top: 25px; color: #888;">Criado por: <b style="color: var(--text);">${char.owner_username || 'Brazuguer'}</b></p>
                         
-                        <div style="display: flex; gap: 15px; margin-top: 30px;">
-                            ${!char.is_dead ? `<a href="https://classic-armory.org/character/us/classic-hardcore/doomhowl/${char.name.toLowerCase()}" target="_blank" class="discord-btn" style="background: var(--gold); color: #000; border: none;">Classic Armory</a>` : ''}
+                        <div style="display: flex; gap: 15px; margin-top: 30px; flex-wrap: wrap;">
+                            ${!char.is_dead ? `<a href="https://classic-armory.org/character/us/classic-hardcore/doomhowl/${char.name.toLowerCase()}" target="_blank" class="discord-btn" style="background: #333; color: #fff; border: 1px solid #555;">Classic Armory</a>` : ''}
+                            <a href="/armory/${char.region || 'us'}/${char.realm || 'doomhowl'}/${char.name.toLowerCase()}" class="discord-btn" style="background: var(--gold); color: #000; border: none; font-weight: bold;">Brazug Armory</a>
                             ${char.twitch_url ? `<a href="${char.twitch_url}" target="_blank" class="discord-btn" style="background: #9146ff; border: none;">Twitch</a>` : ''}
                             ${char.youtube_url ? `<a href="${char.youtube_url}" target="_blank" class="discord-btn" style="background: #ff0000; border: none;">YouTube</a>` : ''}
                         </div>
@@ -87,7 +86,7 @@
 
                 <div style="margin-top: 50px; border-top: 1px solid #333; padding-top: 40px;">
                     <h2 style="color: var(--gold); font-size: 28px; margin-bottom: 20px;">Lore / Biografia</h2>
-                    <div style="line-height: 2; color: #ccc; white-space: pre-wrap; font-style: italic; font-size: 18px;">${char.lore || 'Este herói ainda não registrou sua história...'}</div>
+                    <div class="lore-content" style="line-height: 2; color: #ccc; font-style: italic; font-size: 18px;">${formatLore(char.lore)}</div>
                 </div>
 
                 <div style="margin-top: 40px;">
@@ -151,6 +150,23 @@
     function extractTwitchUser(url) {
         const match = url.match(/twitch\.tv\/([a-z0-9_]+)/i);
         return match ? match[1] : null;
+    }
+
+    function formatLore(text) {
+        if (!text) return 'Este herói ainda não registrou sua história...';
+        
+        // Se já parece ser HTML (contém tags), retornamos como está
+        if (text.includes('<p>') || text.includes('<strong>') || text.includes('<br>')) {
+            return text;
+        }
+
+        // Se for texto legado, tratamos as quebras de linha e a tag [img]
+        let formatted = text.replace(/\n/g, '<br>');
+        
+        // Substituir [img]URL[/img] por tags <img>
+        return formatted.replace(/\[img\](https?:\/\/[^\]]+)\[\/img\]/gi, (match, url) => {
+            return `<img src="${url}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 15px 0; display: block; border: 1px solid #333;">`;
+        });
     }
 
     loadDetail();

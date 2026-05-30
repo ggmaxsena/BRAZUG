@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Minhas Vendas — BRAZUG</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="site-header" id="universal-header"></header>
+<main class="container">
+    <h1 class="section-title">Minhas Vendas</h1>
+    <div class="card">
+        <h2 style="color: var(--gold);">Anunciar Novo Item</h2>
+        <div style="display: grid; gap: 10px; margin-top: 15px;">
+            <input type="text" id="item_name" placeholder="Nome do Item" style="padding:8px; background:#111; border:1px solid #333; color:#fff;">
+            <input type="text" id="price" placeholder="Preço" style="padding:8px; background:#111; border:1px solid #333; color:#fff;">
+            <textarea id="description" placeholder="Descrição/Detalhes" style="padding:8px; background:#111; border:1px solid #333; color:#fff;"></textarea>
+            <button id="btn-create-sale" class="discord-btn" style="border: none; padding: 10px; cursor: pointer;">Anunciar</button>
+        </div>
+    </div>
+    
+    <div id="sales-list" class="card" style="margin-top: 20px;">
+        <h2 style="color: var(--gold);">Itens Anunciados</h2>
+        <div id="sales-container"></div>
+    </div>
+</main>
+<script src="/js/header.js"></script>
+<script src="/js/controllers/SalesController.js"></script>
+</body>
+</html>

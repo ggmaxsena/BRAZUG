@@ -39,6 +39,12 @@
         } else {
             adminActions.style.display = "none";
         }
+        
+        // Mostrar botão Nova Aventura (aprovado para membros)
+        const btnNovaAventura = document.getElementById('btn-nova-aventura');
+        if (token && btnNovaAventura) {
+            btnNovaAventura.style.display = "inline-block";
+        }
 
       } catch (e) {
         console.error("Erro ao carregar agenda:", e);

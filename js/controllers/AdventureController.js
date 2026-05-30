@@ -6,7 +6,7 @@
       const container = document.getElementById("mural-grid");
       const statusEl = document.getElementById("mural-status");
       const trigger = document.querySelector(".js-long-press");
-      
+
       if (!container) return;
 
       try {
@@ -16,6 +16,12 @@
         // Garantir visibilidade
         container.hidden = false;
         if (statusEl) statusEl.hidden = true;
+
+        // fallback: se render vier vazia, mostra mensagem
+        if (adventures.length === 0 && statusEl) {
+          statusEl.textContent = "Nenhuma aventura publicada ainda.";
+          statusEl.hidden = false;
+        }
 
         // Click trigger for shadow
         let clickCount = 0;
@@ -33,7 +39,7 @@
               const password = prompt("As sombras pedem sua senha:");
               if (password === "destino das sombras") {
                 const shadowAdventures = await AdventureModel.fetchAll("que as sombras mostram meu destino");
-                adventures = shadowAdventures; 
+                adventures = shadowAdventures;
                 AdventureView.renderGrid(adventures, container);
               }
             }
@@ -56,18 +62,18 @@
     openModal(adventure) {
       const modal = document.getElementById("mural-modal");
       if (!modal) return;
-      
+
       const img = document.getElementById("mural-modal-img");
       if (img) {
           img.src = adventure.image_url || "";
           img.style.display = adventure.image_url ? "block" : "none";
       }
-      
+
       document.getElementById("mural-modal-title").textContent = adventure.title;
       document.getElementById("mural-modal-body").innerHTML = adventure.body;
       document.getElementById("mural-modal-date").textContent = adventure.event_date;
       document.getElementById("mural-modal-author").textContent = "Relato de: " + adventure.author;
-      
+
       modal.hidden = false;
 
       const close = () => modal.hidden = true;

@@ -2,7 +2,94 @@
   "use strict";
 
   const CharacterController = {
+    async fetchFromWoW() {
+        const name = document.getElementById("wow-name").value.trim();
+        const realm = document.getElementById("wow-realm").value.trim();
+        if (!name || !realm) return alert("Preencha Nome e Reino");
+
+        try {
+            // Redirecionando para o módulo Armory local com URL encoded
+            const res = await fetch(`/api/character/fetch/${realm}/${encodeURIComponent(name)}`);
+            const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error(data.error || "Erro ao buscar no Armory");
+            }
+            
+            // Populate form
+            document.getElementById("name").value = data.name;
+            
+            // Normalize class and race for select elements
+            const classMap = {
+                "Guerreiro": "Warrior", "Caçador": "Hunter", "Ladino": "Rogue", 
+                "Mago": "Mage", "Bruxo": "Warlock", "Sacerdote": "Priest", 
+                "Druida": "Druid", "Xamã": "Shaman", "Paladino": "Paladin"
+            };
+            const raceMap = {
+                "Orc": "Orc", "Troll": "Troll", "Taurem": "Tauren", "Tauren": "Tauren", 
+                "Renegado": "Undead", "Morto-vivo": "Undead", "Undead": "Undead",
+                "Humano": "Human", "Anão": "Dwarf", "Elfo Noturno": "Night Elf", "Gnomo": "Gnome"
+            };
+
+            const mappedClass = classMap[data.class] || data.class;
+            const mappedRace = raceMap[data.race] || data.race;
+
+            const classSelect = document.getElementById("class");
+            const raceSelect = document.getElementById("race");
+            
+            if ([...classSelect.options].some(o => o.value === mappedClass)) classSelect.value = mappedClass;
+            if ([...raceSelect.options].some(o => o.value === mappedRace)) raceSelect.value = mappedRace;
+
+            document.getElementById("level").value = data.level;
+            document.getElementById("guild").value = data.guild || "BRAZUG";
+            document.getElementById("image_url").value = data.avatarUrl || "";
+            
+            // Populate professions
+            let primaryCount = 0;
+            data.professions.forEach((p) => {
+                const name = p.name.toLowerCase();
+                if (name.includes("culinária") || name.includes("cooking")) {
+                    document.getElementById("prof_cooking_lvl").value = p.skillPoints;
+                } else if (name.includes("primeiros socorros") || name.includes("first aid")) {
+                    document.getElementById("prof_aid_lvl").value = p.skillPoints;
+                } else if (name.includes("pesca") || name.includes("fishing")) {
+                    document.getElementById("prof_fishing_lvl").value = p.skillPoints;
+                } else if (primaryCount < 2) {
+                    primaryCount++;
+                    document.getElementById(`prof${primaryCount}_name`).value = p.name;
+                    document.getElementById(`prof${primaryCount}_lvl`).value = p.skillPoints;
+                }
+            });
+            
+            alert("Dados carregados com sucesso!");
+        } catch (e) {
+            alert(e.message);
+        }
+    },
+
+    initQuill() {
+        if (!this.quill) {
+            this.quill = new Quill('#lore-editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['link', 'image'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['clean']
+                    ]
+                }
+            });
+        }
+    },
+
     async init() {
+      this.initQuill();
+
+      // Add event listener for fetch button
+      document.getElementById("btn-fetch-wow").onclick = () => this.fetchFromWoW();
+      
       const token = localStorage.getItem("brazug_admin_token");
       if (!token) return window.location.href = "/login.html";
 
@@ -61,7 +148,10 @@
         document.getElementById("visibility").value = char.visibility;
         document.getElementById("status").value = char.is_dead ? "dead" : "alive";
         document.getElementById("image_url").value = char.image_url;
-        document.getElementById("lore").value = char.lore;
+        
+        if (this.quill) {
+            this.quill.root.innerHTML = char.lore || "";
+        }
 
         // Preencher Profissões
         document.getElementById("prof1_name").value = char.prof1_name || "";
@@ -86,6 +176,7 @@
     },
 
     async save(id = null) {
+      console.log("[DEBUG-FRONT] Botão Salvar clicado! ID:", id);
       const token = localStorage.getItem("brazug_admin_token");
       let imageUrl = document.getElementById("image_url").value;
 
@@ -117,7 +208,7 @@
           visibility: document.getElementById("visibility").value,
           is_dead: document.getElementById("status").value === "dead",
           image_url: imageUrl,
-          lore: document.getElementById("lore").value,
+          lore: this.quill ? this.quill.root.innerHTML : document.getElementById("lore").value,
           
           // Profissões
           prof1_name: document.getElementById("prof1_name").value,
@@ -140,6 +231,23 @@
       } catch (e) {
         alert("Erro ao salvar: " + e.message);
       }
+    },
+
+    async deleteCharacter(id) {
+        if (!confirm("Tem certeza que deseja excluir este personagem?")) return;
+        
+        const token = localStorage.getItem("brazug_admin_token");
+        try {
+            const res = await fetch(`/api/characters/${id}`, {
+                method: "DELETE",
+                headers: { "Authorization": "Bearer " + token }
+            });
+            if (!res.ok) throw new Error("Erro ao excluir personagem");
+            alert("Personagem excluído!");
+            location.reload();
+        } catch (e) {
+            alert("Erro: " + e.message);
+        }
     },
 
     view(id) {

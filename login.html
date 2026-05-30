@@ -60,6 +60,12 @@
         </form>
 
         <p id="auth-error" style="color: #ff4444; margin-top: 15px; text-align: center" hidden></p>
+        <div id="resend-verification-container" style="margin-top: 15px; text-align: center;" hidden>
+            <p id="resend-info" style="color: #ccc; margin-bottom: 10px;"></p>
+            <button id="resend-btn" class="discord-btn" style="border: none; padding: 8px 15px; font-size: 0.8rem; cursor: pointer;">
+                Reenviar E-mail de Verificação
+            </button>
+        </div>
 
         <div style="margin-top: 25px; text-align: center; font-size: 0.9rem">
           <p style="margin-bottom: 10px;">
@@ -77,15 +83,22 @@
         var loginForm = document.getElementById('login-form');
         var loginBtn = document.getElementById('login-btn');
         var authError = document.getElementById('auth-error');
+        var resendContainer = document.getElementById('resend-verification-container');
+        var resendBtn = document.getElementById('resend-btn');
+        var resendInfo = document.getElementById('resend-info');
+        
+        var pendingVerificationEmail = '';
 
         loginForm.addEventListener('submit', async function (e) {
           e.preventDefault();
           authError.hidden = true;
+          resendContainer.hidden = true;
           loginBtn.textContent = 'Autenticando...';
           loginBtn.disabled = true;
 
           try {
-            var res = await fetch('/api/admin/login', {
+            // Supondo que o endpoint de login esteja em /api/auth/login, verifique se /api/admin/login é o correto
+            var res = await fetch('/api/auth/login', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -95,7 +108,14 @@
             });
 
             var data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Login falhou');
+            if (!res.ok) {
+                if (data.needs_verification) {
+                    pendingVerificationEmail = data.email;
+                    resendInfo.textContent = "Sua conta ainda não foi ativada. Verifique seu e-mail ou reenvie a mensagem.";
+                    resendContainer.hidden = false;
+                }
+                throw new Error(data.error || 'Login falhou');
+            }
 
             localStorage.setItem('brazug_admin_token', data.token);
             localStorage.setItem('brazug_admin_role', data.user.role);
@@ -108,6 +128,24 @@
             loginBtn.textContent = 'Acessar Perfil';
             loginBtn.disabled = false;
           }
+        });
+
+        resendBtn.addEventListener('click', async function() {
+            resendBtn.disabled = true;
+            resendBtn.textContent = 'Enviando...';
+            try {
+                var res = await fetch('/api/auth/resend-verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: pendingVerificationEmail })
+                });
+                var data = await res.json();
+                resendInfo.textContent = data.message || data.error;
+                resendBtn.hidden = true;
+            } catch (err) {
+                resendInfo.textContent = 'Erro ao reenviar.';
+                resendBtn.disabled = false;
+            }
         });
       })();
     </script>

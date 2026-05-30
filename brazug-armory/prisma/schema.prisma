@@ -1,0 +1,170 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters", "multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["public", "armory"]
+}
+
+// --- PUBLIC SCHEMA (Existing Website Tables) ---
+
+model User {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username          String             @unique
+  email             String?            @unique
+  password          String
+  role              String             @default("guildmember")
+  isVerified        Boolean            @default(false) @map("is_verified")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  characters        CharacterProfile[]
+
+  @@map("users")
+  @@schema("public")
+}
+
+model Adventure {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String   @default("")
+  body        String   @default("")
+  author      String   @default("")
+  imageUrl    String   @default("") @map("image_url")
+  imageData   String?  @map("image_data")
+  eventDate   DateTime @default(now()) @map("event_date") @db.Date
+  published   Boolean  @default(true)
+  visibility  String   @default("public")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+
+  @@map("adventures")
+  @@schema("public")
+}
+
+model CharacterProfile {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String?   @map("user_id") @db.Uuid
+  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Link to automatic armory data
+  characterId     Int?      @map("character_id")
+  armoryCharacter Character? @relation(fields: [characterId], references: [id])
+
+  name            String
+  class           String
+  race            String
+
+  level           Int       @default(1)
+  guild           String    @default("BRAZUG")
+  imageUrl        String?   @map("image_url")
+  lore            String?   @default("")
+  visibility      String    @default("public")
+  isDead          Boolean   @default(false) @map("is_dead")
+  deathCause      String?   @map("death_cause")
+  deathLocation   String?   @map("death_location")
+  deathLevel      Int?      @map("death_level")
+  region          String?   @default("us")
+  realm           String?   @default("doomhowl")
+  
+  // Profession manual fields (from legacy system)
+  prof1Name       String?   @map("prof1_name")
+  prof1Lvl        Int?      @map("prof1_lvl")
+  prof2Name       String?   @map("prof2_name")
+  prof2Lvl        Int?      @map("prof2_lvl")
+  profCookingLvl  Int?      @map("prof_cooking_lvl")
+  profAidLvl      Int?      @map("prof_aid_lvl")
+  profFishingLvl  Int?      @map("prof_fishing_lvl")
+
+  // Social
+  twitchUrl       String?   @map("twitch_url")
+  youtubeUrl      String?   @map("youtube_url")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @map("updated_at")
+
+  // Loose relation to automatic armory data (No FK to avoid migration errors with existing data)
+  // We will handle this join in the application logic or use a view later.
+  // armoryCharacter Character? @relation(fields: [name, realm, region], references: [name, realm, region])
+
+  @@map("wow_characters")
+  @@schema("public")
+}
+
+model SiteSetting {
+  key   String  @id
+  value String?
+
+  @@map("site_settings")
+  @@schema("public")
+}
+
+// --- ARMORY SCHEMA (Automatic Blizzard Data) ---
+
+model Character {
+  id          Int      @id @default(autoincrement())
+  name        String
+  realm       String
+  region      String
+  class       String
+  race        String
+  gender      String
+  level       Int
+  guild       String?
+  spec        String?
+  avatarUrl   String?
+  extraData   Json?    @map("extra_data")
+  lastSync    DateTime @default(now()) @map("last_sync")
+  updatedAt   DateTime @updatedAt
+
+  items       CharacterItem[]
+  professions CharacterProfession[]
+  profiles    CharacterProfile[]
+
+  @@unique([name, realm, region])
+  @@schema("armory")
+}
+
+model Item {
+  id          Int       @id // ID do item da Blizzard
+  name        String
+  quality     String
+  icon        String?   // URL do ícone
+  tooltipData Json?     @map("tooltip_data") // JSON com stats, descrição, etc.
+  lastUpdated DateTime  @default(now()) @map("last_updated")
+  
+  characterItems CharacterItem[]
+
+  @@schema("armory")
+}
+
+model CharacterItem {
+  id          Int       @id @default(autoincrement())
+  characterId Int       @map("character_id")
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  
+  itemId      Int       @map("item_id")
+  item        Item      @relation(fields: [itemId], references: [id])
+  slot        String    // e.g., "HEAD", "CHEST"
+  
+  // Mantém legado para evitar perda de dados durante a transição
+  name        String?
+  quality     String?
+  icon        String?
+
+  @@schema("armory")
+}
+
+model CharacterProfession {
+  id          Int       @id @default(autoincrement())
+  characterId Int       @map("character_id")
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  name        String
+  skillPoints Int       @map("skill_points")
+  maxSkillPoints Int    @map("max_skill_points")
+
+  @@schema("armory")
+}

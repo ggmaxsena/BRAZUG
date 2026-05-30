@@ -6,7 +6,7 @@
 
   var permissions = {
     "/admin.html": ["admin"],
-    "/cadastro-aventura.html": ["admin", "guildmaster", "officer"],
+    "/cadastro-aventura.html": ["admin", "guildmaster", "officer", "guildmember"],
     "/perfil.html": ["admin", "guildmaster", "officer", "guildmember"]
   };
 

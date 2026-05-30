@@ -12,10 +12,9 @@
         let authItems = `<a href="/login.html" class="nav-link">Login</a>`;
 
         if (token && username) {
-            const isAuthorized = ['admin', 'guildmaster', 'officer'].includes(role);
             authItems = `
                 <a href="/perfil.html" class="nav-link">Perfil</a>
-                ${isAuthorized ? '<a href="/cadastro-aventura.html" class="nav-link">Nova Aventura</a>' : ''}
+                <a href="/ficha.html" class="nav-link">Meus Personagens</a>
                 ${role === 'admin' ? '<a href="/admin.html" class="nav-link">Admin</a>' : ''}
                 <a href="#" class="nav-link" style="color: #ff4444;" id="nav-logout-btn">Sair</a>
             `;
@@ -25,6 +24,7 @@
             <div class="header-left">
                 <nav id="header-nav">
                     <a href="/" class="nav-link">Home</a>
+                    <a href="/#mural" class="nav-link">Mural</a>
                     <a href="/#lives" class="nav-link">Streams ao vivo</a>
                     ${authItems}
                 </nav>
