@@ -17,8 +17,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(character);
   } catch (error: any) {
-    console.error('Sync API Error:', error);
-    
+    console.error(`Sync API Error [${error.response?.status || 'no-status'}]:`, error.response?.data || error.message);
+
     // Check for Axios error (e.g. 404 from Blizzard)
     if (error.response) {
       const status = error.response.status;
