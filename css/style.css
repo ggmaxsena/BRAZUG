@@ -310,8 +310,8 @@ section { padding: 60px 0; }
 
 .mural-modal-img {
     width: 100%;
-    max-height: 500px;
-    object-fit: contain;
+    max-height: 600px;
+    object-fit: cover; /* Melhor para preencher a largura */
     display: block;
     background: #000;
 }
@@ -331,6 +331,16 @@ section { padding: 60px 0; }
     line-height: 1.8;
     color: #ccc;
     margin-bottom: 20px;
+}
+
+/* Garante que imagens dentro do texto da aventura fiquem na largura máxima */
+.mural-modal-body img, .lore-content img, .ql-editor img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 20px auto;
+    border-radius: 8px;
+    border: 1px solid var(--border);
 }
 
 /* ===================================== */
