@@ -95,18 +95,37 @@ app.get("/api/armory/full/:realm/:name", async (req, res) => {
   try {
     const { realm, name } = req.params;
     let char = await db.getFullArmoryCharacter(name, realm);
-    
+
     if (!char) {
       console.log(`[Armory] Character ${name}-${realm} not found. Attempting quick sync...`);
-      const syncRes = await fetch(`${ARMORY_URL}/api/character/sync`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, realm, region: 'us' })
-      });
+
+      let syncRes = null;
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        syncRes = await fetch(`${ARMORY_URL}/api/character/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, realm, region: 'us' }),
+          signal: controller.signal
+        });
+        clearTimeout(timeout);
+      } catch (e) {
+        // Timeout ou módulo armory indisponível: transitório, peça retry
+        console.error(`[Armory] Sync request failed for ${name}-${realm}: ${e.message}`);
+        return res.status(503).json({ error: "Sincronizando personagem, tente novamente em instantes." });
+      }
+
+      // Blizzard confirmou que o personagem não existe de fato
+      if (syncRes.status === 404) {
+        return res.status(404).json({ error: "Não encontrado" });
+      }
+
       if (syncRes.ok) char = await db.getFullArmoryCharacter(name, realm);
     }
 
-    if (!char) return res.status(404).json({ error: "Não encontrado" });
+    // Sync respondeu mas o banco ainda não refletiu (lentidão/transitório): peça retry
+    if (!char) return res.status(503).json({ error: "Sincronizando personagem, tente novamente em instantes." });
     res.json(char);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -47,19 +47,23 @@ class BlizzardService {
     return this.accessToken;
   }
 
-  private async fetchFromBlizzard(path: string, namespaceSuffix: string = 'profile') {
+  private async fetchFromBlizzard(path: string, namespaceSuffix: string = 'profile', singleNamespace: boolean = false) {
     const token = await this.getAccessToken();
     const url = `https://${this.region}.api.blizzard.com${path}`;
     console.log(`[BLIZZARD DEBUG] URL final: ${url}`); // LOG PARA DEBUG
-    
+
     // Lista de namespaces
-    const namespaces = [
+    const allNamespaces = [
       process.env.BLIZZARD_NAMESPACE,
       `${namespaceSuffix}-classicann-${this.region}`,
       `${namespaceSuffix}-classic1x-${this.region}`,
       `${namespaceSuffix}-classic-${this.region}`,
       `${namespaceSuffix}-${this.region}`
     ].filter(Boolean) as string[];
+
+    // Endpoints que sempre dão 404 no classic1x (reputations/achievements) não devem
+    // varrer todos os namespaces — basta tentar o namespace configurado e desistir.
+    const namespaces = singleNamespace ? allNamespaces.slice(0, 1) : allNamespaces;
 
     let lastError: any = null;
 
@@ -128,14 +132,14 @@ class BlizzardService {
     const r = realm.trim().toLowerCase();
     const n = characterName.trim().toLowerCase();
     const path = `/profile/wow/character/${r}/${n}/reputations`;
-    return this.fetchFromBlizzard(path);
+    return this.fetchFromBlizzard(path, 'profile', true);
   }
 
   async getCharacterAchievements(realm: string, characterName: string) {
     const r = realm.trim().toLowerCase();
     const n = characterName.trim().toLowerCase();
     const path = `/profile/wow/character/${r}/${n}/achievements`;
-    return this.fetchFromBlizzard(path);
+    return this.fetchFromBlizzard(path, 'profile', true);
   }
 
   async getGuildRoster(realm: string, guildName: string) {

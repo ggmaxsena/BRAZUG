@@ -64,12 +64,32 @@
     const slotNames = { 'HEAD': 'Cabeça', 'NECK': 'Pescoço', 'SHOULDER': 'Ombros', 'CHEST': 'Torso', 'WAIST': 'Cintura', 'LEGS': 'Pernas', 'FEET': 'Pés', 'WRIST': 'Pulsos', 'HANDS': 'Mãos', 'BACK': 'Costas', 'MAIN_HAND': 'Mão Princ.', 'OFF_HAND': 'Mão Sec.' };
     const slots = ['HEAD', 'NECK', 'SHOULDER', 'CHEST', 'WAIST', 'LEGS', 'FEET', 'WRIST', 'HANDS', 'BACK', 'MAIN_HAND', 'OFF_HAND'];
 
-    async function loadArmory() {
+    function showMessage(text) {
+        document.getElementById('armory-content').innerHTML =
+            `<div style="text-align: center; padding: 100px;">${text}</div>`;
+    }
+
+    async function loadArmory(attempt = 0) {
+        const MAX_ATTEMPTS = 5;
         try {
             const res = await fetch(`/api/armory/full/${realm}/${name}`);
-            if (!res.ok) return;
+
+            // 503: sync em andamento — re-tenta enquanto o personagem é sincronizado
+            if (res.status === 503 && attempt < MAX_ATTEMPTS) {
+                showMessage("Sincronizando Herói...");
+                setTimeout(() => loadArmory(attempt + 1), 3000);
+                return;
+            }
+
+            if (res.status === 404) { showMessage("Personagem não encontrado."); return; }
+            if (!res.ok) { showMessage("Falha ao carregar o personagem. Tente novamente."); return; }
+
             render(await res.json());
-        } catch(e) { console.error(e); }
+        } catch(e) {
+            console.error(e);
+            if (attempt < MAX_ATTEMPTS) { setTimeout(() => loadArmory(attempt + 1), 3000); return; }
+            showMessage("Falha ao carregar o personagem. Tente novamente.");
+        }
     }
 
     // Delegação de evento robusta no document
