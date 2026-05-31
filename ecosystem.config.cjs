@@ -13,7 +13,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
-        ARMORY_URL: "http://127.0.0.1:3001"
+        ARMORY_URL: "http://2.24.124.162:3001"
       },
       env_file: ".env",
     },

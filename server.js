@@ -16,7 +16,7 @@ const twitch = require("./lib/twitch.cjs");
 
 const app = express();
 const PORT = process.env.PORT || 3002;
-const ARMORY_URL = process.env.ARMORY_URL || "http://127.0.0.1:3000";
+const ARMORY_URL = process.env.ARMORY_URL || "http://2.24.124.162:3001";
 
 app.use(express.json({ limit: "10mb" }));
 
@@ -71,8 +71,25 @@ app.use("/js", express.static(path.resolve(__dirname, "js")));
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 
 /* =========================================
-   ARMORY SYSTEM (STABLE)
+   ARMORY SYSTEM (INTEGRATION)
 ========================================= */
+
+// Proxy para a API de busca/sync do Armory
+app.get("/api/character/fetch/:realm/:name", async (req, res) => {
+  try {
+    const { realm, name } = req.params;
+    console.log(`[Proxy] Fetching character ${name}-${realm} from Armory...`);
+    
+    const response = await fetch(`${ARMORY_URL}/api/character/fetch/${realm}/${name}`);
+    const data = await response.json();
+    
+    if (!response.ok) return res.status(response.status).json(data);
+    res.json(data);
+  } catch (err) {
+    console.error("[Proxy Error] /api/character/fetch:", err.message);
+    res.status(500).json({ error: "Falha ao conectar com o módulo Armory" });
+  }
+});
 
 app.get("/api/armory/full/:realm/:name", async (req, res) => {
   try {
@@ -80,35 +97,31 @@ app.get("/api/armory/full/:realm/:name", async (req, res) => {
     let char = await db.getFullArmoryCharacter(name, realm);
     
     if (!char) {
-      // Tenta um sync rápido
       console.log(`[Armory] Character ${name}-${realm} not found. Attempting quick sync...`);
-      try {
-        const syncRes = await fetch(`${ARMORY_URL}/api/character/sync`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, realm, region: 'us' })
-        });
-        if (syncRes.ok) {
-          console.log(`[Armory] Sync successful for ${name}-${realm}`);
-          char = await db.getFullArmoryCharacter(name, realm);
-        } else {
-          console.warn(`[Armory] Sync failed for ${name}-${realm}: ${syncRes.status} ${syncRes.statusText}`);
-        }
-      } catch (e) {
-        console.error(`[Armory] Sync error for ${name}-${realm}:`, e.message);
-      }
+      const syncRes = await fetch(`${ARMORY_URL}/api/character/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, realm, region: 'us' })
+      });
+      if (syncRes.ok) char = await db.getFullArmoryCharacter(name, realm);
     }
 
     if (!char) return res.status(404).json({ error: "Não encontrado" });
     res.json(char);
   } catch (err) {
-    console.error("[API Error] /api/armory/full:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get("/armory*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "armory-ficha.html"));
+// Redireciona para o Armory Moderno (Next.js)
+app.get("/armory/:realm/:name", (req, res) => {
+    const { name } = req.params;
+    res.redirect(`${ARMORY_URL}/character/${name.toLowerCase()}`);
+});
+
+app.get("/armory/:region/:realm/:name", (req, res) => {
+    const { name } = req.params;
+    res.redirect(`${ARMORY_URL}/character/${name.toLowerCase()}`);
 });
 
 /* =========================================
@@ -220,3 +233,4 @@ function loadEnv() {
 }
 
 start().catch(err => console.error("Startup failed:", err));
+.error("Startup failed:", err));
