@@ -8,15 +8,15 @@
         if (!name || !realm) return alert("Preencha Nome e Reino");
 
         try {
-            // Redirecionando para o módulo Armory local com URL encoded
-            const res = await fetch(`/api/character/fetch/${realm}/${encodeURIComponent(name)}`);
+            // Usando a rota de proxy definida em character-routes.cjs
+            const res = await fetch(`/api/character/fetch/${encodeURIComponent(realm)}/${encodeURIComponent(name)}`);
             const data = await res.json();
             
             if (!res.ok) {
-                throw new Error(data.error || "Erro ao buscar no Armory");
+                throw new Error(data.error || "Personagem não encontrado na Blizzard. Verifique se o nome está correto e se o herói é nível 10+.");
             }
             
-            // Populate form
+            // Resto do código de preenchimento...
             document.getElementById("name").value = data.name;
             
             // Normalize class and race for select elements
