@@ -82,48 +82,65 @@ class BlizzardService {
   }
 
   async getCharacterProfile(realm: string, characterName: string) {
-    // Mantém realm minúsculo, mas preserva casing do nome para evitar erro com acentos
-    const path = `/profile/wow/character/${realm.toLowerCase()}/${characterName}`;
+    const r = realm.trim().toLowerCase();
+    const n = characterName.trim();
+    const path = `/profile/wow/character/${r}/${n}`;
     return this.fetchFromBlizzard(path);
   }
 
   async getCharacterEquipment(realm: string, characterName: string) {
-    const path = `/profile/wow/character/${realm.toLowerCase()}/${characterName.toLowerCase()}/equipment`;
+    const r = realm.trim().toLowerCase();
+    const n = characterName.trim().toLowerCase();
+    const path = `/profile/wow/character/${r}/${n}/equipment`;
     return this.fetchFromBlizzard(path);
   }
 
   async getCharacterMedia(realm: string, characterName: string) {
-    const path = `/profile/wow/character/${realm.toLowerCase()}/${characterName.toLowerCase()}/character-media`;
+    const r = realm.trim().toLowerCase();
+    const n = characterName.trim().toLowerCase();
+    const path = `/profile/wow/character/${r}/${n}/character-media`;
     return this.fetchFromBlizzard(path);
   }
 
   async getCharacterProfessions(realm: string, characterName: string) {
-    const path = `/profile/wow/character/${realm.toLowerCase()}/${characterName.toLowerCase()}/professions`;
+    const r = realm.trim().toLowerCase();
+    const n = characterName.trim().toLowerCase();
+    const path = `/profile/wow/character/${r}/${n}/professions`;
     return this.fetchFromBlizzard(path);
   }
 
   async getCharacterStatistics(realm: string, characterName: string) {
-    const path = `/profile/wow/character/${realm.toLowerCase()}/${characterName.toLowerCase()}/statistics`;
+    const r = realm.trim().toLowerCase();
+    const n = characterName.trim().toLowerCase();
+    const path = `/profile/wow/character/${r}/${n}/statistics`;
     return this.fetchFromBlizzard(path);
   }
 
   async getCharacterSpecializations(realm: string, characterName: string) {
-    const path = `/profile/wow/character/${realm.toLowerCase()}/${characterName.toLowerCase()}/specializations`;
+    const r = realm.trim().toLowerCase();
+    const n = characterName.trim().toLowerCase();
+    const path = `/profile/wow/character/${r}/${n}/specializations`;
     return this.fetchFromBlizzard(path);
   }
 
   async getCharacterReputations(realm: string, characterName: string) {
-    const path = `/profile/wow/character/${realm.toLowerCase()}/${characterName.toLowerCase()}/reputations`;
+    const r = realm.trim().toLowerCase();
+    const n = characterName.trim().toLowerCase();
+    const path = `/profile/wow/character/${r}/${n}/reputations`;
     return this.fetchFromBlizzard(path);
   }
 
   async getCharacterAchievements(realm: string, characterName: string) {
-    const path = `/profile/wow/character/${realm.toLowerCase()}/${characterName.toLowerCase()}/achievements`;
+    const r = realm.trim().toLowerCase();
+    const n = characterName.trim().toLowerCase();
+    const path = `/profile/wow/character/${r}/${n}/achievements`;
     return this.fetchFromBlizzard(path);
   }
 
   async getGuildRoster(realm: string, guildName: string) {
-    const path = `/data/wow/guild/${realm.toLowerCase()}/${guildName.toLowerCase()}/roster`;
+    const r = realm.trim().toLowerCase();
+    const g = guildName.trim().toLowerCase();
+    const path = `/data/wow/guild/${r}/${g}/roster`;
     return this.fetchFromBlizzard(path, 'data');
   }
 }
