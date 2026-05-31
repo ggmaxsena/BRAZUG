@@ -59,16 +59,15 @@
                 });
             }
 
-            // Populate author select
-            const authorSelect = document.getElementById("author-select");
-            if (authorSelect) {
+            // Populate author datalist
+            const characterList = document.getElementById("characters-list");
+            if (characterList) {
                 try {
                     const chars = await fetch("/api/characters").then(r => r.json());
                     chars.filter(c => !c.is_dead).forEach(c => {
                         const opt = document.createElement("option");
                         opt.value = c.name;
-                        opt.textContent = `${c.name} (${c.class})`;
-                        authorSelect.appendChild(opt);
+                        characterList.appendChild(opt);
                     });
                 } catch (e) { console.error("Erro ao carregar autores:", e); }
             }
@@ -88,7 +87,8 @@
                     adventureForm.image_url.value = adv.image_url;
                     adventureForm.published.checked = !!adv.published;
                     adventureForm.visibility.value = adv.visibility;
-                    document.getElementById("author-text").value = adv.author;
+                    const authorInput = document.getElementById("author-input");
+                    if (authorInput) authorInput.value = adv.author || "";
                 }
             }
 
@@ -120,7 +120,7 @@
                   image_url: imageUrl,
                   published: adventureForm.published.checked,
                   visibility: fd.get("visibility"),
-                  author: fd.get("author_text") || fd.get("author_select") || ""
+                  author: fd.get("author") || ""
                 };
 
                 try {

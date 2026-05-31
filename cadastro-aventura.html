@@ -50,11 +50,9 @@
           </div>
           
           <div>
-              <label>Autor / Personagem</label>
-              <select name="author_select" id="author-select" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff; margin-bottom: 10px;">
-                  <option value="">Selecione um personagem...</option>
-              </select>
-              <input type="text" name="author_text" id="author-text" placeholder="Ou digite manualmente" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;">
+              <label>Autor / Personagem (Selecione da lista ou digite um novo)</label>
+              <input type="text" name="author" id="author-input" list="characters-list" placeholder="Digite o nome do herói autor desta história..." required style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;">
+              <datalist id="characters-list"></datalist>
           </div>
 
           <div>
