@@ -233,4 +233,3 @@ function loadEnv() {
 }
 
 start().catch(err => console.error("Startup failed:", err));
-.error("Startup failed:", err));
