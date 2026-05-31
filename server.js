@@ -23,8 +23,20 @@ app.use(express.json({ limit: "10mb" }));
 /* =========================================
    STATIC FILES & ICON PROXY
 ========================================= */
-// Caminho da pasta de uploads: usa variável de ambiente ou padrão de produção (Hostinger)
-const externalUploads = process.env.UPLOAD_DIR || path.resolve(__dirname, "..", "..", "uploads");
+// Configuração dinâmica da pasta de uploads
+let externalUploads = process.env.UPLOAD_DIR;
+
+if (!externalUploads) {
+  const prodPath = path.resolve(__dirname, "..", "..", "uploads");
+  const devPath = path.resolve(__dirname, "data", "uploads");
+  
+  if (fs.existsSync(prodPath)) {
+    externalUploads = prodPath;
+  } else {
+    externalUploads = devPath;
+  }
+}
+
 const iconDir = path.resolve(__dirname, "assets", "icons");
 if (!fs.existsSync(externalUploads)) fs.mkdirSync(externalUploads, { recursive: true });
 if (!fs.existsSync(iconDir)) fs.mkdirSync(iconDir, { recursive: true });
