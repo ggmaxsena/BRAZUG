@@ -51,7 +51,7 @@ class CharacterService {
         guild: data.guild,
         spec: data.spec,
         avatarUrl: data.avatarUrl,
-        extraData: data.extraData || null,
+        extraData: data.extraData as any,
         updatedAt: new Date(),
       },
       create: data,
