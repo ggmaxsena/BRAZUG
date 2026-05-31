@@ -70,7 +70,7 @@
       }
 
       document.getElementById("mural-modal-title").textContent = adventure.title;
-      document.getElementById("mural-modal-body").innerHTML = adventure.body;
+      document.getElementById("mural-modal-body").innerHTML = this.renderBody(adventure.body);
       document.getElementById("mural-modal-date").textContent = adventure.event_date;
       document.getElementById("mural-modal-author").textContent = "Relato de: " + adventure.author;
 
@@ -80,6 +80,39 @@
       modal.querySelectorAll("[data-action='close']").forEach(btn => btn.onclick = close);
       const backdrop = modal.querySelector(".mural-modal-backdrop");
       if (backdrop) backdrop.onclick = close;
+    },
+
+    renderBody(text) {
+        if (!text) return "";
+        if (text.trim().startsWith('{')) {
+            try {
+                const data = JSON.parse(text);
+                if (data.blocks) {
+                    return data.blocks.map(block => {
+                        switch (block.type) {
+                            case 'paragraph':
+                                return `<p style="margin-bottom: 1.2em; line-height: 1.7;">${block.data.text}</p>`;
+                            case 'header':
+                                return `<h${block.data.level} style="color: var(--gold); margin: 1.2em 0 0.5em 0;">${block.data.text}</h${block.data.level}>`;
+                            case 'list':
+                                const tag = block.data.style === 'ordered' ? 'ol' : 'ul';
+                                const items = block.data.items.map(item => `<li style="margin-bottom: 0.4em;">${item}</li>`).join('');
+                                return `<${tag} style="margin-bottom: 1.2em; padding-left: 20px;">${items}</${tag}>`;
+                            case 'image':
+                                return `<div style="margin: 20px 0; text-align: center;">
+                                    <img src="${block.data.file?.url || block.data.url}" style="max-width: 100%; border-radius: 8px; border: 1px solid #333;">
+                                    ${block.data.caption ? `<p style="font-size: 0.85em; color: #888; margin-top: 8px;">${block.data.caption}</p>` : ""}
+                                </div>`;
+                            case 'quote':
+                                return `<blockquote style="border-left: 3px solid var(--gold); padding: 5px 15px; font-style: italic; background: rgba(255,255,255,0.03); margin-bottom: 1.2em;">${block.data.text}</blockquote>`;
+                            default:
+                                return "";
+                        }
+                    }).join("");
+                }
+            } catch (e) {}
+        }
+        return text; // Fallback para HTML legado
     }
   };
 

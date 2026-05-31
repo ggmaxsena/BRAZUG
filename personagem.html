@@ -155,6 +155,35 @@
     function formatLore(text) {
         if (!text) return 'Este herói ainda não registrou sua história...';
         
+        // Tenta detectar se é JSON do Editor.js
+        if (text.trim().startsWith('{')) {
+            try {
+                const data = JSON.parse(text);
+                if (data.blocks) {
+                    return data.blocks.map(block => {
+                        switch (block.type) {
+                            case 'paragraph':
+                                return `<p style="margin-bottom: 1.5em;">${block.data.text}</p>`;
+                            case 'header':
+                                return `<h${block.data.level} style="color: var(--gold); margin: 1.5em 0 0.5em 0;">${block.data.text}</h${block.data.level}>`;
+                            case 'list':
+                                const tag = block.data.style === 'ordered' ? 'ol' : 'ul';
+                                const items = block.data.items.map(item => `<li style="margin-bottom: 0.5em;">${item}</li>`).join('');
+                                return `<${tag} style="margin-bottom: 1.5em; padding-left: 20px;">${items}</${tag}>`;
+                            case 'image':
+                                return `<img src="${block.data.file?.url || block.data.url}" alt="${block.data.caption || ''}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0; display: block; border: 1px solid #333;">${block.data.caption ? `<p style="font-size: 14px; text-align: center; color: #888;">${block.data.caption}</p>` : ''}`;
+                            case 'quote':
+                                return `<blockquote style="border-left: 4px solid var(--gold); padding: 10px 20px; font-style: italic; background: rgba(255,255,255,0.05); margin-bottom: 1.5em;">${block.data.text}</blockquote>`;
+                            default:
+                                return '';
+                        }
+                    }).join('');
+                }
+            } catch (e) {
+                // Se falhar o parse, segue para o tratamento legado
+            }
+        }
+
         // Se já parece ser HTML (contém tags), retornamos como está
         if (text.includes('<p>') || text.includes('<strong>') || text.includes('<br>')) {
             return text;

@@ -33,31 +33,49 @@
         // Adventure Form Logic (for cadastro-aventura.html)
         const adventureForm = document.getElementById("adventure-form");
         if (adventureForm) {
-            // Initialize Quill
-            let quill;
-            if (typeof Quill !== 'undefined') {
-                quill = new Quill('#editor-container', {
-                    theme: 'snow',
-                    modules: {
-                        toolbar: [
-                            ['bold', 'italic', 'underline', 'strike'],
-                            ['blockquote', 'code-block'],
-                            [{ 'header': 1 }, { 'header': 2 }],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            [{ 'script': 'sub'}, { 'script': 'super' }],
-                            [{ 'indent': '-1'}, { 'indent': '+1' }],
-                            [{ 'direction': 'rtl' }],
-                            [{ 'size': ['small', false, 'large', 'huge'] }],
-                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                            [{ 'color': [] }, { 'background': [] }],
-                            [{ 'font': [] }],
-                            [{ 'align': [] }],
-                            ['clean'],
-                            ['link', 'image']
-                        ]
+            // Initialize Editor.js
+            this.initEditor = async (initialData = null) => {
+                if (this.editor) {
+                    await this.editor.isReady;
+                    this.editor.destroy();
+                    this.editor = null;
+                }
+
+                let blocks = [];
+                if (initialData) {
+                    try {
+                        const json = JSON.parse(initialData);
+                        blocks = json.blocks || [];
+                    } catch (e) {
+                        blocks = [{ type: "paragraph", data: { text: initialData } }];
                     }
+                }
+
+                this.editor = new EditorJS({
+                    holder: 'editor-container',
+                    tools: {
+                        header: Header,
+                        list: List,
+                        quote: Quote,
+                        image: {
+                            class: ImageTool,
+                            config: {
+                                endpoints: {
+                                    byFile: '/api/admin/upload',
+                                    byUrl: '/api/admin/upload-url',
+                                },
+                                additionalRequestHeaders: {
+                                    'Authorization': 'Bearer ' + token
+                                }
+                            }
+                        }
+                    },
+                    data: { blocks },
+                    placeholder: 'Escreva sua aventura épica aqui...'
                 });
-            }
+            };
+
+            await this.initEditor();
 
             // Populate author datalist
             const characterList = document.getElementById("characters-list");
@@ -83,7 +101,9 @@
                 if (adv) {
                     adventureForm.title.value = adv.title;
                     adventureForm.event_date.value = adv.event_date;
-                    if (quill) quill.root.innerHTML = adv.body || "";
+                    
+                    await this.initEditor(adv.body);
+
                     adventureForm.image_url.value = adv.image_url;
                     adventureForm.published.checked = !!adv.published;
                     adventureForm.visibility.value = adv.visibility;
@@ -113,10 +133,12 @@
                     } catch (err) { return alert("Erro no upload: " + err.message); }
                 }
 
+                const bodyData = this.editor ? await this.editor.save() : {};
+
                 const payload = {
                   title: fd.get("title"),
                   event_date: fd.get("event_date"),
-                  body: quill ? quill.root.innerHTML : fd.get("body"),
+                  body: JSON.stringify(bodyData),
                   image_url: imageUrl,
                   published: adventureForm.published.checked,
                   visibility: fd.get("visibility"),
