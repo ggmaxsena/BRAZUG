@@ -7,7 +7,8 @@ console.log('sync.service.ts file loaded');
 logToFile('sync.service.ts file loaded');
 
 function logToFile(message: string) {
-  const logPath = path.join(process.cwd(), 'sync-debug.log');
+  const logDir = process.env.NODE_ENV === 'production' ? '/tmp' : process.cwd();
+  const logPath = path.join(logDir, 'sync-debug.log');
   const timestamp = new Date().toISOString();
   fs.appendFileSync(logPath, `[${timestamp}] ${message}\n`);
 }
