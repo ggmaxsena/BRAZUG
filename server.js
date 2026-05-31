@@ -27,7 +27,8 @@ app.use(express.json({ limit: "10mb" }));
 let externalUploads = process.env.UPLOAD_DIR;
 
 if (!externalUploads) {
-  const prodPath = path.resolve(__dirname, "..", "..", "uploads");
+  // Ajustado para ser consistente: busca "uploads" no pai do projeto ou em data/uploads
+  const prodPath = path.resolve(__dirname, "..", "uploads");
   const devPath = path.resolve(__dirname, "data", "uploads");
   
   if (fs.existsSync(prodPath)) {
@@ -37,7 +38,10 @@ if (!externalUploads) {
   }
 }
 
+console.log(`[BRAZUG] Static serving: Uploads from ${externalUploads}`);
 const iconDir = path.resolve(__dirname, "assets", "icons");
+console.log(`[BRAZUG] Static serving: Icons from ${iconDir}`);
+
 if (!fs.existsSync(externalUploads)) fs.mkdirSync(externalUploads, { recursive: true });
 if (!fs.existsSync(iconDir)) fs.mkdirSync(iconDir, { recursive: true });
 
@@ -149,10 +153,43 @@ app.get("/api/health", async (req, res) => {
     if (aRes && aRes.ok) armory.ok = true;
   } catch (e) {}
 
+  // Check file system
+  const fsStatus = {
+    uploads: {
+      path: externalUploads,
+      exists: fs.existsSync(externalUploads),
+      writable: false
+    },
+    icons: {
+      path: iconDir,
+      exists: fs.existsSync(iconDir),
+      writable: false
+    },
+    branding: {
+      logo: fs.existsSync(path.resolve(__dirname, "assets", "branding", "LOGO.png")),
+      guia: fs.existsSync(path.resolve(__dirname, "assets", "branding", "guia1.gif"))
+    }
+  };
+
+  try {
+    const testFile = path.join(externalUploads, ".write-test");
+    fs.writeFileSync(testFile, "test");
+    fs.unlinkSync(testFile);
+    fsStatus.uploads.writable = true;
+  } catch (e) {}
+
+  try {
+    const testFile = path.join(iconDir, ".write-test");
+    fs.writeFileSync(testFile, "test");
+    fs.unlinkSync(testFile);
+    fsStatus.icons.writable = true;
+  } catch (e) {}
+
   res.json({
-    status: pg.ok && armory.ok ? "healthy" : "degraded",
+    status: pg.ok && armory.ok && fsStatus.uploads.writable ? "healthy" : "degraded",
     database: pg,
     armory: armory,
+    fileSystem: fsStatus,
     timestamp: new Date().toISOString()
   });
 });
