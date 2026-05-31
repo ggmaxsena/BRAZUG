@@ -42,7 +42,12 @@
 
             document.getElementById("level").value = data.level;
             document.getElementById("guild").value = data.guild || "BRAZUG";
-            document.getElementById("image_url").value = data.avatarUrl || "";
+            
+            // Só sobrescreve a imagem se estiver vazia
+            const currentImg = document.getElementById("image_url").value;
+            if (!currentImg && data.avatarUrl) {
+                document.getElementById("image_url").value = data.avatarUrl;
+            }
             
             // Populate professions
             let primaryCount = 0;

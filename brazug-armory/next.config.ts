@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   // Removido o uso de path e __dirname para evitar erro de compatibilidade ESM
   images: {
     remotePatterns: [

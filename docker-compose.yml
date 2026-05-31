@@ -1,33 +1,35 @@
-# Apenas PostgreSQL na VPS. O site (Node) roda na Hostinger ou localmente.
-#
-# Na VPS:
-#   cp .env.db.example .env
-#   docker compose up -d
-#
-# No app (Hostinger): DATABASE_URL=postgresql://user:senha@IP_DA_VPS:5432/brazug
+# Arquitetura BRAZUG (Website + Armory) usando DB Externo
+# Uso: docker compose up -d
 
 services:
-  db:
-    image: postgres:16-alpine
+  website:
+    build: .
     restart: unless-stopped
     ports:
-      - "${POSTGRES_PUBLISH:-5432}:5432"
+      - "3000:3000"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-brazug}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
-      POSTGRES_DB: ${POSTGRES_DB:-brazug}
+      - NODE_ENV=production
+      - PORT=3000
+      # Use o IP da VPS ou o hostname 'host.docker.internal' (se configurado)
+      - DATABASE_URL=${DATABASE_URL}
+      - ARMORY_URL=http://armory:3001
+    depends_on:
+      armory:
+        condition: service_started
     volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./docker/init:/docker-entrypoint-initdb.d:ro
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER:-brazug} -d ${POSTGRES_DB:-brazug}",
-        ]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      - ./data/uploads:/app/data/uploads
+    # Permite que o container acesse o banco no localhost da VPS
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
-volumes:
-  pgdata:
+  armory:
+    build: ./brazug-armory
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=${DATABASE_URL}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
