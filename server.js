@@ -15,7 +15,7 @@ const salesRoutes = require("./lib/sales-routes.cjs");
 const twitch = require("./lib/twitch.cjs");
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3000;
 const ARMORY_URL = process.env.ARMORY_URL || "http://2.24.124.162:3001";
 
 app.use(express.json({ limit: "10mb" }));
@@ -113,15 +113,17 @@ app.get("/api/armory/full/:realm/:name", async (req, res) => {
   }
 });
 
-// Redireciona para o Armory Moderno (Next.js)
+// Serve o template visual do Armory (Stable)
 app.get("/armory/:realm/:name", (req, res) => {
-    const { name } = req.params;
-    res.redirect(`${ARMORY_URL}/character/${name.toLowerCase()}`);
+    res.sendFile(path.resolve(__dirname, "armory-ficha.html"));
 });
 
 app.get("/armory/:region/:realm/:name", (req, res) => {
-    const { name } = req.params;
-    res.redirect(`${ARMORY_URL}/character/${name.toLowerCase()}`);
+    res.sendFile(path.resolve(__dirname, "armory-ficha.html"));
+});
+
+app.get("/armory*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "armory-ficha.html"));
 });
 
 /* =========================================
