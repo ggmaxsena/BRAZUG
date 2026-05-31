@@ -72,54 +72,25 @@
         }
     },
 
-    async initEditor(initialData = null) {
-        if (this.editor) {
-            await this.editor.isReady;
-            this.editor.destroy();
-            this.editor = null;
-        }
-
-        let blocks = [];
-        if (initialData) {
-            try {
-                // Se for JSON (Editor.js), parseia
-                const json = JSON.parse(initialData);
-                blocks = json.blocks || [];
-            } catch (e) {
-                // Se falhar o parse, assume que é HTML legado e coloca num bloco de parágrafo
-                blocks = [{
-                    type: "paragraph",
-                    data: { text: initialData }
-                }];
-            }
-        }
-
-        this.editor = new EditorJS({
-            holder: 'lore-editor',
-            tools: {
-                header: Header,
-                list: List,
-                quote: Quote,
-                image: {
-                    class: ImageTool,
-                    config: {
-                        endpoints: {
-                            byFile: '/api/admin/upload', // Seu endpoint de upload
-                            byUrl: '/api/admin/upload-url', 
-                        },
-                        additionalRequestHeaders: {
-                            'Authorization': 'Bearer ' + localStorage.getItem("brazug_admin_token")
-                        }
-                    }
+    initQuill() {
+        if (!this.quill) {
+            this.quill = new Quill('#lore-editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['link', 'image'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['clean']
+                    ]
                 }
-            },
-            data: { blocks },
-            placeholder: 'Conte a história do seu herói aqui...'
-        });
+            });
+        }
     },
 
     async init() {
-      await this.initEditor();
+      this.initQuill();
 
       // Add event listener for fetch button
       document.getElementById("btn-fetch-wow").onclick = () => this.fetchFromWoW();
@@ -183,7 +154,9 @@
         document.getElementById("status").value = char.is_dead ? "dead" : "alive";
         document.getElementById("image_url").value = char.image_url;
         
-        await this.initEditor(char.lore);
+        if (this.quill) {
+            this.quill.root.innerHTML = char.lore || "";
+        }
 
         // Preencher Profissões
         document.getElementById("prof1_name").value = char.prof1_name || "";
@@ -231,8 +204,6 @@
           }
       }
 
-      const loreData = this.editor ? await this.editor.save() : {};
-
       const char = {
           name: document.getElementById("name").value,
           class: document.getElementById("class").value,
@@ -242,7 +213,7 @@
           visibility: document.getElementById("visibility").value,
           is_dead: document.getElementById("status").value === "dead",
           image_url: imageUrl,
-          lore: JSON.stringify(loreData),
+          lore: this.quill ? this.quill.root.innerHTML : "",
           
           // Profissões
           prof1_name: document.getElementById("prof1_name").value,
