@@ -107,6 +107,7 @@ app.get("/cadastro-aventura.html", (req, res) => res.sendFile(path.resolve(__dir
 app.get("/forgot-password.html", (req, res) => res.sendFile(path.resolve(__dirname, "forgot-password.html")));
 app.get("/reset-password.html", (req, res) => res.sendFile(path.resolve(__dirname, "reset-password.html")));
 app.get("/ficha.html", (req, res) => res.sendFile(path.resolve(__dirname, "ficha.html")));
+app.get("/vendas.html", (req, res) => res.sendFile(path.resolve(__dirname, "vendas.html")));
 
 /* =========================================
    API

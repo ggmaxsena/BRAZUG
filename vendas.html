@@ -2,26 +2,119 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Minhas Vendas — BRAZUG</title>
+    <title>Casa de Leilões — BRAZUG</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/modern-ux.css">
 </head>
 <body>
 <header class="site-header" id="universal-header"></header>
 <main class="container">
-    <h1 class="section-title">Minhas Vendas</h1>
+    <h1 class="section-title">Casa de Leilões</h1>
+
+    <!-- Nota de Responsabilidade -->
+    <div class="card" style="border: 1px solid var(--horde-red); background: rgba(196, 30, 58, 0.1);">
+        <p style="font-size: 14px; color: #d1d1d1; line-height: 1.5;">
+            <strong>Nota de Responsabilidade:</strong> A BRAZUG atua estritamente como intermediária técnica para facilitar as negociações entre membros. Todos os jogadores se responsabilizam integralmente por cumprirem com hombridade os acordos feitos aqui. A BRAZUG não se responsabiliza por eventuais descumprimentos, trocas ou quaisquer problemas decorrentes das negociações. Ao participar de um leilão, você concorda com estes termos.
+        </p>
+    </div>
+
+    <!-- Preview Container -->
+    <div id="item-preview" style="position: fixed; top: 100px; right: 20px; width: 300px; background: #1a1a1a; border: 1px solid var(--gold); padding: 15px; border-radius: 8px; display: none; z-index: 1000; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+        <h3 id="preview-title" style="color: var(--gold);"></h3>
+        <p id="preview-desc" style="font-size: 14px; margin-top: 10px;"></p>
+    </div>
+
     <div class="card">
-        <h2 style="color: var(--gold);">Anunciar Novo Item</h2>
-        <div style="display: grid; gap: 10px; margin-top: 15px;">
-            <input type="text" id="item_name" placeholder="Nome do Item" style="padding:8px; background:#111; border:1px solid #333; color:#fff;">
-            <input type="text" id="price" placeholder="Preço" style="padding:8px; background:#111; border:1px solid #333; color:#fff;">
-            <textarea id="description" placeholder="Descrição/Detalhes" style="padding:8px; background:#111; border:1px solid #333; color:#fff;"></textarea>
-            <button id="btn-create-sale" class="discord-btn" style="border: none; padding: 10px; cursor: pointer;">Anunciar</button>
+        <h2 style="color: var(--gold); margin-bottom: 15px;">Novo Leilão</h2>
+        <div style="display: grid; gap: 12px;">
+            <div style="display: flex; gap: 10px; position: relative;">
+                <input type="text" id="item_name" placeholder="Nome do item..." class="ah-input" style="flex-grow: 1; padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                <button id="btn-search-item" style="padding: 8px 16px; background: var(--gold); border: none; color: #000; cursor: pointer; font-weight: bold; border-radius: 4px;">Buscar</button>
+                <div id="item_search_results" style="position: absolute; top:105%; left:0; width:100%; background:#1a1a1a; border:1px solid #444; display:none; z-index:10; max-height:200px; overflow-y:auto; border-radius: 4px;"></div>
+                <input type="hidden" id="item_id">
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                <input type="number" id="min_lvl" placeholder="Min Lvl" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                <input type="number" id="max_lvl" placeholder="Max Lvl" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                <select id="item_quality" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                    <option value="">Qualidade</option>
+                    <option value="common">Common</option>
+                    <option value="uncommon">Uncommon</option>
+                    <option value="rare">Rare</option>
+                    <option value="epic">Epic</option>
+                </select>
+                <select id="item_category" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                    <option value="">Categoria</option>
+                    <option value="weapons">Weapons</option>
+                    <option value="armor">Armor</option>
+                    <option value="consumables">Consumables</option>
+                    <option value="misc">Misc</option>
+                </select>
+                <select id="item_subcategory" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
+                    <option value="">Subcategoria</option>
+                </select>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <input type="number" id="price" placeholder="Preço Total" class="ah-input" disabled style="padding: 8px; background: #1a1a1a; border: 1px solid #444; color: #888; border-radius: 4px; cursor: not-allowed;">
+                <input type="number" id="quantity" placeholder="Quantidade" class="ah-input" disabled style="padding: 8px; background: #1a1a1a; border: 1px solid #444; color: #888; border-radius: 4px; cursor: not-allowed;">
+                <select id="duration" disabled style="padding: 8px; background: #1a1a1a; border: 1px solid #444; color: #888; border-radius: 4px; cursor: not-allowed;">
+                    <option value="12">12 Horas</option>
+                    <option value="24">24 Horas</option>
+                    <option value="48">48 Horas</option>
+                </select>
+            </div>
+            <div id="price-preview" style="color: var(--gold); font-size: 13px; margin-top: -5px; font-weight: bold;"></div>
+            <button id="btn-create-sale" disabled style="padding: 10px; background: #444; border: none; cursor: not-allowed; font-weight: bold; color: #888; border-radius: 4px;">Anunciar</button>
         </div>
     </div>
-    
-    <div id="sales-list" class="card" style="margin-top: 20px;">
-        <h2 style="color: var(--gold);">Itens Anunciados</h2>
-        <div id="sales-container"></div>
+
+    <div class="card auction-house">
+        <div class="ah-topbar" style="display: flex; gap: 10px; padding-bottom: 15px; border-bottom: 1px solid var(--border); margin-bottom: 15px; flex-wrap: wrap;">
+            <input id="filter_name" placeholder="Search" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff;">
+            <input placeholder="Min Lvl" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff;">
+            <input placeholder="Max Lvl" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff;">
+            <select id="filter_quality" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff;">
+                <option value="">All Qualities</option>
+                <option value="common">Common</option>
+                <option value="uncommon">Uncommon</option>
+                <option value="rare">Rare</option>
+                <option value="epic">Epic</option>
+            </select>
+            <select id="filter_category" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff;">
+                <option value="">All Categories</option>
+                <option value="weapons">Weapons</option>
+                <option value="armor">Armor</option>
+                <option value="consumables">Consumables</option>
+                <option value="misc">Misc</option>
+            </select>
+            <button id="btn-search" style="padding: 8px 16px; background: var(--horde-red); border: none; color: #fff; cursor: pointer;">Search</button>
+        </div>
+        <div class="ah-body" style="display: grid; grid-template-columns: 150px 1fr; gap: 20px; min-height: 300px;">
+            <aside class="ah-categories" style="display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border);">
+                <div style="cursor: pointer; padding: 5px 0;">Weapons</div>
+                <div style="cursor: pointer; padding: 5px 0;">Armor</div>
+                <div style="cursor: pointer; padding: 5px 0;">Consumables</div>
+                <div style="cursor: pointer; padding: 5px 0;">Miscellaneous</div>
+            </aside>
+            <main class="ah-results">
+                <div class="results-header" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; padding: 5px; border-bottom: 1px solid var(--border); font-weight: bold; margin-bottom: 10px;">
+                    <span>Name</span>
+                    <span>Quality</span>
+                    <span>Price</span>
+                    <span>Seller</span>
+                    <span>Action</span>
+                </div>
+                <div id="sales-container" class="results-body">
+                    <div class="empty-state">Choose search criteria and press "Search"</div>
+                </div>
+            </main>
+        </div>
+        <div class="ah-footer" style="padding-top: 15px; border-top: 1px solid var(--border); margin-top: 15px; display: flex; justify-content: flex-end;">
+            <div>
+                <button style="padding: 8px 16px; background: #333; border: 1px solid var(--border); color: #fff; cursor: pointer;">Bid</button>
+                <button style="padding: 8px 16px; background: #333; border: 1px solid var(--border); color: #fff; cursor: pointer;">Buyout</button>
+            </div>
+        </div>
     </div>
 </main>
 <script src="/js/header.js"></script>
