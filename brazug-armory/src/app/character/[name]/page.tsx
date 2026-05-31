@@ -117,7 +117,7 @@ export default async function CharacterPage({ params }: Props) {
                   'ARTIFACT': 'text-yellow-600',
                   'HEIRLOOM': 'text-blue-300'
                 };
-                const colorClass = rarityColors[item.quality] || 'text-zinc-400';
+                const colorClass = (item && item.quality) ? rarityColors[item.quality] : 'text-zinc-400';
                 
                 return (
                   <div key={item.id} className="flex items-center gap-3 p-2 rounded bg-zinc-50 dark:bg-zinc-800/30 border border-zinc-100 dark:border-zinc-800">

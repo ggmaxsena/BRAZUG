@@ -58,14 +58,8 @@ export default async function BrazugArmoryPage({ params }: Props) {
     return maxPoints > 0 ? bestSpec : 'Unspecialized';
   };
 
-  // DEBUG LOG
-  if (character.items.length > 0) {
-    console.log("DEBUG - Primeiro item:", character.items[0]);
-  }
-
   return (
     <div className="min-h-screen bg-[#0b0b0b] text-[#ccc] font-sans selection:bg-gold selection:text-black">
-      <div className="bg-red-900 text-white p-4">TESTE: ARQUIVO ARMORY CARREGADO</div>
       {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none opacity-20 overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-gold/10 blur-[120px] rounded-full" />
@@ -116,7 +110,7 @@ export default async function BrazugArmoryPage({ params }: Props) {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {slots.map(slot => {
                   const item = getItemBySlot(slot);
-                  const color = item ? rarityColors[item.quality] : '#1a1a1a';
+                  const color = (item && item.quality) ? rarityColors[item.quality] : '#1a1a1a';
                   
                   return (
                     <div key={slot} className="group relative flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-700 transition-all">
