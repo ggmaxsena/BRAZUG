@@ -54,7 +54,10 @@ class CharacterService {
         extraData: data.extraData as any,
         updatedAt: new Date(),
       },
-      create: data,
+      create: {
+        ...data,
+        extraData: data.extraData as any,
+      },
     });
   }
 
