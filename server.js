@@ -23,9 +23,9 @@ app.use(express.json({ limit: "10mb" }));
 /* =========================================
    STATIC FILES & ICON PROXY
 ========================================= */
-const internalUploads = path.resolve(__dirname, "data", "uploads");
+const externalUploads = path.resolve(__dirname, "..", "..", "uploads");
 const iconDir = path.resolve(__dirname, "assets", "icons");
-if (!fs.existsSync(internalUploads)) fs.mkdirSync(internalUploads, { recursive: true });
+if (!fs.existsSync(externalUploads)) fs.mkdirSync(externalUploads, { recursive: true });
 if (!fs.existsSync(iconDir)) fs.mkdirSync(iconDir, { recursive: true });
 
 app.get("/assets/icons/:filename", async (req, res) => {
@@ -48,7 +48,7 @@ app.get("/assets/icons/:filename", async (req, res) => {
   }
 });
 
-app.use("/uploads", express.static(internalUploads));
+app.use("/uploads", express.static(externalUploads));
 app.use("/css", express.static(path.resolve(__dirname, "css")));
 app.use("/js", express.static(path.resolve(__dirname, "js")));
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
