@@ -54,6 +54,7 @@ class BlizzardService {
     // Lista de namespaces
     const namespaces = [
       process.env.BLIZZARD_NAMESPACE,
+      `${namespaceSuffix}-classicann-${this.region}`,
       `${namespaceSuffix}-classic1x-${this.region}`,
       `${namespaceSuffix}-classic-${this.region}`,
       `${namespaceSuffix}-${this.region}`
