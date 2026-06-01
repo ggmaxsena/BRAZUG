@@ -70,7 +70,11 @@
       }
 
       document.getElementById("mural-modal-title").textContent = adventure.title;
-      document.getElementById("mural-modal-body").innerHTML = this.renderBody(adventure.body);
+      
+      const rawBody = this.renderBody(adventure.body);
+      const cleanBody = (typeof DOMPurify !== 'undefined') ? DOMPurify.sanitize(rawBody) : rawBody;
+      document.getElementById("mural-modal-body").innerHTML = cleanBody;
+      
       document.getElementById("mural-modal-date").textContent = adventure.event_date;
       document.getElementById("mural-modal-author").textContent = "Relato de: " + adventure.author;
 

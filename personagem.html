@@ -14,6 +14,7 @@
     <p style="text-align: center; color: #888;">Carregando herói...</p>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
 <script src="/js/header.js"></script>
 <script>
 (function() {
@@ -86,7 +87,9 @@
 
                 <div style="margin-top: 50px; border-top: 1px solid #333; padding-top: 40px;">
                     <h2 style="color: var(--gold); font-size: 28px; margin-bottom: 20px;">Lore / Biografia</h2>
-                    <div class="lore-content" style="line-height: 2; color: #ccc; font-style: italic; font-size: 18px;">${formatLore(char.lore)}</div>
+                    <div class="lore-content" style="line-height: 2; color: #ccc; font-style: italic; font-size: 18px;">
+                        ${(typeof DOMPurify !== 'undefined') ? DOMPurify.sanitize(formatLore(char.lore)) : formatLore(char.lore)}
+                    </div>
                 </div>
 
                 <div style="margin-top: 40px;">
