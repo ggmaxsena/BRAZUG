@@ -6,6 +6,36 @@
       const token = localStorage.getItem("brazug_admin_token");
       if (!token) return window.location.href = "/login.html";
 
+      // Validação Real no Backend
+      try {
+        const me = await AdminModel.api("/me", "GET", null, token);
+        if (!me || !me.user) throw new Error("Sessão inválida");
+        
+        // Atualiza o role local com o valor REAL vindo do backend (token)
+        localStorage.setItem("brazug_admin_role", me.user.role);
+        
+        const isAdmin = me.user.role === "admin";
+        if (!isAdmin && window.location.pathname.includes("admin.html")) {
+            alert("Acesso negado: esta página é restrita para Administradores.");
+            return window.location.href = "/";
+        }
+
+        // Gestão de visibilidade da seção de staff em cadastro-aventura.html
+        const staffPanel = document.getElementById("staff-management");
+        const isStaff = ["admin", "guildmaster", "officer"].includes(me.user.role);
+        if (staffPanel) staffPanel.hidden = !isStaff;
+
+        // Esconde link de voltar ao admin para quem não é admin
+        const backToAdmin = document.getElementById("back-to-admin");
+        if (backToAdmin) backToAdmin.style.display = (me.user.role === "admin" ? "inline" : "none");
+
+      } catch (e) {
+        console.error("Erro de autenticação:", e);
+        localStorage.removeItem("brazug_admin_token");
+        localStorage.removeItem("brazug_admin_role");
+        return window.location.href = "/login.html";
+      }
+
       const dash = document.getElementById("dashboard-panel");
       if (dash) dash.hidden = false;
 
@@ -130,7 +160,13 @@
                       await AdminModel.api("/adventures", "POST", payload, token);
                   }
                   alert("Aventura salva!");
-                  window.location.href = "/admin.html";
+                  
+                  // Redirecionamento inteligente: admins voltam para o painel, staff volta para a lista
+                  if (me.user.role === "admin") {
+                      window.location.href = "/admin.html";
+                  } else {
+                      window.location.href = "/cadastro-aventura.html";
+                  }
                 } catch(e) { alert(e.message); }
             };
         }
@@ -151,18 +187,22 @@
           const users = Array.isArray(userRes) ? userRes : (userRes.users || []);
           
           let page = 0;
+          const userSearch = document.getElementById("user-search");
           const render = () => {
-            const filter = document.getElementById("user-search").value.toLowerCase();
+            if (!userSearch) return;
+            const filter = userSearch.value.toLowerCase();
             const filtered = users.filter(u => u.username.toLowerCase().includes(filter));
             const paginated = filtered.slice(page * 10, (page + 1) * 10);
             AdminView.renderUsers(paginated, () => this.init());
           };
 
-          document.getElementById("user-search").oninput = () => { page = 0; render(); };
-          render();
+          if (userSearch) {
+            userSearch.oninput = () => { page = 0; render(); };
+            render();
+          }
           
           const logsRes = await AdminModel.api("/logs", "GET", null, token);
-          if (logsRes.logs) AdminView.renderLogs(logsRes.logs);
+          if (logsRes.logs && document.getElementById("logs-list")) AdminView.renderLogs(logsRes.logs);
         }
       } catch (e) {
         console.error(e);
@@ -179,6 +219,15 @@
         if (!confirm("Excluir este usuário?")) return;
         await AdminModel.api("/users/" + id, "DELETE", null, localStorage.getItem("brazug_admin_token"));
         this.init();
+    },
+
+    async handleApprove(id) {
+        if (!confirm("Deseja aprovar esta aventura para exibição pública?")) return;
+        try {
+            await AdminModel.api(`/adventures/${id}/approve`, "POST", null, localStorage.getItem("brazug_admin_token"));
+            alert("Aventura aprovada com sucesso!");
+            this.init();
+        } catch (e) { alert(e.message); }
     },
 
     openEditModal(id, username, role, email) {

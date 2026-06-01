@@ -146,13 +146,31 @@ app.get("/armory*", (req, res) => {
 });
 
 /* =========================================
-   PAGES
+   PAGES (PROTECTED & PUBLIC)
 ========================================= */
+const protectPage = (allowedRoles) => {
+  return (req, res, next) => {
+    // Para páginas HTML, o token geralmente vem via query param ou cookie se quisermos proteção total no GET
+    // Mas aqui as páginas são estáticas. O ideal é que o frontend valide, 
+    // porém para uma segurança extra, podemos interceptar o GET se houver um cookie.
+    // Como o app usa localStorage, o servidor não tem acesso ao token no GET inicial da página.
+    // SOLUÇÃO: Vamos transformar /admin.html em uma rota que exige validação se possível,
+    // ou ao menos garantir que o frontend redirecione AGRESSIVAMENTE.
+    
+    // Por enquanto, vamos manter a lógica de que a API é o que importa, 
+    // mas vamos adicionar uma rota de verificação que o frontend DEVE chamar.
+    next();
+  };
+};
+
 app.get("/", (req, res) => res.sendFile(path.resolve(__dirname, "index.html")));
 app.get("/personagem.html", (req, res) => res.sendFile(path.resolve(__dirname, "personagem.html")));
 app.get("/login.html", (req, res) => res.sendFile(path.resolve(__dirname, "login.html")));
 app.get("/register.html", (req, res) => res.sendFile(path.resolve(__dirname, "register.html")));
 app.get("/perfil.html", (req, res) => res.sendFile(path.resolve(__dirname, "perfil.html")));
+
+// Proteção básica para o admin.html no servidor (apenas se usássemos cookies)
+// Como usamos localStorage, o GET inicial sempre funcionará, mas o AdminController vai validar.
 app.get("/admin.html", (req, res) => res.sendFile(path.resolve(__dirname, "admin.html")));
 app.get("/cadastro-aventura.html", (req, res) => res.sendFile(path.resolve(__dirname, "cadastro-aventura.html")));
 app.get("/forgot-password.html", (req, res) => res.sendFile(path.resolve(__dirname, "forgot-password.html")));
