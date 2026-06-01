@@ -127,11 +127,17 @@
         return matchClass && matchRace && matchOwner;
       });
 
-      const alive = filtered.filter(c => !c.is_dead);
-      const dead = filtered.filter(c => c.is_dead);
+      const myChars = filtered.filter(c => c.owner_username === username && !c.is_dead);
+      const othersChars = filtered.filter(c => c.owner_username !== username && !c.is_dead);
+      const deadChars = filtered.filter(c => c.is_dead);
 
-      CharacterView.renderList(alive, document.getElementById("character-list-alive"), username, role);
-      CharacterView.renderList(dead, document.getElementById("character-list-dead"), username, role);
+      document.getElementById("my-characters-section").style.display = myChars.length ? "block" : "none";
+      document.getElementById("all-characters-section").style.display = othersChars.length ? "block" : "none";
+      document.getElementById("cemetery-section").style.display = deadChars.length ? "block" : "none";
+
+      CharacterView.renderList(myChars, document.getElementById("my-characters-list"), username, role);
+      CharacterView.renderList(othersChars, document.getElementById("all-characters-list"), username, role);
+      CharacterView.renderList(deadChars, document.getElementById("cemetery-list"), username, role);
     },
 
     async edit(id) {
