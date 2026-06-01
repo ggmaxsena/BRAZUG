@@ -7,37 +7,41 @@
       if (!token) return window.location.href = "/login.html";
 
       // Validação Real no Backend
+      let serverRole = "";
       try {
         const me = await AdminModel.api("/me", "GET", null, token);
         if (!me || !me.user) throw new Error("Sessão inválida");
         
-        // Atualiza o role local com o valor REAL vindo do backend (token)
-        localStorage.setItem("brazug_admin_role", me.user.role);
+        serverRole = me.user.role;
+        // Atualiza o role local com o valor REAL vindo do backend (token) para consistência da UI
+        localStorage.setItem("brazug_admin_role", serverRole);
         
-        const isAdmin = me.user.role === "admin";
-        if (!isAdmin && window.location.pathname.includes("admin.html")) {
+        if (window.location.pathname.includes("admin.html") && serverRole !== "admin") {
             alert("Acesso negado: esta página é restrita para Administradores.");
-            return window.location.href = "/";
+            window.location.href = "/";
+            return;
         }
+
+        // Se chegou aqui em admin.html, é admin de fato.
+        const dash = document.getElementById("dashboard-panel");
+        if (dash) dash.hidden = false;
 
         // Gestão de visibilidade da seção de staff em cadastro-aventura.html
         const staffPanel = document.getElementById("staff-management");
-        const isStaff = ["admin", "guildmaster", "officer"].includes(me.user.role);
+        const isStaff = ["admin", "guildmaster", "officer"].includes(serverRole);
         if (staffPanel) staffPanel.hidden = !isStaff;
 
         // Esconde link de voltar ao admin para quem não é admin
         const backToAdmin = document.getElementById("back-to-admin");
-        if (backToAdmin) backToAdmin.style.display = (me.user.role === "admin" ? "inline" : "none");
+        if (backToAdmin) backToAdmin.style.display = (serverRole === "admin" ? "inline" : "none");
 
       } catch (e) {
         console.error("Erro de autenticação:", e);
         localStorage.removeItem("brazug_admin_token");
         localStorage.removeItem("brazug_admin_role");
-        return window.location.href = "/login.html";
+        window.location.href = "/login.html";
+        return;
       }
-
-      const dash = document.getElementById("dashboard-panel");
-      if (dash) dash.hidden = false;
 
       const userForm = document.getElementById("user-form");
       if (userForm) {
