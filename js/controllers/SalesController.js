@@ -36,20 +36,22 @@
         }
     },
 
-    async searchItems(query) {
+    async searchItems() {
+        const query = document.getElementById("item_name").value;
+        const quality = document.getElementById("item_quality").value;
+        const category = document.getElementById("item_category").value;
+        
         const resultsDiv = document.getElementById("item_search_results");
-        if (query.length < 2) { resultsDiv.style.display = 'none'; return; }
+        if (query.length < 2 && !quality && !category) { 
+            resultsDiv.style.display = 'none'; 
+            return; 
+        }
         
         try {
-            const url = `/api/sales/items/search?name=${encodeURIComponent(query)}`;
-            console.log("Fetching:", url);
+            const url = `/api/sales/items/search?name=${encodeURIComponent(query)}&quality=${quality}&category=${category}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const items = await res.json();
-            
-            console.log("Results:", items);
-            
-            if (!Array.isArray(items)) throw new Error("Result is not an array");
             
             if (items.length === 0) {
                 resultsDiv.innerHTML = '<div style="padding:10px; color:#888;">Nenhum item encontrado.</div>';
@@ -137,6 +139,41 @@
                 <div style="font-weight:bold; color: var(--gold);">Menor: ${Math.floor(i.min_price_unit)}g</div>
             </div>
         `).join("");
+    },
+
+    async loadNotifications() {
+        const token = localStorage.getItem("brazug_admin_token");
+        try {
+            const res = await fetch("/api/sales/notifications", {
+                headers: { "Authorization": "Bearer " + token }
+            });
+            const notifications = await res.json();
+            this.renderNotifications(notifications);
+        } catch (e) {
+            console.error(e);
+            alert("Erro ao carregar notificações.");
+        }
+    },
+
+    renderNotifications(notifications) {
+        const container = document.getElementById("sales-container");
+        
+        if (notifications.length === 0) {
+            container.innerHTML = "<p>Nenhuma notificação recente.</p>";
+            return;
+        }
+
+        container.innerHTML = `
+            <h3>Notificações de Lances</h3>
+            <div class="results-body">
+                ${notifications.map(n => `
+                    <div class="sales-item" style="padding: 10px; border-bottom: 1px solid #333;">
+                        <strong>${n.bidder_name}</strong> deu um lance de <strong>${n.amount}g</strong> no item <strong>${n.item_name}</strong>
+                        <div style="font-size: 11px; color: #888;">${new Date(n.created_at).toLocaleString()}</div>
+                    </div>
+                `).join("")}
+            </div>
+        `;
     },
 
     async loadAuctionDetails(itemId) {
