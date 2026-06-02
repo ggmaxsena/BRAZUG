@@ -5,8 +5,8 @@ npm-debug.log
 .env
 .env.*
 !.env.example
-data/uploads/*
-!data/uploads/.gitkeep
+uploads/*
+!uploads/.gitkeep
 *.md
 !README.md
 terminals

@@ -8,8 +8,8 @@ dist/
 !.env.db.example
 
 # Dados locais / VPS
-data/uploads/*
-!data/uploads/.gitkeep
+uploads/*
+!uploads/.gitkeep
 data/postgres/
 pgdata/
 

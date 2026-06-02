@@ -23,7 +23,7 @@ app.use(express.json({ limit: "10mb" }));
 /* =========================================
    STATIC FILES & ICON PROXY
 ========================================= */
-const externalUploads = process.env.UPLOAD_DIR || path.resolve(__dirname, "data", "uploads");
+const externalUploads = process.env.UPLOAD_DIR || path.resolve(__dirname, "uploads");
 
 console.log(`[BRAZUG] Static serving: Uploads from ${externalUploads}`);
 const iconDir = path.resolve(__dirname, "assets", "icons");

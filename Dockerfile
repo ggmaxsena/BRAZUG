@@ -13,11 +13,11 @@ RUN npm run build
 ENV NODE_ENV=production
 ENV PORT=3000
 
-RUN mkdir -p /app/data/uploads
+RUN mkdir -p /app/uploads
 
 EXPOSE 3000
 
-VOLUME ["/app/data/uploads"]
+VOLUME ["/app/uploads"]
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "server.js"]
