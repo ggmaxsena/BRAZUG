@@ -91,10 +91,8 @@
         </div>
         <div class="ah-body" style="display: grid; grid-template-columns: 150px 1fr; gap: 20px; min-height: 300px;">
             <aside class="ah-categories" style="display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border);">
-                <div style="cursor: pointer; padding: 5px 0;">Weapons</div>
-                <div style="cursor: pointer; padding: 5px 0;">Armor</div>
-                <div style="cursor: pointer; padding: 5px 0;">Consumables</div>
-                <div style="cursor: pointer; padding: 5px 0;">Miscellaneous</div>
+                <div style="cursor: pointer; padding: 5px 0;" onclick="SalesController.loadGroupedItems()">Busca de Itens</div>
+                <div style="cursor: pointer; padding: 5px 0; color: var(--gold);" onclick="SalesController.loadNotifications()">Notificações (Lances)</div>
             </aside>
             <main class="ah-results">
                 <div class="results-header" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; padding: 5px; border-bottom: 1px solid var(--border); font-weight: bold; margin-bottom: 10px;">
