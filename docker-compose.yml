@@ -17,7 +17,7 @@ services:
       armory:
         condition: service_started
     volumes:
-      - ./uploads:/app/uploads
+      - ./uploads:/uploads
     # Permite que o container acesse o banco no localhost da VPS
     extra_hosts:
       - "host.docker.internal:host-gateway"
