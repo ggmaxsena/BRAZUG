@@ -1,0 +1,320 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=MedievalSharp&display=swap');
+
+:root {
+  --ah-gold: #c8a84b;
+  --ah-gold-bright: #ffd700;
+  --ah-gold-dark: #8b6914;
+  --ah-panel-bg: #1a1409;
+  --ah-panel-border: #5a4010;
+  --ah-row-bg: #120f06;
+  --ah-row-hover: #1e1a0c;
+  --ah-row-alt: #161208;
+  --ah-text-gold: #c8a84b;
+  --ah-text-white: #d4c89a;
+  --ah-text-dim: #8a7a50;
+  --ah-btn-red: #8b1515;
+  --ah-btn-red-hover: #b01c1c;
+  --ah-btn-dark: #2a2010;
+  --ah-btn-dark-hover: #3a2e18;
+  --ah-input-bg: #0d0b05;
+  --ah-input-border: #4a3808;
+  --ah-scrollbar-track: #0d0b05;
+  --ah-scrollbar-thumb: #5a4010;
+}
+
+/* ── WINDOW ── */
+.ah-window {
+  width: 100%;
+  max-width: 900px;
+  margin: 20px auto;
+  background: var(--ah-panel-bg);
+  border: 2px solid var(--ah-panel-border);
+  box-shadow:
+    0 0 0 1px #000,
+    inset 0 0 30px rgba(0,0,0,.7),
+    0 8px 40px rgba(0,0,0,.9);
+  position: relative;
+  font-family: 'Cinzel', serif;
+  color: var(--ah-text-gold);
+  user-select: none;
+}
+
+/* ── TITLE BAR ── */
+.ah-titlebar {
+  background: linear-gradient(180deg, #3a2c10 0%, #1e1608 100%);
+  border-bottom: 2px solid var(--ah-panel-border);
+  text-align: center;
+  padding: 8px 30px;
+  position: relative;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--ah-gold-bright);
+  text-shadow: 0 0 8px rgba(255,200,0,.4);
+}
+
+/* ── AVATAR ── */
+.ah-avatar {
+  position: absolute;
+  left: 6px;
+  top: 3px;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(ellipse at 40% 35%, #4a3a1a 0%, #1a1408 70%);
+  border: 2px solid var(--ah-panel-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,.8);
+}
+
+/* ── SEARCH BAR ── */
+.ah-searchbar {
+  background: linear-gradient(180deg, #201808 0%, #161005 100%);
+  border-bottom: 1px solid var(--ah-panel-border);
+  padding: 10px 10px 10px 65px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ah-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ah-field-label {
+  font-size: 10px;
+  color: var(--ah-text-gold);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.ah-wow-input {
+  background: var(--ah-input-bg);
+  border: 1px solid var(--ah-input-border);
+  color: var(--ah-text-white);
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  padding: 4px 8px;
+  height: 28px;
+  outline: none;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.6);
+}
+.ah-wow-input:focus { border-color: var(--ah-gold); }
+.ah-wow-input::placeholder { color: var(--ah-text-dim); font-size: 11px; }
+
+.ah-input-name { width: 180px; }
+.ah-input-lvl  { width: 45px; }
+
+.ah-select-rarity {
+  background: var(--ah-input-bg);
+  border: 1px solid var(--ah-input-border);
+  color: var(--ah-text-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  padding: 2px 20px 2px 8px;
+  height: 28px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  width: 100px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.6);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23c8a84b'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.ah-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ah-check-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ah-text-gold);
+  cursor: pointer;
+}
+
+.ah-search-btn {
+  background: linear-gradient(180deg, #b01c1c 0%, #6b1010 100%);
+  border: 1px solid #c02020;
+  color: #fff;
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  padding: 4px 18px;
+  cursor: pointer;
+  height: 30px;
+  align-self: flex-end;
+  box-shadow: 0 2px 5px rgba(0,0,0,.6);
+  transition: background .15s;
+}
+.ah-search-btn:hover { background: linear-gradient(180deg, #cc2222 0%, #881414 100%); }
+
+/* ── MAIN BODY ── */
+.ah-main-body {
+  display: flex;
+  height: 450px;
+}
+
+/* ── SIDEBAR ── */
+.ah-sidebar {
+  width: 140px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #161005 0%, #100d04 100%);
+  border-right: 1px solid var(--ah-panel-border);
+  display: flex;
+  flex-direction: column;
+  padding: 6px 4px;
+  gap: 3px;
+  overflow-y: auto;
+}
+
+.ah-cat-btn {
+  background: linear-gradient(180deg, #2a200c 0%, #1e1808 100%);
+  border: 1px solid #3a2c10;
+  color: var(--ah-text-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  padding: 6px 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: background .12s;
+}
+.ah-cat-btn:hover,
+.ah-cat-btn.active {
+  background: linear-gradient(180deg, #3e3018 0%, #2a2210 100%);
+  border-color: var(--ah-gold-dark);
+  color: var(--ah-gold-bright);
+}
+
+/* ── RESULTS PANEL ── */
+.ah-results-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--ah-row-bg);
+  overflow: hidden;
+}
+
+.ah-col-headers {
+  display: grid;
+  grid-template-columns: 2fr 60px 100px 100px 100px 80px;
+  background: linear-gradient(180deg, #201808 0%, #161004 100%);
+  border-bottom: 1px solid var(--ah-panel-border);
+  padding: 0 4px;
+}
+
+.ah-col-hdr {
+  font-size: 11px;
+  color: var(--ah-text-gold);
+  padding: 6px 8px;
+  cursor: pointer;
+  letter-spacing: .3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ah-results-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.ah-auction-row {
+  display: grid;
+  grid-template-columns: 2fr 60px 100px 100px 100px 80px;
+  padding: 0 4px;
+  border-bottom: 1px solid rgba(90,64,16,.2);
+  cursor: pointer;
+  transition: background .1s;
+  min-height: 32px;
+  align-items: center;
+}
+.ah-auction-row:nth-child(even) { background: var(--ah-row-alt); }
+.ah-auction-row:hover { background: var(--ah-row-hover); }
+.ah-auction-row.selected { background: #2a1e08; }
+
+.ah-cell {
+  font-size: 11px;
+  padding: 4px 8px;
+  color: var(--ah-text-white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ah-cell-name { display: flex; align-items: center; gap: 8px; }
+.ah-item-icon { width: 24px; height: 24px; border: 1px solid #3a2c10; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #000; }
+.ah-item-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Rarity */
+.rarity-poor    { color: #9d9d9d; }
+.rarity-common  { color: #ffffff; }
+.rarity-uncommon{ color: #1eff00; }
+.rarity-rare    { color: #0070dd; }
+.rarity-epic    { color: #a335ee; }
+.rarity-legendary{ color: #ff8000; }
+
+.ah-gold-amount { color: var(--ah-gold-bright); display: flex; align-items: center; gap: 3px; font-size: 11px; }
+.coin-g { color: #ffd700; font-size: 10px; margin-left: 1px; }
+.coin-s { color: #c0c0c0; font-size: 10px; margin-left: 1px; }
+.coin-c { color: #b87333; font-size: 10px; margin-left: 1px; }
+
+/* Statusbar */
+.ah-statusbar {
+  background: linear-gradient(180deg, #1a1408 0%, #110e05 100%);
+  border-top: 1px solid var(--ah-panel-border);
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--ah-text-dim);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Tabs */
+.ah-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 10px;
+  margin-top: -1px;
+}
+
+.ah-tab {
+  background: linear-gradient(180deg, #2a2010 0%, #1a1408 100%);
+  border: 1px solid var(--ah-panel-border);
+  border-top: none;
+  color: var(--ah-text-gold);
+  padding: 4px 15px;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 0 0 4px 4px;
+}
+.ah-tab.active {
+  background: var(--ah-panel-bg);
+  border-top: 1px solid var(--ah-panel-bg);
+  color: var(--ah-gold-bright);
+}
+
+/* Tooltip */
+.ah-tooltip {
+  position: fixed;
+  background: linear-gradient(180deg, #1e180a 0%, #12100a 100%);
+  border: 1px solid var(--ah-gold-dark);
+  color: var(--ah-text-white);
+  font-size: 12px;
+  padding: 10px;
+  pointer-events: none;
+  display: none;
+  z-index: 9999;
+  max-width: 250px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.8);
+  line-height: 1.4;
+  font-family: 'Cinzel', serif;
+}

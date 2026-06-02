@@ -8,19 +8,19 @@
       if (!characterId) return alert("Personagem não definido.");
 
       this.characterId = characterId;
+      this.currentCategory = "";
       
-      // Carregamento inicial vazio
+      // Carregamento inicial
       document.getElementById("btn-create-sale").onclick = () => this.createSale();
       
-      // Filter listeners - agora chamam a busca agrupada
+      // Filter listeners
       document.getElementById("btn-search").onclick = () => this.loadGroupedItems();
+      document.getElementById("btn-search-sell").onclick = () => this.searchItemsToSell();
 
-      // Item search listener
-      document.getElementById("btn-search-item").onclick = () => this.searchItems(document.getElementById("item_name").value);
-      
-      // Preço unitário listener
-      document.getElementById("price").oninput = () => this.updatePricePreview();
-      document.getElementById("quantity").oninput = () => this.updatePricePreview();
+      // Tooltip listener
+      document.addEventListener('mousemove', e => {
+        if (document.getElementById('tooltip').style.display === 'block') this.moveTip(e);
+      });
     },
 
     escape(s) {
@@ -30,6 +30,110 @@
         return d.innerHTML;
     },
 
+    // Tooltip methods
+    showTooltip(e, content) {
+        const tt = document.getElementById('tooltip');
+        tt.innerHTML = content;
+        tt.style.display = 'block';
+        this.moveTip(e);
+    },
+    moveTip(e) {
+        const tt = document.getElementById('tooltip');
+        tt.style.left = (e.clientX + 14) + 'px';
+        tt.style.top  = (e.clientY + 14) + 'px';
+    },
+    hideTooltip() {
+        document.getElementById('tooltip').style.display = 'none';
+    },
+
+    formatGold(copper) {
+        const g = Math.floor(copper / 10000);
+        const s = Math.floor((copper % 10000) / 100);
+        const c = copper % 100;
+        let out = '';
+        if (g) out += `<span>${g}</span><span class="coin-g">g</span> `;
+        if (s) out += `<span>${s}</span><span class="coin-s">s</span> `;
+        if (c || !out) out += `<span>${c}</span><span class="coin-c">c</span>`;
+        return `<span class="ah-gold-amount">${out}</span>`;
+    },
+
+    // Refactored with pagination
+    async searchItemsToSell(page = 1) {
+        console.log("searchItemsToSell called with page:", page);
+        const query = document.getElementById("sell_filter_name").value;
+        const container = document.getElementById("sell-items-container");
+        const paginationContainer = document.getElementById("sell-pagination-container");
+        
+        if (query.length < 2) {
+            container.innerHTML = '<div style="padding: 20px; color: var(--ah-gold);">Digite ao menos 2 caracteres.</div>';
+            return;
+        }
+        
+        container.innerHTML = '<div style="padding: 20px; color: var(--ah-gold);">Buscando...</div>';
+        paginationContainer.innerHTML = '';
+        
+        try {
+            console.log("Fetching:", `/api/sales/items/search?name=${encodeURIComponent(query)}&page=${page}`);
+            const res = await fetch(`/api/sales/items/search?name=${encodeURIComponent(query)}&page=${page}`);
+            const data = await res.json();
+            
+            // Render item list
+            if (data.items.length === 0) {
+                container.innerHTML = '<div style="padding: 20px; color: var(--ah-gold);">Nenhum item encontrado.</div>';
+                return;
+            }
+            
+            container.innerHTML = data.items.map(i => {
+                const iconPath = i.icon_filename ? `/assets/icons/${i.icon_filename}` : '/assets/icons/inv_misc_cape_16.jpg';
+                const rarityClass = `rarity-${(i.quality || 'common').toLowerCase()}`;
+                return `
+                <div class="ah-auction-row" style="cursor:pointer; display:grid; grid-template-columns: 1fr auto; align-items:center; padding: 5px;" onclick="SalesController.selectItemToSell(${i.id}, '${this.escape(i.name)}')">
+                    <div class="ah-cell ah-cell-name" style="display:flex; align-items:center; gap: 10px;">
+                        <div class="ah-item-icon" style="width:24px; height:24px;"><img src="${iconPath}"></div>
+                        <span class="${rarityClass}" style="font-size:12px;">${this.escape(i.name)}</span>
+                    </div>
+                    <div class="ah-cell" style="text-align:right;"><button class="ah-tab" style="padding: 2px 8px; font-size:11px;">Selecionar</button></div>
+                </div>
+            `}).join("");
+
+            // Render Pagination Controls in Top Bar
+            paginationContainer.style.cssText = 'display:flex; gap:10px; align-items:center;';
+            paginationContainer.innerHTML = `
+                <button class="ah-tab" ${data.currentPage <= 1 ? 'disabled' : ''} onclick="SalesController.searchItemsToSell(${data.currentPage - 1})">«</button>
+                <span style="color:var(--ah-text-gold); font-size: 11px;">${data.currentPage}/${data.totalPages}</span>
+                <button class="ah-tab" ${data.currentPage >= data.totalPages ? 'disabled' : ''} onclick="SalesController.searchItemsToSell(${data.currentPage + 1})">»</button>
+            `;
+        } catch(e) { 
+            console.error("Search error:", e);
+            container.innerHTML = '<div style="padding: 20px; color: var(--horde-red);">Erro na busca.</div>';
+        }
+    },
+
+    switchTab(tab) {
+        // Hide all contents
+        document.getElementById('tab-browse-content').style.display = 'none';
+        document.getElementById('tab-auctions-content').style.display = 'none';
+        document.getElementById('tab-bids-content').style.display = 'none';
+        
+        // Remove active class from all tabs
+        document.getElementById('tab-browse').classList.remove('active');
+        document.getElementById('tab-auctions').classList.remove('active');
+        document.getElementById('tab-bids').classList.remove('active');
+        
+        // Show selected content and activate tab
+        document.getElementById(`tab-${tab}-content`).style.display = 'block';
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        
+        if (tab === 'bids') this.loadNotifications();
+    },
+
+    setCategory(btn, cat) {
+        document.querySelectorAll('.ah-cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.currentCategory = cat;
+        this.loadGroupedItems();
+    },
+
     updatePricePreview() {
         const total = parseFloat(document.getElementById("price").value) || 0;
         const qty = parseFloat(document.getElementById("quantity").value) || 1;
@@ -37,25 +141,22 @@
         
         const preview = document.getElementById("price-preview");
         if (total > 0 && qty > 0) {
-            preview.innerText = `Preço unitário: ${Math.floor(unit)}g`;
+            preview.innerHTML = `Preço unitário: ${this.formatGold(Math.floor(unit) * 10000)}`;
         } else {
-            preview.innerText = "";
+            preview.innerHTML = "";
         }
     },
 
     async searchItems() {
         const query = document.getElementById("item_name").value;
-        const quality = document.getElementById("item_quality").value;
-        const category = document.getElementById("item_category").value;
-        
         const resultsDiv = document.getElementById("item_search_results");
-        if (query.length < 2 && !quality && !category) { 
+        if (query.length < 2) { 
             resultsDiv.style.display = 'none'; 
             return; 
         }
         
         try {
-            const url = `/api/sales/items/search?name=${encodeURIComponent(query)}&quality=${quality}&category=${category}`;
+            const url = `/api/sales/items/search?name=${encodeURIComponent(query)}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const items = await res.json();
@@ -66,14 +167,18 @@
                 return;
             }
             
-            resultsDiv.innerHTML = items.map(i => `
-                <div class="result-item" style="padding:10px; cursor:pointer; border-bottom:1px solid #333; display:flex; justify-content:space-between;" 
-                     onmouseover="this.style.background='#222'" onmouseout="this.style.background='transparent'"
+            resultsDiv.innerHTML = items.map(i => {
+                const iconPath = i.icon_filename ? `/assets/icons/${i.icon_filename}` : '/assets/icons/inv_misc_cape_16.jpg';
+                const rarityClass = `rarity-${(i.quality || 'common').toLowerCase()}`;
+                return `
+                <div class="ah-auction-row" style="cursor:pointer; border-bottom:1px solid #3a2c10;" 
                      onclick="SalesController.selectItem(${i.id}, '${this.escape(i.name)}')">
-                    <span>${this.escape(i.name)}</span>
-                    <span style="font-size:11px; color:var(--gold);">${this.escape(i.quality || '')}</span>
+                    <div class="ah-cell ah-cell-name">
+                        <div class="ah-item-icon" style="width:24px; height:24px;"><img src="${iconPath}"></div>
+                        <span class="${rarityClass}" style="font-size:12px; font-weight:bold;">${this.escape(i.name)}</span>
+                    </div>
                 </div>
-            `).join("");
+            `}).join("");
             resultsDiv.style.display = 'block';
         } catch(e) { 
             console.error("Search error:", e); 
@@ -88,26 +193,32 @@
         document.getElementById("item_search_results").style.display = 'none';
 
         // Habilitar campos
-        document.getElementById("price").disabled = false;
-        document.getElementById("price").style.background = "#0d0d0d";
-        document.getElementById("price").style.color = "#fff";
-        document.getElementById("price").style.cursor = "text";
-
-        document.getElementById("quantity").disabled = false;
-        document.getElementById("quantity").style.background = "#0d0d0d";
-        document.getElementById("quantity").style.color = "#fff";
-        document.getElementById("quantity").style.cursor = "text";
-
-        document.getElementById("duration").disabled = false;
-        document.getElementById("duration").style.background = "#0d0d0d";
-        document.getElementById("duration").style.color = "#fff";
-        document.getElementById("duration").style.cursor = "pointer";
+        const fields = ["price", "quantity", "duration"];
+        fields.forEach(fid => {
+            const el = document.getElementById(fid);
+            el.disabled = false;
+            el.style.background = "var(--ah-input-bg)";
+            el.style.color = "var(--ah-text-white)";
+            el.style.cursor = fid === "duration" ? "pointer" : "text";
+        });
 
         const btn = document.getElementById("btn-create-sale");
         btn.disabled = false;
-        btn.style.background = "var(--gold)";
-        btn.style.color = "#000";
+        btn.style.opacity = "1";
         btn.style.cursor = "pointer";
+    },
+
+    selectItemToSell(id, name) {
+        document.getElementById("sell_item_id").value = id;
+        document.getElementById("sell_item_name").value = name;
+
+        // Habilitar campos
+        ["sell_price", "sell_quantity", "btn-create-sale"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.disabled = false;
+            }
+        });
     },
 
     async loadGroupedItems() {
@@ -116,40 +227,65 @@
         min_lvl: document.getElementById("min_lvl")?.value,
         max_lvl: document.getElementById("max_lvl")?.value,
         quality: document.getElementById("filter_quality").value,
-        category: document.getElementById("filter_category").value
+        category: this.currentCategory
       };
+      
+      document.getElementById('statusText').textContent = "Buscando...";
       
       try {
         const query = new URLSearchParams(filters).toString();
         const res = await fetch(`/api/sales/search-items?${query}`);
-        const items = await res.json();
-        this.renderGroupedItems(items);
+        const data = await res.json();
+        console.log("Raw response from /api/sales/search-items:", data);
+        this.renderGroupedItems(data);
+        document.getElementById('statusText').textContent = `Encontrado(s) ${Array.isArray(data) ? data.length : 0} item(s)`;
       } catch (e) {
-        console.error(e);
+        console.error("Load error:", e);
+        document.getElementById('statusText').textContent = "Erro na busca";
       }
     },
 
     renderGroupedItems(items) {
+        console.log("renderGroupedItems received:", items);
         const container = document.getElementById("sales-container");
         
-        if (items.length === 0) {
-            container.innerHTML = "<p>Nenhum item encontrado.</p>";
+        // Verificação se houve erro vindo da API
+        if (items && items.error) {
+            console.error("API Error:", items.error);
+            container.innerHTML = `<div style="color:red; padding:20px;">Erro: ${this.escape(items.error)}</div>`;
+            return;
+        }
+        
+        if (!Array.isArray(items)) {
+            console.error("renderGroupedItems expected array but got:", typeof items, items);
+            container.innerHTML = '<div style="color:red; padding:20px;">Erro de formato de dados. O servidor retornou algo inesperado. Veja o console.</div>';
             return;
         }
 
-        container.innerHTML = items.map(i => `
-            <div class="sales-item" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="SalesController.loadAuctionDetails('${i.item_id}')">
-                <div>
-                    <strong>${this.escape(i.item_name)}</strong>
-                    <div style="font-size:12px; color:#888;">${i.total_listings} anúncios | ${i.total_available} unidades</div>
+        container.innerHTML = items.map(i => {
+            const iconPath = i.icon_filename ? `/assets/icons/${i.icon_filename}` : '/assets/icons/inv_misc_cape_16.jpg';
+            const rarityClass = `rarity-${(i.quality || 'common').toLowerCase()}`;
+            
+            return `
+            <div class="ah-auction-row" onclick="SalesController.loadAuctionDetails('${i.item_id}')">
+                <div class="ah-cell ah-cell-name">
+                    <div class="ah-item-icon"><img src="${iconPath}"></div>
+                    <span class="${rarityClass}">${this.escape(i.item_name)}</span>
                 </div>
-                <div style="font-weight:bold; color: var(--gold);">Menor: ${Math.floor(i.min_price_unit)}g</div>
+                <div class="ah-cell">${i.min_lvl || ''}</div>
+                <div class="ah-cell" style="color:var(--ah-text-dim)">--</div>
+                <div class="ah-cell" style="color:var(--ah-text-dim)">Múltiplos</div>
+                <div class="ah-cell">${this.formatGold(Math.floor(i.min_price_unit))}</div>
+                <div class="ah-cell"><button class="ah-tab" style="padding:2px 8px; font-size:10px; height:auto;" onclick="event.stopPropagation(); SalesController.loadAuctionDetails('${i.item_id}')">Ver Todos</button></div>
             </div>
-        `).join("");
+        `}).join("");
     },
 
     async loadNotifications() {
         const token = localStorage.getItem("brazug_admin_token");
+        const container = document.getElementById("notifications-container");
+        container.innerHTML = '<div style="padding:20px; color:var(--ah-gold);">Carregando...</div>';
+
         try {
             const res = await fetch("/api/sales/notifications", {
                 headers: { "Authorization": "Bearer " + token }
@@ -158,45 +294,54 @@
             this.renderNotifications(notifications);
         } catch (e) {
             console.error(e);
-            alert("Erro ao carregar notificações.");
+            container.innerHTML = '<div style="padding:20px; color:red;">Erro ao carregar notificações.</div>';
         }
     },
 
     renderNotifications(notifications) {
-        const container = document.getElementById("sales-container");
+        const container = document.getElementById("notifications-container");
         
         if (notifications.length === 0) {
-            container.innerHTML = "<p>Nenhuma notificação recente.</p>";
+            container.innerHTML = '<div style="padding:20px; color:var(--ah-gold);">Nenhuma notificação recente.</div>';
             return;
         }
 
-        container.innerHTML = `
-            <h3>Notificações de Lances</h3>
-            <div class="results-body">
-                ${notifications.map(n => `
-                    <div class="sales-item" style="padding: 10px; border-bottom: 1px solid #333;">
-                        <strong>${n.bidder_name}</strong> deu um lance de <strong>${n.amount}g</strong> no item <strong>${n.item_name}</strong>
-                        <div style="font-size: 11px; color: #888;">${new Date(n.created_at).toLocaleString()}</div>
-                    </div>
-                `).join("")}
+        container.innerHTML = notifications.map(n => `
+            <div class="ah-auction-row" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                <div class="ah-cell"><strong>${this.escape(n.item_name)}</strong></div>
+                <div class="ah-cell">${this.escape(n.bidder_name)}</div>
+                <div class="ah-cell">${this.formatGold(n.amount * 10000)}</div>
+                <div class="ah-cell" style="font-size: 10px; color: var(--ah-text-dim);">${new Date(n.created_at).toLocaleString()}</div>
             </div>
-        `;
+        `).join("");
     },
 
     async loadAuctionDetails(itemId) {
         try {
+            this.lastItemId = itemId;
+            console.log("Fetching auctions for item:", itemId);
             const res = await fetch(`/api/sales?item_id=${itemId}`);
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const auctions = await res.json();
+            console.log("Auctions received:", auctions);
             
             // Para cada leilão, carregar os lances
+            console.log("Auctions loop:", auctions);
             for (let a of auctions) {
+                console.log("Fetching bids for sale ID:", a.id);
+                if (!a.id) {
+                    console.error("Auction missing ID:", a);
+                    continue;
+                }
                 const bRes = await fetch(`/api/sales/${a.id}/bids`);
+                if (!bRes.ok) throw new Error(`HTTP error! status: ${bRes.status}`);
                 a.bids = await bRes.json();
             }
             
             this.renderAuctionDetails(auctions);
         } catch (e) {
-            console.error(e);
+            console.error("Error in loadAuctionDetails:", e);
+            alert("Erro ao carregar detalhes do leilão.");
         }
     },
 
@@ -204,49 +349,65 @@
         const container = document.getElementById("sales-container");
         
         container.innerHTML = `
-            <button onclick="SalesController.loadGroupedItems()" style="margin-bottom:10px;">« Voltar para Busca</button>
-            <div class="results-header" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr; padding: 5px; border-bottom: 1px solid var(--border); font-weight: bold; margin-bottom: 10px;">
-                <span>Vendedor</span>
-                <span>Qtd</span>
-                <span>Lance Max</span>
-                <span>Ação</span>
-                <span>Histórico</span>
+            <div style="padding: 10px; border-bottom: 1px solid var(--ah-panel-border); background: rgba(0,0,0,0.3); display:flex; justify-content:space-between; align-items:center;">
+                <button class="ah-tab" onclick="SalesController.loadGroupedItems()" style="height:auto; padding:5px 15px;">« Voltar</button>
+                <span style="font-size:14px; color:var(--ah-gold-bright); font-weight:bold;">Detalhes do Item</span>
             </div>
-            ${auctions.map(a => `
-                <div class="sales-item" style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr; padding: 5px;">
-                    <span>${this.escape(a.character_id)}</span>
-                    <span>${a.quantity}</span>
-                    <span style="color: var(--gold);">${a.bids.length > 0 ? a.bids[0].amount + 'g' : 'Sem lances'}</span>
-                    <button onclick="SalesController.placeBid('${a.id}')">Dar Lance</button>
-                    <div style="font-size:10px;">${a.bids.map(b => this.escape(b.bidder_name) + ': ' + b.amount + 'g').join(', ')}</div>
+            <div class="ah-col-headers" style="display: grid; grid-template-columns: 2fr 1fr 2fr 1fr; gap: 10px; padding: 10px; background: rgba(0,0,0,0.2);">
+                <div class="ah-col-hdr">Vendedor</div>
+                <div class="ah-col-hdr">Qtd</div>
+                <div class="ah-col-hdr">Preço</div>
+                <div class="ah-col-hdr">Ação</div>
+            </div>
+            ${auctions.filter(a => a.status === 'open').map(a => `
+                <div class="ah-auction-row" style="display: grid; grid-template-columns: 2fr 1fr 2fr 1fr; gap: 10px; padding: 10px; border-bottom: 1px solid var(--ah-panel-border); align-items: center;">
+                    <div class="ah-cell">${this.escape(a.seller_name || 'Desconhecido')}</div>
+                    <div class="ah-cell">${a.quantity}</div>
+                    <div class="ah-cell" style="color: var(--ah-gold-bright); font-weight: bold;">${this.formatGold(a.price)}</div>
+                    <div class="ah-cell">
+                        <button class="ah-tab" style="padding:5px 15px; font-size:12px; cursor:pointer;" onclick="SalesController.purchaseItem('${a.id}')">Arrematar</button>
+                    </div>
                 </div>
             `).join("")}
         `;
     },
 
-    async placeBid(saleId) {
-        const amount = prompt("Digite o valor do seu lance:");
-        if (!amount || isNaN(amount)) return;
+    async purchaseItem(saleId) {
+        if (!confirm("Confirmar arremate deste item?")) return;
 
         const token = localStorage.getItem("brazug_admin_token");
         try {
-            const res = await fetch(`/api/sales/${saleId}/bids`, {
+            const res = await fetch(`/api/sales/${saleId}/purchase`, {
                 method: "POST",
                 headers: {
                     "Authorization": "Bearer " + token,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    bidder_character_id: this.characterId,
-                    amount: parseInt(amount)
+                    buyer_character_id: this.characterId
                 })
             });
-            if (!res.ok) throw new Error("Erro ao dar lance. Verifique se o valor é maior que o lance anterior.");
-            alert("Lance efetuado com sucesso!");
-            // Opcional: Recarregar detalhes para atualizar o lance máximo
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Erro ao realizar arremate.");
+            alert("Item arrematado com sucesso!");
+            this.loadAuctionDetails(this.lastItemId);
         } catch (e) {
             alert(e.message);
         }
+    },
+
+    resetSearch() {
+        document.getElementById('filter_name').value = '';
+        document.getElementById('min_lvl').value = '';
+        document.getElementById('max_lvl').value = '';
+        document.getElementById('filter_quality').value = '';
+        
+        document.querySelectorAll('.ah-cat-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.ah-cat-btn[data-cat=""]').classList.add('active');
+        this.currentCategory = '';
+        
+        document.getElementById('sales-container').innerHTML = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--ah-gold); font-style:italic;">Escolha os filtros e clique em "Buscar"</div>';
+        document.getElementById('statusText').textContent = 'Pronto';
     },
 
     showPreview(title, desc) {
@@ -260,15 +421,43 @@
         document.getElementById("item-preview").style.display = 'none';
     },
 
+    selectItemToSell(id, name) {
+        document.getElementById("sell_item_id").value = id;
+        document.getElementById("sell_item_name").value = name;
+
+        // Habilitar campos
+        ["sell_gold", "sell_silver", "sell_copper", "sell_quantity", "sell_duration", "btn-create-sale"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.disabled = false;
+                if (el.tagName !== 'BUTTON') {
+                    el.style.background = "var(--ah-input-bg)";
+                    el.style.color = "var(--ah-text-white)";
+                }
+            }
+        });
+    },
+
     async createSale() {
       const token = localStorage.getItem("brazug_admin_token");
+      if (!token) {
+        alert("Você precisa estar logado.");
+        window.location.href = '/login.html';
+        return;
+      }
+      
+      const gold = parseInt(document.getElementById("sell_gold").value) || 0;
+      const silver = parseInt(document.getElementById("sell_silver").value) || 0;
+      const copper = parseInt(document.getElementById("sell_copper").value) || 0;
+      const totalCopper = (gold * 10000) + (silver * 100) + copper;
+      
       const sale = {
         character_id: this.characterId,
-        item_id: document.getElementById("item_id").value || null,
-        item_name: document.getElementById("item_name").value,
-        price: document.getElementById("price").value,
-        quantity: document.getElementById("quantity").value,
-        duration_hours: document.getElementById("duration").value
+        item_id: document.getElementById("sell_item_id").value,
+        item_name: document.getElementById("sell_item_name").value,
+        price: totalCopper,
+        quantity: document.getElementById("sell_quantity").value || 1,
+        duration_hours: document.getElementById("sell_duration").value
       };
 
       try {
@@ -280,7 +469,8 @@
           },
           body: JSON.stringify(sale)
         });
-        if (!res.ok) throw new Error("Erro ao criar anúncio");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Erro ao criar anúncio");
         alert("Anúncio criado!");
         location.reload();
       } catch (e) {

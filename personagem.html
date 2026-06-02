@@ -90,7 +90,17 @@
                                 }
                                 return `<a href="${vUrl}" target="_blank" class="discord-btn" style="background: #fff; color: #000; border: none;">🎥 Ver Vídeo</a>`;
                             })()}
-                            <a href="/vendas.html?character_id=${char.id}" class="discord-btn" style="background: #2a5a2a; color: #fff; border: none; font-weight: bold;">Comércio</a>
+                            <!--
+                            <a href="/vendas.html?character_id=${char.id}" class="discord-btn" id="commerce-btn" style="background: #2a5a2a; color: #fff; border: none; font-weight: bold; display: none;">Comércio</a>
+                            <script>
+                                (function() {
+                                    const username = localStorage.getItem("brazug_admin_user");
+                                    if (username && "${char.owner_username}".toLowerCase() === username.toLowerCase()) {
+                                        document.getElementById('commerce-btn').style.display = 'inline-block';
+                                    }
+                                })();
+                            </script>
+                            -->
                             ${char.twitch_url ? `<a href="${char.twitch_url}" target="_blank" class="discord-btn" style="background: #9146ff; border: none;">Twitch</a>` : ''}
                             ${char.youtube_url ? `<a href="${char.youtube_url}" target="_blank" class="discord-btn" style="background: #ff0000; border: none;">YouTube</a>` : ''}
                         </div>

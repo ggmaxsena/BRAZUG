@@ -5,116 +5,209 @@
     <title>Casa de Leilões — BRAZUG</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/modern-ux.css">
+    <link rel="stylesheet" href="/css/auction-house-ui.css">
+    <style>
+        /* BRAZUG Theme Overrides for AH */
+        .ah-window { 
+            background: var(--bg-card) !important; 
+            border: 1px solid var(--border) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important;
+            overflow: hidden;
+        }
+        .ah-titlebar { background: rgba(0,0,0,0.4) !important; color: var(--gold) !important; font-weight: 800 !important; }
+        .ah-tab { 
+            background: rgba(255,255,255,0.05) !important; 
+            color: var(--text-muted) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 6px !important;
+            transition: 0.3s;
+        }
+        .ah-tab.active, .ah-tab:hover { background: var(--gold) !important; color: #000 !important; border-color: var(--gold) !important; }
+        .ah-wow-input { background: #000 !important; border: 1px solid var(--border) !important; color: var(--text) !important; }
+        .ah-search-btn { background: var(--gold) !important; color: #000 !important; border-radius: 6px !important; font-weight: 800 !important; }
+        .ah-results-panel { background: rgba(0,0,0,0.2) !important; border: 1px solid var(--border) !important; }
+        .ah-col-headers { background: rgba(196, 30, 58, 0.1) !important; color: var(--gold) !important; }
+    </style>
 </head>
 <body>
 <header class="site-header" id="universal-header"></header>
 <main class="container">
-    <h1 class="section-title">Casa de Leilões</h1>
-
-    <!-- Nota de Responsabilidade -->
-    <div class="card" style="border: 1px solid var(--horde-red); background: rgba(196, 30, 58, 0.1);">
-        <p style="font-size: 14px; color: #d1d1d1; line-height: 1.5;">
-            <strong>Nota de Responsabilidade:</strong> A BRAZUG atua estritamente como intermediária técnica para facilitar as negociações entre membros. Todos os jogadores se responsabilizam integralmente por cumprirem com hombridade os acordos feitos aqui. A BRAZUG não se responsabiliza por eventuais descumprimentos, trocas ou quaisquer problemas decorrentes das negociações. Ao participar de um leilão, você concorda com estes termos.
-        </p>
+    
+    <div style="max-width: 900px; margin: 0 auto 30px auto; text-align: center;">
+        <h1 class="section-title">Casa de Leilões</h1>
+        <p class="lead">O mercado onde a fortuna muda de mãos.</p>
     </div>
 
-    <!-- Preview Container -->
-    <div id="item-preview" style="position: fixed; top: 100px; right: 20px; width: 300px; background: #1a1a1a; border: 1px solid var(--gold); padding: 15px; border-radius: 8px; display: none; z-index: 1000; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
-        <h3 id="preview-title" style="color: var(--gold);"></h3>
-        <p id="preview-desc" style="font-size: 14px; margin-top: 10px;"></p>
-    </div>
-
-    <div class="card">
-        <h2 style="color: var(--gold); margin-bottom: 15px;">Novo Leilão</h2>
-        <div style="display: grid; gap: 12px;">
-            <div style="display: flex; gap: 10px; position: relative;">
-                <input type="text" id="item_name" placeholder="Nome do item..." class="ah-input" style="flex-grow: 1; padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
-                <button id="btn-search-item" style="padding: 8px 16px; background: var(--gold); border: none; color: #000; cursor: pointer; font-weight: bold; border-radius: 4px;">Buscar</button>
-                <div id="item_search_results" style="position: absolute; top:105%; left:0; width:100%; background:#1a1a1a; border:1px solid #444; display:none; z-index:10; max-height:200px; overflow-y:auto; border-radius: 4px;"></div>
-                <input type="hidden" id="item_id">
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
-                <input type="number" id="min_lvl" placeholder="Min Lvl" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
-                <input type="number" id="max_lvl" placeholder="Max Lvl" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
-                <select id="item_quality" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
-                    <option value="">Qualidade</option>
-                    <option value="common">Common</option>
-                    <option value="uncommon">Uncommon</option>
-                    <option value="rare">Rare</option>
-                    <option value="epic">Epic</option>
-                </select>
-                <select id="item_category" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
-                    <option value="">Categoria</option>
-                    <option value="weapons">Weapons</option>
-                    <option value="armor">Armor</option>
-                    <option value="consumables">Consumables</option>
-                    <option value="misc">Misc</option>
-                </select>
-                <select id="item_subcategory" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff; border-radius: 4px;">
-                    <option value="">Subcategoria</option>
-                </select>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                <input type="number" id="price" placeholder="Preço Total" class="ah-input" disabled style="padding: 8px; background: #1a1a1a; border: 1px solid #444; color: #888; border-radius: 4px; cursor: not-allowed;">
-                <input type="number" id="quantity" placeholder="Quantidade" class="ah-input" disabled style="padding: 8px; background: #1a1a1a; border: 1px solid #444; color: #888; border-radius: 4px; cursor: not-allowed;">
-                <select id="duration" disabled style="padding: 8px; background: #1a1a1a; border: 1px solid #444; color: #888; border-radius: 4px; cursor: not-allowed;">
-                    <option value="12">12 Horas</option>
-                    <option value="24">24 Horas</option>
-                    <option value="48">48 Horas</option>
-                </select>
-            </div>
-            <div id="price-preview" style="color: var(--gold); font-size: 13px; margin-top: -5px; font-weight: bold;"></div>
-            <button id="btn-create-sale" disabled style="padding: 10px; background: #444; border: none; cursor: not-allowed; font-weight: bold; color: #888; border-radius: 4px;">Anunciar</button>
-        </div>
-    </div>
-
-    <div class="card auction-house">
-        <div class="ah-topbar" style="display: flex; gap: 10px; padding-bottom: 15px; border-bottom: 1px solid var(--border); margin-bottom: 15px; flex-wrap: wrap;">
-            <input id="filter_name" placeholder="Search" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff;">
-            <input placeholder="Min Lvl" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff;">
-            <input placeholder="Max Lvl" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff;">
-            <select id="filter_quality" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff;">
-                <option value="">All Qualities</option>
-                <option value="common">Common</option>
-                <option value="uncommon">Uncommon</option>
-                <option value="rare">Rare</option>
-                <option value="epic">Epic</option>
-            </select>
-            <select id="filter_category" style="padding: 8px; background: #0d0d0d; border: 1px solid var(--border); color: #fff;">
-                <option value="">All Categories</option>
-                <option value="weapons">Weapons</option>
-                <option value="armor">Armor</option>
-                <option value="consumables">Consumables</option>
-                <option value="misc">Misc</option>
-            </select>
-            <button id="btn-search" style="padding: 8px 16px; background: var(--horde-red); border: none; color: #fff; cursor: pointer;">Search</button>
-        </div>
-        <div class="ah-body" style="display: grid; grid-template-columns: 150px 1fr; gap: 20px; min-height: 300px;">
-            <aside class="ah-categories" style="display: flex; flex-direction: column; gap: 10px; border-right: 1px solid var(--border);">
-                <div style="cursor: pointer; padding: 5px 0;" onclick="SalesController.loadGroupedItems()">Busca de Itens</div>
-                <div style="cursor: pointer; padding: 5px 0; color: var(--gold);" onclick="SalesController.loadNotifications()">Notificações (Lances)</div>
-            </aside>
-            <main class="ah-results">
-                <div class="results-header" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; padding: 5px; border-bottom: 1px solid var(--border); font-weight: bold; margin-bottom: 10px;">
-                    <span>Name</span>
-                    <span>Quality</span>
-                    <span>Price</span>
-                    <span>Seller</span>
-                    <span>Action</span>
+    <div class="ah-window" id="ahWindow">
+        <!-- TAB: BROWSE (Comprar) -->
+        <div id="tab-browse-content">
+            <!-- Search bar -->
+            <div class="ah-searchbar">
+                <div class="ah-field-group">
+                    <span class="ah-field-label">Nome</span>
+                    <input class="ah-wow-input ah-input-name" type="text" id="filter_name" placeholder="">
                 </div>
-                <div id="sales-container" class="results-body">
-                    <div class="empty-state">Choose search criteria and press "Search"</div>
+
+                <div class="ah-field-group">
+                    <span class="ah-field-label">Level</span>
+                    <div style="display:flex;align-items:center;gap:3px">
+                        <input class="ah-wow-input ah-input-lvl" type="number" id="min_lvl" placeholder="Min">
+                        <span style="color:var(--ah-text-dim); font-size:10px;">-</span>
+                        <input class="ah-wow-input ah-input-lvl" type="number" id="max_lvl" placeholder="Max">
+                    </div>
                 </div>
-            </main>
-        </div>
-        <div class="ah-footer" style="padding-top: 15px; border-top: 1px solid var(--border); margin-top: 15px; display: flex; justify-content: flex-end;">
-            <div>
-                <button style="padding: 8px 16px; background: #333; border: 1px solid var(--border); color: #fff; cursor: pointer;">Bid</button>
-                <button style="padding: 8px 16px; background: #333; border: 1px solid var(--border); color: #fff; cursor: pointer;">Buyout</button>
+
+                <div class="ah-field-group">
+                    <span class="ah-field-label">Raridade</span>
+                    <select class="ah-select-rarity" id="filter_quality">
+                        <option value="">Todas</option>
+                        <option value="poor">Pobre</option>
+                        <option value="common">Comum</option>
+                        <option value="uncommon">Incomum</option>
+                        <option value="rare">Raro</option>
+                        <option value="epic">Épico</option>
+                    </select>
+                </div>
+
+                <button class="ah-search-btn" id="btn-search">Buscar</button>
+                <button class="ah-search-btn" style="background: linear-gradient(180deg, #2a2010 0%, #1a1408 100%); border-color: var(--ah-panel-border);" onclick="SalesController.resetSearch()">Reset</button>
+            </div>
+
+            <!-- Main body -->
+            <div class="ah-main-body">
+                <!-- Sidebar -->
+                <aside class="ah-sidebar">
+                    <button class="ah-cat-btn active" data-cat="" onclick="SalesController.setCategory(this, '')">Tudo</button>
+                    <button class="ah-cat-btn" data-cat="weapons" onclick="SalesController.setCategory(this, 'weapons')">Armas</button>
+                    <button class="ah-cat-btn" data-cat="armor" onclick="SalesController.setCategory(this, 'armor')">Armaduras</button>
+                    <button class="ah-cat-btn" data-cat="consumables" onclick="SalesController.setCategory(this, 'consumables')">Consumíveis</button>
+                    <button class="ah-cat-btn" data-cat="misc" onclick="SalesController.setCategory(this, 'misc')">Diversos</button>
+                </aside>
+
+                <!-- Results -->
+                <div class="ah-results-panel">
+                    <div class="ah-col-headers">
+                        <div class="ah-col-hdr">Item</div>
+                        <div class="ah-col-hdr">Lvl</div>
+                        <div class="ah-col-hdr">Tempo</div>
+                        <div class="ah-col-hdr">Vendedor</div>
+                        <div class="ah-col-hdr">Preço</div>
+                        <div class="ah-col-hdr">Ação</div>
+                    </div>
+                    <div class="ah-results-list" id="sales-container">
+                        <div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--ah-gold); font-style:italic;">
+                            Escolha os filtros e clique em "Buscar"
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- TAB: AUCTIONS (Vender/Anunciar) -->
+        <div id="tab-auctions-content" style="display: none;">
+            <!-- Search bar -->
+            <div class="ah-searchbar" style="padding-left: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="ah-field-group">
+                        <span class="ah-field-label">Buscar Item</span>
+                        <input class="ah-wow-input ah-input-name" type="text" id="sell_filter_name" placeholder="Nome...">
+                    </div>
+                    <button class="ah-search-btn" id="btn-search-sell">Buscar</button>
+                </div>
+                <!-- Pagination placeholder to be populated by JS -->
+                <div id="sell-pagination-container"></div>
+            </div>
+            
+            <div class="ah-main-body" style="height: 350px;">
+                <div class="ah-results-panel">
+                    <div class="ah-col-headers" style="display: grid; grid-template-columns: 1fr auto;">
+                        <div class="ah-col-hdr">Item</div>
+                        <div class="ah-col-hdr" style="text-align: right;">Ação</div>
+                    </div>
+                    <div class="ah-results-list" id="sell-items-container">
+                        <div style="padding: 20px; color: var(--ah-gold); text-align: center; font-style: italic;">
+                            Busque um item para iniciar o anúncio.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Creation Form (Simplified) -->
+            <div style="padding: 15px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--ah-panel-border);">
+                <div style="display: grid; gap: 10px; justify-content: center;">
+                    <div class="ah-field-group">
+                        <span class="ah-field-label">Item Selecionado</span>
+                        <input type="text" id="sell_item_name" class="ah-wow-input" disabled style="width: 300px;">
+                        <input type="hidden" id="sell_item_id">
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <div class="ah-field-group">
+                            <span class="ah-field-label">Ouro <span class="coin-g" style="font-size:12px;">g</span></span>
+                            <input type="number" id="sell_gold" class="ah-wow-input" style="width: 60px;" disabled>
+                        </div>
+                        <div class="ah-field-group">
+                            <span class="ah-field-label">Prata <span class="coin-s" style="font-size:12px;">s</span></span>
+                            <input type="number" id="sell_silver" class="ah-wow-input" style="width: 60px;" disabled>
+                        </div>
+                        <div class="ah-field-group">
+                            <span class="ah-field-label">Cobre <span class="coin-c" style="font-size:12px;">c</span></span>
+                            <input type="number" id="sell_copper" class="ah-wow-input" style="width: 60px;" disabled>
+                        </div>
+                        <div class="ah-field-group">
+                            <span class="ah-field-label">Qtd</span>
+                            <input type="number" id="sell_quantity" class="ah-wow-input" style="width: 60px;" disabled>
+                        </div>
+                        <div class="ah-field-group">
+                            <span class="ah-field-label">Duração</span>
+                            <select id="sell_duration" class="ah-select-rarity" disabled style="width: 100px;">
+                                <option value="12">12 Horas</option>
+                                <option value="24" selected>24 Horas</option>
+                                <option value="48">48 Horas</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button id="btn-create-sale" class="ah-search-btn" disabled style="margin-top: 10px;">ANUNCIAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: BIDS (Lances/Notificações) -->
+        <div id="tab-bids-content" style="display: none; padding: 20px;">
+             <div class="ah-results-panel" style="height: 400px; border: 1px solid var(--ah-panel-border);">
+                 <div class="ah-col-headers" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                    <div class="ah-col-hdr">Item</div>
+                    <div class="ah-col-hdr">Licitante</div>
+                    <div class="ah-col-hdr">Valor</div>
+                    <div class="ah-col-hdr">Data</div>
+                 </div>
+                 <div class="ah-results-list" id="notifications-container">
+                     <!-- Notifications go here -->
+                 </div>
+             </div>
+        </div>
+
+        <!-- Status bar -->
+        <div class="ah-statusbar">
+            <span id="statusText">Pronto</span>
+            <span id="countText"></span>
+        </div>
     </div>
+
+    <!-- Tabs at the bottom -->
+    <div class="ah-tabs" style="max-width: 900px; margin: -20px auto 40px auto;">
+        <button class="ah-tab active" id="tab-browse" onclick="SalesController.switchTab('browse')">Comprar</button>
+        <button class="ah-tab" id="tab-bids" onclick="SalesController.switchTab('bids')">Meus Lances</button>
+        <button class="ah-tab" id="tab-auctions" onclick="SalesController.switchTab('auctions')">Anunciar</button>
+    </div>
+
 </main>
+
+<!-- Tooltip -->
+<div class="ah-tooltip" id="tooltip"></div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
 <script src="/js/header.js"></script>
 <script src="/js/controllers/SalesController.js"></script>
