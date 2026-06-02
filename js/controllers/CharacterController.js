@@ -176,6 +176,7 @@
         // Redes Sociais
         document.getElementById("twitch_url").value = char.twitch_url || "";
         document.getElementById("youtube_url").value = char.youtube_url || "";
+        document.getElementById("video_url").value = char.video_url || "";
         
         // Mudar botão de salvar para update e mostrar cancelar
         const saveBtn = document.getElementById("btn-save");
@@ -232,7 +233,8 @@
 
           // Redes Sociais
           twitch_url: document.getElementById("twitch_url").value,
-          youtube_url: document.getElementById("youtube_url").value
+          youtube_url: document.getElementById("youtube_url").value,
+          video_url: document.getElementById("video_url").value
       };
       
       try {

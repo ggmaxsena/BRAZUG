@@ -79,17 +79,41 @@
                         <div style="display: flex; gap: 15px; margin-top: 30px; flex-wrap: wrap;">
                             ${!char.is_dead ? `<a href="https://classic-armory.org/character/us/classic-hardcore/doomhowl/${char.name.toLowerCase()}" target="_blank" class="discord-btn" style="background: #333; color: #fff; border: 1px solid #555;">Classic Armory</a>` : ''}
                             <a href="/armory/${char.region || 'us'}/${char.realm || 'doomhowl'}/${char.name.toLowerCase()}" class="discord-btn" style="background: var(--gold); color: #000; border: none; font-weight: bold;">Brazug Armory</a>
+                            ${(function() {
+                                const vUrl = char.video_url || char.lore.match(/https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be|twitch\.tv|clips\.twitch\.tv)\/[^\s<"']+/)?.[0];
+                                if (!vUrl) return '';
+                                
+                                // Se tivermos vídeo embedado, fazemos scroll. Senão, abre nova aba.
+                                const hasEmbed = !!(char.video_id && char.video_platform) || !!extractVideoInfo(vUrl).id;
+                                if (hasEmbed) {
+                                    return `<a href="#lore-video-section" onclick="document.getElementById('lore-video-section')?.scrollIntoView({behavior:'smooth'}); return false;" class="discord-btn" style="background: #fff; color: #000; border: none;">🎥 Ver Vídeo</a>`;
+                                }
+                                return `<a href="${vUrl}" target="_blank" class="discord-btn" style="background: #fff; color: #000; border: none;">🎥 Ver Vídeo</a>`;
+                            })()}
                             ${char.twitch_url ? `<a href="${char.twitch_url}" target="_blank" class="discord-btn" style="background: #9146ff; border: none;">Twitch</a>` : ''}
                             ${char.youtube_url ? `<a href="${char.youtube_url}" target="_blank" class="discord-btn" style="background: #ff0000; border: none;">YouTube</a>` : ''}
                         </div>
                     </div>
                 </div>
 
+                <div id="video-lore-container">
+                    ${renderEmbeds(char)}
+                </div>
+
                 <div style="margin-top: 50px; border-top: 1px solid #333; padding-top: 40px;">
                     <h2 style="color: var(--gold); font-size: 28px; margin-bottom: 20px;">Lore / Biografia</h2>
                     <div class="lore-content" style="line-height: 2; color: #ccc; font-style: italic; font-size: 18px;">
-                        ${(typeof DOMPurify !== 'undefined') ? DOMPurify.sanitize(formatLore(char.lore)) : formatLore(char.lore)}
+                        ${(function() {
+                            const raw = formatLore(char.lore);
+                            if (typeof DOMPurify !== 'undefined') return DOMPurify.sanitize(raw);
+                            console.warn("DOMPurify não carregado.");
+                            return raw.replace(/<[^>]*>/g, ""); 
+                        })()}
                     </div>
+                </div>
+
+                <div id="debug-info" style="margin-top:20px; font-size:10px; color:#444; border-top: 1px solid #111; padding-top: 10px;">
+                    Char ID: ${char.id} | Platform: ${char.video_platform} | ID: ${char.video_id} | Video URL: ${char.video_url ? 'Sim' : 'Não'}
                 </div>
 
                 <div style="margin-top: 40px;">
@@ -98,42 +122,69 @@
                         ${profsHtml || '<p style="color: #666;">Nenhuma profissão registrada.</p>'}
                     </div>
                 </div>
-
-                ${renderEmbeds(char)}
             </div>
         `;
+        console.log("[DEBUG] Character loaded:", char);
     }
 
     function renderEmbeds(char) {
         let html = "";
+        const host = window.location.hostname;
         
-        // Embed YouTube (se for vídeo)
-        if (char.youtube_url) {
-            const ytId = extractYoutubeId(char.youtube_url);
-            if (ytId) {
+        let platform = char.video_platform;
+        let videoId = char.video_id;
+        let videoUrl = char.video_url;
+
+        // Fallback: se não tiver video_url preenchido, tenta extrair da Lore
+        if (!videoUrl && char.lore) {
+            const match = char.lore.match(/https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be|twitch\.tv|clips\.twitch\.tv)\/[^\s<"']+/);
+            if (match) videoUrl = match[0];
+        }
+
+        if (!videoId && videoUrl) {
+            console.log("[DEBUG] Video ID missing, attempting extraction from:", videoUrl);
+            const info = extractVideoInfo(videoUrl);
+            platform = info.platform;
+            videoId = info.id;
+        }
+
+        console.log("[DEBUG] Rendering lore video. Platform:", platform, "ID:", videoId);
+
+        if (videoId && platform) {
+            let loreUrl = "";
+            if (platform === 'youtube') {
+                loreUrl = `https://www.youtube.com/embed/${videoId}`;
+            } else if (platform === 'twitch') {
+                const isVod = /^\d+$/.test(videoId);
+                loreUrl = isVod 
+                    ? `https://player.twitch.tv/?video=${videoId}&parent=${host}&autoplay=false`
+                    : `https://clips.twitch.tv/embed?clip=${videoId}&parent=${host}`;
+            }
+
+            if (loreUrl) {
                 html += `
-                <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 40px;">
-                    <h2 style="color: var(--gold); font-size: 28px; margin-bottom: 20px;">Vídeo em Destaque</h2>
-                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; border: 1px solid #333;">
+                <div id="lore-video-section" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 40px;">
+                    <h2 style="color: var(--gold); font-size: 28px; margin-bottom: 20px;">🎬 Vídeo de Lore</h2>
+                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; border: 1px solid #333; background: #000;">
                         <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
-                            src="https://www.youtube.com/embed/${ytId}" 
-                            frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                            src="${loreUrl}" frameborder="0" allowfullscreen="true" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
                         </iframe>
                     </div>
                 </div>`;
             }
         }
 
-        // Embed Twitch (Channel)
+        // 2. Twitch Live Stream (Canal)
         if (char.twitch_url) {
             const twitchUser = extractTwitchUser(char.twitch_url);
             if (twitchUser) {
                 html += `
-                <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 40px;">
-                    <h2 style="color: var(--gold); font-size: 28px; margin-bottom: 20px;">Live Stream</h2>
-                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; border: 1px solid #333;">
+                <div id="twitch-stream-section" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 40px;">
+                    <h2 style="color: var(--gold); font-size: 28px; margin-bottom: 20px;">📺 Live Stream (Twitch)</h2>
+                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; border: 1px solid #333; background: #000;">
                         <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-                            src="https://player.twitch.tv/?channel=${twitchUser}&parent=${window.location.hostname}"
+                            src="https://player.twitch.tv/?channel=${twitchUser}&parent=${host}&autoplay=false"
                             frameborder="0" allowfullscreen="true" scrolling="no">
                         </iframe>
                     </div>
@@ -144,10 +195,24 @@
         return html;
     }
 
-    function extractYoutubeId(url) {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : null;
+    function extractVideoInfo(url) {
+        if (!url) return { platform: null, id: null };
+        
+        // YouTube (including Shorts)
+        const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|u\/\w\/|shorts\/))([^#\&\?]*)/);
+        if (ytMatch && ytMatch[1].length === 11) {
+            return { platform: 'youtube', id: ytMatch[1] };
+        }
+
+        // Twitch Videos
+        const twVod = url.match(/twitch\.tv\/videos\/([0-9]+)/);
+        if (twVod) return { platform: 'twitch', id: twVod[1] };
+
+        // Twitch Clips
+        const twClip = url.match(/(?:clips\.twitch\.tv\/|twitch\.tv\/\w+\/clip\/)([a-zA-Z0-9_-]+)/);
+        if (twClip) return { platform: 'twitch', id: twClip[1] };
+
+        return { platform: null, id: null };
     }
 
     function extractTwitchUser(url) {

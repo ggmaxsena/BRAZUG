@@ -23,6 +23,13 @@
       document.getElementById("quantity").oninput = () => this.updatePricePreview();
     },
 
+    escape(s) {
+        if (!s) return "";
+        const d = document.createElement("div");
+        d.textContent = String(s);
+        return d.innerHTML;
+    },
+
     updatePricePreview() {
         const total = parseFloat(document.getElementById("price").value) || 0;
         const qty = parseFloat(document.getElementById("quantity").value) || 1;
@@ -60,15 +67,15 @@
             resultsDiv.innerHTML = items.map(i => `
                 <div class="result-item" style="padding:10px; cursor:pointer; border-bottom:1px solid #333; display:flex; justify-content:space-between;" 
                      onmouseover="this.style.background='#222'" onmouseout="this.style.background='transparent'"
-                     onclick="SalesController.selectItem(${i.id}, '${i.name}')">
-                    <span>${i.name}</span>
-                    <span style="font-size:11px; color:var(--gold);">${i.quality || ''}</span>
+                     onclick="SalesController.selectItem(${i.id}, '${this.escape(i.name)}')">
+                    <span>${this.escape(i.name)}</span>
+                    <span style="font-size:11px; color:var(--gold);">${this.escape(i.quality || '')}</span>
                 </div>
             `).join("");
             resultsDiv.style.display = 'block';
         } catch(e) { 
             console.error("Search error:", e); 
-            resultsDiv.innerHTML = `<div style="padding:10px; color:var(--horde-red);">Erro: ${e.message}</div>`;
+            resultsDiv.innerHTML = `<div style="padding:10px; color:var(--horde-red);">Erro: ${this.escape(e.message)}</div>`;
             resultsDiv.style.display = 'block';
         }
     },
@@ -131,7 +138,7 @@
         container.innerHTML = items.map(i => `
             <div class="sales-item" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="SalesController.loadAuctionDetails('${i.item_id}')">
                 <div>
-                    <strong>${i.item_name}</strong>
+                    <strong>${this.escape(i.item_name)}</strong>
                     <div style="font-size:12px; color:#888;">${i.total_listings} anúncios | ${i.total_available} unidades</div>
                 </div>
                 <div style="font-weight:bold; color: var(--gold);">Menor: ${Math.floor(i.min_price_unit)}g</div>
@@ -170,11 +177,11 @@
             </div>
             ${auctions.map(a => `
                 <div class="sales-item" style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 2fr; padding: 5px;">
-                    <span>${a.character_id}</span>
+                    <span>${this.escape(a.character_id)}</span>
                     <span>${a.quantity}</span>
                     <span style="color: var(--gold);">${a.bids.length > 0 ? a.bids[0].amount + 'g' : 'Sem lances'}</span>
                     <button onclick="SalesController.placeBid('${a.id}')">Dar Lance</button>
-                    <div style="font-size:10px;">${a.bids.map(b => b.bidder_name + ': ' + b.amount + 'g').join(', ')}</div>
+                    <div style="font-size:10px;">${a.bids.map(b => this.escape(b.bidder_name) + ': ' + b.amount + 'g').join(', ')}</div>
                 </div>
             `).join("")}
         `;

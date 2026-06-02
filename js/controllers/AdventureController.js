@@ -72,7 +72,15 @@
       document.getElementById("mural-modal-title").textContent = adventure.title;
       
       const rawBody = this.renderBody(adventure.body);
-      const cleanBody = (typeof DOMPurify !== 'undefined') ? DOMPurify.sanitize(rawBody) : rawBody;
+      let cleanBody = "";
+      if (typeof DOMPurify !== 'undefined') {
+          cleanBody = DOMPurify.sanitize(rawBody);
+      } else {
+          console.warn("DOMPurify não carregado. Usando fallback seguro.");
+          const div = document.createElement("div");
+          div.textContent = rawBody.replace(/<[^>]*>/g, ""); // Remove tags se não puder sanitizar
+          cleanBody = div.innerHTML;
+      }
       document.getElementById("mural-modal-body").innerHTML = cleanBody;
       
       document.getElementById("mural-modal-date").textContent = adventure.event_date;

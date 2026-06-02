@@ -23,20 +23,7 @@ app.use(express.json({ limit: "10mb" }));
 /* =========================================
    STATIC FILES & ICON PROXY
 ========================================= */
-// Configuração dinâmica da pasta de uploads
-let externalUploads = process.env.UPLOAD_DIR;
-
-if (!externalUploads) {
-  // Ajustado para ser consistente: busca "uploads" no pai do projeto ou em data/uploads
-  const prodPath = path.resolve(__dirname, "..", "uploads");
-  const devPath = path.resolve(__dirname, "data", "uploads");
-  
-  if (fs.existsSync(prodPath)) {
-    externalUploads = prodPath;
-  } else {
-    externalUploads = devPath;
-  }
-}
+const externalUploads = process.env.UPLOAD_DIR || path.resolve(__dirname, "data", "uploads");
 
 console.log(`[BRAZUG] Static serving: Uploads from ${externalUploads}`);
 const iconDir = path.resolve(__dirname, "assets", "icons");
