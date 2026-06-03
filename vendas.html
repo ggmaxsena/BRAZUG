@@ -42,6 +42,9 @@
     <div class="ah-window" id="ahWindow">
         <!-- TAB: BROWSE (Comprar) -->
         <div id="tab-browse-content">
+            <div style="background: rgba(255,255,255,0.05); padding: 10px; margin: 10px; border-radius: 5px; font-size: 12px; color: var(--ah-text-dim);">
+                💡 <b>Atenção:</b> Ao arrematar um item, você comprará o <b>lote inteiro</b> disponível. Não é possível selecionar uma quantidade parcial.
+            </div>
             <!-- Search bar -->
             <div class="ah-searchbar">
                 <div class="ah-field-group">
@@ -106,6 +109,9 @@
 
         <!-- TAB: AUCTIONS (Vender/Anunciar) -->
         <div id="tab-auctions-content" style="display: none;">
+            <div style="background: rgba(255,255,255,0.05); padding: 10px; margin: 10px; border-radius: 5px; font-size: 12px; color: var(--ah-text-dim);">
+                💡 <b>Dica:</b> Crie um leilão separado para cada quantidade que deseja vender. O comprador sempre arrematará o lote total que você definir aqui.
+            </div>
             <!-- Search bar -->
             <div class="ah-searchbar" style="padding-left: 10px; display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; gap: 10px; align-items: center;">
@@ -175,16 +181,34 @@
         </div>
 
         <!-- TAB: BIDS (Lances/Notificações) -->
+        <!-- TAB: MY AUCTIONS (Antigo "Meus Lances") -->
         <div id="tab-bids-content" style="display: none; padding: 20px;">
              <div class="ah-results-panel" style="height: 400px; border: 1px solid var(--ah-panel-border);">
-                 <div class="ah-col-headers" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                 <div class="ah-col-headers" style="grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr;">
                     <div class="ah-col-hdr">Item</div>
-                    <div class="ah-col-hdr">Licitante</div>
-                    <div class="ah-col-hdr">Valor</div>
-                    <div class="ah-col-hdr">Data</div>
+                    <div class="ah-col-hdr">Qtd</div>
+                    <div class="ah-col-hdr">Preço</div>
+                    <div class="ah-col-hdr">Fim em</div>
+                    <div class="ah-col-hdr">Ação</div>
                  </div>
-                 <div class="ah-results-list" id="notifications-container">
-                     <!-- Notifications go here -->
+                 <div class="ah-results-list" id="my-active-auctions-container">
+                     <!-- My active auctions go here -->
+                 </div>
+             </div>
+        </div>
+
+        <!-- TAB: HISTORY (Histórico de Compras e Vendas) -->
+        <div id="tab-history-content" style="display: none; padding: 20px;">
+             <div class="ah-results-panel" style="height: 400px; border: 1px solid var(--ah-panel-border);">
+                 <div class="ah-col-headers" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr;">
+                    <div class="ah-col-hdr">Item</div>
+                    <div class="ah-col-hdr">Vendedor</div>
+                    <div class="ah-col-hdr">Comprador</div>
+                    <div class="ah-col-hdr">Preço</div>
+                    <div class="ah-col-hdr">Avaliação</div>
+                 </div>
+                 <div class="ah-results-list" id="history-container">
+                     <!-- History goes here -->
                  </div>
              </div>
         </div>
@@ -199,9 +223,39 @@
     <!-- Tabs at the bottom -->
     <div class="ah-tabs" style="max-width: 900px; margin: -20px auto 40px auto;">
         <button class="ah-tab active" id="tab-browse" onclick="SalesController.switchTab('browse')">Comprar</button>
-        <button class="ah-tab" id="tab-bids" onclick="SalesController.switchTab('bids')">Meus Lances</button>
         <button class="ah-tab" id="tab-auctions" onclick="SalesController.switchTab('auctions')">Anunciar</button>
+        <button class="ah-tab" id="tab-bids" onclick="SalesController.switchTab('bids')">Meus Leilões</button>
+        <button class="ah-tab" id="tab-history" onclick="SalesController.switchTab('history')">Histórico</button>
     </div>
+
+</main>
+
+<!-- Feedback Modal -->
+<div id="feedback-modal" class="ah-panel" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; width: 400px; box-shadow: 0 0 100px rgba(0,0,0,0.8);">
+    <div class="ah-panel-header">AVALIAR NEGOCIAÇÃO</div>
+    <div style="padding: 20px; display: grid; gap: 15px;">
+        <div id="feedback-item-info" style="color: var(--ah-gold); font-weight: bold; text-align: center;"></div>
+        
+        <div class="rating-stars" style="display: flex; gap: 10px; justify-content: center; font-size: 32px; color: var(--ah-text-dim);">
+            <span class="star" style="cursor: pointer;" onclick="SalesController.setRating(1)">☆</span>
+            <span class="star" style="cursor: pointer;" onclick="SalesController.setRating(2)">☆</span>
+            <span class="star" style="cursor: pointer;" onclick="SalesController.setRating(3)">☆</span>
+            <span class="star" style="cursor: pointer;" onclick="SalesController.setRating(4)">☆</span>
+            <span class="star" style="cursor: pointer;" onclick="SalesController.setRating(5)">☆</span>
+        </div>
+
+        <div class="ah-field-group">
+            <span class="ah-field-label">Comentário</span>
+            <textarea id="feedback-comment" class="ah-wow-input" style="width: 100%; height: 80px; resize: none;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button class="ah-search-btn" onclick="SalesController.submitFeedback()">AVALIAR</button>
+            <button class="ah-search-btn" style="background: #333;" onclick="SalesController.closeFeedbackModal()">CANCELAR</button>
+        </div>
+    </div>
+</div>
+<div id="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999;"></div>
 
 </main>
 

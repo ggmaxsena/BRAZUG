@@ -23,6 +23,7 @@
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px;">
               <button class="discord-btn" style="border:none; width:100%; cursor:pointer; background: var(--gold); color: #000;" onclick="CharacterController.view('${c.id}')">Ver Ficha Pública</button>
               <a href="/armory/${c.realm || 'doomhowl'}/${c.name.toLowerCase()}" class="discord-btn" style="border:none; width:100%; cursor:pointer; background: #333; color: #fff; text-decoration: none; text-align: center; line-height: 1.2; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold;">Brazug Armory</a>
+              ${canEdit ? `<a href="/vendas.html?character_id=${c.id}" class="discord-btn" style="border:none; width:100%; cursor:pointer; background: #4a3d28; color: var(--gold); text-decoration: none; text-align: center; line-height: 1.2; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold;">Comércio / Leilão</a>` : ""}
               ${canEdit ? `<button class="discord-btn" style="border:none; width:100%; cursor:pointer;" onclick="CharacterController.edit('${c.id}')">Editar</button>` : ""}
               ${isAdmin ? `<button class="discord-btn" style="border:none; width:100%; cursor:pointer; background: #cc0000;" onclick="CharacterController.deleteCharacter('${c.id}')">Excluir</button>` : ""}
             </div>

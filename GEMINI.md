@@ -92,10 +92,30 @@ O frontend segue uma separação clara de responsabilidades:
 
 ---
 
-## 6. Fluxos de Trabalho Comuns
+4. Fluxos de Trabalho Comuns
 
 ### Adicionando uma Nova Funcionalidade
 1.  Defina o esquema no `init()` do `lib/db.cjs` (auto-migração).
 2.  Adicione as funções de CRUD no `lib/db.cjs`.
 3.  Crie as rotas em `lib/admin-routes.cjs` ou `lib/character-routes.cjs`.
 4.  Implemente o Model, View e Controller correspondentes no frontend.
+
+---
+
+## 8. Auction House Reputation System
+
+A reputação é calculada com base nas últimas 100 transações avaliadas realizadas pelo personagem.
+
+- **Janela de Cálculo**: Últimas 100 transações avaliadas. A nova avaliação substitui a mais antiga.
+- **Peso das Avaliações**: Avaliações negativas possuem impacto maior do que positivas, visando desencorajar práticas desonestas ou preços abusivos.
+- **Eventos Ignorados**: Leilões cancelados, itens expirados e negociações sem avaliação não alteram a reputação.
+- **Escala**: Pontuação convertida de 0 a 100.
+- **Objetivo**: Incentivar a consistência e práticas honestas ao longo do tempo.
+
+### Selos de Reputação
+Baseado na pontuação final (0-100), o comerciante recebe um selo automático:
+
+- **Mercador Duvidoso**: Desempenho insatisfatório, histórico de avaliações negativas ou poucas negociações bem-sucedidas.
+- **Mercador da Horda**: Reputação estável, demonstrando compromisso com negociações justas.
+- **Mercador Lendário**: Excelente histórico de avaliações, comerciantes mais confiáveis e reconhecidos.
+

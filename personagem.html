@@ -31,6 +31,13 @@
                 return;
             }
             const char = await res.json();
+            
+            // Fetch Reputation
+            try {
+                const repRes = await fetch(`/api/sales/reputation/${char.id}`);
+                if (repRes.ok) char.reputation = await repRes.json();
+            } catch(e) { console.error("Reputation fetch failed", e); }
+
             render(char);
         } catch(e) {
             console.error(e);
@@ -72,6 +79,36 @@
                     <div style="flex: 1; min-width: 300px;">
                         <p class="eyebrow" style="color: var(--gold); margin-bottom: 10px;">Herói de Brazug</p>
                         <h1 style="font-size: 56px; margin-bottom: 5px; color: var(--gold); line-height: 1.1;">${char.name}</h1>
+                        ${(function() {
+                            if (!char.reputation || parseInt(char.reputation.total_feedbacks) < 5) return '';
+                            const rating = parseFloat(char.reputation.average_rating || 0);
+                            
+                            let sealImg = '';
+                            let sealName = '';
+                            
+                            if (rating < 3) {
+                                sealImg = '/assets/branding/mduvidoso.png';
+                                sealName = 'Mercador Duvidoso';
+                            } else if (rating < 4.5) {
+                                sealImg = '/assets/branding/mhorda.png';
+                                sealName = 'Mercador da Horda';
+                            } else {
+                                sealImg = '/assets/branding/mlendario.png';
+                                sealName = 'Mercador Lendário';
+                            }
+                            
+                            const stars = '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
+                            
+                            return `
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                                    <img src="${sealImg}" alt="${sealName}" style="width: 50px; height: 50px;" title="${sealName}">
+                                    <div>
+                                        <div style="color: var(--gold); font-size: 20px; letter-spacing: 1px;">${stars}</div>
+                                        <div style="color: #888; font-size: 14px;">${char.reputation.total_feedbacks} avaliações - ${sealName}</div>
+                                    </div>
+                                </div>
+                            `;
+                        })()}
                         <p style="font-size: 24px; color: var(--text-muted); margin-bottom: 10px;">Level ${char.is_dead ? (char.death_level || char.level) : char.level} ${char.class}</p>
                         <p style="color: var(--text-muted); font-size: 18px;">${char.race} | ${char.guild}</p>
                         <p style="font-size: 14px; margin-top: 25px; color: #888;">Criado por: <b style="color: var(--text);">${char.owner_username || 'Brazuguer'}</b></p>
@@ -79,6 +116,16 @@
                         <div style="display: flex; gap: 15px; margin-top: 30px; flex-wrap: wrap;">
                             ${!char.is_dead ? `<a href="https://classic-armory.org/character/us/classic-hardcore/doomhowl/${char.name.toLowerCase()}" target="_blank" class="discord-btn" style="background: #333; color: #fff; border: 1px solid #555;">Classic Armory</a>` : ''}
                             <a href="/armory/${char.region || 'us'}/${char.realm || 'doomhowl'}/${char.name.toLowerCase()}" class="discord-btn" style="background: var(--gold); color: #000; border: none; font-weight: bold;">Brazug Armory</a>
+                            ${(function() {
+                                const username = localStorage.getItem("brazug_admin_user");
+                                const role = localStorage.getItem("brazug_admin_role");
+                                const isOwner = username && char.owner_username && char.owner_username.toLowerCase() === username.toLowerCase();
+                                const isAdmin = role === 'admin';
+                                if (isOwner || isAdmin) {
+                                    return `<a href="/vendas.html?character_id=${char.id}" class="discord-btn" style="background: #2a5a2a; color: #fff; border: none; font-weight: bold;">Comércio / Leilão</a>`;
+                                }
+                                return '';
+                            })()}
                             ${(function() {
                                 const vUrl = char.video_url || char.lore.match(/https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be|twitch\.tv|clips\.twitch\.tv)\/[^\s<"']+/)?.[0];
                                 if (!vUrl) return '';
@@ -90,17 +137,6 @@
                                 }
                                 return `<a href="${vUrl}" target="_blank" class="discord-btn" style="background: #fff; color: #000; border: none;">🎥 Ver Vídeo</a>`;
                             })()}
-                            <!--
-                            <a href="/vendas.html?character_id=${char.id}" class="discord-btn" id="commerce-btn" style="background: #2a5a2a; color: #fff; border: none; font-weight: bold; display: none;">Comércio</a>
-                            <script>
-                                (function() {
-                                    const username = localStorage.getItem("brazug_admin_user");
-                                    if (username && "${char.owner_username}".toLowerCase() === username.toLowerCase()) {
-                                        document.getElementById('commerce-btn').style.display = 'inline-block';
-                                    }
-                                })();
-                            </script>
-                            -->
                             ${char.twitch_url ? `<a href="${char.twitch_url}" target="_blank" class="discord-btn" style="background: #9146ff; border: none;">Twitch</a>` : ''}
                             ${char.youtube_url ? `<a href="${char.youtube_url}" target="_blank" class="discord-btn" style="background: #ff0000; border: none;">YouTube</a>` : ''}
                         </div>
@@ -133,6 +169,27 @@
                         ${profsHtml || '<p style="color: #666;">Nenhuma profissão registrada.</p>'}
                     </div>
                 </div>
+
+                ${(function() {
+                    if (!char.reputation || !char.reputation.feedbacks || char.reputation.feedbacks.length === 0) return '';
+                    const feedbacksHtml = char.reputation.feedbacks.map(f => `
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <span style="color: var(--gold); font-weight: bold;">${f.author_name}</span>
+                                <span style="color: var(--gold);">${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)}</span>
+                            </div>
+                            <div style="font-size: 12px; color: #888; margin-bottom: 10px;">Item: ${f.item_name}</div>
+                            <div style="color: #ccc; font-style: italic;">"${f.comment || 'Sem comentário.'}"</div>
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div style="margin-top: 50px; border-top: 1px solid #333; padding-top: 40px;">
+                            <h2 style="color: var(--gold); font-size: 28px; margin-bottom: 20px;">Avaliações de Comércio</h2>
+                            <div>${feedbacksHtml}</div>
+                        </div>
+                    `;
+                })()}
             </div>
         `;
         console.log("[DEBUG] Character loaded:", char);

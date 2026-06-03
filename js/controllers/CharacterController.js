@@ -92,6 +92,17 @@
     async init() {
       this.initQuill();
 
+      // Form visibility toggle
+      const btnShowForm = document.getElementById("btn-show-form");
+      const formContainer = document.getElementById("form-container");
+      if (btnShowForm && formContainer) {
+          btnShowForm.onclick = () => {
+              formContainer.style.display = "block";
+              btnShowForm.parentElement.style.display = "none";
+              formContainer.scrollIntoView({ behavior: 'smooth' });
+          };
+      }
+      
       // Add event listener for fetch button
       document.getElementById("btn-fetch-wow").onclick = () => this.fetchFromWoW();
       
@@ -145,6 +156,12 @@
         const chars = await CharacterModel.fetchAll(token);
         const char = chars.find(c => c.id === id);
         if (!char) return;
+
+        // Mostrar o formulário caso esteja escondido
+        const formContainer = document.getElementById("form-container");
+        const btnShowForm = document.getElementById("btn-show-form");
+        if (formContainer) formContainer.style.display = "block";
+        if (btnShowForm) btnShowForm.parentElement.style.display = "none";
 
         // Subir a página para edição
         const formCard = document.getElementById("character-form-card");

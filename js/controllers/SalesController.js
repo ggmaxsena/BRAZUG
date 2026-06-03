@@ -76,9 +76,10 @@
             console.log("Fetching:", `/api/sales/items/search?name=${encodeURIComponent(query)}&page=${page}`);
             const res = await fetch(`/api/sales/items/search?name=${encodeURIComponent(query)}&page=${page}`);
             const data = await res.json();
+            console.log("API Response:", data);
             
             // Render item list
-            if (data.items.length === 0) {
+            if (!data.items || data.items.length === 0) {
                 container.innerHTML = '<div style="padding: 20px; color: var(--ah-gold);">Nenhum item encontrado.</div>';
                 return;
             }
@@ -87,7 +88,7 @@
                 const iconPath = i.icon_filename ? `/assets/icons/${i.icon_filename}` : '/assets/icons/inv_misc_cape_16.jpg';
                 const rarityClass = `rarity-${(i.quality || 'common').toLowerCase()}`;
                 return `
-                <div class="ah-auction-row" style="cursor:pointer; display:grid; grid-template-columns: 1fr auto; align-items:center; padding: 5px;" onclick="SalesController.selectItemToSell(${i.id}, '${this.escape(i.name)}')">
+                <div class="ah-auction-row" style="cursor:pointer; display:grid; grid-template-columns: 1fr auto; align-items:center; padding: 5px;" onclick="SalesController.selectItemToSell(${i.id}, '${this.escape(i.name)}', ${i.max_stack || 1})">
                     <div class="ah-cell ah-cell-name" style="display:flex; align-items:center; gap: 10px;">
                         <div class="ah-item-icon" style="width:24px; height:24px;"><img src="${iconPath}"></div>
                         <span class="${rarityClass}" style="font-size:12px;">${this.escape(i.name)}</span>
@@ -114,17 +115,182 @@
         document.getElementById('tab-browse-content').style.display = 'none';
         document.getElementById('tab-auctions-content').style.display = 'none';
         document.getElementById('tab-bids-content').style.display = 'none';
+        document.getElementById('tab-history-content').style.display = 'none';
         
         // Remove active class from all tabs
         document.getElementById('tab-browse').classList.remove('active');
         document.getElementById('tab-auctions').classList.remove('active');
         document.getElementById('tab-bids').classList.remove('active');
+        document.getElementById('tab-history').classList.remove('active');
         
         // Show selected content and activate tab
         document.getElementById(`tab-${tab}-content`).style.display = 'block';
         document.getElementById(`tab-${tab}`).classList.add('active');
         
-        if (tab === 'bids') this.loadNotifications();
+        if (tab === 'bids') this.loadMyAuctions();
+        if (tab === 'history') this.loadHistory();
+    },
+
+    async loadMyAuctions() {
+        const container = document.getElementById("my-active-auctions-container");
+        container.innerHTML = '<div style="padding:20px; color:var(--ah-gold);">Carregando leilões...</div>';
+
+        try {
+            const res = await fetch(`/api/sales/character/${this.characterId}`);
+            const data = await res.json();
+            // Filtra apenas os leilões ativos (status = 'open')
+            const activeAuctions = data.filter(s => s.status === 'open');
+            this.renderMyAuctions(activeAuctions);
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = '<div style="padding:20px; color:red;">Erro ao carregar leilões.</div>';
+        }
+    },
+
+    renderMyAuctions(auctions) {
+        const container = document.getElementById("my-active-auctions-container");
+        
+        if (auctions.length === 0) {
+            container.innerHTML = '<div style="padding:20px; color:var(--ah-gold);">Nenhum leilão ativo.</div>';
+            return;
+        }
+
+        container.innerHTML = auctions.map(a => {
+            const iconPath = a.icon_filename ? `/assets/icons/${a.icon_filename}` : '/assets/icons/inv_misc_cape_16.jpg';
+            const rarityClass = `rarity-${(a.quality || 'common').toLowerCase()}`;
+            const timeRemaining = new Date(a.ends_at) - new Date();
+            const hoursLeft = Math.max(0, Math.floor(timeRemaining / (1000 * 60 * 60)));
+            
+            return `
+                <div class="ah-auction-row" style="grid-template-columns: 2fr 1fr 1.5fr 1fr 1fr;">
+                    <div class="ah-cell ah-cell-name">
+                        <div class="ah-item-icon" style="width:20px; height:20px;"><img src="${iconPath}"></div>
+                        <span class="${rarityClass}" style="font-size:12px;">${this.escape(a.item_name)}</span>
+                    </div>
+                    <div class="ah-cell">${a.quantity}</div>
+                    <div class="ah-cell">${this.formatGold(a.price)}</div>
+                    <div class="ah-cell" style="color:var(--ah-text-dim)">${hoursLeft}h</div>
+                    <div class="ah-cell">
+                        <button class="ah-tab" style="padding:2px 8px; font-size:10px; height:auto; background: #800 !important; border-color: #f00 !important;" onclick="SalesController.deleteSale('${a.id}')">Cancelar</button>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    },
+
+    async loadHistory() {
+        const token = localStorage.getItem("brazug_admin_token");
+        const container = document.getElementById("history-container");
+        container.innerHTML = '<div style="padding:20px; color:var(--ah-gold);">Carregando histórico...</div>';
+
+        try {
+            const res = await fetch(`/api/sales/history/${this.characterId}`, {
+                headers: { "Authorization": "Bearer " + token }
+            });
+            const history = await res.json();
+            this.renderHistory(history);
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = '<div style="padding:20px; color:red;">Erro ao carregar histórico.</div>';
+        }
+    },
+
+    renderHistory(history) {
+        const container = document.getElementById("history-container");
+        
+        if (history.length === 0) {
+            container.innerHTML = '<div style="padding:20px; color:var(--ah-gold);">Nenhuma negociação concluída.</div>';
+            return;
+        }
+
+        container.innerHTML = history.map(h => {
+            const isSeller = String(h.character_id) === String(this.characterId);
+            const iconPath = h.icon_filename ? `/assets/icons/${h.icon_filename}` : '/assets/icons/inv_misc_cape_16.jpg';
+            const rarityClass = `rarity-${(h.quality || 'common').toLowerCase()}`;
+            
+            let feedbackHtml = "";
+            if (h.my_feedback_rating) {
+                feedbackHtml = `<span style="color:var(--ah-gold);">${'★'.repeat(h.my_feedback_rating)}${'☆'.repeat(5-h.my_feedback_rating)}</span>`;
+            } else {
+                feedbackHtml = `<button class="ah-tab" style="padding:2px 8px; font-size:10px; height:auto;" onclick="SalesController.openFeedbackModal('${h.id}', '${this.escape(h.item_name)}')">Avaliar</button>`;
+            }
+
+            return `
+                <div class="ah-auction-row" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr;">
+                    <div class="ah-cell ah-cell-name">
+                        <div class="ah-item-icon" style="width:20px; height:20px;"><img src="${iconPath}"></div>
+                        <span class="${rarityClass}" style="font-size:12px;">${this.escape(h.item_name)}</span>
+                    </div>
+                    <div class="ah-cell" style="color: ${isSeller ? 'var(--ah-gold-bright)' : 'var(--ah-text-dim)'}">${this.escape(h.seller_name)}</div>
+                    <div class="ah-cell" style="color: ${!isSeller ? 'var(--ah-gold-bright)' : 'var(--ah-text-dim)'}">${this.escape(h.buyer_name)}</div>
+                    <div class="ah-cell">${this.formatGold(h.price)}</div>
+                    <div class="ah-cell">${feedbackHtml}</div>
+                </div>
+            `;
+        }).join("");
+    },
+
+    // Feedback System
+    setRating(val) {
+        this.currentRating = val;
+        const stars = document.querySelectorAll('#feedback-modal .star');
+        stars.forEach((s, idx) => {
+            if (idx < val) {
+                s.innerText = '★';
+                s.style.color = 'var(--ah-gold)';
+            } else {
+                s.innerText = '☆';
+                s.style.color = 'var(--ah-text-dim)';
+            }
+        });
+    },
+
+    openFeedbackModal(saleId, itemName) {
+        this.currentSaleId = saleId;
+        this.currentRating = 0;
+        document.getElementById('feedback-item-info').innerText = "Item: " + itemName;
+        document.getElementById('feedback-comment').value = "";
+        this.setRating(0);
+        
+        document.getElementById('feedback-modal').style.display = 'block';
+        document.getElementById('modal-overlay').style.display = 'block';
+    },
+
+    closeFeedbackModal() {
+        document.getElementById('feedback-modal').style.display = 'none';
+        document.getElementById('modal-overlay').style.display = 'none';
+    },
+
+    async submitFeedback() {
+        if (!this.currentRating) return alert("Por favor, selecione uma nota.");
+        
+        const token = localStorage.getItem("brazug_admin_token");
+        const data = {
+            sale_id: this.currentSaleId,
+            author_character_id: this.characterId,
+            rating: this.currentRating,
+            comment: document.getElementById('feedback-comment').value
+        };
+
+        try {
+            const res = await fetch("/api/sales/feedback", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Erro ao enviar avaliação.");
+            }
+            alert("Avaliação enviada com sucesso!");
+            this.closeFeedbackModal();
+            this.loadHistory();
+        } catch (e) {
+            alert(e.message);
+        }
     },
 
     setCategory(btn, cat) {
@@ -208,15 +374,27 @@
         btn.style.cursor = "pointer";
     },
 
-    selectItemToSell(id, name) {
+    selectItemToSell(id, name, maxQuantity = 1) {
         document.getElementById("sell_item_id").value = id;
         document.getElementById("sell_item_name").value = name;
+        
+        // Configurar quantidade máxima
+        const qtyInput = document.getElementById("sell_quantity");
+        if (qtyInput) {
+            qtyInput.value = 1;
+            qtyInput.max = maxQuantity;
+            qtyInput.disabled = false;
+        }
 
         // Habilitar campos
-        ["sell_price", "sell_quantity", "btn-create-sale"].forEach(id => {
+        ["sell_gold", "sell_silver", "sell_copper", "btn-create-sale"].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 el.disabled = false;
+                if (el.tagName !== 'BUTTON') {
+                    el.style.background = "var(--ah-input-bg)";
+                    el.style.color = "var(--ah-text-white)";
+                }
             }
         });
     },
@@ -421,12 +599,21 @@
         document.getElementById("item-preview").style.display = 'none';
     },
 
-    selectItemToSell(id, name) {
+    selectItemToSell(id, name, maxQuantity = 1) {
+        console.log("Selecting item:", name, "ID:", id, "MaxQty:", maxQuantity);
         document.getElementById("sell_item_id").value = id;
         document.getElementById("sell_item_name").value = name;
+        
+        // Configurar quantidade máxima
+        const qtyInput = document.getElementById("sell_quantity");
+        if (qtyInput) {
+            qtyInput.value = 1;
+            qtyInput.max = 999;
+            qtyInput.disabled = false;
+        }
 
         // Habilitar campos
-        ["sell_gold", "sell_silver", "sell_copper", "sell_quantity", "sell_duration", "btn-create-sale"].forEach(id => {
+        ["sell_gold", "sell_silver", "sell_copper", "sell_duration", "btn-create-sale"].forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 el.disabled = false;
@@ -450,13 +637,16 @@
       const silver = parseInt(document.getElementById("sell_silver").value) || 0;
       const copper = parseInt(document.getElementById("sell_copper").value) || 0;
       const totalCopper = (gold * 10000) + (silver * 100) + copper;
+      const quantity = document.getElementById("sell_quantity").value;
+      
+      console.log("Creating sale. Qty:", quantity, "Price:", totalCopper);
       
       const sale = {
         character_id: this.characterId,
         item_id: document.getElementById("sell_item_id").value,
         item_name: document.getElementById("sell_item_name").value,
         price: totalCopper,
-        quantity: document.getElementById("sell_quantity").value || 1,
+        quantity: quantity,
         duration_hours: document.getElementById("sell_duration").value
       };
 
