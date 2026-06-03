@@ -1107,6 +1107,10 @@
             <div class="tt-name" style="color:${color}">${item.name}</div>
             <div class="tt-quality" style="color:${color}">${item.quality}</div>
         `;
+
+        if (data.level) {
+            html += `<div style="color:#fff">Item Level ${data.level.value || data.level}</div>`;
+        }
         
         if (data.inventory_type) {
             html += `<div class="tt-slot">${data.inventory_type.name}</div>`;
@@ -1115,21 +1119,42 @@
             html += `<div class="tt-type">${data.item_subclass.name}</div>`;
         }
         html += `<div class="tt-clear"></div>`;
+
+        // Weapon Stats
+        if (data.weapon) {
+            const w = data.weapon;
+            if (w.damage) html += `<div style="color:#fff">${w.damage.display_string}</div>`;
+            if (w.attack_speed) html += `<div style="color:#fff; float:left;">Velocidade ${w.attack_speed.display_string}</div>`;
+            if (w.dps) html += `<div style="color:#fff; float:right;">(${w.dps.display_string} por segundo)</div>`;
+            html += `<div class="tt-clear"></div>`;
+        }
+
+        // Armor
+        if (data.armor) {
+            html += `<div style="color:#fff">${data.armor.display.display_string}</div>`;
+        }
         
+        // Stats
         if (data.stats) {
             data.stats.forEach(s => {
                 html += `<div class="tt-stat">${s.display.display_string}</div>`;
             });
         }
         
+        // Spells / Effects
         if (data.spells) {
             data.spells.forEach(s => {
                 html += `<div class="tt-green">${s.description}</div>`;
             });
         }
+
+        // Requirements
+        if (data.required_level) {
+            html += `<div style="color:#fff">Requer Nível ${data.required_level}</div>`;
+        }
         
-        if (item.description) {
-            html += `<div class="tt-desc">"${item.description}"</div>`;
+        if (item.description || data.description) {
+            html += `<div class="tt-desc">"${item.description || data.description}"</div>`;
         }
         
         tt.innerHTML = html;
