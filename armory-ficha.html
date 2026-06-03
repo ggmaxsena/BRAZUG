@@ -153,6 +153,270 @@
         .talent-icon { width: 28px; height: 28px; border-radius: 4px; border: 1px solid #333; }
         .talent-name { font-size: 11px; color: #ccc; font-weight: 600; flex: 1; }
         .talent-rank { font-size: 10px; font-weight: 900; color: var(--gold); }
+
+        /* ===================== SETS SYSTEM ===================== */
+        .sets-fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+        .sets-fab-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c41e3a, #8b0000);
+            border: 2px solid var(--gold, #f7c14d);
+            color: var(--gold, #f7c14d);
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 4px 24px rgba(196,30,58,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .sets-fab-btn:hover { transform: scale(1.1); box-shadow: 0 6px 32px rgba(196,30,58,0.8); }
+
+        .sets-panel {
+            position: fixed;
+            bottom: 100px;
+            right: 32px;
+            width: 440px;
+            max-height: 80vh;
+            background: #0d0a0a;
+            border: 1px solid #3a2020;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(247,193,77,0.1);
+            z-index: 8999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .sets-panel.open { display: flex; }
+
+        .sets-panel-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #2a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .sets-panel-title {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold, #f7c14d);
+        }
+        .sets-close-btn {
+            background: none; border: none; color: #666; font-size: 18px; cursor: pointer; padding: 4px;
+            border-radius: 4px; transition: 0.2s;
+        }
+        .sets-close-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
+
+        .sets-save-area {
+            padding: 16px 24px;
+            border-bottom: 1px solid #1a1010;
+            flex-shrink: 0;
+            background: rgba(196,30,58,0.04);
+        }
+        .sets-save-area label {
+            display: block;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .sets-save-row { display: flex; gap: 8px; }
+        .sets-input {
+            flex: 1;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid #2a1a1a;
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+        }
+        .sets-input:focus { border-color: var(--gold, #f7c14d); background: rgba(247,193,77,0.04); }
+        .sets-input::placeholder { color: #333; }
+        .sets-save-btn {
+            background: linear-gradient(135deg, #c41e3a, #8b0000);
+            border: 1px solid rgba(247,193,77,0.3);
+            border-radius: 8px;
+            color: var(--gold, #f7c14d);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .sets-save-btn:hover { background: linear-gradient(135deg, #e02244, #a00000); }
+        .sets-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .sets-list-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 24px 24px;
+            scrollbar-width: thin;
+            scrollbar-color: #3a2020 transparent;
+        }
+        .sets-empty {
+            text-align: center;
+            padding: 40px 0;
+            color: #333;
+            font-size: 12px;
+            font-style: italic;
+        }
+        .sets-empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.3; }
+
+        .set-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid #1f1212;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: 0.2s;
+        }
+        .set-card:hover { border-color: #3a2020; }
+        .set-card.active-set { border-color: rgba(247,193,77,0.4); background: rgba(247,193,77,0.03); }
+
+        .set-card-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .set-card-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            background: #1a0a0a;
+            border: 1px solid #2a1a1a;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .set-card-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .set-card-info { flex: 1; min-width: 0; }
+        .set-card-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .set-card-meta {
+            font-size: 10px;
+            color: #555;
+            margin-top: 2px;
+        }
+        .set-card-meta b { color: #888; }
+
+        .set-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .set-action-btn {
+            background: none;
+            border: 1px solid #2a1a1a;
+            border-radius: 6px;
+            color: #555;
+            font-size: 11px;
+            padding: 5px 9px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .set-action-btn:hover { border-color: var(--gold, #f7c14d); color: var(--gold, #f7c14d); }
+        .set-action-btn.danger:hover { border-color: #c41e3a; color: #c41e3a; }
+
+        .set-card-body {
+            padding: 0 16px 14px;
+            border-top: 1px solid #1a0a0a;
+            display: none;
+        }
+        .set-card-body.expanded { display: block; }
+
+        .set-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .set-stat-chip {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid #1f1212;
+            border-radius: 6px;
+            padding: 6px 10px;
+            text-align: center;
+        }
+        .set-stat-chip-label { font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: #444; font-weight: 700; }
+        .set-stat-chip-val { font-size: 14px; font-weight: 900; color: #fff; margin-top: 2px; }
+
+        .set-gear-preview {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .set-gear-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            background: #0d0808;
+            border: 1px solid #2a1a1a;
+            overflow: hidden;
+        }
+        .set-gear-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+        .set-talents-preview {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .set-talent-chip {
+            background: rgba(196,30,58,0.08);
+            border: 1px solid rgba(196,30,58,0.2);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #e88;
+        }
+
+        .sets-count-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--gold, #f7c14d);
+            color: #000;
+            font-size: 9px;
+            font-weight: 900;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .sets-panel { width: calc(100vw - 32px); right: 16px; }
+            .sets-fab { right: 16px; bottom: 20px; }
+        }
     </style>
 </head>
 <body class="armory-wrap">
@@ -235,6 +499,31 @@
             </div>
         </aside>
     </div>
+</div>
+
+<!-- ===================== SETS FLOATING PANEL ===================== -->
+<div class="sets-panel" id="sets-panel">
+    <div class="sets-panel-header">
+        <span class="sets-panel-title">⚔️ Meus Sets</span>
+        <button class="sets-close-btn" onclick="toggleSetsPanel()">✕</button>
+    </div>
+    <div class="sets-save-area">
+        <label>Salvar configuração atual como set</label>
+        <div class="sets-save-row">
+            <input type="text" class="sets-input" id="set-name-input" placeholder="Nome do set (ex: PvP BM, Raid SV...)" maxlength="40">
+            <button class="sets-save-btn" id="sets-save-btn" onclick="saveCurrentSet()" disabled>
+                + Salvar
+            </button>
+        </div>
+    </div>
+    <div class="sets-list-area" id="sets-list"></div>
+</div>
+
+<div class="sets-fab">
+    <button class="sets-fab-btn" onclick="toggleSetsPanel()" id="sets-fab-btn" title="Meus Sets" style="position:relative;">
+        🛡
+        <span class="sets-count-badge" id="sets-count-badge" style="display:none;">0</span>
+    </button>
 </div>
 
 <script src="/js/header.js"></script>
@@ -359,10 +648,217 @@
         `).join('') || '<p style="color:#444; font-size:12px; font-style:italic;">Nenhuma profissão ativa.</p>';
 
         if (window.$WowheadPower) window.$WowheadPower.refreshLinks();
+
+        // Enable Sets system with loaded data
+        if (typeof enableSetSave === 'function') enableSetSave(char);
     }
 
     loadData();
 })();
+</script>
+<script>
+// ===================== SETS SYSTEM =====================
+const SETS_KEY = 'brazug_char_sets';
+let _currentCharData = null;
+
+function getSets() {
+    try { return JSON.parse(localStorage.getItem(SETS_KEY) || '[]'); } catch { return []; }
+}
+function saveSets(sets) {
+    localStorage.setItem(SETS_KEY, JSON.stringify(sets));
+}
+
+function updateSetsBadge() {
+    const sets = getSets();
+    const badge = document.getElementById('sets-count-badge');
+    if (sets.length > 0) {
+        badge.textContent = sets.length;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+function toggleSetsPanel() {
+    const panel = document.getElementById('sets-panel');
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) renderSetsList();
+}
+
+function saveCurrentSet() {
+    const nameInput = document.getElementById('set-name-input');
+    const name = nameInput.value.trim();
+    if (!name || !_currentCharData) return;
+
+    const char = _currentCharData;
+    const stats = char.extra_data?.statistics || {};
+    const groups = char.extra_data?.specializations?.specialization_groups || [];
+    const talents = groups.flatMap(g => g.specializations).map(s => ({
+        name: s.specialization_name,
+        pts: s.talents?.reduce((acc, t) => acc + (t.talent_rank || 1), 0) || 0
+    }));
+
+    const set = {
+        id: Date.now(),
+        name,
+        savedAt: new Date().toISOString(),
+        char: {
+            name: char.name,
+            level: char.level,
+            race: char.race,
+            class: char.class,
+            guild: char.guild,
+            avatarUrl: char.avatarUrl
+        },
+        stats: {
+            health: stats.health,
+            power: stats.power,
+            strength: stats.strength?.effective,
+            agility: stats.agility?.effective,
+            intellect: stats.intellect?.effective,
+            stamina: stats.stamina?.effective,
+        },
+        talents,
+        gear: (char.items || []).map(i => ({
+            slot: i.slot,
+            name: i.name,
+            quality: i.quality,
+            icon: i.icon,
+            itemId: i.itemId
+        }))
+    };
+
+    const sets = getSets();
+    sets.unshift(set);
+    saveSets(sets);
+    nameInput.value = '';
+    updateSetsBadge();
+    renderSetsList();
+
+    // Feedback visual
+    const btn = document.getElementById('sets-save-btn');
+    btn.textContent = '✓ Salvo!';
+    btn.style.background = 'linear-gradient(135deg, #1a8a4a, #0d5a2e)';
+    setTimeout(() => {
+        btn.textContent = '+ Salvar';
+        btn.style.background = '';
+    }, 2000);
+}
+
+function deleteSet(id) {
+    const sets = getSets().filter(s => s.id !== id);
+    saveSets(sets);
+    updateSetsBadge();
+    renderSetsList();
+}
+
+function toggleSetCard(id) {
+    const body = document.getElementById(`set-body-${id}`);
+    if (body) body.classList.toggle('expanded');
+}
+
+function renderSetsList() {
+    const container = document.getElementById('sets-list');
+    const sets = getSets();
+
+    if (sets.length === 0) {
+        container.innerHTML = `
+            <div class="sets-empty">
+                <div class="sets-empty-icon">🛡️</div>
+                <div>Nenhum set salvo ainda.</div>
+                <div style="margin-top:6px; font-size:10px;">Carregue um personagem e salve sua configuração atual.</div>
+            </div>`;
+        return;
+    }
+
+    const rarityColors = { 'POOR': '#9d9d9d', 'COMMON': '#ffffff', 'UNCOMMON': '#1eff00', 'RARE': '#0070dd', 'EPIC': '#a335ee', 'LEGENDARY': '#ff8000' };
+    const isActive = _currentCharData?.name;
+
+    container.innerHTML = sets.map(set => {
+        const date = new Date(set.savedAt).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'2-digit' });
+        const gearIcons = set.gear.slice(0, 12).map(item => {
+            const color = rarityColors[item.quality] || '#333';
+            const iconUrl = item.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg` : null;
+            return `<div class="set-gear-icon" style="border-color:${color}44;" title="${item.name || item.slot}">
+                ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.opacity='0'">` : ''}
+            </div>`;
+        }).join('');
+
+        const talentChips = set.talents?.filter(t => t.pts > 0).map(t =>
+            `<span class="set-talent-chip">${t.name} <b>${t.pts}</b></span>`
+        ).join('') || '<span style="color:#333; font-size:10px; font-style:italic;">Sem talentos</span>';
+
+        const isCurrentChar = isActive && isActive.toLowerCase() === set.char.name.toLowerCase();
+
+        return `
+        <div class="set-card ${isCurrentChar ? 'active-set' : ''}" id="set-card-${set.id}">
+            <div class="set-card-header" onclick="toggleSetCard(${set.id})">
+                <div class="set-card-avatar">
+                    <img src="${set.char.avatarUrl || '/assets/branding/contentbra.png'}" onerror="this.src='/assets/branding/contentbra.png'">
+                </div>
+                <div class="set-card-info">
+                    <div class="set-card-name">${set.name}</div>
+                    <div class="set-card-meta">
+                        <b>${set.char.name}</b> · Lv${set.char.level} ${set.char.race} ${set.char.class} · ${date}
+                    </div>
+                </div>
+                <div class="set-card-actions">
+                    <button class="set-action-btn" title="Detalhes" onclick="event.stopPropagation(); toggleSetCard(${set.id})">▾</button>
+                    <button class="set-action-btn danger" title="Deletar" onclick="event.stopPropagation(); deleteSet(${set.id})">✕</button>
+                </div>
+            </div>
+
+            <div class="set-card-body" id="set-body-${set.id}">
+                <div class="set-stats-grid">
+                    <div class="set-stat-chip">
+                        <div class="set-stat-chip-label">Vida</div>
+                        <div class="set-stat-chip-val" style="color:#2ecc71;">${set.stats.health || '—'}</div>
+                    </div>
+                    <div class="set-stat-chip">
+                        <div class="set-stat-chip-label">Poder</div>
+                        <div class="set-stat-chip-val" style="color:#3498db;">${set.stats.power || '—'}</div>
+                    </div>
+                    <div class="set-stat-chip">
+                        <div class="set-stat-chip-label">Vigor</div>
+                        <div class="set-stat-chip-val">${set.stats.stamina || '—'}</div>
+                    </div>
+                    <div class="set-stat-chip">
+                        <div class="set-stat-chip-label">Força</div>
+                        <div class="set-stat-chip-val">${set.stats.strength || '—'}</div>
+                    </div>
+                    <div class="set-stat-chip">
+                        <div class="set-stat-chip-label">Agilidade</div>
+                        <div class="set-stat-chip-val">${set.stats.agility || '—'}</div>
+                    </div>
+                    <div class="set-stat-chip">
+                        <div class="set-stat-chip-label">Intelecto</div>
+                        <div class="set-stat-chip-val">${set.stats.intellect || '—'}</div>
+                    </div>
+                </div>
+
+                <div style="font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#444; font-weight:700; margin-top:14px; margin-bottom:6px;">Equipamento</div>
+                <div class="set-gear-preview">${gearIcons}</div>
+
+                <div style="font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#444; font-weight:700; margin-top:14px; margin-bottom:6px;">Talentos</div>
+                <div class="set-talents-preview">${talentChips}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// Enable save button when char is loaded
+function enableSetSave(charData) {
+    _currentCharData = charData;
+    const btn = document.getElementById('sets-save-btn');
+    if (btn) btn.disabled = false;
+    updateSetsBadge();
+}
+
+// Init
+updateSetsBadge();
+document.getElementById('set-name-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveCurrentSet();
+});
 </script>
 </body>
 </html>
