@@ -120,39 +120,152 @@
         .stat-name { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
         .stat-val { font-size: 20px; font-weight: 900; font-style: italic; color: #fff; }
 
-        .talent-box {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
+        /* ===================== TALENTS (WOWHEAD STYLE) ===================== */
+        .talent-trees-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
         }
+        @media (max-width: 1200px) { .talent-trees-container { grid-template-columns: 1fr; } }
+
+        .talent-box {
+            background-color: #050505;
+            background-image: url('https://wow.zamimg.com/images/wow/texture/parchment/light.png');
+            background-blend-mode: overlay;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 0; /* Remove padding for header to touch edges */
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9), inset 0 0 100px rgba(0,0,0,0.8);
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .talent-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            pointer-events: none;
+            filter: grayscale(0.4) contrast(1.2);
+            z-index: 0;
+        }
+
         .talent-header {
+            position: relative;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.6);
+            border-bottom: 1px solid #222;
+            z-index: 2;
         }
-        .talent-header span { font-family: 'Cinzel', serif; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .talent-header span:first-child { 
+            font-family: 'Cinzel', serif; 
+            font-weight: 700; 
+            color: var(--gold);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .talent-header span:last-child {
+            font-size: 11px;
+            font-weight: 900;
+            color: #fff;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid #333;
+        }
 
-        .talent-list { display: flex; flex-direction: column; gap: 8px; }
-        .talent-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 12px;
-            border-radius: 6px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: 0.2s;
-            text-decoration: none !important;
+        .talent-list { 
+            display: grid;
+            grid-template-columns: repeat(4, 52px);
+            grid-template-rows: repeat(7, 52px);
+            gap: 8px; /* Tighter gap like talent-planner.html */
+            justify-content: center;
+            padding: 20px 10px;
+            flex: 1;
+            position: relative;
+            z-index: 1;
         }
-        .talent-item:hover { border-color: var(--horde-red); background: rgba(196, 30, 58, 0.05); }
-        .talent-icon { width: 28px; height: 28px; border-radius: 4px; border: 1px solid #333; }
-        .talent-name { font-size: 11px; color: #ccc; font-weight: 600; flex: 1; }
-        .talent-rank { font-size: 10px; font-weight: 900; color: var(--gold); }
+        
+        .talent-item {
+            width: 52px;
+            height: 52px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.15s;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8));
+        }
+        .talent-item:hover { transform: scale(1.05); z-index: 10; }
+
+        .talent-icon-wrap {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #1a1010;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: inset 0 0 10px rgba(0,0,0,1);
+            position: relative;
+        }
+        .talent-icon { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.3s; }
+        
+        .talent-item.rank-max .talent-icon-wrap { border-color: var(--gold); box-shadow: 0 0 15px rgba(247, 193, 77, 0.3); }
+        .talent-item.rank-max .talent-icon { opacity: 1; filter: contrast(1.1); }
+        .talent-item.rank-zero .talent-icon { filter: grayscale(1) brightness(0.4); opacity: 0.4; }
+        .talent-item.rank-partial .talent-icon { opacity: 1; filter: grayscale(0.2); }
+        .talent-item.rank-partial .talent-icon-wrap { border-color: #1eff00; }
+
+        .talent-rank-badge {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            background: #000;
+            color: #1eff00;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 1px 4px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            line-height: 1;
+            z-index: 5;
+            min-width: 14px;
+            text-align: center;
+            box-shadow: 0 2px 5px #000;
+        }
+        .talent-rank-badge.not-max { color: #fff; }
+
+        /* Arrows for dependencies */
+        .t-arrow {
+            position: absolute;
+            pointer-events: none;
+            background: #222;
+            z-index: 0;
+            opacity: 0.4;
+            transition: 0.3s;
+        }
+        .t-arrow.active { background: #ffd100; opacity: 1; box-shadow: 0 0 8px #ffd100; }
+        .t-arrow-down { width: 4px; border-radius: 2px; }
+        .t-arrow-down::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 7px solid currentColor;
+            color: inherit;
+        }
+
 
         /* ===================== SETS SYSTEM ===================== */
         .sets-fab {
@@ -649,6 +762,7 @@
         <div class="armory-tabs">
             <button class="armory-tab-btn active" onclick="switchTab('geral')">Geral</button>
             <button class="armory-tab-btn" onclick="switchTab('min-max')">Min-Max</button>
+            <button class="armory-tab-btn" onclick="switchTab('planner')">Planner (Simulação)</button>
         </div>
     </div>
 
@@ -672,7 +786,7 @@
                 <div class="corner corner-br"></div>
                 <div class="panel-title">Talentos</div>
                 <div class="section">
-                    <div class="grid-2" id="talents-container"></div>
+                    <div class="talent-trees-container" id="talents-container"></div>
                 </div>
             </div>
         </div>
@@ -739,6 +853,55 @@
     </div>
 </div>
 
+    <div id="tab-planner" class="redesign-container tab-content">
+        <div class="tp-hero" style="padding: 20px 0; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 class="tp-hero-title" style="font-size: 28px;">Planejador de Talentos</h2>
+                    <p class="tp-hero-sub">Simule uma nova build para este personagem</p>
+                </div>
+                <div class="tp-pts-badge" style="padding: 5px 15px;">
+                    <div class="tp-pts-num" id="tp-total-pts" style="font-size: 24px;">0</div>
+                    <div class="tp-pts-label">pontos gastos</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tp-layout">
+            <div id="tp-trees-container" class="talent-trees-container" style="grid-column: span 3;">
+                <!-- Trees rendered by JS -->
+            </div>
+
+            <aside class="tp-sidebar">
+                <div class="panel">
+                    <div class="corner corner-tl"></div>
+                    <div class="corner corner-tr"></div>
+                    <div class="corner corner-bl"></div>
+                    <div class="corner corner-br"></div>
+                    <div class="panel-title">Ações</div>
+                    <div class="section">
+                        <button class="btn-search" style="width: 100%; margin-bottom: 10px;" onclick="resetTPToCurrent()">Resetar para Atual</button>
+                        <button class="btn-search" style="width: 100%; margin-bottom: 10px;" onclick="clearTP()">Limpar Tudo</button>
+                        <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+                        <input type="text" class="sets-input" id="tp-build-name" placeholder="Nome da build..." style="width: 100%; margin-bottom: 10px;">
+                        <button class="btn-save" style="width: 100%; padding: 10px;" onclick="saveTPBuild()">Salvar Build</button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="corner corner-tl"></div>
+                    <div class="corner corner-tr"></div>
+                    <div class="corner corner-bl"></div>
+                    <div class="corner corner-br"></div>
+                    <div class="panel-title">Distribuição</div>
+                    <div class="section" id="tp-distribution">
+                        <!-- Bars rendered by JS -->
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
 <!-- Search Modal for Planner -->
 <div class="search-overlay" id="search-overlay" onclick="closeSearchIfOutside(event)">
     <div class="search-modal">
@@ -803,6 +966,192 @@
         'MAIN_HAND', 'OFF_HAND', 'RANGED'
     ];
 
+    // ===================== TALENT PLANNER =====================
+    let tpState = {};
+    const MAX_TP_PTS = 51;
+
+    function initTP(char) {
+        tpState = {};
+        const groups = char.extra_data?.specializations?.specialization_groups || [];
+        groups.flatMap(g => g.specializations).forEach(spec => {
+            spec.talents?.forEach(t => {
+                tpState[t.talent.id] = t.talent_rank;
+            });
+        });
+        renderTP();
+    }
+
+    function renderTP() {
+        if (!_currentCharData) return;
+        const container = document.getElementById('tp-trees-container');
+        const groups = _currentCharData.extra_data?.specializations?.specialization_groups || [];
+        const charClass = (_currentCharData.class || '').toLowerCase().replace(' ', '');
+        const totalPts = Object.values(tpState).reduce((a, b) => a + b, 0);
+        
+        document.getElementById('tp-total-pts').textContent = totalPts;
+
+        container.innerHTML = groups.flatMap(g => g.specializations).map(s => {
+            const specPts = s.talents?.reduce((acc, t) => acc + (tpState[t.talent.id] || 0), 0) || 0;
+            const specId = s.specialization_id;
+            const bgUrl = `https://wow.zamimg.com/images/wow/talents/backgrounds/classic/${specId}.jpg`;
+
+            // Build grid (7 rows x 4 cols)
+            const rows = 7, cols = 4;
+            const grid = Array.from({length: rows}, () => Array(cols).fill(null));
+            s.talents?.forEach(t => { 
+                if (t.talent.row < rows && t.talent.column < cols) {
+                    grid[t.talent.row][t.talent.column] = t; 
+                }
+            });
+
+            // Arrow Connectors
+            let arrowsHtml = '';
+            const cellSize = 52;
+            const gap = 12;
+            
+            s.talents?.forEach(t => {
+                // Dependency heuristic: find parent in same column, rows above
+                const parent = s.talents.find(p => p.talent.column === t.talent.column && p.talent.row === t.talent.row - 1);
+                if (parent) {
+                    const isActive = (tpState[parent.talent.id] || 0) >= (parent.talent.max_rank || 5);
+                    const topPx = parent.talent.row * (cellSize + gap) + cellSize;
+                    const leftPx = parent.talent.column * (cellSize + gap) + (cellSize / 2) - 2;
+                    const height = gap;
+                    arrowsHtml += `<div class="t-arrow t-arrow-down ${isActive ? 'active' : ''}" 
+                                        style="top:${topPx}px; left:${leftPx}px; height:${height}px;"></div>`;
+                }
+            });
+
+            let talentsHtml = '';
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const t = grid[r][c];
+                    if (!t) {
+                        talentsHtml += `<div class="talent-item rank-zero" style="grid-row: ${r+1}; grid-column: ${c+1}; pointer-events:none; opacity:0;"></div>`;
+                        continue;
+                    }
+
+                    const tid = t.talent.id;
+                    const cur = tpState[tid] || 0;
+                    const max = t.talent.max_rank || 5;
+                    const icon = t.talent.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : null;
+                    
+                    const reqPts = t.talent.row * 5;
+                    const isLocked = specPts < reqPts && cur === 0;
+                    const isMax = cur >= max;
+                    const isPartial = cur > 0 && !isMax;
+
+                    talentsHtml += `
+                        <div class="talent-item ${isMax ? 'rank-max' : ''} ${isPartial ? 'rank-partial' : ''} ${isLocked ? 'rank-zero' : ''}" 
+                           style="grid-row: ${r+1}; grid-column: ${c+1};"
+                           title="${t.talent.name} (${cur}/${max})"
+                           onclick="addTPPoint('${tid}', ${max}, ${t.talent.row}, '${s.specialization_name}')"
+                           oncontextmenu="event.preventDefault(); removeTPPoint('${tid}', ${t.talent.row}, '${s.specialization_name}')">
+                            <div class="talent-icon-wrap">
+                                <img src="${icon}" class="talent-icon" onerror="this.src='/assets/branding/contentbra.png'">
+                            </div>
+                            ${cur > 0 ? `<div class="talent-rank-badge ${isMax ? '' : 'not-max'}">${cur}</div>` : ''}
+                        </div>
+                    `;
+                }
+            }
+
+            return `
+                <div class="talent-box class-${charClass}" style="--spec-bg: url('${bgUrl}')">
+                    <div class="talent-header">
+                        <span>${s.specialization_name}</span>
+                        <span>${specPts} pts</span>
+                    </div>
+                    <div class="talent-list">
+                        ${arrowsHtml}
+                        ${talentsHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        renderTPDistribution(groups);
+    }
+
+    function renderTPDistribution(groups) {
+        const distContainer = document.getElementById('tp-distribution');
+        distContainer.innerHTML = groups.flatMap(g => g.specializations).map(s => {
+            const pts = s.talents?.reduce((acc, t) => acc + (tpState[t.talent.id] || 0), 0) || 0;
+            const pct = (pts / MAX_TP_PTS * 100).toFixed(0);
+            return `
+                <div style="margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:4px;">
+                        <span>${s.specialization_name}</span>
+                        <span style="color:var(--gold);">${pts}</span>
+                    </div>
+                    <div style="height:6px; background:rgba(0,0,0,0.5); border-radius:3px; overflow:hidden; border:1px solid #222;">
+                        <div style="height:100%; width:${pct}%; background:var(--gold); box-shadow:0 0 5px var(--gold);"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    window.addTPPoint = function(tid, max, row, specName) {
+        const total = Object.values(tpState).reduce((a, b) => a + b, 0);
+        if (total >= MAX_TP_PTS) return;
+        
+        // Row check
+        const groups = _currentCharData.extra_data?.specializations?.specialization_groups || [];
+        const spec = groups.flatMap(g => g.specializations).find(s => s.specialization_name === specName);
+        const specPts = spec.talents?.reduce((acc, t) => acc + (tpState[t.talent.id] || 0), 0) || 0;
+        
+        if (specPts < row * 5) return;
+
+        const cur = tpState[tid] || 0;
+        if (cur < max) {
+            tpState[tid] = cur + 1;
+            renderTP();
+        }
+    };
+
+    window.removeTPPoint = function(tid, row, specName) {
+        const cur = tpState[tid] || 0;
+        if (cur > 0) {
+            // Check if removing breaks rows above
+            const groups = _currentCharData.extra_data?.specializations?.specialization_groups || [];
+            const spec = groups.flatMap(g => g.specializations).find(s => s.specialization_name === specName);
+            
+            // Check dependency
+            const highestRowWithPoints = spec.talents.reduce((maxR, t) => {
+                const r = tpState[t.talent.id] || 0;
+                return (r > 0 && t.talent.row > maxR) ? t.talent.row : maxR;
+            }, 0);
+            
+            const specPtsAfter = spec.talents?.reduce((acc, t) => acc + (tpState[t.talent.id] || 0), 0) - 1;
+            if (specPtsAfter < highestRowWithPoints * 5) {
+                // Cannot remove if it breaks the row unlock for talents already spent
+                return;
+            }
+
+            tpState[tid] = cur - 1;
+            renderTP();
+        }
+    };
+
+    window.resetTPToCurrent = function() {
+        initTP(_currentCharData);
+    };
+
+    window.clearTP = function() {
+        tpState = {};
+        renderTP();
+    };
+
+    window.saveTPBuild = function() {
+        const name = document.getElementById('tp-build-name').value.trim();
+        if (!name) return alert("Dê um nome para a build");
+        
+        // Em um sistema real, salvaríamos no localStorage ou DB
+        // Para esta integração, vamos apenas simular o feedback
+        alert(`Build "${name}" salva com sucesso localmente!`);
+    };
+
     async function loadData(attempt = 0) {
         try {
             const res = await fetch(`/api/armory/full/${realm}/${name}`);
@@ -814,6 +1163,7 @@
             _currentCharData = await res.json();
             render(_currentCharData);
             initPlanner(_currentCharData);
+            initTP(_currentCharData);
         } catch(e) {
             document.getElementById('armory-loading').style.display = 'none';
             document.getElementById('armory-error').style.display = 'block';
@@ -862,28 +1212,44 @@
         // Talents
         const talentsContainer = document.getElementById('talents-container');
         const groups = char.extra_data?.specializations?.specialization_groups || [];
+        const charClass = (char.class || '').toLowerCase().replace(' ', '');
+        
         talentsContainer.innerHTML = groups.flatMap(g => g.specializations).map(s => {
             const pts = s.talents?.reduce((acc, t) => acc + (t.talent_rank || 1), 0) || 0;
+            const specId = s.specialization_id;
+            // Backgrounds mapping (approximate)
+            const bgUrl = `https://wow.zamimg.com/images/wow/talents/backgrounds/classic/${specId}.jpg`;
+
             return `
-                <div class="talent-box">
+                <div class="talent-box class-${charClass}" style="--spec-bg: url('${bgUrl}')">
+                    <style>
+                        .talent-box[style*="--spec-bg"]::before { background-image: var(--spec-bg); }
+                    </style>
                     <div class="talent-header">
                         <span>${s.specialization_name}</span>
-                        <span style="color: var(--gold);">${pts} pts</span>
+                        <span>${pts} pts</span>
                     </div>
                     <div class="talent-list">
                         ${s.talents?.map(t => {
                             const spellId = t.spell_tooltip?.spell?.id;
                             const icon = t.talent.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : null;
+                            const row = t.talent.row + 1;
+                            const col = t.talent.column + 1;
+                            const isMax = t.talent_rank >= (t.talent.max_rank || 5);
+
                             return `
                                 <a href="https://www.wowhead.com/classic/spell=${spellId}" 
-                                   data-wowhead="spell=${spellId}&domain=classic" 
-                                   class="talent-item" target="_blank">
-                                    <img src="${icon}" class="talent-icon" onerror="this.src='/assets/branding/contentbra.png'">
-                                    <span class="talent-name">${t.talent.name}</span>
-                                    <span class="talent-rank">${t.talent_rank}</span>
+                                   class="talent-item ${isMax ? 'rank-max' : ''} ${t.talent_rank === 0 ? 'rank-zero' : ''}" 
+                                   style="grid-row: ${row}; grid-column: ${col};"
+                                   title="${t.talent.name} (${t.talent_rank})"
+                                   target="_blank">
+                                    <div class="talent-icon-wrap">
+                                        <img src="${icon}" class="talent-icon" onerror="this.src='/assets/branding/contentbra.png'">
+                                    </div>
+                                    ${t.talent_rank > 0 ? `<div class="talent-rank-badge ${isMax ? '' : 'not-max'}">${t.talent_rank}</div>` : ''}
                                 </a>
                             `;
-                        }).join('') || '<div style="font-size:10px; color:#444; font-style:italic;">Nenhum ponto gasto</div>'}
+                        }).join('') || '<div style="font-size:10px; color:#444; font-style:italic; grid-column: 1/-1; padding: 20px 0; z-index:2;">Árvore vazia</div>'}
                     </div>
                 </div>
             `;

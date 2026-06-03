@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talent Planner — BRAZUG</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.tp-wrap { padding-bottom: 80px; }
+
+/* Hero */
+.tp-hero {
+    background: linear-gradient(to bottom, rgba(196,30,58,0.12), transparent);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0 24px;
+    margin-bottom: 32px;
+}
+.tp-hero-inner { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.tp-hero-title {
+    font-family: 'Cinzel', serif;
+    font-size: 42px; font-weight: 900; font-style: italic; text-transform: uppercase;
+    color: #fff; line-height: 1; text-shadow: 0 0 24px rgba(196,30,58,0.5);
+}
+.tp-hero-sub { font-size: 12px; color: var(--text-muted, #888); margin-top: 6px; }
+.tp-pts-badge {
+    background: rgba(196,30,58,0.15); border: 1px solid rgba(196,30,58,0.4);
+    border-radius: 12px; padding: 10px 20px; text-align: center;
+}
+.tp-pts-num {
+    font-family: 'Cinzel', serif; font-size: 32px; font-weight: 900;
+    color: var(--gold, #f7c14d); line-height: 1;
+}
+.tp-pts-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #666; margin-top: 3px; }
+
+/* Main layout */
+.tp-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 280px;
+    gap: 20px;
+    align-items: start;
+}
+@media (max-width: 1280px) {
+    .tp-layout { grid-template-columns: 1fr 1fr 1fr; }
+    .tp-sidebar { grid-column: 1 / -1; }
+}
+@media (max-width: 860px) {
+    .tp-layout { grid-template-columns: 1fr; }
+    .tp-sidebar { grid-column: 1; }
+}
+
+/* Tree panel */
+.tree-panel {
+    background: rgba(8,4,4,0.85);
+    border: 1px solid #2a1a1a;
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+}
+.tree-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid #1a0a0a;
+    background: rgba(0,0,0,0.4);
+}
+.tree-icon {
+    width: 34px; height: 34px; border-radius: 6px;
+    border: 1px solid #333; overflow: hidden; flex-shrink: 0;
+}
+.tree-icon img { width: 100%; height: 100%; object-fit: cover; }
+.tree-name {
+    font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; color: #fff; flex: 1;
+}
+.tree-pts-display {
+    font-size: 11px; font-weight: 900; color: var(--gold, #f7c14d);
+    background: rgba(247,193,77,0.1); border: 1px solid rgba(247,193,77,0.2);
+    border-radius: 20px; padding: 3px 10px;
+}
+
+/* Talent grid */
+.talent-grid {
+    padding: 14px;
+    display: grid;
+    gap: 6px;
+    position: relative;
+}
+
+/* Talent cell */
+.t-cell {
+    position: relative;
+    width: 52px; height: 52px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 2px solid #1a1010;
+    background: #0a0404;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s, opacity 0.2s;
+    user-select: none;
+}
+.t-cell.empty {
+    border: none; background: transparent; cursor: default; pointer-events: none;
+}
+.t-cell.locked { opacity: 0.35; cursor: not-allowed; }
+.t-cell.unlocked { border-color: #3a2020; }
+.t-cell.partial { border-color: rgba(247,193,77,0.5); }
+.t-cell.maxed { border-color: var(--gold, #f7c14d); box-shadow: 0 0 10px rgba(247,193,77,0.3); }
+.t-cell.unlocked:hover, .t-cell.partial:hover { border-color: #c41e3a; box-shadow: 0 0 8px rgba(196,30,58,0.4); }
+
+.t-cell img {
+    width: 100%; height: 100%; object-fit: cover;
+    display: block;
+}
+.t-cell.locked img { filter: grayscale(1) brightness(0.4); }
+
+.t-rank {
+    position: absolute; bottom: 2px; right: 3px;
+    font-size: 10px; font-weight: 900;
+    color: #fff; text-shadow: 0 1px 3px #000, 0 0 6px #000;
+    line-height: 1; pointer-events: none;
+}
+.t-cell.maxed .t-rank { color: var(--gold, #f7c14d); }
+
+/* Arrow connectors (CSS) */
+.t-arrow {
+    position: absolute; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+}
+.t-arrow-down {
+    width: 12px;
+    background: linear-gradient(to bottom, #c41e3a, #8b0000);
+    border-radius: 2px;
+}
+.t-arrow::after {
+    content: '▼';
+    position: absolute;
+    bottom: -8px;
+    font-size: 10px;
+    color: #c41e3a;
+}
+
+/* Tooltip */
+.t-tooltip {
+    position: fixed;
+    background: #0d0808;
+    border: 1px solid #3a2020;
+    border-radius: 10px;
+    padding: 14px 16px;
+    width: 240px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.9);
+}
+.t-tooltip.visible { opacity: 1; }
+.tt-name { font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700; color: var(--gold, #f7c14d); margin-bottom: 4px; }
+.tt-rank { font-size: 10px; color: #888; margin-bottom: 8px; font-weight: 600; }
+.tt-desc { font-size: 11px; color: #bbb; line-height: 1.5; }
+.tt-req { font-size: 10px; color: #c41e3a; margin-top: 8px; font-style: italic; }
+
+/* Sidebar */
+.tp-sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+.sb-box {
+    background: rgba(8,4,4,0.85); border: 1px solid #2a1a1a;
+    border-radius: 12px; overflow: hidden;
+}
+.sb-title {
+    font-family: 'Cinzel', serif; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 2px;
+    color: var(--gold, #f7c14d); padding: 13px 18px 10px;
+    border-bottom: 1px solid #1a0a0a; background: rgba(0,0,0,0.3);
+}
+.sb-body { padding: 14px 18px; }
+
+/* Summary bars */
+.spec-summary { display: flex; flex-direction: column; gap: 10px; }
+.spec-bar-row { display: flex; align-items: center; gap: 10px; }
+.spec-bar-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #888; width: 80px; flex-shrink: 0; }
+.spec-bar-track {
+    flex: 1; height: 8px; background: rgba(255,255,255,0.05);
+    border-radius: 4px; overflow: hidden; border: 1px solid #1a1010;
+}
+.spec-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+.spec-bar-pts { font-size: 11px; font-weight: 900; color: #fff; width: 32px; text-align: right; }
+
+/* Save */
+.save-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.save-input {
+    flex: 1; background: rgba(255,255,255,0.04); border: 1px solid #2a1a1a;
+    border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 13px;
+    font-family: inherit; outline: none; transition: 0.2s;
+}
+.save-input:focus { border-color: var(--gold, #f7c14d); }
+.save-input::placeholder { color: #333; }
+.btn-save {
+    background: linear-gradient(135deg, #c41e3a, #8b0000);
+    border: 1px solid rgba(247,193,77,0.3); border-radius: 8px;
+    color: var(--gold, #f7c14d); font-weight: 800; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 1px; padding: 9px 14px;
+    cursor: pointer; transition: 0.2s; white-space: nowrap;
+}
+.btn-save:hover { background: linear-gradient(135deg, #e02244, #a00000); }
+.btn-reset {
+    width: 100%; background: rgba(255,255,255,0.02); border: 1px solid #2a1a1a;
+    border-radius: 8px; color: #555; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; padding: 9px;
+    cursor: pointer; transition: 0.2s;
+}
+.btn-reset:hover { border-color: #c41e3a; color: #c41e3a; background: rgba(196,30,58,0.05); }
+
+/* Saved sets list */
+.saved-item {
+    background: rgba(255,255,255,0.02); border: 1px solid #1f1212;
+    border-radius: 8px; margin-bottom: 8px; overflow: hidden;
+}
+.saved-item-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; cursor: pointer; transition: 0.15s;
+}
+.saved-item-header:hover { background: rgba(196,30,58,0.05); }
+.saved-item-name { flex: 1; font-size: 13px; font-weight: 700; color: #fff; }
+.saved-item-pts { font-size: 10px; color: #666; }
+.saved-item-actions { display: flex; gap: 5px; }
+.btn-load, .btn-del {
+    background: none; border: 1px solid #2a1a1a; border-radius: 6px;
+    color: #666; font-size: 10px; font-weight: 700; padding: 4px 8px;
+    cursor: pointer; transition: 0.2s; text-transform: uppercase;
+}
+.btn-load:hover { border-color: var(--gold, #f7c14d); color: var(--gold, #f7c14d); }
+.btn-del:hover { border-color: #c41e3a; color: #c41e3a; }
+.saved-item-body { padding: 0 14px 10px; border-top: 1px solid #1a0a0a; display: none; }
+.saved-item-body.open { display: block; }
+.saved-mini-bars { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+
+.no-sets { text-align: center; padding: 20px 0; color: #333; font-size: 12px; font-style: italic; }
+
+.share-input {
+    width: 100%; background: rgba(255,255,255,0.03); border: 1px solid #1a1010;
+    border-radius: 6px; padding: 8px 10px; color: #666; font-size: 10px;
+    font-family: monospace; outline: none; cursor: pointer;
+}
+.share-input:focus { border-color: var(--gold, #f7c14d); color: #fff; }
+</style>
+</head>
+<body class="tp-wrap">
+
+<header class="site-header" id="universal-header"></header>
+
+<div class="tp-hero">
+    <div class="redesign-container tp-hero-inner">
+        <div>
+            <div class="tp-hero-title">🧠 Talent Planner</div>
+            <div class="tp-hero-sub">Monte e salve builds de talentos do Caçador Vanilla Classic</div>
+        </div>
+        <div class="tp-pts-badge">
+            <div class="tp-pts-num" id="total-pts">0</div>
+            <div class="tp-pts-label">/ 51 pontos</div>
+        </div>
+    </div>
+</div>
+
+<div class="redesign-container tp-wrap">
+    <div class="tp-layout" id="tp-layout">
+        <!-- Trees rendered by JS -->
+        <div id="tree-bm"></div>
+        <div id="tree-mm"></div>
+        <div id="tree-sv"></div>
+
+        <!-- Sidebar -->
+        <div class="tp-sidebar">
+
+            <!-- Spec summary -->
+            <div class="sb-box">
+                <div class="sb-title">Distribuição</div>
+                <div class="sb-body">
+                    <div class="spec-summary">
+                        <div class="spec-bar-row">
+                            <span class="spec-bar-label">Beast Mast.</span>
+                            <div class="spec-bar-track"><div class="spec-bar-fill" id="bar-bm" style="background:linear-gradient(to right,#e07020,#c04010); width:0%;"></div></div>
+                            <span class="spec-bar-pts" id="pts-bm">0</span>
+                        </div>
+                        <div class="spec-bar-row">
+                            <span class="spec-bar-label">Marksmanship</span>
+                            <div class="spec-bar-track"><div class="spec-bar-fill" id="bar-mm" style="background:linear-gradient(to right,#20a0e0,#1070c0); width:0%;"></div></div>
+                            <span class="spec-bar-pts" id="pts-mm">0</span>
+                        </div>
+                        <div class="spec-bar-row">
+                            <span class="spec-bar-label">Survival</span>
+                            <div class="spec-bar-track"><div class="spec-bar-fill" id="bar-sv" style="background:linear-gradient(to right,#40c060,#209040); width:0%;"></div></div>
+                            <span class="spec-bar-pts" id="pts-sv">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save -->
+            <div class="sb-box">
+                <div class="sb-title">Salvar Build</div>
+                <div class="sb-body">
+                    <div class="save-row">
+                        <input type="text" class="save-input" id="build-name-input" placeholder="Nome da build..." maxlength="40">
+                        <button class="btn-save" onclick="saveBuild()">+ Salvar</button>
+                    </div>
+                    <button class="btn-reset" onclick="resetAll()">↺ Resetar todos os talentos</button>
+                </div>
+            </div>
+
+            <!-- Share -->
+            <div class="sb-box">
+                <div class="sb-title">Compartilhar</div>
+                <div class="sb-body">
+                    <input type="text" class="share-input" id="share-url" readonly onclick="copyShare()" title="Clique para copiar">
+                    <div style="font-size:9px; color:#444; margin-top:6px; text-align:center;">Clique para copiar link da build</div>
+                </div>
+            </div>
+
+            <!-- Saved builds -->
+            <div class="sb-box">
+                <div class="sb-title">Builds Salvas</div>
+                <div class="sb-body" id="saved-builds-container">
+                    <div class="no-sets">Nenhuma build salva ainda.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Tooltip -->
+<div class="t-tooltip" id="talent-tooltip">
+    <div class="tt-name" id="tt-name"></div>
+    <div class="tt-rank" id="tt-rank"></div>
+    <div class="tt-desc" id="tt-desc"></div>
+    <div class="tt-req" id="tt-req"></div>
+</div>
+
+<script src="/js/header.js"></script>
+<script>
+// ======================================================
+// HUNTER TALENT DATA — WoW Classic Vanilla (patch 1.12)
+// grid position: [row, col] (0-indexed), rows 0-6
+// maxRank: max talent points
+// req: { talentId, minRank } — prerequisite
+// ======================================================
+
+const TREES = [
+{
+    id: 'bm',
+    name: 'Beast Mastery',
+    icon: 'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_beasttaming.jpg',
+    cols: 4,
+    talents: [
+        { id:'bm_1',  name:'Improved Animal Companion', row:0, col:1, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/spell_nature_sleep.jpg',                 desc:'Increases the damage done by your pets by 4/8/12/16/20%.' },
+        { id:'bm_2',  name:'Endurance Training',        row:0, col:2, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/spell_nature_sleep.jpg',                 desc:'Increases the health of your pets by 3/6/9/12/15%.' },
+        { id:'bm_3',  name:'Thick Hide',                row:1, col:0, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/inv_misc_pelt_wolf_01.jpg',             desc:'Increases the armor of your pets by 7/14/20%.' },
+        { id:'bm_4',  name:'Improved Revive Pet',       row:1, col:1, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_mendpet.jpg',            desc:'Revive Pet is cast 25/50% faster and loses 50/100% less of its max health when revived.' },
+        { id:'bm_5',  name:'Pathfinding',               row:1, col:2, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_pet_bear.jpg',           desc:'Increases the speed bonus of your Aspect of the Cheetah and Aspect of the Pack by 4/8%.' },
+        { id:'bm_6',  name:'Bestial Swiftness',         row:1, col:3, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_druid_dash.jpg',               desc:'Increases the outdoor movement speed of your pets by 30%.' },
+        { id:'bm_7',  name:'Unleashed Fury',            row:2, col:1, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_druid_ravage.jpg',             desc:'Increases the damage done by your pets by 4/8/12/16/20%.' },
+        { id:'bm_8',  name:'Improved Mend Pet',         row:2, col:2, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_mendpet.jpg',            desc:'Gives your Mend Pet spell a 15/30% chance of cleansing a Curse, Disease, Magic, or Poison effect from the pet each tick.' },
+        { id:'bm_9',  name:'Ferocity',                  row:3, col:0, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_racial_cannibalize.jpg',       desc:'Increases the chance for your pets to critically strike with their basic attack by 3/6/9/12/15%.' },
+        { id:'bm_10', name:'Spirit Bond',               row:3, col:1, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/inv_relics_totemoflife.jpg',           desc:'While your pet is active, you and your pet will regenerate 1/2% of total health every 10 seconds. Also increases healing done to you and your pet by 5/10%.', req:{id:'bm_7', minRank:5} },
+        { id:'bm_11', name:'Intimidation',              row:3, col:2, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_druid_bash.jpg',               desc:'Command your pet to intimidate the target on the next attack, causing a high amount of threat and stunning the target for 3 sec.', req:{id:'bm_7', minRank:5} },
+        { id:'bm_12', name:'Bestial Discipline',        row:3, col:3, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_pet_bear.jpg',          desc:'Increases the Focus regeneration of your pets by 10/20%.' },
+        { id:'bm_13', name:'Animal Handler',            row:4, col:0, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_beasttaming.jpg',       desc:'Increases your pet\'s chance to hit by 5/10% and increases the duration of your Intimidation effect by 10/20%.', req:{id:'bm_11', minRank:1} },
+        { id:'bm_14', name:'Frenzy',                    row:4, col:1, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_swiftstrike.jpg',       desc:'Gives your pet a 20/40/60/80/100% chance to gain a 30% attack speed increase for 8 sec after dealing a critical strike.' },
+        { id:'bm_15', name:'Ferocious Inspiration',     row:4, col:2, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_beasttaming.jpg',       desc:'When your pet scores a critical hit, all party members within 45 yards have all damage increased by 1/2/3% for 10 sec.', req:{id:'bm_11', minRank:1} },
+        { id:'bm_16', name:'Bestial Wrath',             row:5, col:1, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_druid_ferociousbite.jpg',      desc:'Send your pet into a rage causing 50% more damage for 18 sec. While enraged, the beast does not feel pity or remorse or fear and cannot be stopped unless killed.', req:{id:'bm_14', minRank:5} },
+        { id:'bm_17', name:'The Beast Within',          row:5, col:2, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_druid_ferociousbite.jpg',      desc:'When your pet is under the effects of Bestial Wrath, you also go into a rage causing 10% more damage and reducing mana costs of all spells by 20% for 18 sec.', req:{id:'bm_16', minRank:1} },
+        { id:'bm_18', name:'Serpent\'s Swiftness',      row:6, col:1, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/spell_nature_guardianward.jpg',        desc:'Increases ranged attack speed by 4/8/12/16/20% and increases your pet\'s attack speed by 4/8/12/16/20%.' },
+    ]
+},
+{
+    id: 'mm',
+    name: 'Marksmanship',
+    icon: 'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_marksmanship.jpg',
+    cols: 4,
+    talents: [
+        { id:'mm_1',  name:'Improved Concussive Shot', row:0, col:0, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_golemthunderclap.jpg',     desc:'Gives your Concussive Shot a 4/8/12/16/20% chance of stunning the target for 3 sec.' },
+        { id:'mm_2',  name:'Efficiency',               row:0, col:1, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/spell_frost_wizardmark.jpg',       desc:'Reduces the Mana cost of your shots and stings by 2/4/6/8/10%.' },
+        { id:'mm_3',  name:'Improved Hunter\'s Mark',  row:0, col:2, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_snipershot.jpg',   desc:'Increases the attack power bonus of your Hunter\'s Mark spell by 10/20/30/40/50%.' },
+        { id:'mm_4',  name:'Lethal Shots',             row:1, col:0, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_criticalstrike.jpg',       desc:'Increases your ranged critical strike chance by 1/2/3/4/5%.' },
+        { id:'mm_5',  name:'Aimed Shot',               row:1, col:1, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/inv_spear_07.jpg',                 desc:'An aimed shot that increases ranged damage by 70 and reduces healing effects on the target by 50% for 10 sec.', req:{id:'mm_2', minRank:2} },
+        { id:'mm_6',  name:'Improved Arcane Shot',     row:1, col:2, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_impalingbolt.jpg',         desc:'Reduces the cooldown of your Arcane Shot by 0.2/0.4/0.6/0.8/1 sec.' },
+        { id:'mm_7',  name:'Hawk Eye',                 row:2, col:0, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/spell_nature_sleep.jpg',           desc:'Increases the range of your ranged weapons by 2/4/6 yards.' },
+        { id:'mm_8',  name:'Improved Serpent Sting',   row:2, col:1, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_aimedshot.jpg',    desc:'Increases the damage done by your Serpent Sting by 6/12/18/24/30%.' },
+        { id:'mm_9',  name:'Mortal Shots',             row:2, col:2, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_mastermarksman.jpg', desc:'Increases your ranged weapon critical strike damage bonus by 6/12/18/24/30%.' },
+        { id:'mm_10', name:'Scatter Shot',             row:3, col:0, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_golemstormbolt.jpg',       desc:'A short-range shot that deals damage and disorients the target for 4 sec. Any damage caused will remove the effect.', req:{id:'mm_4', minRank:5} },
+        { id:'mm_11', name:'Barrage',                  row:3, col:1, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_rapidfire.jpg',    desc:'Increases the damage of your Multi-Shot and Volley spells by 5/10/15%.' },
+        { id:'mm_12', name:'Ranged Weapon Spec',       row:3, col:2, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_swiftstrike.jpg', desc:'Increases damage with ranged weapons by 1/2/3/4/5%.' },
+        { id:'mm_13', name:'Trueshot Aura',            row:3, col:3, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_trueshot.jpg',            desc:'Increases the attack power of all party members within 45 yards by 50/100/150. Lasts until cancelled.', req:{id:'mm_12', minRank:5} },
+        { id:'mm_14', name:'Improved Stings',          row:4, col:0, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_aimedshot.jpg',    desc:'Increases the duration of your Stings by 3/6/9 sec.' },
+        { id:'mm_15', name:'Combat Experience',        row:4, col:1, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/inv_sword_27.jpg',                desc:'Increases your total Agility and Intellect by 2/4%.' },
+        { id:'mm_16', name:'Rapid Killing',            row:4, col:2, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_rapidkilling.jpg', desc:'After killing an opponent that yields experience or honor, your next Rapid Fire recharge will be 50/100% faster. Also reduces the cooldown of your Rapid Fire by 1/2 min.', req:{id:'mm_9', minRank:5} },
+        { id:'mm_17', name:'Improved Volley',          row:5, col:0, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_volley.jpg',       desc:'Increases the damage done by your Volley ability by 5/10/15%.' },
+        { id:'mm_18', name:'Rapid Fire',               row:5, col:2, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_aspectofthehawk.jpg', desc:'Increases ranged attack speed by 40% for 15 sec.', req:{id:'mm_16', minRank:2} },
+        { id:'mm_19', name:'Aimed Shot (Improved)',    row:6, col:1, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/inv_spear_07.jpg',                 desc:'Reduces the cooldown of Aimed Shot by 1 sec.', req:{id:'mm_5', minRank:1} },
+        { id:'mm_20', name:'Silencing Shot',           row:6, col:2, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_kick.jpg',                desc:'A shot that silences the target for 3 sec. Non-instant. Only usable during Rapid Fire.', req:{id:'mm_18', minRank:1} },
+    ]
+},
+{
+    id: 'sv',
+    name: 'Survival',
+    icon: 'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_swiftstrike.jpg',
+    cols: 4,
+    talents: [
+        { id:'sv_1',  name:'Monster Slaying',      row:0, col:0, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_beasttaming.jpg', desc:'Increases all damage caused against Beasts, Giants, and Dragonkin by 1/2/3%.' },
+        { id:'sv_2',  name:'Humanoid Slaying',     row:0, col:1, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_snipershot.jpg', desc:'Increases all damage caused against Humanoids, Undead, and Demons by 1/2/3%.' },
+        { id:'sv_3',  name:'Deflection',           row:0, col:2, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_parry.jpg',             desc:'Increases your parry chance by 1/2/3/4/5%.' },
+        { id:'sv_4',  name:'Improved Wing Clip',   row:1, col:0, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_rogue_trip.jpg',        desc:'Gives your Wing Clip ability a 4/8/12% chance to immobilize the target for 5 sec.' },
+        { id:'sv_5',  name:'Clever Traps',         row:1, col:1, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_freezingtrap.jpg', desc:'Increases the duration of your Freezing Trap, Frost Trap, and Immolation Trap effects by 15/30%.' },
+        { id:'sv_6',  name:'Survivalist',          row:1, col:2, maxRank:5, icon:'https://render.wallofwarcraft.com/classic1x-us/icons/56/ability_hunter_swiftstrike.jpg', desc:'Increases total health by 2/4/6/8/10%.' },
+        { id:'sv_7',  name:'Trap Mastery',         row:2, col:0, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_freezingtrap.jpg', desc:'The radius of your traps is increased by 30%, and targets affected by Frost Trap can no longer resist the effect.', req:{id:'sv_5', minRank:2} },
+        { id:'sv_8',  name:'Surefooted',           row:2, col:1, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_warrior_charge.jpg',    desc:'Increases hit chance by 1/2/3% and reduces the duration of movement impairing effects by 10/20/30%.' },
+        { id:'sv_9',  name:'Improved Feign Death', row:2, col:2, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_rogue_feigndeath.jpg',  desc:'Reduces the chance your Feign Death ability will be resisted by 2/4%.' },
+        { id:'sv_10', name:'Savage Strikes',       row:3, col:0, maxRank:2, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_warrior_sunder.jpg',   desc:'Increases critical strike chance of Raptor Strike and Mongoose Bite by 10/20%.' },
+        { id:'sv_11', name:'Entrapment',           row:3, col:1, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_freezingtrap.jpg', desc:'Gives your Immolation Trap, Frost Trap, and Explosive Trap a 4/8/12/16/20% chance to entrap the target, preventing them from moving for 5 sec.', req:{id:'sv_7', minRank:1} },
+        { id:'sv_12', name:'Counterattack',        row:3, col:2, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_counterattack.jpg', desc:'A strike that becomes active after parrying an opponent\'s attack. Counterattack deals 40 damage and immobilizes the target for 5 sec.', req:{id:'sv_3', minRank:5} },
+        { id:'sv_13', name:'Improved Tracking',    row:4, col:0, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_snipershot.jpg', desc:'While tracking a type of creature, all damage caused against that type of creature is increased by 1/2/3/4/5%.' },
+        { id:'sv_14', name:'Lightning Reflexes',   row:4, col:1, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_swiftstrike.jpg', desc:'Increases your Agility by 3/6/9/12/15%.' },
+        { id:'sv_15', name:'Expose Weakness',      row:4, col:2, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_finesseshunter.jpg', desc:'Your ranged critical strikes have a 33/66/100% chance to apply Expose Weakness to the target. Exposes the weakness of the target, reducing their armor by 25% of your Agility for 7 sec.' },
+        { id:'sv_16', name:'Wyvern Sting',         row:5, col:1, maxRank:1, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/inv_spear_02.jpg',              desc:'A stinging shot that puts the target to sleep for 12 sec. Any damage will cancel the effect. When the target wakes up, the Sting causes 150 Nature damage over 12 sec.', req:{id:'sv_14', minRank:5} },
+        { id:'sv_17', name:'Killer Instinct',      row:5, col:2, maxRank:3, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_swiftstrike.jpg', desc:'Increases your critical strike chance with all attacks by 1/2/3%.' },
+        { id:'sv_18', name:'Master Tactician',     row:6, col:1, maxRank:5, icon:'https://render.worldofwarcraft.com/classic1x-us/icons/56/ability_hunter_mastermarksman.jpg', desc:'Your successful ranged attacks have a 10% chance to increase your critical strike chance with all attacks by 2/4/6/8/10% for 8 sec.', req:{id:'sv_16', minRank:1} },
+    ]
+}
+];
+
+// State: { talentId: currentRank }
+let state = {};
+const MAX_TOTAL = 51;
+const SAVES_KEY = 'brazug_talent_builds_v2';
+
+// ===================== BUILD STATE =====================
+function getTotalPts() { return Object.values(state).reduce((a,b) => a+b, 0); }
+function getTreePts(treeId) {
+    const tree = TREES.find(t => t.id === treeId);
+    return tree.talents.reduce((sum, t) => sum + (state[t.id] || 0), 0);
+}
+
+function isUnlocked(talent, treeId) {
+    // Row requires (row * 5) pts in that tree spent to unlock
+    const required = talent.row * 5;
+    const treePts = getTreePts(treeId);
+    if (treePts < required) return false;
+    // Prerequisite talent
+    if (talent.req) {
+        const reqRank = state[talent.req.id] || 0;
+        if (reqRank < talent.req.minRank) return false;
+    }
+    return true;
+}
+
+function canAdd(talent, treeId) {
+    if (!isUnlocked(talent, treeId)) return false;
+    const cur = state[talent.id] || 0;
+    if (cur >= talent.maxRank) return false;
+    if (getTotalPts() >= MAX_TOTAL) return false;
+    return true;
+}
+
+function canRemove(talent, treeId) {
+    const cur = state[talent.id] || 0;
+    if (cur <= 0) return false;
+    // Check if removing would break row unlock for later-row talents in same tree
+    const tree = TREES.find(t => t.id === treeId);
+    const testState = {...state, [talent.id]: cur - 1};
+    const testTreePts = tree.talents.reduce((sum, t) => sum + (testState[t.id] || 0), 0);
+    // Find the highest row with points
+    let highestRowWithPts = 0;
+    tree.talents.forEach(t => {
+        if ((testState[t.id] || 0) > 0 && t.row > highestRowWithPts) highestRowWithPts = t.row;
+    });
+    const requiredForHighest = highestRowWithPts * 5;
+    if (testTreePts < requiredForHighest) return false;
+    // Check prereq dependents
+    for (const t of tree.talents) {
+        if (t.req && t.req.id === talent.id) {
+            const depRank = testState[t.id] || 0;
+            if (depRank > 0 && (testState[talent.id] || 0) < t.req.minRank) return false;
+        }
+    }
+    return true;
+}
+
+function addPoint(talentId, treeId) {
+    const tree = TREES.find(t => t.id === treeId);
+    const talent = tree.talents.find(t => t.id === talentId);
+    if (!canAdd(talent, treeId)) return;
+    state[talentId] = (state[talentId] || 0) + 1;
+    renderAll();
+}
+
+function removePoint(talentId, treeId) {
+    const tree = TREES.find(t => t.id === treeId);
+    const talent = tree.talents.find(t => t.id === talentId);
+    if (!canRemove(talent, treeId)) return;
+    state[talentId] = (state[talentId] || 0) - 1;
+    if (state[talentId] === 0) delete state[talentId];
+    renderAll();
+}
+
+function resetAll() {
+    state = {};
+    renderAll();
+}
+
+// ===================== RENDER =====================
+function renderAll() {
+    TREES.forEach(tree => renderTree(tree));
+    renderSummary();
+    updateShareUrl();
+}
+
+function renderTree(tree) {
+    const container = document.getElementById(`tree-${tree.id}`);
+    const treePts = getTreePts(tree.id);
+
+    // Build grid rows (0–6)
+    const rows = 7;
+    const cols = tree.cols;
+    const grid = Array.from({length: rows}, () => Array(cols).fill(null));
+    tree.talents.forEach(t => { grid[t.row][t.col] = t; });
+
+    // Cell size + gap for arrow positioning
+    const cellSize = 52;
+    const gap = 6;
+    const gridW = cols * cellSize + (cols - 1) * gap;
+
+    let html = `
+    <div class="tree-panel">
+        <div class="tree-header">
+            <div class="tree-icon"><img src="${tree.icon}" onerror="this.style.opacity='0.3'"></div>
+            <span class="tree-name">${tree.name}</span>
+            <span class="tree-pts-display" id="treepts-${tree.id}">${treePts} pts</span>
+        </div>
+        <div class="talent-grid" style="grid-template-columns: repeat(${cols}, ${cellSize}px); width:${gridW}px; margin: 0 auto; position:relative;">
+    `;
+
+    // Arrows (absolute positioned, drawn before cells so they go under)
+    tree.talents.forEach(t => {
+        if (!t.req) return;
+        const reqTalent = tree.talents.find(x => x.id === t.req.id);
+        if (!reqTalent) return;
+        // Only draw vertical arrows (same col, consecutive rows)
+        if (reqTalent.col === t.col) {
+            const rowDiff = t.row - reqTalent.row;
+            // Arrow from bottom of reqTalent to top of t
+            const topPx = reqTalent.row * (cellSize + gap) + cellSize;
+            const leftPx = reqTalent.col * (cellSize + gap) + cellSize / 2 - 4;
+            const height = rowDiff * (cellSize + gap) - cellSize;
+            const isActive = (state[reqTalent.id] || 0) >= t.req.minRank;
+            html += `<div class="t-arrow t-arrow-down" style="
+                top:${topPx}px; left:${leftPx}px;
+                height:${height}px;
+                opacity:${isActive ? 1 : 0.2};
+                background: ${isActive ? 'linear-gradient(to bottom,#c41e3a,#8b0000)' : 'linear-gradient(to bottom,#333,#222)'};
+            "></div>`;
+        }
+    });
+
+    // Cells
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const t = grid[r][c];
+            if (!t) {
+                html += `<div class="t-cell empty"></div>`;
+                continue;
+            }
+            const cur = state[t.id] || 0;
+            const unlocked = isUnlocked(t, tree.id);
+            const maxed = cur >= t.maxRank;
+            let cls = 'unlocked';
+            if (!unlocked) cls = 'locked';
+            else if (maxed) cls = 'maxed';
+            else if (cur > 0) cls = 'partial';
+
+            html += `
+            <div class="t-cell ${cls}"
+                 onclick="addPoint('${t.id}','${tree.id}')"
+                 oncontextmenu="event.preventDefault(); removePoint('${t.id}','${tree.id}')"
+                 onmouseenter="showTooltip(event,'${t.id}','${tree.id}')"
+                 onmouseleave="hideTooltip()">
+                <img src="${t.icon}" alt="${t.name}" onerror="this.style.opacity='0.2'">
+                <span class="t-rank">${cur}/${t.maxRank}</span>
+            </div>`;
+        }
+    }
+
+    html += `</div></div>`;
+    container.innerHTML = html;
+}
+
+function renderSummary() {
+    const total = getTotalPts();
+    document.getElementById('total-pts').textContent = total;
+
+    TREES.forEach(tree => {
+        const pts = getTreePts(tree.id);
+        const pct = (pts / 51 * 100).toFixed(1);
+        document.getElementById(`pts-${tree.id}`).textContent = pts;
+        document.getElementById(`bar-${tree.id}`).style.width = pct + '%';
+    });
+}
+
+// ===================== TOOLTIP =====================
+let tooltipTimeout;
+function showTooltip(e, talentId, treeId) {
+    const tree = TREES.find(t => t.id === treeId);
+    const talent = tree.talents.find(t => t.id === talentId);
+    const cur = state[talentId] || 0;
+    const unlocked = isUnlocked(talent, treeId);
+
+    document.getElementById('tt-name').textContent = talent.name;
+    document.getElementById('tt-rank').textContent = `Rank ${cur} / ${talent.maxRank}`;
+    document.getElementById('tt-desc').textContent = talent.desc;
+
+    let reqText = '';
+    if (!unlocked) {
+        const treePts = getTreePts(treeId);
+        const required = talent.row * 5;
+        if (treePts < required) reqText = `Requer ${required} pontos em ${tree.name}`;
+        else if (talent.req) {
+            const reqT = tree.talents.find(x => x.id === talent.req.id);
+            reqText = `Requer ${reqT?.name} (${talent.req.minRank}/${reqT?.maxRank})`;
+        }
+    }
+    document.getElementById('tt-req').textContent = reqText;
+
+    const tip = document.getElementById('talent-tooltip');
+    tip.classList.add('visible');
+    positionTooltip(e);
+}
+
+function positionTooltip(e) {
+    const tip = document.getElementById('talent-tooltip');
+    let x = e.clientX + 16;
+    let y = e.clientY + 8;
+    if (x + 260 > window.innerWidth) x = e.clientX - 260;
+    if (y + 200 > window.innerHeight) y = e.clientY - 200;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+}
+
+function hideTooltip() {
+    document.getElementById('talent-tooltip').classList.remove('visible');
+}
+
+// ===================== SHARE URL =====================
+function updateShareUrl() {
+    // Encode: each tree's talents as comma-separated ranks, trees separated by -
+    const encoded = TREES.map(tree =>
+        tree.talents.map(t => state[t.id] || 0).join('')
+    ).join('-');
+    const url = `${window.location.origin}${window.location.pathname}?build=${encoded}`;
+    const el = document.getElementById('share-url');
+    if (el) el.value = url;
+}
+
+function copyShare() {
+    const el = document.getElementById('share-url');
+    navigator.clipboard.writeText(el.value).then(() => {
+        el.style.color = '#2ecc71';
+        setTimeout(() => { el.style.color = ''; }, 1500);
+    });
+}
+
+function loadFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const build = params.get('build');
+    if (!build) return;
+    const parts = build.split('-');
+    TREES.forEach((tree, ti) => {
+        const ranks = (parts[ti] || '').split('');
+        tree.talents.forEach((t, i) => {
+            const r = parseInt(ranks[i]) || 0;
+            if (r > 0) state[t.id] = Math.min(r, t.maxRank);
+        });
+    });
+}
+
+// ===================== SAVE / LOAD =====================
+function getSaves() {
+    try { return JSON.parse(localStorage.getItem(SAVES_KEY) || '[]'); } catch { return []; }
+}
+
+function saveBuild() {
+    const input = document.getElementById('build-name-input');
+    const name = input.value.trim();
+    if (!name) { input.focus(); return; }
+
+    const saves = getSaves();
+    saves.unshift({
+        id: Date.now(),
+        name,
+        savedAt: new Date().toISOString(),
+        state: {...state},
+        summary: TREES.map(t => ({ id: t.id, name: t.name, pts: getTreePts(t.id) }))
+    });
+    localStorage.setItem(SAVES_KEY, JSON.stringify(saves));
+    input.value = '';
+    renderSaves();
+
+    const btn = document.querySelector('.btn-save');
+    btn.textContent = '✓ Salvo!';
+    btn.style.background = 'linear-gradient(135deg,#1a8a4a,#0d5a2e)';
+    setTimeout(() => { btn.textContent = '+ Salvar'; btn.style.background = ''; }, 2000);
+}
+
+function loadBuild(id) {
+    const saves = getSaves();
+    const build = saves.find(s => s.id === id);
+    if (!build) return;
+    state = {...build.state};
+    renderAll();
+}
+
+function deleteBuild(id) {
+    if (!confirm('Deletar esta build?')) return;
+    const saves = getSaves().filter(s => s.id !== id);
+    localStorage.setItem(SAVES_KEY, JSON.stringify(saves));
+    renderSaves();
+}
+
+function toggleSaveDetails(id) {
+    const el = document.getElementById(`sb-body-${id}`);
+    if (el) el.classList.toggle('open');
+}
+
+const treeColors = { bm:'#e07020', mm:'#20a0e0', sv:'#40c060' };
+
+function renderSaves() {
+    const container = document.getElementById('saved-builds-container');
+    const saves = getSaves();
+    if (saves.length === 0) {
+        container.innerHTML = '<div class="no-sets">Nenhuma build salva ainda.</div>';
+        return;
+    }
+    container.innerHTML = saves.map(build => {
+        const date = new Date(build.savedAt).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'2-digit'});
+        const totalPts = build.summary.reduce((a,t) => a+t.pts, 0);
+        const bars = build.summary.map(spec => `
+            <div class="spec-bar-row" style="gap:8px;">
+                <span class="spec-bar-label" style="font-size:9px; width:70px; color:#666;">${spec.name.split(' ')[0]}</span>
+                <div class="spec-bar-track" style="height:6px;">
+                    <div class="spec-bar-fill" style="background:${treeColors[spec.id]}; width:${(spec.pts/51*100).toFixed(0)}%;"></div>
+                </div>
+                <span class="spec-bar-pts" style="font-size:10px; width:24px;">${spec.pts}</span>
+            </div>`).join('');
+
+        return `
+        <div class="saved-item">
+            <div class="saved-item-header" onclick="toggleSaveDetails(${build.id})">
+                <div>
+                    <div class="saved-item-name">${build.name}</div>
+                    <div class="saved-item-pts" style="font-size:10px; color:#555;">${totalPts} pts · ${date}</div>
+                </div>
+                <div class="saved-item-actions">
+                    <button class="btn-load" onclick="event.stopPropagation(); loadBuild(${build.id})">▶ Carregar</button>
+                    <button class="btn-del" onclick="event.stopPropagation(); deleteBuild(${build.id})">✕</button>
+                </div>
+            </div>
+            <div class="saved-item-body" id="sb-body-${build.id}">
+                <div class="saved-mini-bars" style="margin-top:8px;">${bars}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ===================== INIT =====================
+document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('build-name-input') === document.activeElement) saveBuild();
+});
+
+loadFromUrl();
+renderAll();
+renderSaves();
+</script>
+</body>
+</html>
