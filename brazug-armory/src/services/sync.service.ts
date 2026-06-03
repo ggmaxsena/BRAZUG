@@ -174,6 +174,41 @@ class SyncService {
       throw error;
     }
   }
+
+  async syncGuildRoster(realm: string, guildName: string, region: string) {
+    try {
+      console.log(`[SYNC-GUILD] Starting sync for guild ${guildName} on ${realm}...`);
+      const rosterData = await blizzardService.getGuildRoster(realm, guildName);
+      
+      if (!rosterData || !rosterData.members) {
+        throw new Error(`Guild roster not found for ${guildName} on ${realm}`);
+      }
+
+      console.log(`[SYNC-GUILD] Found ${rosterData.members.length} members. Starting batch sync...`);
+      
+      let successCount = 0;
+      let failCount = 0;
+
+      // Sync members sequentially to avoid rate limits
+      for (const entry of rosterData.members) {
+        const charName = entry.character.name;
+        try {
+          await this.syncCharacter(realm, charName, region);
+          successCount++;
+          console.log(`[SYNC-GUILD][${successCount}/${rosterData.members.length}] Successfully synced ${charName}`);
+        } catch (e: any) {
+          failCount++;
+          console.error(`[SYNC-GUILD] Failed to sync ${charName}: ${e.message}`);
+        }
+      }
+
+      console.log(`[SYNC-GUILD] Completed. Success: ${successCount}, Failed: ${failCount}`);
+      return { total: rosterData.members.length, success: successCount, failed: failCount };
+    } catch (error: any) {
+      console.error(`[SYNC-GUILD] Fatal error syncing guild ${guildName}: ${error.message}`);
+      throw error;
+    }
+  }
 }
 
 export const syncService = new SyncService();

@@ -141,12 +141,13 @@ class CharacterService {
     console.log(`[DB-DEBUG] Personagem ${name} encontrado. Itens: ${character.items.length}`);
     character.items.forEach(it => console.log(`[DB-DEBUG] Item: ${it.name} Slot: ${it.slot}`));
 
-    // 2. Get from custom profiles
+    // 2. Get from custom profiles - Apenas personagens VIVOS
     const profile = await prisma.characterProfile.findFirst({
       where: {
         name: { equals: name, mode: 'insensitive' },
         realm: { equals: realm, mode: 'insensitive' },
         region: { equals: region, mode: 'insensitive' },
+        isDead: false // Regra BRAZUG: Armory é apenas para os vivos
       },
       include: {
         user: true
@@ -173,12 +174,13 @@ class CharacterService {
   }
 
   async linkProfileToCharacter(character: Character) {
-    // Find matching profile (case-insensitive)
+    // Find matching profile (case-insensitive) - Apenas VIVOS
     const profile = await prisma.characterProfile.findFirst({
       where: {
         name: { equals: character.name, mode: 'insensitive' },
         realm: { equals: character.realm, mode: 'insensitive' },
         region: { equals: character.region, mode: 'insensitive' },
+        isDead: false
       },
     });
 

@@ -28,6 +28,17 @@ module.exports = {
       env: {
         NODE_ENV: "production",
       },
+    },
+    {
+      name: "brazug-sync-daily",
+      script: "scripts/daily-sync.js",
+      cwd: path.resolve(__dirname, "brazug-armory"),
+      instances: 1,
+      autorestart: false,
+      cron_restart: "0 4 * * *",
+      env: {
+        NODE_ENV: "production",
+      }
     }
   ],
 };

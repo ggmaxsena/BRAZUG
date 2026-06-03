@@ -1,30 +1,34 @@
-import { blizzardService } from '../src/services/blizzard.service';
 import { syncService } from '../src/services/sync.service';
+import 'dotenv/config';
 
+/**
+ * Script de sincronização diária da guilda BRAZUG.
+ * Este script deve ser executado via cron ou scheduler (ex: PM2 cron).
+ */
 async function runDailySync() {
-  console.log('[WORKER] Starting daily guild sync...');
-  const realm = 'doomhowl';
-  const guildName = 'brazug';
+    console.log('--- [INICIANDO SINCRONIZAÇÃO DIÁRIA DA GUILDA] ---');
+    console.log(`Data: ${new Date().toISOString()}`);
+    
+    const REALM = 'doomhowl';
+    const GUILD = 'BRAZUG';
+    const REGION = 'us';
 
-  try {
-    const rosterData = await blizzardService.getGuildRoster(realm, guildName);
-    const members = rosterData.members;
-
-    console.log(`[WORKER] Found ${members.length} members. Syncing...`);
-
-    for (const member of members) {
-      const name = member.character.name.toLowerCase();
-      try {
-        await syncService.syncCharacter(realm, name, 'us');
-        console.log(`[WORKER] Synced ${name}`);
-      } catch (e) {
-        console.error(`[WORKER] Failed to sync ${name}`);
-      }
+    try {
+        const result = await syncService.syncGuildRoster(REALM, GUILD, REGION);
+        
+        console.log('\n--- [RESUMO DA SINCRONIZAÇÃO] ---');
+        console.log(`Total de membros encontrados: ${result.total}`);
+        console.log(`Sincronizados com sucesso: ${result.success}`);
+        console.log(`Falhas: ${result.failed}`);
+        console.log('--- [FIM DO PROCESSO] ---');
+        
+        process.exit(0);
+    } catch (error: any) {
+        console.error('\n--- [ERRO FATAL NA SINCRONIZAÇÃO] ---');
+        console.error(error.message);
+        process.exit(1);
     }
-    console.log('[WORKER] Daily sync complete.');
-  } catch (e) {
-    console.error('[WORKER] Critical failure:', e);
-  }
 }
 
+// Executa o script
 runDailySync();
