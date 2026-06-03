@@ -173,6 +173,49 @@ class CharacterService {
     });
   }
 
+  async getItemDetails(itemId: number) {
+    // 1. Tentar pegar do banco local
+    let item = await prisma.item.findUnique({
+      where: { id: itemId }
+    });
+
+    // 2. Se não existe ou não tem tooltipData, buscar na Blizzard
+    if (!item || !item.tooltipData) {
+      console.log(`[ITEM-SERVICE] Fetching item ${itemId} from Blizzard...`);
+      try {
+        const [data, media] = await Promise.all([
+          blizzardService.getItem(itemId),
+          blizzardService.getItemMedia(itemId).catch(() => null)
+        ]);
+
+        const icon = media?.assets?.find((a: any) => a.key === 'icon')?.value;
+
+        item = await prisma.item.upsert({
+          where: { id: itemId },
+          update: {
+            name: data.name,
+            quality: data.quality.type,
+            icon: icon || item?.icon,
+            tooltipData: data as any,
+            lastUpdated: new Date()
+          },
+          create: {
+            id: itemId,
+            name: data.name,
+            quality: data.quality.type,
+            icon: icon,
+            tooltipData: data as any,
+          }
+        });
+      } catch (e: any) {
+        console.warn(`[ITEM-SERVICE] Failed to fetch item ${itemId}: ${e.message}`);
+        return item; // Retorna o que tem (ou null)
+      }
+    }
+
+    return item;
+  }
+
   async linkProfileToCharacter(character: Character) {
     // Find matching profile (case-insensitive) - Apenas VIVOS
     const profile = await prisma.characterProfile.findFirst({

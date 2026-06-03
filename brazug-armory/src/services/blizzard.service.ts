@@ -148,6 +148,16 @@ class BlizzardService {
     const path = `/data/wow/guild/${r}/${g}/roster`;
     return this.fetchFromBlizzard(path, 'data');
   }
+
+  async getItem(itemId: number) {
+    const path = `/data/wow/item/${itemId}`;
+    return this.fetchFromBlizzard(path, 'static');
+  }
+
+  async getItemMedia(itemId: number) {
+    const path = `/data/wow/media/item/${itemId}`;
+    return this.fetchFromBlizzard(path, 'static');
+  }
 }
 
 export const blizzardService = new BlizzardService();

@@ -417,9 +417,197 @@
             .sets-panel { width: calc(100vw - 32px); right: 16px; }
             .sets-fab { right: 16px; bottom: 20px; }
         }
+
+        /* ===================== TABS SYSTEM ===================== */
+        .armory-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0;
+        }
+        .armory-tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            color: var(--text-muted);
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            opacity: 0.6;
+        }
+        .armory-tab-btn:hover { color: #fff; opacity: 1; }
+        .armory-tab-btn.active {
+            color: var(--gold);
+            opacity: 1;
+        }
+        .armory-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gold);
+            box-shadow: 0 0 10px var(--gold);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ===================== MIN-MAX PLANNER ===================== */
+        .planner-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+        @media (max-width: 1024px) { .planner-grid { grid-template-columns: 1fr; } }
+
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .slot-card {
+            background: rgba(12, 8, 8, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+        .slot-card:hover { border-color: var(--gold); background: rgba(196, 30, 58, 0.05); }
+        .slot-card.has-item { border-color: rgba(255,255,255,0.1); }
+
+        .slot-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: #000;
+            border: 1px solid #333;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .slot-icon-box img { width: 100%; height: 100%; object-fit: cover; }
+        .slot-icon-placeholder { font-size: 8px; font-weight: 900; color: #222; text-transform: uppercase; }
+
+        .slot-info-meta { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text-dim); line-height: 1; margin-bottom: 4px; }
+        .slot-item-name { font-size: 13px; font-weight: 700; line-height: 1.2; color: #444; }
+        .slot-item-name.filled { color: #fff; }
+
+        .slot-clear-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: #444;
+            font-size: 10px;
+            cursor: pointer;
+            display: none;
+        }
+        .slot-card.has-item .slot-clear-btn { display: block; }
+        .slot-clear-btn:hover { color: var(--horde-red); }
+
+        /* Search Modal (Min-Max) */
+        .search-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .search-overlay.open { display: flex; }
+        .search-modal {
+            background: #0d0a0a;
+            border: 1px solid #3a2020;
+            border-radius: 16px;
+            width: 600px;
+            max-width: 95vw;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .search-header { padding: 24px; border-bottom: 1px solid #1a1010; }
+        .search-input-wrap { display: flex; gap: 10px; margin-top: 15px; }
+        .search-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #2a1a1a;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #fff;
+            outline: none;
+        }
+        .search-btn {
+            background: var(--horde-red);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            padding: 0 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .search-results { flex: 1; overflow-y: auto; padding: 10px; }
+        .search-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .search-item:hover { background: rgba(196,30,58,0.1); }
+
+        /* ===================== TOOLTIP SYSTEM ===================== */
+        #brazug-tooltip {
+            position: fixed;
+            z-index: 11000;
+            background: rgba(10, 6, 6, 0.95);
+            border: 1px solid #3a2020;
+            border-radius: 6px;
+            padding: 15px;
+            width: 280px;
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            font-family: sans-serif;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .tt-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .tt-quality { font-weight: 700; margin-bottom: 8px; text-transform: capitalize; }
+        .tt-bind { color: #fff; margin-bottom: 2px; }
+        .tt-slot { color: #fff; float: left; }
+        .tt-type { color: #fff; float: right; margin-bottom: 8px; }
+        .tt-clear { clear: both; }
+        .tt-stat { color: #fff; }
+        .tt-green { color: #1eff00; }
+        .tt-gold { color: #ffd100; }
+        .tt-desc { color: #ffd100; margin-top: 10px; }
     </style>
 </head>
 <body class="armory-wrap">
+
+<div id="brazug-tooltip"></div>
 
 <header class="site-header" id="universal-header"></header>
 
@@ -454,7 +642,17 @@
         </div>
     </div>
 
-    <div class="redesign-container armory-grid">
+        </div>
+    </div>
+
+    <div class="redesign-container">
+        <div class="armory-tabs">
+            <button class="armory-tab-btn active" onclick="switchTab('geral')">Geral</button>
+            <button class="armory-tab-btn" onclick="switchTab('min-max')">Min-Max</button>
+        </div>
+    </div>
+
+    <div id="tab-geral" class="redesign-container armory-grid tab-content active">
         <div class="main-column">
             <div class="panel">
                 <div class="corner corner-tl"></div>
@@ -498,6 +696,65 @@
                 <div class="section" id="professions-container"></div>
             </div>
         </aside>
+    </div>
+
+    <div id="tab-min-max" class="redesign-container planner-grid tab-content">
+        <div class="main-column">
+            <div class="panel">
+                <div class="corner corner-tl"></div>
+                <div class="corner corner-tr"></div>
+                <div class="corner corner-bl"></div>
+                <div class="corner corner-br"></div>
+                <div class="panel-title">Simulação de Equipamento</div>
+                <div class="section">
+                    <div class="slot-grid" id="planner-slot-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <aside class="side-column">
+            <div class="panel">
+                <div class="corner corner-tl"></div>
+                <div class="corner corner-tr"></div>
+                <div class="corner corner-bl"></div>
+                <div class="corner corner-br"></div>
+                <div class="panel-title">Stats Simulados</div>
+                <div class="section" id="planner-stats-container">
+                    <!-- Similar to Geral stats but for simulation -->
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="corner corner-tl"></div>
+                <div class="corner corner-tr"></div>
+                <div class="corner corner-bl"></div>
+                <div class="corner corner-br"></div>
+                <div class="panel-title">Configurações</div>
+                <div class="section">
+                    <button class="btn-search" style="width: 100%; margin-bottom: 10px;" onclick="resetPlannerToCurrent()">Resetar para Atual</button>
+                    <button class="btn-search" style="width: 100%;" onclick="clearPlanner()">Limpar Tudo</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<!-- Search Modal for Planner -->
+<div class="search-overlay" id="search-overlay" onclick="closeSearchIfOutside(event)">
+    <div class="search-modal">
+        <div class="search-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 id="search-title" style="margin:0; font-family:'Cinzel'; color:var(--gold);">Buscar Item</h3>
+                <button onclick="closeSearch()" style="background:none; border:none; color:#666; cursor:pointer; font-size:20px;">✕</button>
+            </div>
+            <div class="search-input-wrap">
+                <input type="text" id="search-input" class="search-input" placeholder="Digite o nome do item..." onkeydown="if(event.key==='Enter') doSearch()">
+                <button class="search-btn" onclick="doSearch()">Buscar</button>
+            </div>
+        </div>
+        <div class="search-results" id="search-results">
+            <div style="text-align:center; padding:40px; color:#444;">Digite um nome e clique em buscar.</div>
+        </div>
     </div>
 </div>
 
@@ -554,7 +811,9 @@
                 return;
             }
             if (!res.ok) throw new Error("Erro");
-            render(await res.json());
+            _currentCharData = await res.json();
+            render(_currentCharData);
+            initPlanner(_currentCharData);
         } catch(e) {
             document.getElementById('armory-loading').style.display = 'none';
             document.getElementById('armory-error').style.display = 'block';
@@ -582,7 +841,8 @@
             return `
                 <a class="item-link" 
                    href="${item ? `https://www.wowhead.com/classic/item=${item.itemId}` : '#'}"
-                   data-wowhead="${item ? `item=${item.itemId}&domain=classic` : ''}"
+                   onmouseenter="showBrazugTooltip(event, ${item?.itemId || 0})"
+                   onmouseleave="hideBrazugTooltip()"
                    target="_blank">
                     <div class="item-icon-box" style="${item ? `border-color: ${color}44; box-shadow: inset 0 0 10px ${color}22;` : ''}">
                         ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.display='none'">` : `<span class="item-icon-placeholder">${slot.substring(0,4)}</span>`}
@@ -597,15 +857,7 @@
 
         // Stats
         const stats = char.extra_data?.statistics || {};
-        const statsContainer = document.getElementById('stats-container');
-        statsContainer.innerHTML = `
-            <div class="stat-line"><span class="stat-name">Vida</span><span class="stat-val" style="color:#2ecc71;">${stats.health || '--'}</span></div>
-            <div class="stat-line"><span class="stat-name">Poder</span><span class="stat-val" style="color:#3498db;">${stats.power || '--'}</span></div>
-            <div class="stat-line"><span class="stat-name">Força</span><span class="stat-val">${stats.strength?.effective || '--'}</span></div>
-            <div class="stat-line"><span class="stat-name">Agilidade</span><span class="stat-val">${stats.agility?.effective || '--'}</span></div>
-            <div class="stat-line"><span class="stat-name">Intelecto</span><span class="stat-val">${stats.intellect?.effective || '--'}</span></div>
-            <div class="stat-line"><span class="stat-name">Vigor</span><span class="stat-val">${stats.stamina?.effective || '--'}</span></div>
-        `;
+        renderStats('stats-container', stats);
 
         // Talents
         const talentsContainer = document.getElementById('talents-container');
@@ -650,10 +902,243 @@
         if (window.$WowheadPower) window.$WowheadPower.refreshLinks();
 
         // Enable Sets system with loaded data
-        if (typeof enableSetSave === 'function') enableSetSave(char);
+        enableSetSave(char);
+    }
+
+    function renderStats(containerId, stats) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = `
+            <div class="stat-line"><span class="stat-name">Vida</span><span class="stat-val" style="color:#2ecc71;">${stats.health || '--'}</span></div>
+            <div class="stat-line"><span class="stat-name">Poder</span><span class="stat-val" style="color:#3498db;">${stats.power || '--'}</span></div>
+            <div class="stat-line"><span class="stat-name">Força</span><span class="stat-val">${stats.strength?.effective || stats.strength || '--'}</span></div>
+            <div class="stat-line"><span class="stat-name">Agilidade</span><span class="stat-val">${stats.agility?.effective || stats.agility || '--'}</span></div>
+            <div class="stat-line"><span class="stat-name">Intelecto</span><span class="stat-val">${stats.intellect?.effective || stats.intellect || '--'}</span></div>
+            <div class="stat-line"><span class="stat-name">Vigor</span><span class="stat-val">${stats.stamina?.effective || stats.stamina || '--'}</span></div>
+        `;
     }
 
     loadData();
+
+    // ===================== TABS =====================
+    window.switchTab = function(tabId) {
+        document.querySelectorAll('.armory-tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('onclick').includes(tabId));
+        });
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+    };
+
+    // ===================== PLANNER =====================
+    let plannerItems = {};
+    let activeSearchSlot = null;
+
+    function initPlanner(char) {
+        plannerItems = {};
+        char.items.forEach(item => { plannerItems[item.slot] = item; });
+        renderPlannerGrid();
+        recalcPlannerStats();
+    }
+
+    function renderPlannerGrid() {
+        const grid = document.getElementById('planner-slot-grid');
+        grid.innerHTML = slots.map(slot => {
+            const item = plannerItems[slot];
+            const color = item?.quality ? rarityColors[item.quality] : '#1a1a1a';
+            const iconUrl = item?.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg` : null;
+            
+            return `
+                <div class="slot-card ${item ? 'has-item' : ''}" onclick="openSearch('${slot}')">
+                    <div class="slot-icon-box" style="${item ? `border-color: ${color}44; box-shadow: inset 0 0 10px ${color}22;` : ''}">
+                        ${iconUrl ? `<img src="${iconUrl}" onmouseenter="showBrazugTooltip(event, ${item.itemId})" onmouseleave="hideBrazugTooltip()">` : `<span class="slot-icon-placeholder">${slot.substring(0,4)}</span>`}
+                    </div>
+                    <div class="min-w-0">
+                        <div class="slot-info-meta">${slotNames[slot] || slot}</div>
+                        <div class="slot-item-name ${item ? 'filled' : ''}" style="color: ${item ? color : '#333'}">${item?.name || 'Vazio'}</div>
+                    </div>
+                    <button class="slot-clear-btn" onclick="event.stopPropagation(); clearSlot('${slot}')">✕</button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function recalcPlannerStats() {
+        if (!_currentCharData) return;
+        
+        // Simulação básica: Começa com os stats base do personagem e adiciona/remove gear
+        // Como o extra_data.statistics já inclui a gear atual, precisamos subtrair a gear original e somar a nova
+        // Para simplificar esta versão, vamos apenas exibir o que mudou em relação ao original
+        
+        const baseStats = _currentCharData.extra_data?.statistics || {};
+        const simulatedStats = JSON.parse(JSON.stringify(baseStats));
+        
+        // Lógica de recalcular stats seria complexa sem os coeficientes exatos.
+        // Vamos apenas renderizar os stats do personagem base por enquanto no planner.
+        renderStats('planner-stats-container', simulatedStats);
+    }
+
+    window.openSearch = function(slot) {
+        activeSearchSlot = slot;
+        document.getElementById('search-title').textContent = `Slot: ${slotNames[slot]}`;
+        document.getElementById('search-overlay').classList.add('open');
+        document.getElementById('search-input').focus();
+    };
+
+    window.closeSearch = function() {
+        document.getElementById('search-overlay').classList.remove('open');
+    };
+
+    window.closeSearchIfOutside = function(e) {
+        if (e.target.id === 'search-overlay') closeSearch();
+    };
+
+    window.doSearch = async function() {
+        const q = document.getElementById('search-input').value;
+        if (!q) return;
+        
+        const resultsEl = document.getElementById('search-results');
+        resultsEl.innerHTML = '<div style="text-align:center; padding:40px;">⏳ Buscando...</div>';
+        
+        try {
+            const res = await fetch(`/api/armory/items?q=${encodeURIComponent(q)}`);
+            const items = await res.json();
+            
+            if (items.length === 0) {
+                resultsEl.innerHTML = '<div style="text-align:center; padding:40px; color:#444;">Nenhum item encontrado no banco local.</div>';
+                return;
+            }
+            
+            resultsEl.innerHTML = items.map(item => `
+                <div class="search-item" onclick="selectItem(${item.id})">
+                    <img src="https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg" style="width:32px; height:32px; border-radius:4px;">
+                    <div>
+                        <div style="font-weight:700; color:${rarityColors[item.quality] || '#fff'}">${item.name}</div>
+                        <div style="font-size:10px; color:#555;">${item.quality}</div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {
+            resultsEl.innerHTML = '<div style="text-align:center; padding:40px; color:var(--horde-red);">Erro ao buscar itens.</div>';
+        }
+    };
+
+    window.selectItem = async function(itemId) {
+        try {
+            const res = await fetch(`/api/armory/items/${itemId}`);
+            const item = await res.json();
+            
+            plannerItems[activeSearchSlot] = {
+                itemId: item.id,
+                name: item.name,
+                quality: item.quality,
+                icon: item.icon,
+                slot: activeSearchSlot,
+                tooltipData: item.tooltip_data
+            };
+            
+            renderPlannerGrid();
+            recalcPlannerStats();
+            closeSearch();
+        } catch (e) {
+            alert("Erro ao selecionar item.");
+        }
+    };
+
+    window.clearSlot = function(slot) {
+        delete plannerItems[slot];
+        renderPlannerGrid();
+        recalcPlannerStats();
+    };
+
+    window.clearPlanner = function() {
+        plannerItems = {};
+        renderPlannerGrid();
+        recalcPlannerStats();
+    };
+
+    window.resetPlannerToCurrent = function() {
+        initPlanner(_currentCharData);
+    };
+
+    // ===================== TOOLTIPS =====================
+    const tt = document.getElementById('brazug-tooltip');
+    let ttCache = {};
+
+    window.showBrazugTooltip = async function(e, itemId) {
+        if (!itemId) return;
+        
+        tt.style.display = 'block';
+        tt.innerHTML = '<div style="color:#666;">Carregando...</div>';
+        updateTTPosition(e);
+        
+        let item = ttCache[itemId];
+        if (!item) {
+            try {
+                const res = await fetch(`/api/armory/items/${itemId}`);
+                item = await res.json();
+                ttCache[itemId] = item;
+            } catch (err) {
+                tt.innerHTML = '<div style="color:red;">Erro ao carregar tooltip.</div>';
+                return;
+            }
+        }
+        
+        renderTooltipContent(item);
+    };
+
+    window.hideBrazugTooltip = function() {
+        tt.style.display = 'none';
+    };
+
+    function updateTTPosition(e) {
+        const x = e.clientX + 20;
+        const y = e.clientY + 20;
+        tt.style.left = x + 'px';
+        tt.style.top = y + 'px';
+    }
+
+    function renderTooltipContent(item) {
+        const data = item.tooltip_data || {};
+        const color = rarityColors[item.quality] || '#fff';
+        
+        let html = `
+            <div class="tt-name" style="color:${color}">${item.name}</div>
+            <div class="tt-quality" style="color:${color}">${item.quality}</div>
+        `;
+        
+        if (data.inventory_type) {
+            html += `<div class="tt-slot">${data.inventory_type.name}</div>`;
+        }
+        if (data.item_subclass) {
+            html += `<div class="tt-type">${data.item_subclass.name}</div>`;
+        }
+        html += `<div class="tt-clear"></div>`;
+        
+        if (data.stats) {
+            data.stats.forEach(s => {
+                html += `<div class="tt-stat">${s.display.display_string}</div>`;
+            });
+        }
+        
+        if (data.spells) {
+            data.spells.forEach(s => {
+                html += `<div class="tt-green">${s.description}</div>`;
+            });
+        }
+        
+        if (item.description) {
+            html += `<div class="tt-desc">"${item.description}"</div>`;
+        }
+        
+        tt.innerHTML = html;
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        if (tt.style.display === 'block') updateTTPosition(e);
+    });
+
 })();
 </script>
 <script>
@@ -771,7 +1256,7 @@ function renderSetsList() {
         return;
     }
 
-    const rarityColors = { 'POOR': '#9d9d9d', 'COMMON': '#ffffff', 'UNCOMMON': '#1eff00', 'RARE': '#0070dd', 'EPIC': '#a335ee', 'LEGENDARY': '#ff8000' };
+    const rarityColors = { 'POOR': '#9d9d9d', 'COMMON': '#ffffff', 'UNCOMMON': '#1eff00', 'RARE': '#0070dd', 'EPIC': '#a335ee', 'LEGENDARY': '#ff8000', 'ARTIFACT': '#e6cc80', 'HEIRLOOM': '#00ccff' };
     const isActive = _currentCharData?.name;
 
     container.innerHTML = sets.map(set => {
