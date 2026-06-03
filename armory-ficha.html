@@ -693,18 +693,19 @@
         /* ===================== TOOLTIP SYSTEM ===================== */
         #brazug-tooltip {
             position: fixed;
-            z-index: 11000;
-            background: rgba(10, 6, 6, 0.95);
-            border: 1px solid #3a2020;
-            border-radius: 6px;
+            z-index: 99999; /* Garante que fique acima de tudo */
+            background: rgba(10, 6, 6, 0.98);
+            border: 1px solid #ffd10033;
+            border-radius: 4px;
             padding: 15px;
-            width: 280px;
+            width: 320px;
             pointer-events: none;
             display: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            font-family: sans-serif;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5);
+            font-family: Arial, sans-serif;
             font-size: 13px;
-            line-height: 1.4;
+            line-height: 1.5;
+            color: #fff;
         }
         .tt-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
         .tt-quality { font-weight: 700; margin-bottom: 8px; text-transform: capitalize; }
@@ -1324,12 +1325,21 @@
         grid.innerHTML = slots.map(slot => {
             const item = plannerItems[slot];
             const color = item?.quality ? rarityColors[item.quality] : '#1a1a1a';
-            const iconUrl = item?.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg` : null;
+            
+            let iconUrl = null;
+            if (item?.icon) {
+                iconUrl = item.icon.startsWith('http') ? item.icon : `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg`;
+            }
             
             return `
-                <div class="slot-card ${item ? 'has-item' : ''}" onclick="openSearch('${slot}')">
+                <div class="slot-card ${item ? 'has-item' : ''}" onclick="openSearch('${slot}')"
+                     onmouseenter="${item ? `showBrazugTooltip(event, ${item.itemId})` : ''}"
+                     onmouseleave="hideBrazugTooltip()">
                     <div class="slot-icon-box" style="${item ? `border-color: ${color}44; box-shadow: inset 0 0 10px ${color}22;` : ''}">
-                        ${iconUrl ? `<img src="${iconUrl}" onmouseenter="showBrazugTooltip(event, ${item.itemId})" onmouseleave="hideBrazugTooltip()">` : `<span class="slot-icon-placeholder">${slot.substring(0,4)}</span>`}
+                        ${iconUrl ? `
+                            <img src="${iconUrl}" 
+                                 onerror="this.onerror=null; this.src='https://wow.zamimg.com/images/wow/icons/large/${item?.icon || 'inv_misc_questionmark'}.jpg';">
+                        ` : `<span class="slot-icon-placeholder">${slot.substring(0,4)}</span>`}
                     </div>
                     <div class="min-w-0">
                         <div class="slot-info-meta">${slotNames[slot] || slot}</div>
@@ -1344,16 +1354,51 @@
     function recalcPlannerStats() {
         if (!_currentCharData) return;
         
-        // Simulação básica: Começa com os stats base do personagem e adiciona/remove gear
-        // Como o extra_data.statistics já inclui a gear atual, precisamos subtrair a gear original e somar a nova
-        // Para simplificar esta versão, vamos apenas exibir o que mudou em relação ao original
-        
         const baseStats = _currentCharData.extra_data?.statistics || {};
-        const simulatedStats = JSON.parse(JSON.stringify(baseStats));
-        
-        // Lógica de recalcular stats seria complexa sem os coeficientes exatos.
-        // Vamos apenas renderizar os stats do personagem base por enquanto no planner.
-        renderStats('planner-stats-container', simulatedStats);
+        const simulated = {
+            health: baseStats.health || 0,
+            power: baseStats.power || 0,
+            strength: baseStats.strength?.effective || baseStats.strength || 0,
+            agility: baseStats.agility?.effective || baseStats.agility || 0,
+            intellect: baseStats.intellect?.effective || baseStats.intellect || 0,
+            stamina: baseStats.stamina?.effective || baseStats.stamina || 0
+        };
+
+        // Lógica de Diferença:
+        // 1. Subtrai stats do equipamento ATUAL (original)
+        _currentCharData.items.forEach(origItem => {
+            if (origItem.tooltip_data?.stats) {
+                origItem.tooltip_data.stats.forEach(s => {
+                    const val = s.value;
+                    const type = s.type?.type;
+                    if (type === 'STAMINA') simulated.stamina -= val;
+                    if (type === 'STRENGTH') simulated.strength -= val;
+                    if (type === 'AGILITY') simulated.agility -= val;
+                    if (type === 'INTELLECT') simulated.intellect -= val;
+                });
+            }
+        });
+
+        // 2. Adiciona stats do equipamento SIMULADO
+        Object.values(plannerItems).forEach(simItem => {
+            const data = simItem.tooltipData || simItem.tooltip_data;
+            if (data?.stats) {
+                data.stats.forEach(s => {
+                    const val = s.value;
+                    const type = s.type?.type;
+                    if (type === 'STAMINA') simulated.stamina += val;
+                    if (type === 'STRENGTH') simulated.strength += val;
+                    if (type === 'AGILITY') simulated.agility += val;
+                    if (type === 'INTELLECT') simulated.intellect += val;
+                });
+            }
+        });
+
+        // Atualiza Vida baseada no novo Stamina (Vanilla: ~10 vida por Stamina)
+        const staminaDiff = simulated.stamina - (baseStats.stamina?.effective || baseStats.stamina || 0);
+        simulated.health += (staminaDiff * 10);
+
+        renderStats('planner-stats-container', simulated);
     }
 
     window.openSearch = function(slot) {
