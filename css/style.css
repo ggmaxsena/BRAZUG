@@ -588,3 +588,56 @@ select option {
 }
 .or-line { flex: 1; height: 1px; background: rgba(196, 30, 58, 0.2); }
 .or-text { color: var(--text-dim); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+
+/* PROFESSIONS GRID */
+.prof-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.prof-row {
+  display: grid;
+  grid-template-columns: 1fr 80px;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.lvl-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 5px;
+}
+
+@media (max-width: 600px) {
+  .prof-grid { grid-template-columns: 1fr; }
+}
+
+.prof-centered {
+  grid-column: 1 / -1;
+  max-width: calc(50% - 0.625rem);
+  justify-self: center;
+}
+
+@media (max-width: 600px) {
+  .prof-centered {
+    max-width: 100%;
+  }
+}
+
+/* BLIZZARD SEARCH BOX */
+.blizz-box {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(196, 30, 58, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.blizz-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}

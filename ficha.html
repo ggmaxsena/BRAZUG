@@ -31,14 +31,11 @@
                 <div class="section-sub">Sincronize automaticamente via API Blizzard · Personagens abaixo do nível 10 podem não aparecer</div>
                 <div class="blizz-box">
                     <div class="blizz-row">
-                        <div>
+                        <div style="flex: 1; max-width: 400px;">
                             <label>Nome do personagem</label>
                             <input type="text" id="wow-name" placeholder="Ex: Thrallzinho">
                         </div>
-                        <div>
-                            <label>Reino</label>
-                            <input type="text" id="wow-realm" value="doomhowl">
-                        </div>
+                        <input type="hidden" id="wow-realm" value="doomhowl">
                         <button id="btn-fetch-wow" class="btn-search">Buscar →</button>
                     </div>
                 </div>
@@ -146,7 +143,7 @@
                         </div>
                     </div>
 
-                    <div>
+                    <div class="prof-centered">
                         <label>Pesca</label>
                         <div class="prof-row">
                             <input type="text" value="Fishing" disabled style="background:rgba(0,0,0,0.2);color:#4a3d28">

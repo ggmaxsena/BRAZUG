@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Planner — BRAZUG</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
+    <script>var whTooltips = { colorLinks: true, iconizeLinks: true, renameLinks: true, domain: 'classic' };</script>
+    <script src="https://wow.zamimg.com/js/tooltips.js"></script>
+    <style>
+        /* ===== LAYOUT ===== */
+        * { box-sizing: border-box; }
+        .planner-wrap { padding-bottom: 60px; }
+
+        .planner-hero {
+            background: linear-gradient(to bottom, rgba(196,30,58,0.12), transparent);
+            border-bottom: 1px solid var(--border);
+            padding: 36px 0 28px;
+            margin-bottom: 36px;
+        }
+        .planner-hero-inner {
+            display: flex;
+            align-items: flex-end;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .planner-hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: 48px;
+            font-weight: 900;
+            font-style: italic;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 24px rgba(196,30,58,0.5);
+            line-height: 1;
+        }
+        .planner-hero-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .planner-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 32px;
+        }
+        @media (max-width: 1100px) { .planner-grid { grid-template-columns: 1fr; } }
+
+        /* ===== SLOT GRID ===== */
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 10px;
+        }
+
+        .slot-card {
+            background: rgba(10,6,6,0.7);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            min-height: 64px;
+        }
+        .slot-card:hover { border-color: var(--gold, #f7c14d); background: rgba(247,193,77,0.03); }
+        .slot-card.has-item { border-color: rgba(255,255,255,0.12); }
+        .slot-card.has-item:hover { border-color: var(--gold, #f7c14d); }
+
+        .slot-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: #0d0808;
+            border: 1px solid #222;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            font-weight: 900;
+            color: #2a1a1a;
+            text-transform: uppercase;
+        }
+        .slot-icon-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .slot-info { flex: 1; min-width: 0; }
+        .slot-label { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text-dim, #444); letter-spacing: 1px; margin-bottom: 3px; }
+        .slot-item-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #555; }
+        .slot-item-name.filled { color: #fff; }
+
+        .slot-clear-btn {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #333;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: 0.2s;
+            display: none;
+        }
+        .slot-card.has-item .slot-clear-btn { display: block; }
+        .slot-clear-btn:hover { color: #c41e3a; background: rgba(196,30,58,0.1); }
+
+        /* ===== SEARCH MODAL ===== */
+        .search-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 9000;
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 80px;
+        }
+        .search-overlay.open { display: flex; }
+
+        .search-modal {
+            background: #0d0a0a;
+            border: 1px solid #3a2020;
+            border-radius: 16px;
+            width: 560px;
+            max-width: calc(100vw - 32px);
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 16px 60px rgba(0,0,0,0.9);
+            overflow: hidden;
+        }
+
+        .search-modal-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #1a1010;
+            flex-shrink: 0;
+        }
+        .search-modal-slot-label {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #c41e3a;
+            margin-bottom: 6px;
+        }
+        .search-modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gold, #f7c14d);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+        .search-input-row { display: flex; gap: 8px; }
+        .search-text-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #2a1a1a;
+            border-radius: 8px;
+            padding: 11px 16px;
+            color: #fff;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+        }
+        .search-text-input:focus { border-color: var(--gold, #f7c14d); }
+        .search-text-input::placeholder { color: #333; }
+        .search-go-btn {
+            background: linear-gradient(135deg, #c41e3a, #8b0000);
+            border: 1px solid rgba(247,193,77,0.3);
+            border-radius: 8px;
+            color: var(--gold, #f7c14d);
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 11px 18px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .search-go-btn:hover { background: linear-gradient(135deg, #e02244, #a00000); }
+
+        .search-results {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #3a2020 transparent;
+        }
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: 0.15s;
+            border-bottom: 1px solid #120808;
+        }
+        .search-result-item:hover { background: rgba(196,30,58,0.08); }
+        .search-result-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 6px;
+            background: #0d0808;
+            border: 1px solid #222;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .search-result-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .search-result-info { flex: 1; min-width: 0; }
+        .search-result-name { font-size: 13px; font-weight: 700; }
+        .search-result-sub { font-size: 10px; color: #555; margin-top: 2px; }
+        .search-result-stats { font-size: 10px; color: #888; margin-top: 3px; line-height: 1.5; }
+        .search-result-stats span { margin-right: 8px; }
+
+        .search-status {
+            text-align: center;
+            padding: 40px 24px;
+            color: #333;
+            font-size: 12px;
+            font-style: italic;
+        }
+        .search-loading { color: var(--gold, #f7c14d); animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { opacity:0.4; } to { opacity:1; } }
+
+        .search-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .search-close-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
+
+        /* ===== RIGHT PANEL ===== */
+        .right-panel { display: flex; flex-direction: column; gap: 20px; }
+
+        .rp-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .rp-box-title {
+            font-family: 'Cinzel', serif;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold, #f7c14d);
+            padding: 14px 20px 10px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.3);
+        }
+        .rp-box-body { padding: 16px 20px; }
+
+        /* Stats */
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .stat-row:last-child { border: none; }
+        .stat-row-label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted, #666); letter-spacing: 0.5px; }
+        .stat-row-val { font-size: 18px; font-weight: 900; font-style: italic; color: #fff; transition: 0.3s; }
+        .stat-row-val.updated { color: var(--gold, #f7c14d); }
+
+        /* Config */
+        .config-row { margin-bottom: 12px; }
+        .config-label { font-size: 9px; text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px; color: #555; margin-bottom: 6px; display: block; }
+        .config-select, .config-input {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid #2a1a1a;
+            border-radius: 8px;
+            padding: 9px 12px;
+            color: #fff;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+        }
+        .config-select:focus, .config-input:focus { border-color: var(--gold, #f7c14d); }
+        .config-select option { background: #1a0a0a; }
+
+        /* Save sets */
+        .save-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .save-name-input {
+            flex: 1;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid #2a1a1a;
+            border-radius: 8px;
+            padding: 9px 12px;
+            color: #fff;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+        }
+        .save-name-input:focus { border-color: var(--gold, #f7c14d); }
+        .save-name-input::placeholder { color: #333; }
+        .btn-save-set {
+            background: linear-gradient(135deg, #c41e3a, #8b0000);
+            border: 1px solid rgba(247,193,77,0.3);
+            border-radius: 8px;
+            color: var(--gold, #f7c14d);
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 9px 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-save-set:hover { background: linear-gradient(135deg, #e02244, #a00000); }
+
+        .btn-clear-all {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #2a1a1a;
+            border-radius: 8px;
+            color: #555;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 9px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-clear-all:hover { border-color: #c41e3a; color: #c41e3a; background: rgba(196,30,58,0.05); }
+
+        /* Saved sets list */
+        .saved-set-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid #1f1212;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .saved-set-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+        }
+        .saved-set-header:hover { background: rgba(196,30,58,0.04); }
+        .saved-set-name { flex: 1; font-size: 13px; font-weight: 700; color: #fff; }
+        .saved-set-meta { font-size: 10px; color: #555; }
+        .saved-set-actions { display: flex; gap: 5px; }
+        .btn-load-set, .btn-del-set {
+            background: none;
+            border: 1px solid #2a1a1a;
+            border-radius: 6px;
+            color: #666;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+        }
+        .btn-load-set:hover { border-color: var(--gold, #f7c14d); color: var(--gold, #f7c14d); }
+        .btn-del-set:hover { border-color: #c41e3a; color: #c41e3a; }
+
+        .saved-set-stats {
+            padding: 0 14px 10px;
+            border-top: 1px solid #1a0a0a;
+            display: none;
+        }
+        .saved-set-stats.open { display: block; }
+        .saved-mini-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin-top: 10px;
+        }
+        .mini-stat { background: rgba(0,0,0,0.4); border: 1px solid #1f1212; border-radius: 5px; padding: 5px 8px; text-align: center; }
+        .mini-stat-label { font-size: 7px; text-transform: uppercase; letter-spacing: 1px; color: #444; font-weight: 700; }
+        .mini-stat-val { font-size: 13px; font-weight: 900; color: #fff; margin-top: 1px; }
+
+        .no-sets-msg { text-align:center; padding: 24px 0; color:#333; font-size:12px; font-style:italic; }
+
+        /* ===== BASE STATS CONFIG ===== */
+        .base-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .base-stat-input-row label { font-size: 9px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: #555; display: block; margin-bottom: 4px; }
+        .base-stat-input-row input {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid #2a1a1a;
+            border-radius: 6px;
+            padding: 7px 10px;
+            color: #fff;
+            font-size: 12px;
+            font-family: inherit;
+            outline: none;
+        }
+        .base-stat-input-row input:focus { border-color: var(--gold, #f7c14d); }
+
+        /* ===== TOOLTIP for item stats on slot card ===== */
+        .slot-item-stats {
+            font-size: 9px;
+            color: #666;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body class="planner-wrap">
+
+<header class="site-header" id="universal-header"></header>
+
+<div class="planner-hero">
+    <div class="redesign-container planner-hero-inner">
+        <div>
+            <div class="planner-hero-title">🗡 Set Planner</div>
+            <div class="planner-hero-sub">Monte sets imaginários, busque itens e veja seus stats calculados</div>
+        </div>
+    </div>
+</div>
+
+<div class="redesign-container planner-wrap">
+    <div class="planner-grid">
+
+        <!-- LEFT: Slot Grid -->
+        <div>
+            <div class="panel" style="margin-bottom:0;">
+                <div class="corner corner-tl"></div>
+                <div class="corner corner-tr"></div>
+                <div class="corner corner-bl"></div>
+                <div class="corner corner-br"></div>
+                <div class="panel-title">Equipamento</div>
+                <div class="section">
+                    <div class="slot-grid" id="slot-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Stats + Config + Saved -->
+        <div class="right-panel">
+
+            <!-- Personagem base -->
+            <div class="rp-box">
+                <div class="rp-box-title">Personagem Base</div>
+                <div class="rp-box-body">
+                    <div class="config-row">
+                        <span class="config-label">Nível</span>
+                        <input type="number" class="config-input" id="cfg-level" value="60" min="1" max="60">
+                    </div>
+                    <div class="config-row">
+                        <span class="config-label">Raça</span>
+                        <select class="config-select" id="cfg-race">
+                            <option value="troll">Troll</option>
+                            <option value="orc">Orc</option>
+                            <option value="undead">Morto-vivo</option>
+                            <option value="tauren">Tauren</option>
+                            <option value="goblin">Goblin</option>
+                            <option value="human">Humano</option>
+                            <option value="dwarf">Anão</option>
+                            <option value="gnome">Gnomo</option>
+                            <option value="nightelf">Elfo Noturno</option>
+                            <option value="draenei">Draenei</option>
+                        </select>
+                    </div>
+                    <div class="config-row">
+                        <span class="config-label">Classe</span>
+                        <select class="config-select" id="cfg-class">
+                            <option value="hunter">Caçador</option>
+                            <option value="warrior">Guerreiro</option>
+                            <option value="rogue">Ladino</option>
+                            <option value="mage">Mago</option>
+                            <option value="warlock">Bruxo</option>
+                            <option value="druid">Druida</option>
+                            <option value="priest">Sacerdote</option>
+                            <option value="shaman">Xamã</option>
+                            <option value="paladin">Paladino</option>
+                        </select>
+                    </div>
+                    <div style="margin-top:4px;">
+                        <span class="config-label" style="margin-bottom:8px; display:block;">Stats Base (sem equip)</span>
+                        <div class="base-config-grid">
+                            <div class="base-stat-input-row"><label>Força</label><input type="number" id="base-str" value="61" min="0"></div>
+                            <div class="base-stat-input-row"><label>Agilidade</label><input type="number" id="base-agi" value="271" min="0"></div>
+                            <div class="base-stat-input-row"><label>Vigor</label><input type="number" id="base-sta" value="156" min="0"></div>
+                            <div class="base-stat-input-row"><label>Intelecto</label><input type="number" id="base-int" value="102" min="0"></div>
+                            <div class="base-stat-input-row"><label>Espírito</label><input type="number" id="base-spi" value="104" min="0"></div>
+                            <div class="base-stat-input-row"><label>AP Base</label><input type="number" id="base-ap" value="426" min="0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Calculados -->
+            <div class="rp-box">
+                <div class="rp-box-title">Stats Calculados</div>
+                <div class="rp-box-body" id="stats-panel">
+                    <div class="stat-row"><span class="stat-row-label">Força</span><span class="stat-row-val" id="st-str">—</span></div>
+                    <div class="stat-row"><span class="stat-row-label">Agilidade</span><span class="stat-row-val" id="st-agi">—</span></div>
+                    <div class="stat-row"><span class="stat-row-label">Vigor</span><span class="stat-row-val" id="st-sta">—</span></div>
+                    <div class="stat-row"><span class="stat-row-label">Intelecto</span><span class="stat-row-val" id="st-int">—</span></div>
+                    <div class="stat-row"><span class="stat-row-label">Espírito</span><span class="stat-row-val" id="st-spi">—</span></div>
+                    <div class="stat-row"><span class="stat-row-label" style="color:#c0a060;">Atk Power</span><span class="stat-row-val" id="st-ap">—</span></div>
+                    <div class="stat-row"><span class="stat-row-label" style="color:#e0a030;">Crit</span><span class="stat-row-val" id="st-crit">—</span></div>
+                    <div class="stat-row"><span class="stat-row-label" style="color:#5bc8f0;">Acerto</span><span class="stat-row-val" id="st-hit">—</span></div>
+                    <div class="stat-row"><span class="stat-row-label" style="color:#888;">Armor</span><span class="stat-row-val" id="st-armor">—</span></div>
+                </div>
+            </div>
+
+            <!-- Salvar Set -->
+            <div class="rp-box">
+                <div class="rp-box-title">Salvar Set</div>
+                <div class="rp-box-body">
+                    <div class="save-row">
+                        <input type="text" class="save-name-input" id="set-save-name" placeholder="Nome do set..." maxlength="40">
+                        <button class="btn-save-set" onclick="saveSet()">+ Salvar</button>
+                    </div>
+                    <button class="btn-clear-all" onclick="clearAllSlots()">🗑 Limpar todos os slots</button>
+                </div>
+            </div>
+
+            <!-- Sets Salvos -->
+            <div class="rp-box">
+                <div class="rp-box-title">Sets Salvos</div>
+                <div class="rp-box-body" id="saved-sets-container">
+                    <div class="no-sets-msg">Nenhum set salvo ainda.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Search Modal -->
+<div class="search-overlay" id="search-overlay" onclick="closeSearchIfOutside(event)">
+    <div class="search-modal" style="position:relative;">
+        <button class="search-close-btn" onclick="closeSearch()">✕</button>
+        <div class="search-modal-header">
+            <div class="search-modal-slot-label" id="search-slot-label">Slot</div>
+            <div class="search-modal-title">Buscar Item</div>
+            <div class="search-input-row">
+                <input type="text" class="search-text-input" id="search-input"
+                       placeholder="Nome do item em inglês (ex: Giantstalker's Helm)..."
+                       onkeydown="if(event.key==='Enter') doSearch()">
+                <button class="search-go-btn" onclick="doSearch()">Buscar</button>
+            </div>
+        </div>
+        <div class="search-results" id="search-results">
+            <div class="search-status">Digite um nome e pressione Buscar.</div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/header.js"></script>
+<script>
+// ===== CONFIG =====
+const SETS_KEY = 'brazug_planner_sets_v2';
+const SLOT_DATA_KEY = 'brazug_planner_current';
+
+const slotNames = {
+    HEAD:'Cabeça', NECK:'Pescoço', SHOULDER:'Ombros', BACK:'Costas', CHEST:'Torso',
+    SHIRT:'Camisa', TABARD:'Tabardo', WRIST:'Pulsos', HANDS:'Mãos', WAIST:'Cintura',
+    LEGS:'Pernas', FEET:'Pés', FINGER_1:'Anel 1', FINGER_2:'Anel 2',
+    TRINKET_1:'Berloque 1', TRINKET_2:'Berloque 2',
+    MAIN_HAND:'Mão Princ.', OFF_HAND:'Mão Sec.', RANGED:'À Distância'
+};
+const slots = [
+    'HEAD','NECK','SHOULDER','BACK','CHEST','SHIRT','TABARD','WRIST',
+    'HANDS','WAIST','LEGS','FEET','FINGER_1','FINGER_2','TRINKET_1','TRINKET_2',
+    'MAIN_HAND','OFF_HAND','RANGED'
+];
+const rarityColors = {
+    POOR:'#9d9d9d', COMMON:'#ffffff', UNCOMMON:'#1eff00',
+    RARE:'#0070dd', EPIC:'#a335ee', LEGENDARY:'#ff8000', HEIRLOOM:'#00ccff'
+};
+
+// Wowhead slot filter map
+const wowheadSlotFilter = {
+    HEAD:1, NECK:2, SHOULDER:3, SHIRT:4, CHEST:5, WAIST:6, LEGS:7, FEET:8,
+    WRIST:9, HANDS:10, FINGER_1:11, FINGER_2:11, TRINKET_1:12, TRINKET_2:12,
+    BACK:16, MAIN_HAND:17, OFF_HAND:23, RANGED:26, TABARD:19
+};
+
+// Current set state: { SLOT: itemObject }
+let currentSlots = {};
+let activeSearchSlot = null;
+
+// ===== INIT =====
+function init() {
+    try { currentSlots = JSON.parse(localStorage.getItem(SLOT_DATA_KEY) || '{}'); } catch { currentSlots = {}; }
+    renderSlotGrid();
+    recalcStats();
+    renderSavedSets();
+
+    // Base stat inputs recalc
+    ['base-str','base-agi','base-sta','base-int','base-spi','base-ap'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', recalcStats);
+    });
+    document.getElementById('set-save-name')?.addEventListener('keydown', e => {
+        if(e.key==='Enter') saveSet();
+    });
+}
+
+// ===== SLOT GRID =====
+function renderSlotGrid() {
+    const grid = document.getElementById('slot-grid');
+    grid.innerHTML = slots.map(slot => {
+        const item = currentSlots[slot];
+        const color = item?.quality ? rarityColors[item.quality] || '#fff' : null;
+        const iconUrl = item?.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg` : null;
+        const statsStr = item ? buildItemStatsLine(item) : '';
+        return `
+        <div class="slot-card ${item ? 'has-item' : ''}" onclick="openSearch('${slot}')"
+             style="${item && color ? `border-color:${color}33;` : ''}">
+            <div class="slot-icon-box" style="${item && color ? `border-color:${color}55; box-shadow:inset 0 0 8px ${color}22;` : ''}">
+                ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.opacity='0.2'">` : slot.substring(0,4)}
+            </div>
+            <div class="slot-info">
+                <div class="slot-label">${slotNames[slot]}</div>
+                <div class="slot-item-name ${item?'filled':''}" style="${item&&color?`color:${color};`:''}">
+                    ${item?.name || 'Vazio — clique para buscar'}
+                </div>
+                ${statsStr ? `<div class="slot-item-stats">${statsStr}</div>` : ''}
+            </div>
+            <button class="slot-clear-btn" title="Remover" onclick="event.stopPropagation(); clearSlot('${slot}')">✕</button>
+        </div>`;
+    }).join('');
+}
+
+function buildItemStatsLine(item) {
+    const s = item.stats || {};
+    const parts = [];
+    if (s.agility)    parts.push(`+${s.agility} Agi`);
+    if (s.strength)   parts.push(`+${s.strength} For`);
+    if (s.stamina)    parts.push(`+${s.stamina} Vig`);
+    if (s.intellect)  parts.push(`+${s.intellect} Int`);
+    if (s.spirit)     parts.push(`+${s.spirit} Esp`);
+    if (s.attackPower) parts.push(`+${s.attackPower} AP`);
+    if (s.critRating) parts.push(`+${s.critRating} Crit`);
+    if (s.hitRating)  parts.push(`+${s.hitRating} Hit`);
+    return parts.slice(0,4).join(' · ');
+}
+
+function clearSlot(slot) {
+    delete currentSlots[slot];
+    saveCurrentSlots();
+    renderSlotGrid();
+    recalcStats();
+}
+
+function clearAllSlots() {
+    if (!confirm('Limpar todos os slots?')) return;
+    currentSlots = {};
+    saveCurrentSlots();
+    renderSlotGrid();
+    recalcStats();
+}
+
+function saveCurrentSlots() {
+    localStorage.setItem(SLOT_DATA_KEY, JSON.stringify(currentSlots));
+}
+
+// ===== STATS RECALC =====
+function recalcStats() {
+    const base = {
+        str: parseInt(document.getElementById('base-str')?.value) || 0,
+        agi: parseInt(document.getElementById('base-agi')?.value) || 0,
+        sta: parseInt(document.getElementById('base-sta')?.value) || 0,
+        int: parseInt(document.getElementById('base-int')?.value) || 0,
+        spi: parseInt(document.getElementById('base-spi')?.value) || 0,
+        ap:  parseInt(document.getElementById('base-ap')?.value)  || 0,
+    };
+
+    let gear = { str:0, agi:0, sta:0, int:0, spi:0, ap:0, crit:0, hit:0, armor:0 };
+    Object.values(currentSlots).forEach(item => {
+        const s = item.stats || {};
+        gear.str   += s.strength    || 0;
+        gear.agi   += s.agility     || 0;
+        gear.sta   += s.stamina     || 0;
+        gear.int   += s.intellect   || 0;
+        gear.spi   += s.spirit      || 0;
+        gear.ap    += s.attackPower || 0;
+        gear.crit  += s.critRating  || 0;
+        gear.hit   += s.hitRating   || 0;
+        gear.armor += s.armor       || 0;
+    });
+
+    const total = {
+        str:   base.str + gear.str,
+        agi:   base.agi + gear.agi,
+        sta:   base.sta + gear.sta,
+        int:   base.int + gear.int,
+        spi:   base.spi + gear.spi,
+        ap:    base.ap  + gear.ap + (gear.agi * 1), // hunter: +1 AP per AGI simplified
+        crit:  gear.crit,
+        hit:   gear.hit,
+        armor: gear.armor,
+    };
+
+    const fields = { str:'st-str', agi:'st-agi', sta:'st-sta', int:'st-int', spi:'st-spi', ap:'st-ap', crit:'st-crit', hit:'st-hit', armor:'st-armor' };
+    Object.entries(fields).forEach(([key, elId]) => {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        const val = total[key];
+        const display = key === 'crit' || key === 'hit' ? `+${val}` : val;
+        if (el.textContent !== String(display)) {
+            el.textContent = display;
+            el.classList.add('updated');
+            setTimeout(() => el.classList.remove('updated'), 600);
+        }
+    });
+}
+
+// ===== SEARCH MODAL =====
+function openSearch(slot) {
+    activeSearchSlot = slot;
+    document.getElementById('search-slot-label').textContent = slotNames[slot] || slot;
+    document.getElementById('search-input').value = '';
+    document.getElementById('search-results').innerHTML = '<div class="search-status">Digite um nome e pressione Buscar.</div>';
+    document.getElementById('search-overlay').classList.add('open');
+    setTimeout(() => document.getElementById('search-input').focus(), 100);
+}
+
+function closeSearch() {
+    document.getElementById('search-overlay').classList.remove('open');
+    activeSearchSlot = null;
+}
+
+function closeSearchIfOutside(e) {
+    if (e.target === document.getElementById('search-overlay')) closeSearch();
+}
+
+async function doSearch() {
+    const query = document.getElementById('search-input').value.trim();
+    if (!query) return;
+
+    const resultsEl = document.getElementById('search-results');
+    resultsEl.innerHTML = '<div class="search-status search-loading">⏳ Buscando no Wowhead Classic...</div>';
+
+    try {
+        // Wowhead Classic suggest API
+        const url = `https://classic.wowhead.com/search/suggestions-template?q=${encodeURIComponent(query)}&resultsCount=20&domain=classic`;
+        const res = await fetch(url);
+        const text = await res.text();
+
+        // Parse Wowhead's JS template response
+        const items = parseWowheadSuggest(text, query);
+
+        if (items.length === 0) {
+            resultsEl.innerHTML = '<div class="search-status">Nenhum item encontrado. Tente em inglês.</div>';
+            return;
+        }
+
+        // Filter to items only (type 6 = items in wowhead suggest), show first 15
+        const filtered = items.filter(i => i.type === 'item').slice(0, 15);
+        if (filtered.length === 0) {
+            resultsEl.innerHTML = '<div class="search-status">Nenhum item encontrado. Tente o nome em inglês.</div>';
+            return;
+        }
+
+        resultsEl.innerHTML = filtered.map(item => {
+            const color = rarityColors[item.quality] || '#fff';
+            const iconUrl = item.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg` : null;
+            return `
+            <div class="search-result-item" onclick="selectItem(${JSON.stringify(item).replace(/"/g,'&quot;')})">
+                <div class="search-result-icon" style="border:1px solid ${color}44;">
+                    ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.opacity='0.2'">` : ''}
+                </div>
+                <div class="search-result-info">
+                    <div class="search-result-name" style="color:${color};">${item.name}</div>
+                    <div class="search-result-sub">${item.typeName || ''} ${item.subTypeName ? '· '+item.subTypeName : ''}</div>
+                    <div class="search-result-stats">${buildItemStatsLine(item)}</div>
+                </div>
+            </div>`;
+        }).join('');
+
+    } catch(err) {
+        // Fallback: try the wowhead XML search
+        resultsEl.innerHTML = `<div class="search-status">Erro na busca. Verifique sua conexão.<br><small style="color:#444;">${err.message}</small></div>`;
+    }
+}
+
+function parseWowheadSuggest(text, query) {
+    // Wowhead suggest returns a JS template string like:
+    // var data = {...};
+    // We need to extract items from it
+    const items = [];
+    try {
+        // Match item entries: { id, name, quality, icon, ... }
+        const regex = /\{[^{}]*"id"\s*:\s*(\d+)[^{}]*"name"\s*:\s*"([^"]+)"[^{}]*\}/g;
+        // Better: extract the data object
+        const dataMatch = text.match(/var data\s*=\s*(\{[\s\S]+?\});/);
+        if (dataMatch) {
+            const data = JSON.parse(dataMatch[1]);
+            const entries = data.items || data.results || [];
+            entries.forEach(e => {
+                if (e.id && e.name) {
+                    items.push(normalizeWowheadItem(e));
+                }
+            });
+        } else {
+            // Try another pattern - wowhead sometimes uses different format
+            const jsonMatch = text.match(/\{[\s\S]*"results"[\s\S]*\}/);
+            if (jsonMatch) {
+                const parsed = JSON.parse(jsonMatch[0]);
+                (parsed.results || []).forEach(e => {
+                    if (e.id && e.name) items.push(normalizeWowheadItem(e));
+                });
+            }
+        }
+    } catch(e) {}
+    return items;
+}
+
+function normalizeWowheadItem(raw) {
+    const qualityMap = { 0:'POOR',1:'COMMON',2:'UNCOMMON',3:'RARE',4:'EPIC',5:'LEGENDARY',6:'ARTIFACT',7:'HEIRLOOM' };
+    return {
+        type: 'item',
+        itemId: raw.id,
+        name: raw.name,
+        quality: qualityMap[raw.quality] || 'COMMON',
+        icon: raw.icon || null,
+        typeName: raw.typeName || '',
+        subTypeName: raw.subTypeName || '',
+        stats: parseStatsFromTooltip(raw)
+    };
+}
+
+function parseStatsFromTooltip(raw) {
+    // Wowhead suggest gives limited stats, parse what we can
+    const stats = {};
+    const tooltip = raw.tooltip_description || raw.description || '';
+    const patterns = [
+        [/\+(\d+) Agility/i, 'agility'],
+        [/\+(\d+) Strength/i, 'strength'],
+        [/\+(\d+) Stamina/i, 'stamina'],
+        [/\+(\d+) Intellect/i, 'intellect'],
+        [/\+(\d+) Spirit/i, 'spirit'],
+        [/\+(\d+) Attack Power/i, 'attackPower'],
+        [/Increases your chance to hit by (\d+)/i, 'hitRating'],
+        [/Increases your chance to get a critical strike by (\d+)/i, 'critRating'],
+    ];
+    patterns.forEach(([re, key]) => {
+        const m = tooltip.match(re);
+        if (m) stats[key] = parseInt(m[1]);
+    });
+    // Also try raw stat fields Wowhead sometimes includes
+    if (raw.agility)    stats.agility    = (stats.agility    || 0) + raw.agility;
+    if (raw.strength)   stats.strength   = (stats.strength   || 0) + raw.strength;
+    if (raw.stamina)    stats.stamina    = (stats.stamina    || 0) + raw.stamina;
+    if (raw.intellect)  stats.intellect  = (stats.intellect  || 0) + raw.intellect;
+    if (raw.spirit)     stats.spirit     = (stats.spirit     || 0) + raw.spirit;
+    if (raw.attackPower) stats.attackPower = (stats.attackPower || 0) + raw.attackPower;
+    if (raw.armor)      stats.armor      = raw.armor;
+    return stats;
+}
+
+function selectItem(item) {
+    if (!activeSearchSlot) return;
+    currentSlots[activeSearchSlot] = item;
+    saveCurrentSlots();
+    renderSlotGrid();
+    recalcStats();
+    closeSearch();
+}
+
+// ===== SAVE / LOAD SETS =====
+function getSavedSets() {
+    try { return JSON.parse(localStorage.getItem(SETS_KEY) || '[]'); } catch { return []; }
+}
+
+function saveSet() {
+    const nameInput = document.getElementById('set-save-name');
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); return; }
+
+    const level = document.getElementById('cfg-level')?.value || 60;
+    const race = document.getElementById('cfg-race')?.value || '';
+    const charClass = document.getElementById('cfg-class')?.value || '';
+
+    // Snapshot current stats
+    const statIds = ['st-str','st-agi','st-sta','st-int','st-spi','st-ap','st-crit','st-hit','st-armor'];
+    const statsSnap = {};
+    statIds.forEach(id => { statsSnap[id] = document.getElementById(id)?.textContent || '—'; });
+
+    const set = {
+        id: Date.now(),
+        name,
+        savedAt: new Date().toISOString(),
+        level, race, class: charClass,
+        slots: JSON.parse(JSON.stringify(currentSlots)),
+        stats: statsSnap,
+        baseStats: {
+            str: document.getElementById('base-str')?.value,
+            agi: document.getElementById('base-agi')?.value,
+            sta: document.getElementById('base-sta')?.value,
+            int: document.getElementById('base-int')?.value,
+            spi: document.getElementById('base-spi')?.value,
+            ap:  document.getElementById('base-ap')?.value,
+        }
+    };
+
+    const sets = getSavedSets();
+    sets.unshift(set);
+    localStorage.setItem(SETS_KEY, JSON.stringify(sets));
+    nameInput.value = '';
+    renderSavedSets();
+
+    // Feedback
+    const btn = document.querySelector('.btn-save-set');
+    btn.textContent = '✓ Salvo!';
+    btn.style.background = 'linear-gradient(135deg,#1a8a4a,#0d5a2e)';
+    setTimeout(() => { btn.textContent = '+ Salvar'; btn.style.background = ''; }, 2000);
+}
+
+function loadSet(id) {
+    const sets = getSavedSets();
+    const set = sets.find(s => s.id === id);
+    if (!set) return;
+
+    currentSlots = JSON.parse(JSON.stringify(set.slots));
+    saveCurrentSlots();
+
+    if (set.level) document.getElementById('cfg-level').value = set.level;
+    if (set.race)  document.getElementById('cfg-race').value = set.race;
+    if (set.class) document.getElementById('cfg-class').value = set.class;
+    if (set.baseStats) {
+        document.getElementById('base-str').value = set.baseStats.str || 0;
+        document.getElementById('base-agi').value = set.baseStats.agi || 0;
+        document.getElementById('base-sta').value = set.baseStats.sta || 0;
+        document.getElementById('base-int').value = set.baseStats.int || 0;
+        document.getElementById('base-spi').value = set.baseStats.spi || 0;
+        document.getElementById('base-ap').value  = set.baseStats.ap  || 0;
+    }
+
+    renderSlotGrid();
+    recalcStats();
+}
+
+function deleteSet(id) {
+    if (!confirm('Deletar este set?')) return;
+    const sets = getSavedSets().filter(s => s.id !== id);
+    localStorage.setItem(SETS_KEY, JSON.stringify(sets));
+    renderSavedSets();
+}
+
+function toggleSavedSetDetails(id) {
+    const el = document.getElementById(`saved-set-body-${id}`);
+    if (el) el.classList.toggle('open');
+}
+
+function renderSavedSets() {
+    const container = document.getElementById('saved-sets-container');
+    const sets = getSavedSets();
+    if (sets.length === 0) {
+        container.innerHTML = '<div class="no-sets-msg">Nenhum set salvo ainda.</div>';
+        return;
+    }
+
+    const statLabels = { 'st-str':'For', 'st-agi':'Agi', 'st-sta':'Vig', 'st-int':'Int', 'st-ap':'AP', 'st-crit':'Crit', 'st-hit':'Hit' };
+
+    container.innerHTML = sets.map(set => {
+        const date = new Date(set.savedAt).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'2-digit'});
+        const gearCount = Object.keys(set.slots || {}).length;
+
+        const miniStats = Object.entries(statLabels).map(([id, label]) => `
+            <div class="mini-stat">
+                <div class="mini-stat-label">${label}</div>
+                <div class="mini-stat-val">${set.stats?.[id] || '—'}</div>
+            </div>`).join('');
+
+        return `
+        <div class="saved-set-item">
+            <div class="saved-set-header" onclick="toggleSavedSetDetails(${set.id})">
+                <div>
+                    <div class="saved-set-name">${set.name}</div>
+                    <div class="saved-set-meta">Lv${set.level || '?'} ${set.class || ''} · ${gearCount} peças · ${date}</div>
+                </div>
+                <div class="saved-set-actions">
+                    <button class="btn-load-set" onclick="event.stopPropagation(); loadSet(${set.id})">▶ Carregar</button>
+                    <button class="btn-del-set" onclick="event.stopPropagation(); deleteSet(${set.id})">✕</button>
+                </div>
+            </div>
+            <div class="saved-set-stats" id="saved-set-body-${set.id}">
+                <div class="saved-mini-stats">${miniStats}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ===== KEYBOARD ESC =====
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSearch();
+});
+
+init();
+</script>
+</body>
+</html>
