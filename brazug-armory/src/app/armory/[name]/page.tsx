@@ -111,14 +111,24 @@ export default async function BrazugArmoryPage({ params }: Props) {
                 {slots.map(slot => {
                   const item = getItemBySlot(slot);
                   const color = (item && item.quality) ? rarityColors[item.quality] : '#1a1a1a';
+                  const iconUrl = item?.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg` : null;
                   
                   return (
-                    <div key={slot} className="group relative flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-700 transition-all">
+                    <a 
+                        key={slot} 
+                        href={item ? `https://www.wowhead.com/classic/item=${item.itemId}` : '#'}
+                        data-wowhead={item ? `item=${item.itemId}&domain=classic` : ''}
+                        className="group relative flex items-center gap-3 p-3 rounded-xl bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-700 transition-all cursor-pointer"
+                    >
                       <div 
                         className="w-10 h-10 rounded-lg shrink-0 border border-zinc-800 bg-black flex items-center justify-center relative overflow-hidden"
                         style={{ boxShadow: item ? `inset 0 0 10px ${color}22` : 'none' }}
                       >
-                         <span className="text-[8px] font-black text-zinc-800 uppercase">{slot.substring(0, 4)}</span>
+                         {iconUrl ? (
+                            <img src={iconUrl} alt={item?.name || ''} className="w-full h-full object-cover" />
+                         ) : (
+                            <span className="text-[8px] font-black text-zinc-800 uppercase">{slot.substring(0, 4)}</span>
+                         )}
                          {item && <div className="absolute inset-0 border-2 opacity-20" style={{ borderColor: color }} />}
                       </div>
                       <div className="min-w-0">
@@ -127,7 +137,7 @@ export default async function BrazugArmoryPage({ params }: Props) {
                           {item ? item.name : 'Empty Slot'}
                         </p>
                       </div>
-                    </div>
+                    </a>
                   );
                 })}
               </div>
@@ -196,12 +206,19 @@ export default async function BrazugArmoryPage({ params }: Props) {
                                         <ul className="space-y-1">
                                             {s.talents?.map((t: any) => {
                                                 const isMax = t.talent_rank === (t.spell_tooltip?.spell?.max_rank || 5);
+                                                const spellId = t.spell_tooltip?.spell?.id;
                                                 return (
-                                                    <li key={t.talent.id} className="text-[10px] text-zinc-500 flex justify-between bg-zinc-950 p-1 rounded border border-zinc-900/50">
-                                                        <span className={isMax ? "text-gold font-bold" : "text-zinc-400"}>{t.talent.name}</span>
-                                                        <span className={`font-mono ml-2 ${isMax ? "text-gold font-bold" : "text-zinc-600"}`}>
-                                                            ({t.talent_rank}/{t.spell_tooltip?.spell?.max_rank || '?'})
-                                                        </span>
+                                                    <li key={t.talent.id}>
+                                                        <a 
+                                                            href={`https://www.wowhead.com/classic/spell=${spellId}`}
+                                                            data-wowhead={`spell=${spellId}&domain=classic`}
+                                                            className="text-[10px] text-zinc-500 flex justify-between bg-zinc-950 p-1 rounded border border-zinc-900/50 hover:border-zinc-700 transition-colors"
+                                                        >
+                                                            <span className={isMax ? "text-gold font-bold" : "text-zinc-400"}>{t.talent.name}</span>
+                                                            <span className={`font-mono ml-2 ${isMax ? "text-gold font-bold" : "text-zinc-600"}`}>
+                                                                ({t.talent_rank}/{t.spell_tooltip?.spell?.max_rank || '?'})
+                                                            </span>
+                                                        </a>
                                                     </li>
                                                 );
                                             })}

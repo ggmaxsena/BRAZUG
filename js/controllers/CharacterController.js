@@ -157,7 +157,11 @@
         document.getElementById("level").value = char.level;
         document.getElementById("guild").value = char.guild;
         document.getElementById("visibility").value = char.visibility;
-        document.getElementById("status").value = char.is_dead ? "dead" : "alive";
+        
+        const statusSelect = document.getElementById("status");
+        statusSelect.value = char.is_dead ? "dead" : "alive";
+        if (statusSelect.onchange) statusSelect.onchange(); // Trigger redesign class change
+        
         document.getElementById("image_url").value = char.image_url;
         
         if (this.quill) {

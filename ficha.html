@@ -7,200 +7,265 @@
 <link rel="stylesheet" href="/css/style.css">
 <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<style>
-    .ql-toolbar.ql-snow { background: #222; border-color: #333; }
-    .ql-container.ql-snow { border-color: #333; min-height: 200px; }
-    .ql-snow .ql-stroke { stroke: #fff; }
-    .ql-snow .ql-fill { fill: #fff; }
-    .ql-snow .ql-picker { color: #fff; }
-    .ql-snow .ql-picker-options { background-color: #222; border: 1px solid #333; }
-    .ql-editor { font-size: 16px; line-height: 1.6; background: #111; color: #fff; }
-    .ql-editor.ql-blank::before { color: #666; }
-
-    .prof-grid {
-
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
-        margin-top: 15px;
-    }
-    .prof-item {
-        display: flex;
-        align-items: flex-end;
-        gap: 10px;
-    }
-    .prof-item div:first-child { flex: 1; }
-    .prof-item div:last-child { width: 80px; }
-    .prof-item label { font-size: 13px; color: var(--text-muted); }
-</style>
 </head>
 <body>
 
 <header class="site-header" id="universal-header"></header>
 
-<div class="container">
-    <h1 class="section-title">Painel de Personagens</h1>
-    <p class="subtitle" style="text-align: center;">Gerencie seus heróis, atualize seus status e mantenha sua crônica viva no servidor Doomhowl.</p>
+<div class="redesign-container">
+    <h1 class="page-title-redesign">Painel de Personagens</h1>
+    <p class="page-subtitle-redesign">Gerencie seus heróis, atualize seus status e mantenha sua crônica viva no servidor Doomhowl.</p>
 
     <div id="form-container">
-        <div class="card" id="character-form-card">
-            <h2 style="color: var(--gold); margin-bottom: 20px;">Criar/Editar Personagem</h2>
+        <div class="panel" id="character-form-card">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+
+            <div class="panel-title">Criar / Editar Personagem</div>
+            <div class="panel-subtitle">Preencha os dados do seu herói abaixo</div>
             
-            <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #444;">
-                <h3 style="color: var(--gold); margin-bottom: 10px;">Puxar dados do WoW</h3>
-                <p style="font-size: 11px; color: #888; margin-bottom: 10px;">⚠️ Nota: Personagens abaixo do nível 10 podem não aparecer na API da Blizzard.</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end;">
-                    <div><label>Nome</label><input type="text" id="wow-name" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
-                    <div><label>Reino</label><input type="text" id="wow-realm" value="doomhowl" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
-                    <button id="btn-fetch-wow" class="discord-btn" style="border: none; padding: 10px 20px; cursor: pointer;">Buscar</button>
+            <div class="section">
+                <div class="section-heading">Puxar dados do WoW</div>
+                <div class="section-sub">Sincronize automaticamente via API Blizzard · Personagens abaixo do nível 10 podem não aparecer</div>
+                <div class="blizz-box">
+                    <div class="blizz-row">
+                        <div>
+                            <label>Nome do personagem</label>
+                            <input type="text" id="wow-name" placeholder="Ex: Thrallzinho">
+                        </div>
+                        <div>
+                            <label>Reino</label>
+                            <input type="text" id="wow-realm" value="doomhowl">
+                        </div>
+                        <button id="btn-fetch-wow" class="btn-search">Buscar →</button>
+                    </div>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                <div><label>Nome do Personagem</label><input type="text" id="name" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
-                <div>
-                    <label>Classe</label>
-                    <select id="class" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
-                        <option>Warrior</option><option>Hunter</option><option>Rogue</option><option>Mage</option><option>Warlock</option><option>Priest</option><option>Druid</option><option>Shaman</option><option>Paladin</option>
-                    </select>
+            <div class="divider"></div>
+
+            <div class="section">
+                <div class="section-heading" style="margin-bottom:1rem">Informações do herói</div>
+                <div class="grid-3" style="margin-bottom:.75rem">
+                    <div>
+                        <label>Nome do personagem</label>
+                        <input type="text" id="name" placeholder="Nome do Herói">
+                    </div>
+                    <div>
+                        <label>Classe</label>
+                        <select id="class">
+                            <option value="Warrior">Warrior</option><option value="Hunter">Hunter</option><option value="Rogue">Rogue</option><option value="Mage">Mage</option><option value="Warlock">Warlock</option><option value="Priest">Priest</option><option value="Druid">Druid</option><option value="Shaman">Shaman</option><option value="Paladin">Paladin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Raça</label>
+                        <select id="race">
+                            <option value="Orc">Orc</option><option value="Troll">Troll</option><option value="Tauren">Tauren</option><option value="Undead">Undead</option><option value="Human">Human</option><option value="Dwarf">Dwarf</option><option value="Night Elf">Night Elf</option><option value="Gnome">Gnome</option>
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label>Raça</label>
-                    <select id="race" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
-                        <option>Orc</option><option>Troll</option><option>Tauren</option><option>Undead</option><option>Human</option><option>Dwarf</option><option>Night Elf</option><option>Gnome</option>
-                    </select>
+                <div class="grid-3">
+                    <div>
+                        <label>Level</label>
+                        <input type="number" id="level" value="1" min="1" max="60">
+                    </div>
+                    <div>
+                        <label>Guilda</label>
+                        <input type="text" id="guild" value="BRAZUG">
+                    </div>
+                    <div>
+                        <label>Visibilidade</label>
+                        <select id="visibility">
+                            <option value="public">Público</option><option value="private">Privado</option>
+                        </select>
+                    </div>
                 </div>
-                <div><label>Level</label><input type="number" id="level" value="1" min="1" max="60" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
-                <div><label>Guilda</label><input type="text" id="guild" value="BRAZUG" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
-                <div>
-                    <label>Visibilidade</label>
-                    <select id="visibility" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
-                        <option value="public">Público</option><option value="private">Privado</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Status</label>
-                    <select id="status" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
-                        <option value="alive">Vivo</option><option value="dead">Morto</option>
-                    </select>
+
+                <div class="status-row">
+                    <div>
+                        <label>Status</label>
+                        <select id="status" class="status-alive" onchange="this.className = this.value === 'dead' ? 'status-dead' : 'status-alive'">
+                            <option value="alive">⚔ Vivo</option>
+                            <option value="dead">💀 Morto (HC)</option>
+                        </select>
+                    </div>
+                    <div style="display:flex;align-items:flex-end">
+                        <div style="background:rgba(20,40,20,0.3);border:1px solid #1a3d1a;border-radius:5px;padding:9px 12px;font-size:12px;color:#4a8a4a;width:100%;text-align:center">
+                            ✓ Personagem ativo no servidor Doomhowl
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div style="margin-top: 30px;">
-                <h3 style="color: var(--gold); margin-bottom: 5px;">Profissões</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Informe o nome e o nível atual da profissão (máx. 300)</p>
+
+            <div class="divider"></div>
+
+            <div class="section">
+                <div class="section-heading">Profissões</div>
+                <div class="section-sub">Informe o nome e o nível atual — máx. 300 por profissão</div>
                 
                 <div class="prof-grid">
-                    <!-- Primária 1 -->
-                    <div class="prof-item">
-                        <div>
-                            <label>Primária 1</label>
-                            <select id="prof1_name" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                    <div>
+                        <label>Primária 1</label>
+                        <div class="prof-row">
+                            <select id="prof1_name">
                                 <option value="">Nenhuma</option>
-                                <option>Alchemy</option><option>Blacksmithing</option><option>Enchanting</option><option>Engineering</option>
-                                <option>Herbalism</option><option>Leatherworking</option><option>Mining</option><option>Skinning</option><option>Tailoring</option>
+                                <option value="Alchemy">Alchemy</option><option value="Blacksmithing">Blacksmithing</option><option value="Enchanting">Enchanting</option><option value="Engineering">Engineering</option>
+                                <option value="Herbalism">Herbalism</option><option value="Leatherworking">Leatherworking</option><option value="Mining">Mining</option><option value="Skinning">Skinning</option><option value="Tailoring">Tailoring</option>
                             </select>
-                        </div>
-                        <div>
-                            <label>Lvl</label>
-                            <input type="number" id="prof1_lvl" value="0" min="0" max="300" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                            <div><div class="lvl-label">Lvl</div><input type="number" id="prof1_lvl" value="0" min="0" max="300"></div>
                         </div>
                     </div>
 
-                    <!-- Primária 2 -->
-                    <div class="prof-item">
-                        <div>
-                            <label>Primária 2</label>
-                            <select id="prof2_name" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                    <div>
+                        <label>Primária 2</label>
+                        <div class="prof-row">
+                            <select id="prof2_name">
                                 <option value="">Nenhuma</option>
-                                <option>Alchemy</option><option>Blacksmithing</option><option>Enchanting</option><option>Engineering</option>
-                                <option>Herbalism</option><option>Leatherworking</option><option>Mining</option><option>Skinning</option><option>Tailoring</option>
+                                <option value="Alchemy">Alchemy</option><option value="Blacksmithing">Blacksmithing</option><option value="Enchanting">Enchanting</option><option value="Engineering">Engineering</option>
+                                <option value="Herbalism">Herbalism</option><option value="Leatherworking">Leatherworking</option><option value="Mining">Mining</option><option value="Skinning">Skinning</option><option value="Tailoring">Tailoring</option>
                             </select>
-                        </div>
-                        <div>
-                            <label>Lvl</label>
-                            <input type="number" id="prof2_lvl" value="0" min="0" max="300" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                            <div><div class="lvl-label">Lvl</div><input type="number" id="prof2_lvl" value="0" min="0" max="300"></div>
                         </div>
                     </div>
 
-                    <!-- Cooking -->
-                    <div class="prof-item">
-                        <div><label>Culinária (Cooking)</label><input type="text" value="Cooking" disabled style="width:100%; padding:8px; background:#000; border:1px solid #222; color:#555; border-radius: 4px;"></div>
-                        <div><label>Lvl</label><input type="number" id="prof_cooking_lvl" value="0" min="0" max="300" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
+                    <div>
+                        <label>Culinária</label>
+                        <div class="prof-row">
+                            <input type="text" value="Cooking" disabled style="background:rgba(0,0,0,0.2);color:#4a3d28">
+                            <div><div class="lvl-label">Lvl</div><input type="number" id="prof_cooking_lvl" value="0" min="0" max="300"></div>
+                        </div>
                     </div>
 
-                    <!-- First Aid -->
-                    <div class="prof-item">
-                        <div><label>Primeiros Socorros (First Aid)</label><input type="text" value="First Aid" disabled style="width:100%; padding:8px; background:#000; border:1px solid #222; color:#555; border-radius: 4px;"></div>
-                        <div><label>Lvl</label><input type="number" id="prof_aid_lvl" value="0" min="0" max="300" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
+                    <div>
+                        <label>Primeiros Socorros</label>
+                        <div class="prof-row">
+                            <input type="text" value="First Aid" disabled style="background:rgba(0,0,0,0.2);color:#4a3d28">
+                            <div><div class="lvl-label">Lvl</div><input type="number" id="prof_aid_lvl" value="0" min="0" max="300"></div>
+                        </div>
                     </div>
 
-                    <!-- Fishing -->
-                    <div class="prof-item">
-                        <div><label>Pescaria (Fishing)</label><input type="text" value="Fishing" disabled style="width:100%; padding:8px; background:#000; border:1px solid #222; color:#555; border-radius: 4px;"></div>
-                        <div><label>Lvl</label><input type="number" id="prof_fishing_lvl" value="0" min="0" max="300" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"></div>
+                    <div>
+                        <label>Pesca</label>
+                        <div class="prof-row">
+                            <input type="text" value="Fishing" disabled style="background:rgba(0,0,0,0.2);color:#4a3d28">
+                            <div><div class="lvl-label">Lvl</div><input type="number" id="prof_fishing_lvl" value="0" min="0" max="300"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 25px;">
+            <div class="divider"></div>
+
+            <div class="section">
+                <div class="section-heading" style="margin-bottom:.5rem">Imagem do personagem</div>
+                <div class="upload-area" onclick="document.getElementById('image_file').click()">
+                    <div class="upload-icon">🗡</div>
+                    <div class="upload-text">Clique para selecionar uma imagem</div>
+                    <div class="upload-sub">PNG, JPG ou GIF · máx. 5MB</div>
+                    <input type="file" id="image_file" accept="image/*" style="display:none" onchange="if(this.files[0]) alert('Imagem selecionada: ' + this.files[0].name)">
+                </div>
+                <div class="or-divider"><div class="or-line"></div><div class="or-text">OU URL</div><div class="or-line"></div></div>
+                <input type="url" id="image_url" placeholder="https://example.com/meu-personagem.jpg">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="section">
+                <div class="section-heading" style="margin-bottom:1rem">Canais & Mídia</div>
+                <div class="grid-2" style="margin-bottom:.75rem">
+                    <div>
+                        <label>Twitch</label>
+                        <input type="url" id="twitch_url" placeholder="https://twitch.tv/seu-canal">
+                    </div>
+                    <div>
+                        <label>YouTube</label>
+                        <input type="url" id="youtube_url" placeholder="https://youtube.com/@seu-canal">
+                    </div>
+                </div>
                 <div>
-                    <label>Imagem do Personagem</label>
-                    <input type="file" id="image_file" accept="image/*" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px; margin-bottom: 10px;">
-                    <input type="url" id="image_url" placeholder="Ou cole a URL da imagem aqui" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
+                    <label>Vídeo de lore (YouTube ou clipe Twitch)</label>
+                    <input type="url" id="video_url" placeholder="Cole o link do vídeo que conta sua história...">
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 25px;">
-                <div>
-                    <label>Twitch Canal (Link)</label>
-                    <input type="url" id="twitch_url" placeholder="https://twitch.tv/seu-canal" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
-                </div>
-                <div>
-                    <label>YouTube Canal (Link)</label>
-                    <input type="url" id="youtube_url" placeholder="https://youtube.com/@seu-canal" style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
-                </div>
-            </div>
+            <div class="divider"></div>
 
-            <div style="margin-top: 15px;">
-                <label>Vídeo de Lore (YouTube ou Clipe da Twitch)</label>
-                <input type="url" id="video_url" placeholder="Cole aqui o link do vídeo ou clipe que conta sua história..." style="width:100%; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;">
-            </div>
-
-            <div style="margin-top: 15px;">
-                <label>Lore / História / Biografia</label>
-                <div id="lore-editor"></div>
+            <div class="section">
+                <div class="section-heading" style="margin-bottom:.5rem">Lore / História / Biografia</div>
+                <div class="section-sub">Conte a história do seu herói — quem ele é, de onde vem, o que o move</div>
+                <div id="lore-editor" style="min-height: 200px;"></div>
                 <input type="hidden" id="lore">
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button id="btn-save" class="discord-btn" style="border: none; flex: 1; cursor: pointer;">Criar Personagem</button>
-                <button id="btn-cancel-edit" class="discord-btn" style="border: none; background: #444; display: none; cursor: pointer;" onclick="location.reload()">Cancelar</button>
+
+            <div class="section" style="display: flex; gap: 10px; background: rgba(0,0,0,0.2);">
+                <button id="btn-save" class="btn-primary" style="flex: 1;">Criar Personagem</button>
+                <button id="btn-cancel-edit" class="btn-secondary" style="display: none;" onclick="location.reload()">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <div class="card" id="filter-panel" style="margin-top: 30px;">
-        <h3 style="color: var(--gold); margin-bottom: 15px;">Filtros de Listagem</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <select id="filter-class" style="padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"><option value="">Todas as Classes</option><option>Warrior</option><option>Hunter</option><option>Rogue</option><option>Mage</option><option>Warlock</option><option>Priest</option><option>Druid</option><option>Shaman</option><option>Paladin</option></select>
-            <select id="filter-race" style="padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;"><option value="">Todas as Raças</option><option>Orc</option><option>Troll</option><option>Tauren</option><option>Undead</option><option>Human</option><option>Dwarf</option><option>Night Elf</option><option>Gnome</option></select>
-            <input type="text" id="filter-owner" placeholder="Filtrar por dono (Admin only)" style="display:none; padding:8px; background:#111; border:1px solid #333; color:#fff; border-radius: 4px;" />
+    <!-- Filtros -->
+    <div class="panel" id="filter-panel">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+        <div class="panel-title" style="padding-top: 1.25rem;">Filtros de Listagem</div>
+        <div class="section">
+            <div class="grid-3">
+                <select id="filter-class">
+                    <option value="">Todas as Classes</option>
+                    <option value="Warrior">Warrior</option><option value="Hunter">Hunter</option><option value="Rogue">Rogue</option><option value="Mage">Mage</option><option value="Warlock">Warlock</option><option value="Priest">Priest</option><option value="Druid">Druid</option><option value="Shaman">Shaman</option><option value="Paladin">Paladin</option>
+                </select>
+                <select id="filter-race">
+                    <option value="">Todas as Raças</option>
+                    <option value="Orc">Orc</option><option value="Troll">Troll</option><option value="Tauren">Tauren</option><option value="Undead">Undead</option><option value="Human">Human</option><option value="Dwarf">Dwarf</option><option value="Night Elf">Night Elf</option><option value="Gnome">Gnome</option>
+                </select>
+                <input type="text" id="filter-owner" placeholder="Filtrar por dono (Admin only)" style="display:none;" />
+            </div>
         </div>
     </div>
 
-    <div id="my-characters-section">
-        <h2 class="section-title">Meus Personagens</h2>
-        <div id="my-characters-list" class="grid-layout"></div>
+    <!-- Listagens -->
+    <div id="my-characters-section" style="display:none; margin-top: 40px;">
+        <div class="panel">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="panel-title">Meus Personagens</div>
+            <div class="section">
+                <div id="my-characters-list" class="grid-layout"></div>
+            </div>
+        </div>
     </div>
 
-    <div id="all-characters-section" style="margin-top: 50px;">
-        <h2 class="section-title">Personagens</h2>
-        <div id="all-characters-list" class="grid-layout"></div>
+    <div id="all-characters-section" style="display:none; margin-top: 50px;">
+        <div class="panel">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="panel-title">Outros Heróis</div>
+            <div class="section">
+                <div id="all-characters-list" class="grid-layout"></div>
+            </div>
+        </div>
     </div>
 
-    <div id="cemetery-section" style="margin-top: 50px;">
-        <h2 class="section-title fallen">Cemitério / Hall da Fama</h2>
-        <div id="cemetery-list" class="grid-layout"></div>
+    <div id="cemetery-section" style="display:none; margin-top: 50px;">
+        <div class="panel" style="border-color: #3d1a1a;">
+            <div class="corner corner-tl" style="border-color: #a33c3c;"></div>
+            <div class="corner corner-tr" style="border-color: #a33c3c;"></div>
+            <div class="corner corner-bl" style="border-color: #a33c3c;"></div>
+            <div class="corner corner-br" style="border-color: #a33c3c;"></div>
+            <div class="panel-title" style="color: #a33c3c;">Cemitério / Hall da Fama</div>
+            <div class="section">
+                <div id="cemetery-list" class="grid-layout"></div>
+            </div>
+        </div>
     </div>
 </div>
 

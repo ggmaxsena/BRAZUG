@@ -10,38 +10,57 @@
   <body>
     <header class="site-header" id="universal-header"></header>
 
-    <main class="container">
-      <section id="profile-panel" class="card">
-        <h2 class="section-title">Meu Perfil</h2>
-        <div id="user-info" style="margin-bottom: 30px;">
-          <p><strong>Usuário:</strong> <span id="profile-username"></span></p>
-          <p><strong>Cargo:</strong> <span id="profile-role"></span></p>
+    <main class="redesign-container">
+      <div class="panel" id="profile-panel">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <div class="panel-title">Meu Perfil</div>
+        <div class="panel-subtitle">Gerencie suas informações de conta e segurança</div>
+
+        <div class="section">
+            <div id="user-info" style="margin-bottom: 20px;">
+                <p><strong>Usuário:</strong> <span id="profile-username" style="color: var(--gold);"></span></p>
+                <p><strong>Cargo:</strong> <span id="profile-role" style="color: var(--horde-red); font-weight: bold; text-transform: uppercase;"></span></p>
+            </div>
         </div>
 
-        <div style="margin-top: 2rem;">
-          <h3 style="color: var(--gold); margin-bottom: 15px;">Segurança</h3>
-          <form id="password-form" style="display: flex; flex-direction: column; gap: 15px; max-width: 400px;">
-            <input type="password" name="oldPassword" placeholder="Senha atual" required style="padding: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;" />
-            <input type="password" name="newPassword" placeholder="Nova senha" required style="padding: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;" />
-            <input type="password" name="confirmPassword" placeholder="Confirmar nova senha" required style="padding: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;" />
-            <button type="submit" class="discord-btn" style="border: none; width: 100%;">Alterar Senha</button>
+        <div class="divider"></div>
+
+        <div class="section">
+          <div class="section-heading">Segurança</div>
+          <div class="section-sub">Atualize sua senha periodicamente para manter sua conta protegida</div>
+          <form id="password-form" style="display: flex; flex-direction: column; gap: 15px; max-width: 450px;">
+            <input type="password" name="oldPassword" placeholder="Senha atual" required />
+            <input type="password" name="newPassword" placeholder="Nova senha" required />
+            <input type="password" name="confirmPassword" placeholder="Confirmar nova senha" required />
+            <button type="submit" class="btn-primary">Alterar Senha</button>
           </form>
-          <p id="password-msg" hidden style="margin-top: 10px;"></p>
+          <p id="password-msg" hidden style="margin-top: 15px; font-weight: bold;"></p>
         </div>
 
-        <div id="admin-actions" style="margin-top: 30px;" hidden>
-          <h3 style="color: var(--gold); margin-bottom: 15px;">Ações Rápidas</h3>
-          <a href="/cadastro-aventura.html" class="discord-btn" style="display: inline-block;">Cadastrar Nova Aventura</a>
-        </div>
-        <div style="margin-top: 30px;">
-          <a href="/ficha.html" class="discord-btn" style="display: inline-block; background: var(--gold); color: #000;">Gerenciar Personagens</a>
-        </div>
-      </section>
+        <div class="divider"></div>
 
-      <section class="card" style="margin-top: 2rem;">
-        <h2 class="section-title" style="font-size: 28px;">Minhas Aventuras</h2>
-        <ul id="user-adventures-list" style="list-style: none;"></ul>
-      </section>
+        <div class="section" style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <div id="admin-actions" hidden>
+                <a href="/cadastro-aventura.html" class="btn-secondary">Cadastrar Nova Aventura</a>
+            </div>
+            <a href="/ficha.html" class="btn-primary" style="background: linear-gradient(135deg, #b08d00, #f7c14d); color: #000; border-color: #000;">Gerenciar Personagens</a>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 2rem;">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+        <div class="panel-title">Minhas Aventuras</div>
+        <div class="section">
+            <ul id="user-adventures-list" style="list-style: none; display: flex; flex-direction: column; gap: 10px;"></ul>
+        </div>
+      </div>
     </main>
 
     <script src="/js/auth-guard.js"></script>

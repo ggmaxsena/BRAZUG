@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,7 +28,18 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `var whTooltips = { colorLinks: true, iconizeLinks: true, renameLinks: true, domain: 'classic' };`
+        }} />
+      </head>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Script 
+          src="https://wow.zamimg.com/js/tooltips.js" 
+          strategy="afterInteractive"
+        />
+      </body>
     </html>
   );
 }

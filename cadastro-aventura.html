@@ -40,59 +40,80 @@
   <body>
     <header class="site-header" id="universal-header"></header>
     
-    <main class="container">
-      <section class="card">
-        <h2 class="section-title">Nova Aventura</h2>
-        <form id="adventure-form" style="display: flex; flex-direction: column; gap: 20px;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div><label>Título *</label><input type="text" name="title" required maxlength="120" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;"></div>
-            <div><label>Data</label><input type="date" name="event_date" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;"></div>
-          </div>
-          
-          <div>
-              <label>Autor / Personagem (Selecione da lista ou digite um novo)</label>
-              <input type="text" name="author" id="author-input" list="characters-list" placeholder="Digite o nome do herói autor desta história..." required style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;">
-              <datalist id="characters-list"></datalist>
-          </div>
+    <main class="redesign-container">
+      <div class="panel">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
 
-          <div>
-              <label>História *</label>
-              <div id="editor-container" style="height: 300px; background: #111; color: #fff; border: 1px solid #333;"></div>
-              <input type="hidden" name="body">
-          </div>
-          
-          <div>
-              <label>Imagem da Aventura</label>
-              <input type="file" name="image_file" accept="image/*" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff; margin-bottom: 10px;">
-              <input type="url" name="image_url" placeholder="Ou cole a URL da imagem aqui" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;">
-          </div>
-          
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label><input type="checkbox" name="published" checked /> Publicar no mural</label>
-            <label>Visibilidade
-              <select name="visibility" id="visibility-select" style="padding: 5px; background: #111; border: 1px solid #333; color: #fff;">
-                <option value="public" selected>Pública</option>
-              </select>
-            </label>
-          </div>
+        <div class="panel-title">Nova Aventura</div>
+        <div class="panel-subtitle">Registre suas crônicas e imortalize seus feitos na Horda</div>
 
-          <button type="submit" class="discord-btn" style="border: none; width: 100%; cursor: pointer;">Salvar Aventura</button>
-        </form>
+        <div class="section">
+            <form id="adventure-form" style="display: flex; flex-direction: column; gap: 20px;">
+              <div class="grid-2">
+                <div><label>Título *</label><input type="text" name="title" placeholder="Ex: A Queda de Ragefire" required maxlength="120"></div>
+                <div><label>Data</label><input type="date" name="event_date"></div>
+              </div>
+              
+              <div>
+                  <label>Autor / Personagem (Selecione da lista ou digite um novo)</label>
+                  <input type="text" name="author" id="author-input" list="characters-list" placeholder="Digite o nome do herói autor desta história..." required>
+                  <datalist id="characters-list"></datalist>
+              </div>
+
+              <div>
+                  <label>História *</label>
+                  <div id="editor-container" style="min-height: 300px;"></div>
+                  <input type="hidden" name="body">
+              </div>
+              
+              <div class="divider"></div>
+
+              <div class="section-heading">Imagem & Visibilidade</div>
+
+              <div class="upload-area" onclick="document.querySelector('input[name=image_file]').click()">
+                  <div class="upload-icon">📜</div>
+                  <div class="upload-text">Clique para selecionar uma imagem da aventura</div>
+                  <div class="upload-sub">PNG, JPG ou GIF · máx. 5MB</div>
+                  <input type="file" name="image_file" accept="image/*" style="display:none" onchange="if(this.files[0]) alert('Imagem selecionada: ' + this.files[0].name)">
+              </div>
+              
+              <div class="or-divider"><div class="or-line"></div><div class="or-text">OU URL</div><div class="or-line"></div></div>
+              <input type="url" name="image_url" placeholder="https://example.com/imagem-aventura.jpg">
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" name="published" checked style="width: 20px; height: 20px;"> 
+                    Publicar no mural
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px;">Visibilidade
+                  <select name="visibility" id="visibility-select" style="width: auto; padding: 5px 15px;">
+                    <option value="public" selected>Pública</option>
+                  </select>
+                </label>
+              </div>
+
+              <button type="submit" class="btn-primary" style="margin-top: 10px;">⚔ Salvar Aventura</button>
+            </form>
+        </div>
 
         <!-- LISTA DE GERENCIAMENTO (PARA STAFF) -->
-        <div id="staff-management" style="margin-top: 50px; border-top: 2px solid #333; padding-top: 30px;" hidden>
-            <h2 class="section-title">Gerenciar Aventuras</h2>
-            <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333;">
-                <ul id="admin-list" style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
-                    <!-- Renderizado pelo AdminView -->
-                </ul>
+        <div id="staff-management" hidden>
+            <div class="divider"></div>
+            <div class="section">
+                <div class="section-heading">Gerenciar Aventuras</div>
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+                    <ul id="admin-list" style="list-style: none; display: flex; flex-direction: column; gap: 10px;"></ul>
+                </div>
             </div>
         </div>
 
-        <div style="margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">
-            <a href="/admin.html" id="back-to-admin" style="color: var(--gold);">← Voltar ao painel</a>
+        <div class="section" style="background: rgba(0,0,0,0.2);">
+            <a href="/admin.html" id="back-to-admin" class="btn-secondary">← Voltar ao painel</a>
         </div>
-      </section>
+      </div>
     </main>
 
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>

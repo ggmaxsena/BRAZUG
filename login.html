@@ -10,72 +10,63 @@
   <body>
     <header class="site-header" id="universal-header"></header>
 
-    <main class="container">
-      <section class="card" style="max-width: 500px; margin: 0 auto">
-        <h1 class="section-title" style="text-align: center">Entrar na Guilda</h1>
-        <p class="subtitle" style="text-align: center; margin-bottom: 20px; color: var(--text-muted)">
-          Bem-vindo de volta, aventureiro.
-        </p>
+    <main class="redesign-container" style="max-width: 550px; margin-top: 50px;">
+      <div class="panel">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
 
-        <form id="login-form" style="display: flex; flex-direction: column; gap: 20px">
-          <div>
-            <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px">Usuário</label>
-            <input
-              type="text"
-              id="login-username"
-              required
-              autocomplete="username"
-              placeholder="Seu nome na guilda"
-              style="
-                width: 100%;
-                padding: 12px;
-                background: #111;
-                border: 1px solid #333;
-                color: #fff;
-                border-radius: 6px;
-              "
-            />
-          </div>
-          <div>
-            <label style="color: var(--gold); font-weight: bold; display: block; margin-bottom: 5px">Senha</label>
-            <input
-              type="password"
-              id="login-password"
-              required
-              autocomplete="current-password"
-              placeholder="••••••••"
-              style="
-                width: 100%;
-                padding: 12px;
-                background: #111;
-                border: 1px solid #333;
-                color: #fff;
-                border-radius: 6px;
-              "
-            />
-          </div>
-          <button type="submit" class="discord-btn" id="login-btn" style="border: none; width: 100%; cursor: pointer">
-            Acessar Perfil
-          </button>
-        </form>
+        <div class="panel-title" style="text-align: center;">Entrar na Guilda</div>
+        <div class="panel-subtitle" style="text-align: center;">Bem-vindo de volta, aventureiro</div>
 
-        <p id="auth-error" style="color: #ff4444; margin-top: 15px; text-align: center" hidden></p>
-        <div id="resend-verification-container" style="margin-top: 15px; text-align: center;" hidden>
-            <p id="resend-info" style="color: #ccc; margin-bottom: 10px;"></p>
-            <button id="resend-btn" class="discord-btn" style="border: none; padding: 8px 15px; font-size: 0.8rem; cursor: pointer;">
-                Reenviar E-mail de Verificação
-            </button>
+        <div class="section">
+            <form id="login-form" style="display: flex; flex-direction: column; gap: 20px">
+              <div>
+                <label>Usuário</label>
+                <input
+                  type="text"
+                  id="login-username"
+                  required
+                  autocomplete="username"
+                  placeholder="Seu nome na guilda"
+                />
+              </div>
+              <div>
+                <label>Senha</label>
+                <input
+                  type="password"
+                  id="login-password"
+                  required
+                  autocomplete="current-password"
+                  placeholder="••••••••"
+                />
+              </div>
+              <button type="submit" class="btn-primary" id="login-btn">
+                Acessar Perfil
+              </button>
+            </form>
+
+            <p id="auth-error" style="color: var(--horde-red); margin-top: 15px; text-align: center; font-weight: bold;" hidden></p>
+            <div id="resend-verification-container" style="margin-top: 15px; text-align: center;" hidden>
+                <p id="resend-info" style="color: var(--text-muted); margin-bottom: 10px; font-size: 0.9rem;"></p>
+                <button id="resend-btn" class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem;">
+                    Reenviar E-mail de Verificação
+                </button>
+            </div>
         </div>
 
-        <div style="margin-top: 25px; text-align: center; font-size: 0.9rem">
-          <p style="margin-bottom: 10px;">
+        <div class="divider"></div>
+
+        <div class="section" style="text-align: center; font-size: 0.9rem; background: rgba(0,0,0,0.2);">
+          <p style="margin-bottom: 12px;">
             <a href="/forgot-password.html" style="color: var(--gold); text-decoration: none;">Esqueci minha senha</a>
           </p>
-          <p>
-            Não possui cadastro? <a href="/register.html" style="color: var(--gold)">Cadastre-se aqui</a>
+          <p style="color: var(--text-muted);">
+            Não possui cadastro? <a href="/register.html" style="color: var(--gold); font-weight: bold;">Cadastre-se aqui</a>
           </p>
         </div>
-      </section>
+      </div>
     </main>
 
     <script>

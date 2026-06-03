@@ -10,43 +10,72 @@
   <body>
     <header class="site-header" id="universal-header"></header>
 
-    <main class="container">
+    <main class="redesign-container">
       <section id="dashboard-panel" hidden>
         <!-- GESTÃO DE USUÁRIOS -->
-        <div id="users-panel" class="card" hidden>
-          <h2 class="section-title" style="font-size: 28px;">Gestão de Usuários</h2>
-          <form id="user-form" style="display: flex; flex-direction: column; gap: 15px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
-              <div><label>Nome</label><input type="text" name="username" required style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;"></div>
-              <div><label>E-mail</label><input type="email" name="email" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;"></div>
-              <div><label>Senha</label><input type="password" name="password" required style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;"></div>
-              <div>
-                <label>Cargo</label>
-                <select name="role" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff;">
-                  <option value="admin">Admin</option>
-                  <option value="guildmaster">Guildmaster</option>
-                  <option value="officer">Officer</option>
-                  <option value="guildmember">Guildmember</option>
-                </select>
-              </div>
-            </div>
-            <button type="submit" class="discord-btn" style="border-radius: 4px; border: none; cursor: pointer;">Adicionar Usuário</button>
-          </form>
-          <input type="text" id="user-search" placeholder="Buscar por nome..." style="width: 100%; padding: 10px; margin-top: 20px; background: #000; border: 1px solid #444; color: #fff;" />
-          <ul id="users-list" style="list-style: none; margin-top: 20px;"></ul>
+        <div id="users-panel" class="panel" hidden>
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          
+          <div class="panel-title">Gestão de Usuários</div>
+          <div class="panel-subtitle">Controle de acesso e cargos da guilda</div>
+
+          <div class="section">
+              <form id="user-form" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="grid-2">
+                  <div><label>Nome</label><input type="text" name="username" required placeholder="Nome do usuário"></div>
+                  <div><label>E-mail</label><input type="email" name="email" placeholder="email@exemplo.com"></div>
+                </div>
+                <div class="grid-2">
+                  <div><label>Senha</label><input type="password" name="password" required placeholder="••••••••"></div>
+                  <div>
+                    <label>Cargo</label>
+                    <select name="role">
+                      <option value="admin">Admin</option>
+                      <option value="guildmaster">Guildmaster</option>
+                      <option value="officer">Officer</option>
+                      <option value="guildmember">Guildmember</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" class="btn-primary">⚔ Adicionar Usuário</button>
+              </form>
+          </div>
+          
+          <div class="divider"></div>
+
+          <div class="section">
+              <input type="text" id="user-search" placeholder="Buscar por nome..." style="margin-bottom: 15px;">
+              <ul id="users-list" style="list-style: none; display: flex; flex-direction: column; gap: 8px;"></ul>
+          </div>
         </div>
 
         <!-- RELATÓRIO -->
-        <div id="logs-panel" class="card" hidden style="margin-top: 30px;">
-          <h2 class="section-title" style="font-size: 28px;">Relatório do Sistema</h2>
-          <ul id="logs-list" style="list-style: none;"></ul>
+        <div id="logs-panel" class="panel" hidden>
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          <div class="panel-title">Relatório do Sistema</div>
+          <div class="section">
+              <ul id="logs-list" style="list-style: none; display: flex; flex-direction: column; gap: 5px; font-family: monospace; font-size: 13px;"></ul>
+          </div>
         </div>
 
         <!-- CONTEÚDO -->
-        <div class="card" style="margin-top: 30px;">
-          <h2 class="section-title" style="font-size: 28px;">Aventuras</h2>
-          <a href="/cadastro-aventura.html" class="discord-btn" style="display: inline-block; margin-bottom: 20px;">Nova Aventura</a>
-          <ul id="admin-list" style="list-style: none;"></ul>
+        <div class="panel">
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          <div class="panel-title">Aventuras</div>
+          <div class="panel-subtitle">Gerenciar crônicas e histórias do mural</div>
+          <div class="section">
+              <a href="/cadastro-aventura.html" class="btn-secondary" style="margin-bottom: 20px;">Nova Aventura</a>
+              <ul id="admin-list" style="list-style: none; display: flex; flex-direction: column; gap: 10px;"></ul>
+          </div>
         </div>
       </section>
     </main>

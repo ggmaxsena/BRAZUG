@@ -10,27 +10,43 @@
 <body>
     <header class="site-header" id="universal-header"></header>
 
-    <main class="container">
-      <section class="card" style="max-width: 500px; margin: 50px auto;">
-        <h2 class="section-title">Criar Conta</h2>
-        <form id="register-form" style="display: flex; flex-direction: column; gap: 15px;">
-          <div>
-            <label>Usuário</label>
-            <input type="text" name="username" required style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;">
-          </div>
-          <div>
-            <label>E-mail</label>
-            <input type="email" name="email" required style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;">
-          </div>
-          <div>
-            <label>Senha</label>
-            <input type="password" name="password" required style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px;">
-          </div>
-          <button type="submit" class="discord-btn" style="width: 100%; border: none; cursor: pointer; margin-top: 10px;">Cadastrar</button>
-          <p id="register-msg" style="text-align: center; margin-top: 10px;" hidden></p>
-          <p style="text-align: center; font-size: 14px; color: #888;">Já tem uma conta? <a href="/login.html" style="color: var(--gold); text-decoration: none;">Faça login</a></p>
-        </form>
-      </section>
+    <main class="redesign-container" style="max-width: 550px; margin-top: 50px;">
+      <div class="panel">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+
+        <div class="panel-title" style="text-align: center;">Criar Conta</div>
+        <div class="panel-subtitle" style="text-align: center;">Junte-se à Horda e comece sua jornada</div>
+
+        <div class="section">
+            <form id="register-form" style="display: flex; flex-direction: column; gap: 15px;">
+              <div>
+                <label>Usuário</label>
+                <input type="text" name="username" placeholder="Seu nome na guilda" required>
+              </div>
+              <div>
+                <label>E-mail</label>
+                <input type="email" name="email" placeholder="seu@email.com" required>
+              </div>
+              <div>
+                <label>Senha</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+              </div>
+              <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">⚔ Cadastrar</button>
+              <p id="register-msg" style="text-align: center; margin-top: 15px; font-weight: bold;" hidden></p>
+            </form>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section" style="text-align: center; font-size: 0.9rem; background: rgba(0,0,0,0.2);">
+          <p style="color: var(--text-muted);">
+            Já tem uma conta? <a href="/login.html" style="color: var(--gold); font-weight: bold;">Faça login aqui</a>
+          </p>
+        </div>
+      </div>
     </main>
 
     <script src="/js/header.js"></script>
