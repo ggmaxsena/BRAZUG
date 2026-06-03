@@ -755,14 +755,11 @@
         </div>
     </div>
 
-        </div>
-    </div>
-
     <div class="redesign-container">
         <div class="armory-tabs">
             <button class="armory-tab-btn active" onclick="switchTab('geral')">Geral</button>
-            <button class="armory-tab-btn" onclick="switchTab('min-max')">Min-Max</button>
-            <button class="armory-tab-btn" onclick="switchTab('planner')">Planner (Simulação)</button>
+            <button class="armory-tab-btn" onclick="switchTab('min-max')">Min-Max (Simular Itens)</button>
+            <button class="armory-tab-btn" onclick="switchTab('planner')">Planner (Simular Talentos)</button>
         </div>
     </div>
 
@@ -834,7 +831,7 @@
                 <div class="corner corner-br"></div>
                 <div class="panel-title">Stats Simulados</div>
                 <div class="section" id="planner-stats-container">
-                    <!-- Similar to Geral stats but for simulation -->
+                    <!-- Simulação básica de stats -->
                 </div>
             </div>
 
@@ -851,28 +848,27 @@
             </div>
         </aside>
     </div>
-</div>
 
     <div id="tab-planner" class="redesign-container tab-content">
         <div class="tp-hero" style="padding: 20px 0; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <h2 class="tp-hero-title" style="font-size: 28px;">Planejador de Talentos</h2>
-                    <p class="tp-hero-sub">Simule uma nova build para este personagem</p>
+                    <h2 class="tp-hero-title" style="font-size: 28px; font-family: 'Cinzel'; color: #fff;">Planejador de Talentos</h2>
+                    <p class="tp-hero-sub" style="color: var(--text-muted);">Simule uma nova build para este personagem</p>
                 </div>
-                <div class="tp-pts-badge" style="padding: 5px 15px;">
-                    <div class="tp-pts-num" id="tp-total-pts" style="font-size: 24px;">0</div>
-                    <div class="tp-pts-label">pontos gastos</div>
+                <div class="tp-pts-badge" style="padding: 10px 20px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 8px; text-align: center;">
+                    <div class="tp-pts-num" id="tp-total-pts" style="font-size: 28px; font-weight: 900; color: var(--gold);">0</div>
+                    <div class="tp-pts-label" style="font-size: 10px; text-transform: uppercase; color: #fff;">pontos gastos</div>
                 </div>
             </div>
         </div>
 
-        <div class="tp-layout">
-            <div id="tp-trees-container" class="talent-trees-container" style="grid-column: span 3;">
+        <div class="tp-layout" style="display: grid; grid-template-columns: 1fr 300px; gap: 30px;">
+            <div id="tp-trees-container" class="talent-trees-container" style="grid-column: 1;">
                 <!-- Trees rendered by JS -->
             </div>
 
-            <aside class="tp-sidebar">
+            <aside class="tp-sidebar" style="grid-column: 2;">
                 <div class="panel">
                     <div class="corner corner-tl"></div>
                     <div class="corner corner-tr"></div>
@@ -884,7 +880,7 @@
                         <button class="btn-search" style="width: 100%; margin-bottom: 10px;" onclick="clearTP()">Limpar Tudo</button>
                         <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
                         <input type="text" class="sets-input" id="tp-build-name" placeholder="Nome da build..." style="width: 100%; margin-bottom: 10px;">
-                        <button class="btn-save" style="width: 100%; padding: 10px;" onclick="saveTPBuild()">Salvar Build</button>
+                        <button class="btn-save" style="width: 100%; padding: 10px; background: var(--gold); color: #000; border: none; border-radius: 4px; font-weight: 900; cursor: pointer;" onclick="saveTPBuild()">Salvar Build</button>
                     </div>
                 </div>
 
@@ -901,6 +897,7 @@
             </aside>
         </div>
     </div>
+</div>
 
 <!-- Search Modal for Planner -->
 <div class="search-overlay" id="search-overlay" onclick="closeSearchIfOutside(event)">
@@ -1186,7 +1183,17 @@
         gearContainer.innerHTML = slots.map(slot => {
             const item = char.items.find(i => i.slot === slot);
             const color = item?.quality ? rarityColors[item.quality] : '#1a1a1a';
-            const iconUrl = item?.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg` : null;
+            
+            // Lógica de ícone mais robusta no frontend
+            let iconUrl = null;
+            if (item?.icon) {
+                // Tenta renderizar via CDN oficial da Blizzard
+                if (item.icon.startsWith('http')) {
+                    iconUrl = item.icon;
+                } else {
+                    iconUrl = `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg`;
+                }
+            }
             
             return `
                 <a class="item-link" 
@@ -1195,7 +1202,11 @@
                    onmouseleave="hideBrazugTooltip()"
                    target="_blank">
                     <div class="item-icon-box" style="${item ? `border-color: ${color}44; box-shadow: inset 0 0 10px ${color}22;` : ''}">
-                        ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.display='none'">` : `<span class="item-icon-placeholder">${slot.substring(0,4)}</span>`}
+                        ${iconUrl ? `
+                            <img src="${iconUrl}" 
+                                 onerror="this.onerror=null; this.src='https://wow.zamimg.com/images/wow/icons/large/${item?.icon || 'inv_misc_questionmark'}.jpg'; this.style.opacity='0.8';" 
+                                 onload="this.style.opacity='1'">
+                        ` : `<span class="item-icon-placeholder">${slot.substring(0,4)}</span>`}
                     </div>
                     <div class="min-w-0">
                         <div class="item-info-meta">${slotNames[slot] || slot}</div>
@@ -1478,6 +1489,10 @@
             html += `<div style="color:#fff">Item Level ${data.level.value || data.level}</div>`;
         }
         
+        if (data.binding) {
+            html += `<div style="color:#fff">${data.binding.name}</div>`;
+        }
+
         if (data.inventory_type) {
             html += `<div class="tt-slot">${data.inventory_type.name}</div>`;
         }
@@ -1500,18 +1515,25 @@
             html += `<div style="color:#fff">${data.armor.display.display_string}</div>`;
         }
         
-        // Stats
+        // Stats (Attributes)
         if (data.stats) {
             data.stats.forEach(s => {
-                html += `<div class="tt-stat">${s.display.display_string}</div>`;
+                const isGreen = s.type?.type === 'STAMINA' || s.is_relative; // Heuristica
+                const statClass = (s.display.color?.r === 0 && s.display.color?.g === 255) ? 'tt-green' : 'tt-stat';
+                html += `<div class="${statClass}">${s.display.display_string}</div>`;
             });
         }
         
-        // Spells / Effects
+        // Spells / Effects / Equip
         if (data.spells) {
             data.spells.forEach(s => {
                 html += `<div class="tt-green">${s.description}</div>`;
             });
+        }
+
+        // Durability
+        if (data.durability) {
+            html += `<div style="color:#fff">${data.durability.display_string}</div>`;
         }
 
         // Requirements
@@ -1519,8 +1541,20 @@
             html += `<div style="color:#fff">Requer Nível ${data.required_level}</div>`;
         }
         
+        // Set info
+        if (data.set) {
+            html += `<div class="tt-gold" style="margin-top:10px;">${data.set.display_string}</div>`;
+            data.set.items.forEach(si => {
+                html += `<div style="color:#666; font-size:11px; margin-left:10px;">${si.item.name}</div>`;
+            });
+        }
+
         if (item.description || data.description) {
             html += `<div class="tt-desc">"${item.description || data.description}"</div>`;
+        }
+
+        if (data.sell_price) {
+            html += `<div style="color:#fff; margin-top:10px;">Preço de Venda: ${data.sell_price.display_strings?.header || ''} ${data.sell_price.display_strings?.gold || ''} ${data.sell_price.display_strings?.silver || ''} ${data.sell_price.display_strings?.copper || ''}</div>`;
         }
         
         tt.innerHTML = html;

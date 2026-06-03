@@ -188,7 +188,17 @@ class CharacterService {
           blizzardService.getItemMedia(itemId).catch(() => null)
         ]);
 
-        const icon = media?.assets?.find((a: any) => a.key === 'icon')?.value;
+        // Extração de ícone mais robusta
+        let icon = null;
+        if (media && media.assets) {
+          icon = media.assets.find((a: any) => a.key === 'icon' || a.key === 'value')?.value;
+        }
+        
+        // Fallback: Se não encontrou no media, tenta extrair do 'icon' do item (algumas versões da API mandam aqui)
+        if (!icon && data.icon) icon = data.icon;
+        
+        // Se ainda não tem, tenta reconstruir baseado no slug/name (último recurso)
+        if (!icon && data.media?.id) icon = `item_${data.media.id}`;
 
         item = await prisma.item.upsert({
           where: { id: itemId },
