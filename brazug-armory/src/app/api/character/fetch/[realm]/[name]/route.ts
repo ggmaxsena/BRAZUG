@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { blizzardService } from '@/services/blizzard.service';
+import { characterService } from '@/services/character.service';
 
 export async function GET(
   request: Request,
@@ -50,13 +51,20 @@ export async function GET(
     if (professions.secondaries) processProfs(professions.secondaries);
 
     // Transform Equipment
-    const items = (equipment.equipped_items || []).map((item: any) => ({
-        slot: item.slot.type,
-        itemId: item.item.id,
-        name: item.name,
-        quality: item.quality.type,
-        icon: item.media?.id?.toString()
-    }));
+    const itemPromises = (equipment.equipped_items || []).map(async (item: any) => {
+        const itemId = item.item.id;
+        // Tenta resolver o ícone real via serviço
+        const details = await characterService.getItemDetails(itemId).catch(() => null);
+        return {
+            slot: item.slot.type,
+            itemId: itemId,
+            name: item.name,
+            quality: item.quality.type,
+            icon: details?.icon || item.media?.id?.toString()
+        };
+    });
+
+    const items = await Promise.all(itemPromises);
 
     return NextResponse.json({
       name: profile.name,

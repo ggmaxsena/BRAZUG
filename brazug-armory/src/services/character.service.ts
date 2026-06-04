@@ -68,18 +68,30 @@ class CharacterService {
     // Isso é necessário por causa da FK em CharacterItem
     for (const item of items) {
       try {
+        // Tenta obter o ícone real se o que veio no sync for apenas um ID numérico ou nulo
+        let resolvedIcon = item.icon;
+        const looksLikeId = item.icon && /^\d+$/.test(item.icon);
+        
+        if (!resolvedIcon || looksLikeId) {
+            const details = await this.getItemDetails(item.itemId);
+            if (details?.icon) {
+                resolvedIcon = details.icon;
+                item.icon = resolvedIcon; // Atualiza no objeto para salvar no CharacterItem também
+            }
+        }
+
         await prisma.item.upsert({
           where: { id: item.itemId },
           update: {
             name: item.name || '',
             quality: item.quality || '',
-            icon: item.icon,
+            icon: resolvedIcon,
           },
           create: {
             id: item.itemId,
             name: item.name || '',
             quality: item.quality || '',
-            icon: item.icon,
+            icon: resolvedIcon,
           },
         });
       } catch (e: any) {

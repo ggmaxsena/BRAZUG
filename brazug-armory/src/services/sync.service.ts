@@ -127,13 +127,21 @@ class SyncService {
 
       // 4. Transform and Save Items
       console.log(`[SYNC] Saving ${equipment.equipped_items?.length || 0} items...`);
-      const items: ItemData[] = (equipment.equipped_items || []).map((item: any) => ({
-        slot: item.slot.type,
-        itemId: item.item.id,
-        name: item.name,
-        quality: item.quality.type,
-        icon: item.media?.id?.toString(),
-      }));
+      
+      const itemPromises = (equipment.equipped_items || []).map(async (item: any) => {
+          const itemId = item.item.id;
+          // Tenta carregar os detalhes do item (incluindo ícone real) em paralelo
+          const details = await characterService.getItemDetails(itemId).catch(() => null);
+          return {
+              slot: item.slot.type,
+              itemId: itemId,
+              name: item.name,
+              quality: item.quality.type,
+              icon: details?.icon || item.media?.id?.toString(),
+          };
+      });
+
+      const items = await Promise.all(itemPromises);
       await characterService.updateItems(character.id, items);
       console.log(`[SYNC] Items saved to database.`);
 

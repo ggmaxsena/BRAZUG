@@ -746,6 +746,9 @@
                     <div id="status-badge" class="bg-green-500/20 border border-green-500/50 text-green-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); color: #2ecc71;">
                         Herói Ativo
                     </div>
+                    <button id="admin-sync-btn" class="btn-search" style="display: none; background: #222; border-color: var(--gold); font-size: 10px; padding: 5px 12px; color: var(--gold);" onclick="triggerAdminSync()">
+                        🔄 Sincronizar
+                    </button>
                 </div>
                 <p class="char-subtitle" id="char-meta"></p>
                 <div style="margin-top: 15px; display: flex; gap: 15px; flex-wrap: wrap;">
@@ -1286,9 +1289,52 @@
 
         // Enable Sets system with loaded data
         enableSetSave(char);
-    }
 
-    function renderStats(containerId, stats) {
+        // Admin Sync Button Visibility
+        const role = localStorage.getItem("brazug_admin_role");
+        if (role === 'admin') {
+            const syncBtn = document.getElementById('admin-sync-btn');
+            if (syncBtn) syncBtn.style.display = 'inline-block';
+        }
+        }
+
+        window.triggerAdminSync = async function() {
+        const btn = document.getElementById('admin-sync-btn');
+        const originalText = btn.innerHTML;
+
+        if (!confirm(`Deseja forçar a sincronização de ${document.getElementById('char-name').textContent} com a Blizzard?`)) return;
+
+        try {
+            btn.disabled = true;
+            btn.innerHTML = "⏳ Sincronizando...";
+
+            const pathParts = window.location.pathname.split('/').filter(p => p !== "");
+            const name = pathParts[pathParts.length - 1];
+            const realm = pathParts[pathParts.length - 2] || 'doomhowl';
+            const token = localStorage.getItem("brazug_admin_token");
+
+            const res = await fetch('/api/character/sync', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name, realm, region: 'us' })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Erro ao sincronizar");
+
+            alert("Sincronização concluída com sucesso!");
+            location.reload();
+        } catch (e) {
+            alert("Falha na sincronização: " + e.message);
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+        };
+
+        function renderStats(containerId, stats) {
         const container = document.getElementById(containerId);
         if (!container) return;
         container.innerHTML = `
