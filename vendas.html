@@ -11,35 +11,122 @@
         .ah-window { 
             background: var(--bg-card) !important; 
             border: 1px solid var(--border) !important;
-            border-radius: 16px !important;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important;
-            overflow: hidden;
+            border-radius: 8px !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
+            overflow: visible !important; /* Allow corners to show */
+            max-width: 1100px !important;
+            width: 95% !important;
+            margin: 40px auto !important;
         }
-        .ah-titlebar { background: rgba(0,0,0,0.4) !important; color: var(--gold) !important; font-weight: 800 !important; }
+        .ah-titlebar { 
+            background: rgba(196, 30, 58, 0.15) !important; 
+            color: var(--gold) !important; 
+            font-weight: 800 !important;
+            font-family: 'Cinzel', serif !important;
+            border-bottom: 1px solid var(--border) !important;
+            padding: 12px !important;
+            font-size: 16px !important;
+            letter-spacing: 2px !important;
+        }
         .ah-tab { 
-            background: rgba(255,255,255,0.05) !important; 
+            background: rgba(255,255,255,0.03) !important; 
             color: var(--text-muted) !important;
             border: 1px solid var(--border) !important;
-            border-radius: 6px !important;
+            border-radius: 4px !important;
             transition: 0.3s;
+            font-family: 'Cinzel', serif !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
         }
-        .ah-tab.active, .ah-tab:hover { background: var(--gold) !important; color: #000 !important; border-color: var(--gold) !important; }
-        .ah-wow-input { background: #000 !important; border: 1px solid var(--border) !important; color: var(--text) !important; }
-        .ah-search-btn { background: var(--gold) !important; color: #000 !important; border-radius: 6px !important; font-weight: 800 !important; }
-        .ah-results-panel { background: rgba(0,0,0,0.2) !important; border: 1px solid var(--border) !important; }
-        .ah-col-headers { background: rgba(196, 30, 58, 0.1) !important; color: var(--gold) !important; }
+        .ah-tab.active, .ah-tab:hover { 
+            background: var(--horde-red) !important; 
+            color: #fff !important; 
+            border-color: var(--gold) !important;
+            box-shadow: 0 0 15px var(--horde-red-glow) !important;
+        }
+        .ah-wow-input { 
+            background: rgba(0,0,0,0.6) !important; 
+            border: 1px solid rgba(196, 30, 58, 0.3) !important; 
+            color: var(--text) !important;
+            border-radius: 4px !important;
+        }
+        .ah-wow-input:focus {
+            border-color: var(--horde-red) !important;
+        }
+        .ah-search-btn { 
+            background: linear-gradient(135deg, #8f0f0f, #c41e3a) !important; 
+            color: #fff !important; 
+            border-radius: 4px !important; 
+            font-weight: 800 !important;
+            font-family: 'Cinzel', serif !important;
+            border: 1px solid var(--gold) !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            transition: 0.3s !important;
+        }
+        .ah-search-btn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 0 20px var(--horde-red-glow) !important;
+        }
+        .ah-results-panel { 
+            background: rgba(0,0,0,0.4) !important; 
+            border: 1px solid var(--border) !important; 
+        }
+        .ah-col-headers { 
+            background: rgba(196, 30, 58, 0.2) !important; 
+            color: var(--gold) !important; 
+            font-family: 'Cinzel', serif !important;
+            text-transform: uppercase !important;
+            font-weight: 700 !important;
+        }
+        .ah-auction-row:hover {
+            background: rgba(247, 193, 77, 0.05) !important;
+        }
+        .ah-sidebar {
+            background: rgba(0,0,0,0.3) !important;
+            border-right: 1px solid var(--border) !important;
+        }
+        .ah-cat-btn {
+            background: transparent !important;
+            border: none !important;
+            border-left: 3px solid transparent !important;
+            color: var(--text-muted) !important;
+            font-family: 'Cinzel', serif !important;
+            font-weight: 700 !important;
+            margin-bottom: 5px !important;
+        }
+        .ah-cat-btn.active, .ah-cat-btn:hover {
+            background: rgba(196, 30, 58, 0.1) !important;
+            color: var(--gold) !important;
+            border-left: 3px solid var(--horde-red) !important;
+        }
+        .ah-main-body {
+            height: 600px !important;
+        }
+        .ah-statusbar {
+            background: rgba(0,0,0,0.5) !important;
+            border-top: 1px solid var(--border) !important;
+            color: var(--text-dim) !important;
+        }
     </style>
 </head>
 <body>
 <header class="site-header" id="universal-header"></header>
 <main class="container">
     
-    <div style="max-width: 900px; margin: 0 auto 30px auto; text-align: center;">
+    <div style="max-width: 900px; margin: 0 auto 10px auto; text-align: center;">
         <h1 class="section-title">Casa de Leilões</h1>
         <p class="lead">O mercado onde a fortuna muda de mãos.</p>
     </div>
 
-    <div class="ah-window" id="ahWindow">
+    <div class="ah-window panel" id="ahWindow">
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+        
+        <div class="ah-titlebar">LEILÃO DA HORDA</div>
         <!-- TAB: BROWSE (Comprar) -->
         <div id="tab-browse-content">
             <div style="background: rgba(255,255,255,0.05); padding: 10px; margin: 10px; border-radius: 5px; font-size: 12px; color: var(--ah-text-dim);">
@@ -221,7 +308,7 @@
     </div>
 
     <!-- Tabs at the bottom -->
-    <div class="ah-tabs" style="max-width: 900px; margin: -20px auto 40px auto;">
+    <div class="ah-tabs" style="max-width: 1100px; width: 95%; margin: -20px auto 40px auto;">
         <button class="ah-tab active" id="tab-browse" onclick="SalesController.switchTab('browse')">Comprar</button>
         <button class="ah-tab" id="tab-auctions" onclick="SalesController.switchTab('auctions')">Anunciar</button>
         <button class="ah-tab" id="tab-bids" onclick="SalesController.switchTab('bids')">Meus Leilões</button>
