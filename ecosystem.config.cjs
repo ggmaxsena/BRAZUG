@@ -28,6 +28,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
       },
+      env_file: ".env",
     },
     {
       name: "brazug-sync-daily",
@@ -38,7 +39,8 @@ module.exports = {
       cron_restart: "0 4 * * *",
       env: {
         NODE_ENV: "production",
-      }
+      },
+      env_file: ".env",
     }
   ],
 };
