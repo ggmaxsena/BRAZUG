@@ -138,6 +138,7 @@ class SyncService {
               name: item.name,
               quality: item.quality.type,
               icon: details?.icon || item.media?.id?.toString(),
+              tooltipData: details?.tooltipData || null,
           };
       });
 

@@ -7,7 +7,9 @@ export interface CharacterItem extends PrismaItem {}
 export interface CharacterProfession extends PrismaProfession {}
 
 // Re-exporting legacy interfaces for compatibility
-export interface ItemData extends Omit<CharacterItem, 'id' | 'characterId'> {}
+export interface ItemData extends Omit<CharacterItem, 'id' | 'characterId'> {
+  tooltipData?: any;
+}
 export interface ProfessionData extends Omit<CharacterProfession, 'id' | 'characterId'> {}
 
 export interface CharacterDetail {
@@ -61,7 +63,7 @@ class CharacterService {
     });
   }
 
-  async updateItems(characterId: number, items: Omit<CharacterItem, 'id' | 'characterId'>[]) {
+  async updateItems(characterId: number, items: (Omit<CharacterItem, 'id' | 'characterId'> & { tooltipData?: any })[]) {
     console.log(`[DB-DEBUG] Atualizando itens para CharacterID: ${characterId}. Itens recebidos: ${items.length}`);
     
     // 1. Garantir que os itens mestres existam na tabela Item
@@ -70,12 +72,14 @@ class CharacterService {
       try {
         // Tenta obter o ícone real se o que veio no sync for apenas um ID numérico ou nulo
         let resolvedIcon = item.icon;
+        let resolvedTooltip = item.tooltipData;
         const looksLikeId = item.icon && /^\d+$/.test(item.icon);
         
-        if (!resolvedIcon || looksLikeId) {
+        if (!resolvedIcon || looksLikeId || !resolvedTooltip) {
             const details = await this.getItemDetails(item.itemId);
-            if (details?.icon) {
-                resolvedIcon = details.icon;
+            if (details) {
+                resolvedIcon = details.icon || resolvedIcon;
+                resolvedTooltip = details.tooltipData || resolvedTooltip;
                 item.icon = resolvedIcon; // Atualiza no objeto para salvar no CharacterItem também
             }
         }
@@ -86,12 +90,15 @@ class CharacterService {
             name: item.name || '',
             quality: item.quality || '',
             icon: resolvedIcon,
+            tooltipData: resolvedTooltip as any,
+            lastUpdated: new Date()
           },
           create: {
             id: item.itemId,
             name: item.name || '',
             quality: item.quality || '',
             icon: resolvedIcon,
+            tooltipData: resolvedTooltip as any,
           },
         });
       } catch (e: any) {

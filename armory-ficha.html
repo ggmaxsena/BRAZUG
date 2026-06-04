@@ -1191,35 +1191,37 @@
         const gearContainer = document.getElementById('gear-grid');
         gearContainer.innerHTML = slots.map(slot => {
             const item = char.items.find(i => i.slot === slot);
-            const color = item?.quality ? rarityColors[item.quality] : '#1a1a1a';
+            const color = item?.item_quality ? rarityColors[item.item_quality] : (item?.quality ? rarityColors[item.quality] : '#1a1a1a');
             
-            // Lógica de ícone mais robusta no frontend
+            // Lógica de ícone robusta: prioriza item_icon (do join) e trata URLs completas
+            const iconData = item?.item_icon || item?.icon;
             let iconUrl = null;
-            if (item?.icon) {
-                // Tenta renderizar via CDN oficial da Blizzard
-                if (item.icon.startsWith('http')) {
-                    iconUrl = item.icon;
+            if (iconData) {
+                if (iconData.startsWith('http')) {
+                    iconUrl = iconData;
                 } else {
-                    iconUrl = `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg`;
+                    iconUrl = `https://render.worldofwarcraft.com/classic1x-us/icons/56/${iconData}.jpg`;
                 }
             }
             
+            const itemId = item?.item_id || item?.itemId;
+
             return `
                 <a class="item-link" 
-                   href="${item ? `https://www.wowhead.com/classic/item=${item.itemId}` : '#'}"
-                   onmouseenter="showBrazugTooltip(event, ${item?.itemId || 0})"
+                   href="${itemId ? `https://www.wowhead.com/classic/item=${itemId}` : '#'}"
+                   onmouseenter="showBrazugTooltip(event, ${itemId || 0})"
                    onmouseleave="hideBrazugTooltip()"
                    target="_blank">
-                    <div class="item-icon-box" style="${item ? `border-color: ${color}44; box-shadow: inset 0 0 10px ${color}22;` : ''}">
+                    <div class="item-icon-box" style="${itemId ? `border-color: ${color}44; box-shadow: inset 0 0 10px ${color}22;` : ''}">
                         ${iconUrl ? `
                             <img src="${iconUrl}" 
-                                 onerror="this.onerror=null; this.src='https://wow.zamimg.com/images/wow/icons/large/${item?.icon || 'inv_misc_questionmark'}.jpg'; this.style.opacity='0.8';" 
+                                 onerror="this.onerror=null; this.src='https://wow.zamimg.com/images/wow/icons/large/${iconData || 'inv_misc_questionmark'}.jpg'; this.style.opacity='0.8';" 
                                  onload="this.style.opacity='1'">
                         ` : `<span class="item-icon-placeholder">${slot.substring(0,4)}</span>`}
                     </div>
                     <div class="min-w-0">
                         <div class="item-info-meta">${slotNames[slot] || slot}</div>
-                        <div class="item-info-name" style="color: ${item ? color : '#333'}">${item?.name || 'Vazio'}</div>
+                        <div class="item-info-name" style="color: ${itemId ? color : '#333'}">${item?.item_name || item?.name || 'Vazio'}</div>
                     </div>
                 </a>
             `;
