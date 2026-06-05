@@ -252,8 +252,11 @@ function loadEnv() {
     for (const line of text.split("\n")) {
       const t = line.trim();
       if (!t || t.startsWith("#") || !t.includes("=")) continue;
-      const [k, v] = t.split("=");
-      process.env[k.trim()] = v.trim().replace(/^["']|["']$/g, "");
+      
+      const idx = t.indexOf("=");
+      const k = t.substring(0, idx).trim();
+      const v = t.substring(idx + 1).trim().replace(/^["']|["']$/g, "");
+      process.env[k] = v;
     }
   }
 }

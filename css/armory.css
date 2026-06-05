@@ -1,0 +1,377 @@
+/* ============================================================
+   BRAZUG ARMORY — CLASSIC 3-COLUMN SYSTEM
+   Fidelidade WoW Classic + Identidade BRAZUG
+   ============================================================ */
+
+:root {
+    --bg-dark: #050505;
+    --bg-card: rgba(12, 8, 8, 0.98);
+    --horde-red: #c41e3a;
+    --brazug-gold: #f7c14d;
+    --brazug-gold2: #c8972a;
+    --brazug-gold3: #7a5a1a;
+    --border: rgba(196, 30, 58, 0.25);
+    --wow-border: #4a3a1a;
+}
+
+/* 1. Global Wrapper (Site Background) */
+.armory-wrap { 
+    padding-bottom: 80px; 
+    background: 
+        radial-gradient(circle at top, #330000 0%, #050505 60%),
+        linear-gradient(160deg, #0d0a07 0%, #1a1008 40%, #0d0a07 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    position: relative;
+    font-family: 'IM Fell English', serif;
+}
+
+.armory-wrap::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c41e3a' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* 2. Containers */
+.redesign-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* 3. Branded Panel */
+.panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    position: relative;
+    margin-bottom: 30px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+}
+
+.panel-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--brazug-gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(to right, rgba(196, 30, 58, 0.1), transparent);
+}
+
+/* Corner Ornaments */
+.corner {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-color: var(--brazug-gold3);
+    border-style: solid;
+    z-index: 5;
+    pointer-events: none;
+}
+.corner-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.corner-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+.corner-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+.corner-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+/* 4. Header Section */
+.hero-header-panel {
+    background: linear-gradient(180deg, #1e1408 0%, #0e0b05 100%);
+    border-bottom: 2px solid #2a1a1a;
+    padding: 40px 0;
+    margin-bottom: 40px;
+}
+
+.hero-header-content {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.avatar-frame {
+    width: 100px;
+    height: 100px;
+    background: #0a0a0a;
+    border: 2px solid var(--brazug-gold3);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+}
+
+.avatar-img { width: 100%; height: 100%; object-fit: cover; }
+
+.char-title {
+    font-family: 'Cinzel', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--brazug-gold);
+    text-shadow: 0 0 20px rgba(247,193,77,0.3);
+}
+
+.char-subtitle { font-size: 14px; color: #8a7050; margin-top: 4px; }
+
+/* 5. CLASSIC 3-COLUMN GEAR LAYOUT */
+.gear-classic-grid {
+    display: grid;
+    grid-template-columns: 1fr 240px 1fr;
+    gap: 0;
+    padding: 20px;
+    min-height: 440px;
+}
+
+.gear-side {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.gear-slot-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid #2a2018;
+    cursor: pointer;
+    transition: 0.15s;
+    min-height: 48px;
+}
+
+.gear-slot-item:hover {
+    border-color: var(--brazug-gold2);
+    background: rgba(196, 30, 58, 0.05);
+}
+
+.gear-icon-box {
+    width: 32px; height: 32px;
+    background: #0a0a0a;
+    border: 1px solid #3a2a10;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.gear-icon-box.epic { border-color: #a335ee; }
+.gear-icon-box.rare { border-color: #0070dd; }
+.gear-icon-box.uncommon { border-color: #1eff00; }
+
+.gear-icon-box img { width: 100%; height: 100%; }
+
+.gear-text-box { flex: 1; min-width: 0; }
+.gear-slot-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    color: #8a7050;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.gear-item-name {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    color: #fff;
+}
+.gear-item-name.epic { color: #a335ee; }
+.gear-item-name.rare { color: #0070dd; }
+.gear-item-name.uncommon { color: #1eff00; }
+.gear-item-name.empty { color: #3a3028; font-style: italic; }
+
+/* CENTER MODEL */
+.gear-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 15px;
+    gap: 15px;
+}
+
+.char-model-frame {
+    width: 180px;
+    height: 260px;
+    background: linear-gradient(180deg, #0e0e0e 0%, #060606 100%);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+}
+
+.char-model-frame::before, .char-model-frame::after {
+    content: '';
+    position: absolute;
+    width: 10px; height: 10px;
+    border-color: var(--brazug-gold3);
+    border-style: solid;
+}
+.char-model-frame::before { top: 3px; left: 3px; border-width: 2px 0 0 2px; }
+.char-model-frame::after { bottom: 3px; right: 3px; border-width: 0 2px 2px 0; }
+
+.char-model-frame img {
+    max-width: 90%;
+    max-height: 90%;
+    filter: drop-shadow(0 0 20px rgba(0,0,0,1));
+}
+
+.ilvl-badge {
+    background: linear-gradient(180deg, #2a1e08 0%, #1a1205 100%);
+    border: 1px solid #4a3a1a;
+    padding: 6px 20px;
+    text-align: center;
+}
+.ilvl-num { font-family: 'Cinzel'; font-size: 24px; font-weight: 900; color: var(--brazug-gold); }
+.ilvl-label { font-family: 'Cinzel'; font-size: 9px; color: #8a7050; letter-spacing: 2px; }
+
+/* 6. STATS PANEL */
+.stats-panel-inner {
+    padding: 15px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 6px;
+    border-bottom: 1px solid rgba(74,58,26,0.2);
+}
+
+.stat-name { font-family: 'Cinzel'; font-size: 11px; color: #8a7050; }
+.stat-val { font-family: 'Cinzel'; font-size: 12px; color: var(--brazug-gold); font-weight: 700; }
+.stat-val.green { color: #2ecc71; }
+.stat-val.blue { color: #3498db; }
+
+.stat-section-title {
+    font-family: 'Cinzel'; font-size: 10px; color: var(--brazug-gold2);
+    letter-spacing: 1.5px; padding: 10px 6px 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 10px;
+}
+
+/* 7. TALENTS & BOTTOM */
+.bottom-layout {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 20px;
+}
+
+.talents-container-row {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+}
+
+.talent-box {
+    flex: 1;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid var(--border);
+    min-height: 480px;
+}
+
+.talent-header {
+    display: flex; justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #1a1a1a;
+    font-family: 'Cinzel'; font-size: 10px; color: var(--brazug-gold);
+}
+
+.talent-list {
+    display: grid;
+    grid-template-columns: repeat(4, 40px);
+    grid-template-rows: repeat(7, 40px);
+    gap: 8px;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.talent-item { width: 40px; height: 40px; position: relative; }
+.talent-icon-wrap { width: 100%; height: 100%; border: 1px solid #222; border-radius: 4px; overflow: hidden; }
+.talent-icon { width: 100%; height: 100%; object-fit: cover; }
+
+.talent-rank-badge {
+    position: absolute; bottom: -4px; right: -4px;
+    background: #000; color: #1eff00; font-size: 8px; font-weight: 900;
+    padding: 1px 3px; border-radius: 2px; border: 1px solid #333;
+}
+
+/* 8. TABS */
+.armory-tabs {
+    display: flex;
+    background: #0d0b07;
+    border-bottom: 1px solid var(--wow-border);
+    margin-bottom: 30px;
+}
+
+.armory-tab-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    padding: 10px 20px;
+    color: #8a7050;
+    cursor: pointer;
+    border: none; background: none;
+    border-right: 1px solid var(--wow-border);
+    letter-spacing: 1px;
+}
+
+.armory-tab-btn.active {
+    color: var(--brazug-gold);
+    background: linear-gradient(180deg, rgba(247,193,77,0.08) 0%, transparent 100%);
+    border-bottom: 2px solid var(--brazug-gold);
+}
+
+/* TOOLTIP */
+#brazug-tooltip {
+    position: fixed; z-index: 10000;
+    background: rgba(5,5,5,0.98);
+    border: 1px solid var(--brazug-gold3);
+    padding: 15px; width: 280px;
+    pointer-events: none; display: none;
+    box-shadow: 0 10px 40px #000;
+    font-family: sans-serif; font-size: 12px; line-height: 1.5; color: #fff;
+}
+
+.tt-name { font-family: 'Cinzel'; font-size: 16px; margin-bottom: 4px; color: var(--brazug-gold); }
+
+/* 10. Responsive */
+@media (max-width: 1024px) {
+    .gear-classic-grid { grid-template-columns: 1fr; }
+    .bottom-layout { grid-template-columns: 1fr; }
+}
+
+/* ===================== CLASS COLORS ===================== */
+:root {
+    --color-warrior: #C79C6E;
+    --color-paladin: #F58CBA;
+    --color-hunter: #ABD473;
+    --color-rogue: #FFF569;
+    --color-priest: #FFFFFF;
+    --color-shaman: #0070DE;
+    --color-mage: #69CCF0;
+    --color-warlock: #9482C9;
+    --color-druid: #FF7D0A;
+}
+
+/* Class Border Overrides */
+.panel.class-warrior { border-color: var(--color-warrior); }
+.panel.class-hunter { border-color: var(--color-hunter); }
+.panel.class-mage { border-color: var(--color-mage); }
+.panel.class-rogue { border-color: var(--color-rogue); }
+.panel.class-priest { border-color: var(--color-priest); }
+.panel.class-warlock { border-color: var(--color-warlock); }
+.panel.class-paladin { border-color: var(--color-paladin); }
+.panel.class-shaman { border-color: var(--color-shaman); }
+.panel.class-druid { border-color: var(--color-druid); }
+
+/* Talent Box Specifics */
+.talent-box { border-top: 3px solid var(--brazug-gold); }
+.talent-box.class-warrior { border-top-color: var(--color-warrior); }
+.talent-box.class-hunter { border-top-color: var(--color-hunter); }
+.talent-box.class-mage { border-top-color: var(--color-mage); }
+.talent-box.class-rogue { border-top-color: var(--color-rogue); }
+.talent-box.class-priest { border-top-color: var(--color-priest); }
+.talent-box.class-warlock { border-top-color: var(--color-warlock); }
+.talent-box.class-paladin { border-top-color: var(--color-paladin); }
+.talent-box.class-shaman { border-top-color: var(--color-shaman); }
+.talent-box.class-druid { border-top-color: var(--color-druid); }
+

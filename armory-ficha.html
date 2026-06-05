@@ -1,1872 +1,387 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Armory — BRAZUG</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css" />
     <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
-    <script>var whTooltips = { colorLinks: true, iconizeLinks: true, renameLinks: true, domain: 'classic' };</script>
+    <script>
+      var whTooltips = { colorLinks: true, iconizeLinks: true, renameLinks: true, domain: 'classic' };
+    </script>
     <script src="https://wow.zamimg.com/js/tooltips.js"></script>
-    <style>
-        .armory-wrap { padding-bottom: 50px; }
-        .hero-header-panel {
-            background: linear-gradient(to bottom, rgba(196, 30, 58, 0.1), transparent);
-            border-bottom: 1px solid var(--border);
-            padding: 40px 0;
-            margin-bottom: 40px;
-        }
-        .hero-header-content {
-            display: flex;
-            align-items: center;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-        .avatar-frame {
-            width: 180px;
-            height: 180px;
-            border-radius: 20px;
-            border: 2px solid var(--gold);
-            overflow: hidden;
-            background: #000;
-            box-shadow: 0 0 30px rgba(247, 193, 77, 0.2);
-        }
-        .avatar-img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .char-title {
-            font-family: 'Cinzel', serif;
-            font-size: 72px;
-            font-weight: 900;
-            text-transform: uppercase;
-            font-style: italic;
-            line-height: 0.9;
-            color: #fff;
-            text-shadow: 0 0 20px rgba(196, 30, 58, 0.5);
-            margin-bottom: 10px;
-        }
-        .char-subtitle {
-            font-size: 24px;
-            color: var(--text-muted);
-            font-weight: 300;
-        }
-        .char-subtitle b { color: #fff; font-weight: 700; }
+    <link rel="stylesheet" href="/css/armory.css" />
+  </head>
+  <body class="armory-wrap">
+    <div id="brazug-tooltip"></div>
 
-        .armory-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 40px;
-        }
-        @media (max-width: 1024px) {
-            .armory-grid { grid-template-columns: 1fr; }
-        }
+    <header class="site-header" id="universal-header"></header>
 
-        .gear-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 15px;
-        }
+    <div id="armory-loading" style="text-align: center; padding: 150px 0">
+      <h2 class="section-title">Sincronizando Herói...</h2>
+      <p class="subtitle">Aguarde enquanto consultamos os arquivos da Horda</p>
+    </div>
 
-        .item-link {
-            background: rgba(12, 8, 8, 0.6);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.2s;
-            cursor: pointer;
-            text-decoration: none !important;
-        }
-        .item-link:hover {
-            border-color: var(--gold);
-            background: rgba(196, 30, 58, 0.05);
-            transform: translateX(5px);
-        }
-
-        .item-icon-box {
-            width: 44px;
-            height: 44px;
-            border-radius: 8px;
-            background: #000;
-            border: 1px solid #333;
-            overflow: hidden;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .item-icon-box img { width: 100%; height: 100%; object-fit: cover; }
-        .item-icon-placeholder { font-size: 8px; font-weight: 900; color: #222; text-transform: uppercase; }
-
-        .item-info-meta { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text-dim); line-height: 1; margin-bottom: 4px; }
-        .item-info-name { font-size: 13px; font-weight: 700; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 25px;
-            position: relative;
-        }
-        .stat-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-        }
-        .stat-line:last-child { border: none; }
-        .stat-name { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
-        .stat-val { font-size: 20px; font-weight: 900; font-style: italic; color: #fff; }
-
-        /* ===================== TALENTS (WOWHEAD STYLE) ===================== */
-        .talent-trees-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-        @media (max-width: 1200px) { .talent-trees-container { grid-template-columns: 1fr; } }
-
-        .talent-box {
-            background-color: #050505;
-            background-image: url('https://wow.zamimg.com/images/wow/texture/parchment/light.png');
-            background-blend-mode: overlay;
-            border: 1px solid #222;
-            border-radius: 8px;
-            padding: 0; /* Remove padding for header to touch edges */
-            position: relative;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.9), inset 0 0 100px rgba(0,0,0,0.8);
-            min-height: 520px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .talent-box::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center;
-            opacity: 0.15;
-            pointer-events: none;
-            filter: grayscale(0.4) contrast(1.2);
-            z-index: 0;
-        }
-
-        .talent-header {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: rgba(0,0,0,0.6);
-            border-bottom: 1px solid #222;
-            z-index: 2;
-        }
-        .talent-header span:first-child { 
-            font-family: 'Cinzel', serif; 
-            font-weight: 700; 
-            color: var(--gold);
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .talent-header span:last-child {
-            font-size: 11px;
-            font-weight: 900;
-            color: #fff;
-            background: rgba(0,0,0,0.5);
-            padding: 2px 8px;
-            border-radius: 12px;
-            border: 1px solid #333;
-        }
-
-        .talent-list { 
-            display: grid;
-            grid-template-columns: repeat(4, 52px);
-            grid-template-rows: repeat(7, 52px);
-            gap: 8px; /* Tighter gap like talent-planner.html */
-            justify-content: center;
-            padding: 20px 10px;
-            flex: 1;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .talent-item {
-            width: 52px;
-            height: 52px;
-            position: relative;
-            cursor: pointer;
-            transition: 0.15s;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8));
-        }
-        .talent-item:hover { transform: scale(1.05); z-index: 10; }
-
-        .talent-icon-wrap {
-            width: 100%;
-            height: 100%;
-            border: 2px solid #1a1010;
-            border-radius: 6px;
-            overflow: hidden;
-            background: #000;
-            box-shadow: inset 0 0 10px rgba(0,0,0,1);
-            position: relative;
-        }
-        .talent-icon { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.3s; }
-        
-        .talent-item.rank-max .talent-icon-wrap { border-color: var(--gold); box-shadow: 0 0 15px rgba(247, 193, 77, 0.3); }
-        .talent-item.rank-max .talent-icon { opacity: 1; filter: contrast(1.1); }
-        .talent-item.rank-zero .talent-icon { filter: grayscale(1) brightness(0.4); opacity: 0.4; }
-        .talent-item.rank-partial .talent-icon { opacity: 1; filter: grayscale(0.2); }
-        .talent-item.rank-partial .talent-icon-wrap { border-color: #1eff00; }
-
-        .talent-rank-badge {
-            position: absolute;
-            bottom: -4px;
-            right: -4px;
-            background: #000;
-            color: #1eff00;
-            font-size: 10px;
-            font-weight: 900;
-            padding: 1px 4px;
-            border: 1px solid #333;
-            border-radius: 4px;
-            line-height: 1;
-            z-index: 5;
-            min-width: 14px;
-            text-align: center;
-            box-shadow: 0 2px 5px #000;
-        }
-        .talent-rank-badge.not-max { color: #fff; }
-
-        /* Arrows for dependencies */
-        .t-arrow {
-            position: absolute;
-            pointer-events: none;
-            background: #222;
-            z-index: 0;
-            opacity: 0.4;
-            transition: 0.3s;
-        }
-        .t-arrow.active { background: #ffd100; opacity: 1; box-shadow: 0 0 8px #ffd100; }
-        .t-arrow-down { width: 4px; border-radius: 2px; }
-        .t-arrow-down::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-top: 7px solid currentColor;
-            color: inherit;
-        }
-
-
-        /* ===================== SETS SYSTEM ===================== */
-        .sets-fab {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            z-index: 9000;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 12px;
-        }
-        .sets-fab-btn {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #c41e3a, #8b0000);
-            border: 2px solid var(--gold, #f7c14d);
-            color: var(--gold, #f7c14d);
-            font-size: 22px;
-            cursor: pointer;
-            box-shadow: 0 4px 24px rgba(196,30,58,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
-        }
-        .sets-fab-btn:hover { transform: scale(1.1); box-shadow: 0 6px 32px rgba(196,30,58,0.8); }
-
-        .sets-panel {
-            position: fixed;
-            bottom: 100px;
-            right: 32px;
-            width: 440px;
-            max-height: 80vh;
-            background: #0d0a0a;
-            border: 1px solid #3a2020;
-            border-radius: 16px;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(247,193,77,0.1);
-            z-index: 8999;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .sets-panel.open { display: flex; }
-
-        .sets-panel-header {
-            padding: 20px 24px 16px;
-            border-bottom: 1px solid #2a1a1a;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-shrink: 0;
-        }
-        .sets-panel-title {
-            font-family: 'Cinzel', serif;
-            font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--gold, #f7c14d);
-        }
-        .sets-close-btn {
-            background: none; border: none; color: #666; font-size: 18px; cursor: pointer; padding: 4px;
-            border-radius: 4px; transition: 0.2s;
-        }
-        .sets-close-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
-
-        .sets-save-area {
-            padding: 16px 24px;
-            border-bottom: 1px solid #1a1010;
-            flex-shrink: 0;
-            background: rgba(196,30,58,0.04);
-        }
-        .sets-save-area label {
-            display: block;
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #555;
-            margin-bottom: 8px;
-        }
-        .sets-save-row { display: flex; gap: 8px; }
-        .sets-input {
-            flex: 1;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid #2a1a1a;
-            border-radius: 8px;
-            padding: 10px 14px;
-            color: #fff;
-            font-size: 13px;
-            font-family: inherit;
-            outline: none;
-            transition: 0.2s;
-        }
-        .sets-input:focus { border-color: var(--gold, #f7c14d); background: rgba(247,193,77,0.04); }
-        .sets-input::placeholder { color: #333; }
-        .sets-save-btn {
-            background: linear-gradient(135deg, #c41e3a, #8b0000);
-            border: 1px solid rgba(247,193,77,0.3);
-            border-radius: 8px;
-            color: var(--gold, #f7c14d);
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 10px 16px;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
-        }
-        .sets-save-btn:hover { background: linear-gradient(135deg, #e02244, #a00000); }
-        .sets-save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .sets-list-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px 24px 24px;
-            scrollbar-width: thin;
-            scrollbar-color: #3a2020 transparent;
-        }
-        .sets-empty {
-            text-align: center;
-            padding: 40px 0;
-            color: #333;
-            font-size: 12px;
-            font-style: italic;
-        }
-        .sets-empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.3; }
-
-        .set-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid #1f1212;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            overflow: hidden;
-            transition: 0.2s;
-        }
-        .set-card:hover { border-color: #3a2020; }
-        .set-card.active-set { border-color: rgba(247,193,77,0.4); background: rgba(247,193,77,0.03); }
-
-        .set-card-header {
-            display: flex;
-            align-items: center;
-            padding: 14px 16px;
-            gap: 12px;
-            cursor: pointer;
-        }
-        .set-card-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 6px;
-            background: #1a0a0a;
-            border: 1px solid #2a1a1a;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .set-card-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .set-card-info { flex: 1; min-width: 0; }
-        .set-card-name {
-            font-size: 13px;
-            font-weight: 700;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .set-card-meta {
-            font-size: 10px;
-            color: #555;
-            margin-top: 2px;
-        }
-        .set-card-meta b { color: #888; }
-
-        .set-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
-        .set-action-btn {
-            background: none;
-            border: 1px solid #2a1a1a;
-            border-radius: 6px;
-            color: #555;
-            font-size: 11px;
-            padding: 5px 9px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .set-action-btn:hover { border-color: var(--gold, #f7c14d); color: var(--gold, #f7c14d); }
-        .set-action-btn.danger:hover { border-color: #c41e3a; color: #c41e3a; }
-
-        .set-card-body {
-            padding: 0 16px 14px;
-            border-top: 1px solid #1a0a0a;
-            display: none;
-        }
-        .set-card-body.expanded { display: block; }
-
-        .set-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            margin-top: 12px;
-        }
-        .set-stat-chip {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid #1f1212;
-            border-radius: 6px;
-            padding: 6px 10px;
-            text-align: center;
-        }
-        .set-stat-chip-label { font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: #444; font-weight: 700; }
-        .set-stat-chip-val { font-size: 14px; font-weight: 900; color: #fff; margin-top: 2px; }
-
-        .set-gear-preview {
-            margin-top: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-        }
-        .set-gear-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            background: #0d0808;
-            border: 1px solid #2a1a1a;
-            overflow: hidden;
-        }
-        .set-gear-icon img { width: 100%; height: 100%; object-fit: cover; }
-
-        .set-talents-preview {
-            margin-top: 12px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .set-talent-chip {
-            background: rgba(196,30,58,0.08);
-            border: 1px solid rgba(196,30,58,0.2);
-            border-radius: 20px;
-            padding: 4px 10px;
-            font-size: 10px;
-            font-weight: 700;
-            color: #e88;
-        }
-
-        .sets-count-badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: var(--gold, #f7c14d);
-            color: #000;
-            font-size: 9px;
-            font-weight: 900;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        @media (max-width: 768px) {
-            .sets-panel { width: calc(100vw - 32px); right: 16px; }
-            .sets-fab { right: 16px; bottom: 20px; }
-        }
-
-        /* ===================== TABS SYSTEM ===================== */
-        .armory-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0;
-        }
-        .armory-tab-btn {
-            background: none;
-            border: none;
-            padding: 12px 24px;
-            color: var(--text-muted);
-            font-family: 'Cinzel', serif;
-            font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: 0.2s;
-            position: relative;
-            opacity: 0.6;
-        }
-        .armory-tab-btn:hover { color: #fff; opacity: 1; }
-        .armory-tab-btn.active {
-            color: var(--gold);
-            opacity: 1;
-        }
-        .armory-tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--gold);
-            box-shadow: 0 0 10px var(--gold);
-        }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* ===================== MIN-MAX PLANNER ===================== */
-        .planner-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 40px;
-        }
-        @media (max-width: 1024px) { .planner-grid { grid-template-columns: 1fr; } }
-
-        .slot-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 15px;
-        }
-
-        .slot-card {
-            background: rgba(12, 8, 8, 0.6);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: 0.2s;
-            cursor: pointer;
-            position: relative;
-        }
-        .slot-card:hover { border-color: var(--gold); background: rgba(196, 30, 58, 0.05); }
-        .slot-card.has-item { border-color: rgba(255,255,255,0.1); }
-
-        .slot-icon-box {
-            width: 44px;
-            height: 44px;
-            border-radius: 8px;
-            background: #000;
-            border: 1px solid #333;
-            overflow: hidden;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .slot-icon-box img { width: 100%; height: 100%; object-fit: cover; }
-        .slot-icon-placeholder { font-size: 8px; font-weight: 900; color: #222; text-transform: uppercase; }
-
-        .slot-info-meta { font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--text-dim); line-height: 1; margin-bottom: 4px; }
-        .slot-item-name { font-size: 13px; font-weight: 700; line-height: 1.2; color: #444; }
-        .slot-item-name.filled { color: #fff; }
-
-        .slot-clear-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: none;
-            border: none;
-            color: #444;
-            font-size: 10px;
-            cursor: pointer;
-            display: none;
-        }
-        .slot-card.has-item .slot-clear-btn { display: block; }
-        .slot-clear-btn:hover { color: var(--horde-red); }
-
-        /* Search Modal (Min-Max) */
-        .search-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 10000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        .search-overlay.open { display: flex; }
-        .search-modal {
-            background: #0d0a0a;
-            border: 1px solid #3a2020;
-            border-radius: 16px;
-            width: 600px;
-            max-width: 95vw;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .search-header { padding: 24px; border-bottom: 1px solid #1a1010; }
-        .search-input-wrap { display: flex; gap: 10px; margin-top: 15px; }
-        .search-input {
-            flex: 1;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid #2a1a1a;
-            border-radius: 8px;
-            padding: 12px 16px;
-            color: #fff;
-            outline: none;
-        }
-        .search-btn {
-            background: var(--horde-red);
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            padding: 0 20px;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-        }
-        .search-results { flex: 1; overflow-y: auto; padding: 10px; }
-        .search-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .search-item:hover { background: rgba(196,30,58,0.1); }
-
-        /* ===================== TOOLTIP SYSTEM ===================== */
-        #brazug-tooltip {
-            position: fixed;
-            z-index: 99999; /* Garante que fique acima de tudo */
-            background: rgba(10, 6, 6, 0.98);
-            border: 1px solid #ffd10033;
-            border-radius: 4px;
-            padding: 15px;
-            width: 320px;
-            pointer-events: none;
-            display: none;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5);
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-            line-height: 1.5;
-            color: #fff;
-        }
-        .tt-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-        .tt-quality { font-weight: 700; margin-bottom: 8px; text-transform: capitalize; }
-        .tt-bind { color: #fff; margin-bottom: 2px; }
-        .tt-slot { color: #fff; float: left; }
-        .tt-type { color: #fff; float: right; margin-bottom: 8px; }
-        .tt-clear { clear: both; }
-        .tt-stat { color: #fff; }
-        .tt-green { color: #1eff00; }
-        .tt-gold { color: #ffd100; }
-        .tt-desc { color: #ffd100; margin-top: 10px; }
-    </style>
-</head>
-<body class="armory-wrap">
-
-<div id="brazug-tooltip"></div>
-
-<header class="site-header" id="universal-header"></header>
-
-<div id="armory-loading" style="text-align: center; padding: 150px 0;">
-    <h2 class="section-title">Sincronizando Herói...</h2>
-    <p class="subtitle">Aguarde enquanto consultamos os arquivos da Horda</p>
-</div>
-
-<div id="armory-error" style="text-align: center; padding: 150px 0; display: none;">
-    <h2 class="section-title fallen">Personagem não encontrado</h2>
-    <p class="subtitle">Este herói pode ainda não ter sido registrado ou estar abaixo do nível 10.</p>
-    <a href="/" class="btn-secondary" style="margin-top: 20px;">Voltar ao Início</a>
-</div>
-
-<div id="armory-content" style="display: none;">
-    <div class="hero-header-panel">
+    <div id="armory-content" style="display: none">
+      <div class="hero-header-panel">
         <div class="redesign-container hero-header-content">
-            <div class="avatar-frame" id="char-avatar-box"></div>
-            <div class="char-info">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <h1 class="char-title" id="char-name"></h1>
-                    <div id="status-badge" class="bg-green-500/20 border border-green-500/50 text-green-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); color: #2ecc71;">
-                        Herói Ativo
-                    </div>
-                    <button id="admin-sync-btn" class="btn-search" style="display: none; background: #222; border-color: var(--gold); font-size: 10px; padding: 5px 12px; color: var(--gold);" onclick="triggerAdminSync()">
-                        🔄 Sincronizar
-                    </button>
-                </div>
-                <p class="char-subtitle" id="char-meta"></p>
-                <div style="margin-top: 15px; display: flex; gap: 15px; flex-wrap: wrap;">
-                    <span id="char-guild" style="color: #3498db; font-weight: 900; text-transform: uppercase; font-size: 14px; letter-spacing: 1px;"></span>
-                    <a id="char-lore-link" href="#" class="btn-search" style="font-size: 11px; padding: 8px 20px; display: flex; align-items: center; gap: 8px;">
-                        <span>📜</span> Ver Crônica
-                    </a>
-                    <a id="char-trade-link" href="#" class="btn-search" style="font-size: 11px; padding: 8px 20px; display: flex; align-items: center; gap: 8px; border-color: #2ecc7133; color: #2ecc71;">
-                        <span>💰</span> Comércio
-                    </a>
-                </div>
+          <div class="avatar-frame" id="char-avatar-box"></div>
+          <div class="char-info">
+            <div class="char-title-row">
+              <h1 class="char-title" id="char-name"></h1>
+              <div
+                id="status-badge"
+                class="bg-green-500/20 border border-green-500/50 text-green-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
+              >
+                Herói Ativo
+              </div>
             </div>
+            <p class="char-subtitle" id="char-meta"></p>
+            <div style="margin-top: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap">
+              <span
+                id="char-guild"
+                style="
+                  color: #3498db;
+                  font-weight: 900;
+                  text-transform: uppercase;
+                  font-size: 14px;
+                  letter-spacing: 1px;
+                "
+              ></span>
+              <a
+                id="char-lore-link"
+                href="#"
+                class="btn-search"
+                style="font-size: 11px; padding: 8px 20px; display: flex; align-items: center; gap: 8px"
+              >
+                <span>📜</span> Ver Crônica
+              </a>
+              <a
+                id="char-trade-link"
+                href="#"
+                class="btn-search"
+                style="
+                  font-size: 11px;
+                  padding: 8px 20px;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  border-color: #2ecc7133;
+                  color: #2ecc71;
+                "
+              >
+                <span>💰</span> Comércio
+              </a>
+              <button
+                id="admin-sync-btn"
+                class="btn-search"
+                style="
+                  display: none;
+                  background: #222;
+                  border-color: var(--brazug-gold);
+                  font-size: 10px;
+                  padding: 5px 12px;
+                  color: var(--brazug-gold);
+                "
+                onclick="ArmoryController.triggerAdminSync()"
+              >
+                🔄 Sincronizar
+              </button>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div class="redesign-container">
+      <div class="redesign-container">
         <div class="armory-tabs">
-            <button class="armory-tab-btn active" onclick="switchTab('geral')">Geral</button>
-            <button class="armory-tab-btn" onclick="switchTab('min-max')">Min-Max (Simular Itens)</button>
-            <button class="armory-tab-btn" onclick="switchTab('planner')">Planner (Simular Talentos)</button>
+          <button class="armory-tab-btn active" onclick="ArmoryController.switchTab('geral')">Geral</button>
+          <button class="armory-tab-btn" onclick="ArmoryController.switchTab('min-max')">
+            Min-Max (Simular Itens)
+          </button>
+          <button class="armory-tab-btn" onclick="ArmoryController.switchTab('planner')">
+            Planner (Simular Talentos)
+          </button>
         </div>
-    </div>
+      </div>
 
-    <div id="tab-geral" class="redesign-container armory-grid tab-content active">
-        <div class="main-column">
-            <div class="panel">
-                <div class="corner corner-tl"></div>
-                <div class="corner corner-tr"></div>
-                <div class="corner corner-bl"></div>
-                <div class="corner corner-br"></div>
-                <div class="panel-title">Equipamento</div>
-                <div class="section">
-                    <div class="gear-grid" id="gear-grid"></div>
-                </div>
-            </div>
-
-            <div class="panel">
-                <div class="corner corner-tl"></div>
-                <div class="corner corner-tr"></div>
-                <div class="corner corner-bl"></div>
-                <div class="corner corner-br"></div>
-                <div class="panel-title">Talentos</div>
-                <div class="section">
-                    <div class="talent-trees-container" id="talents-container"></div>
-                </div>
-            </div>
+      <div id="tab-geral" class="redesign-container tab-content active">
+        <!-- Main Gear Grid (Classic WoW Style) -->
+        <div class="panel">
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          <div class="panel-title">Ficha de Equipamento</div>
+          <div id="gear-grid">
+            <!-- Rendered by ArmoryView.renderGear -->
+          </div>
         </div>
 
-        <aside class="side-column">
+        <!-- Bottom Layout: Stats + Talents + Professions -->
+        <div class="bottom-layout" style="margin-top: 20px">
+          <div style="display: flex; flex-direction: column; gap: 20px">
+            <!-- Talents Panel -->
             <div class="panel">
-                <div class="corner corner-tl"></div>
-                <div class="corner corner-tr"></div>
-                <div class="corner corner-bl"></div>
-                <div class="corner corner-br"></div>
-                <div class="panel-title">Atributos</div>
-                <div class="section" id="stats-container"></div>
-            </div>
-
-            <div class="panel">
-                <div class="corner corner-tl"></div>
-                <div class="corner corner-tr"></div>
-                <div class="corner corner-bl"></div>
-                <div class="corner corner-br"></div>
-                <div class="panel-title">Profissões</div>
-                <div class="section" id="professions-container"></div>
-            </div>
-        </aside>
-    </div>
-
-    <div id="tab-min-max" class="redesign-container planner-grid tab-content">
-        <div class="main-column">
-            <div class="panel">
-                <div class="corner corner-tl"></div>
-                <div class="corner corner-tr"></div>
-                <div class="corner corner-bl"></div>
-                <div class="corner corner-br"></div>
-                <div class="panel-title">Simulação de Equipamento</div>
-                <div class="section">
-                    <div class="slot-grid" id="planner-slot-grid"></div>
-                </div>
-            </div>
-        </div>
-
-        <aside class="side-column">
-            <div class="panel">
-                <div class="corner corner-tl"></div>
-                <div class="corner corner-tr"></div>
-                <div class="corner corner-bl"></div>
-                <div class="corner corner-br"></div>
-                <div class="panel-title">Stats Simulados</div>
-                <div class="section" id="planner-stats-container">
-                    <!-- Simulação básica de stats -->
-                </div>
-            </div>
-
-            <div class="panel">
-                <div class="corner corner-tl"></div>
-                <div class="corner corner-tr"></div>
-                <div class="corner corner-bl"></div>
-                <div class="corner corner-br"></div>
-                <div class="panel-title">Configurações</div>
-                <div class="section">
-                    <button class="btn-search" style="width: 100%; margin-bottom: 10px;" onclick="resetPlannerToCurrent()">Resetar para Atual</button>
-                    <button class="btn-search" style="width: 100%;" onclick="clearPlanner()">Limpar Tudo</button>
-                </div>
-            </div>
-        </aside>
-    </div>
-
-    <div id="tab-planner" class="redesign-container tab-content">
-        <div class="tp-hero" style="padding: 20px 0; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h2 class="tp-hero-title" style="font-size: 28px; font-family: 'Cinzel'; color: #fff;">Planejador de Talentos</h2>
-                    <p class="tp-hero-sub" style="color: var(--text-muted);">Simule uma nova build para este personagem</p>
-                </div>
-                <div class="tp-pts-badge" style="padding: 10px 20px; background: rgba(0,0,0,0.5); border: 1px solid var(--gold); border-radius: 8px; text-align: center;">
-                    <div class="tp-pts-num" id="tp-total-pts" style="font-size: 28px; font-weight: 900; color: var(--gold);">0</div>
-                    <div class="tp-pts-label" style="font-size: 10px; text-transform: uppercase; color: #fff;">pontos gastos</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tp-layout" style="display: grid; grid-template-columns: 1fr 300px; gap: 30px;">
-            <div id="tp-trees-container" class="talent-trees-container" style="grid-column: 1;">
+              <div class="corner corner-tl"></div>
+              <div class="corner corner-tr"></div>
+              <div class="corner corner-bl"></div>
+              <div class="corner corner-br"></div>
+              <div class="panel-title">Especialização e Talentos</div>
+              <div class="talents-container-row" id="talents-container">
                 <!-- Trees rendered by JS -->
+              </div>
+            </div>
+          </div>
+
+          <aside style="display: flex; flex-direction: column; gap: 20px">
+            <!-- Stats Panel -->
+            <div class="panel">
+              <div class="corner corner-tl"></div>
+              <div class="corner corner-tr"></div>
+              <div class="corner corner-bl"></div>
+              <div class="corner corner-br"></div>
+              <div class="panel-title">Atributos</div>
+              <div id="stats-container"></div>
             </div>
 
-            <aside class="tp-sidebar" style="grid-column: 2;">
-                <div class="panel">
-                    <div class="corner corner-tl"></div>
-                    <div class="corner corner-tr"></div>
-                    <div class="corner corner-bl"></div>
-                    <div class="corner corner-br"></div>
-                    <div class="panel-title">Ações</div>
-                    <div class="section">
-                        <button class="btn-search" style="width: 100%; margin-bottom: 10px;" onclick="resetTPToCurrent()">Resetar para Atual</button>
-                        <button class="btn-search" style="width: 100%; margin-bottom: 10px;" onclick="clearTP()">Limpar Tudo</button>
-                        <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
-                        <input type="text" class="sets-input" id="tp-build-name" placeholder="Nome da build..." style="width: 100%; margin-bottom: 10px;">
-                        <button class="btn-save" style="width: 100%; padding: 10px; background: var(--gold); color: #000; border: none; border-radius: 4px; font-weight: 900; cursor: pointer;" onclick="saveTPBuild()">Salvar Build</button>
-                    </div>
-                </div>
-
-                <div class="panel">
-                    <div class="corner corner-tl"></div>
-                    <div class="corner corner-tr"></div>
-                    <div class="corner corner-bl"></div>
-                    <div class="corner corner-br"></div>
-                    <div class="panel-title">Distribuição</div>
-                    <div class="section" id="tp-distribution">
-                        <!-- Bars rendered by JS -->
-                    </div>
-                </div>
-            </aside>
+            <!-- Professions Panel -->
+            <div class="panel">
+              <div class="corner corner-tl"></div>
+              <div class="corner corner-tr"></div>
+              <div class="corner corner-bl"></div>
+              <div class="corner corner-br"></div>
+              <div class="panel-title">Profissões</div>
+              <div id="professions-container" style="padding: 15px"></div>
+            </div>
+          </aside>
         </div>
-    </div>
-</div>
+      </div>
 
-<!-- Search Modal for Planner -->
-<div class="search-overlay" id="search-overlay" onclick="closeSearchIfOutside(event)">
-    <div class="search-modal">
+      <div id="tab-min-max" class="redesign-container tab-content">
+        <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px">
+          <div class="panel" style="padding: 20px">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="panel-title">Simulador de Itens</div>
+            <div id="planner-slot-grid"></div>
+          </div>
+
+          <aside>
+            <div class="panel">
+              <div class="corner corner-tl"></div>
+              <div class="corner corner-tr"></div>
+              <div class="corner corner-bl"></div>
+              <div class="corner corner-br"></div>
+              <div class="panel-title">Atributos Simulados</div>
+              <div id="planner-stats-container" style="padding: 15px"></div>
+            </div>
+
+            <div class="panel">
+              <div class="corner corner-tl"></div>
+              <div class="corner corner-tr"></div>
+              <div class="corner corner-bl"></div>
+              <div class="corner corner-br"></div>
+              <div class="panel-title">Controles</div>
+              <div style="padding: 20px">
+                <button
+                  class="btn-search"
+                  style="width: 100%; margin-bottom: 10px"
+                  onclick="ArmoryController.resetPlannerToCurrent()"
+                >
+                  Resetar
+                </button>
+                <button class="btn-search" style="width: 100%" onclick="ArmoryController.clearPlanner()">Limpar</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <div id="tab-planner" class="redesign-container tab-content">
+        <div class="tp-hero" style="padding: 20px 0; margin-bottom: 20px">
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <div>
+              <h2 class="tp-hero-title" style="font-size: 28px; font-family: 'Cinzel'; color: #fff">
+                Planejador de Talentos
+              </h2>
+              <p class="tp-hero-sub" style="color: var(--text-muted)">Simule uma nova build para este personagem</p>
+            </div>
+            <div
+              class="tp-pts-badge"
+              style="
+                padding: 10px 20px;
+                background: rgba(0, 0, 0, 0.5);
+                border: 1px solid var(--brazug-gold);
+                border-radius: 8px;
+                text-align: center;
+                box-shadow: 0 0 20px rgba(247, 193, 77, 0.2);
+              "
+            >
+              <div
+                class="tp-pts-num"
+                id="tp-total-pts"
+                style="font-size: 28px; font-weight: 900; color: var(--brazug-gold)"
+              >
+                0
+              </div>
+              <div
+                class="tp-pts-label"
+                style="font-size: 10px; text-transform: uppercase; color: #fff; letter-spacing: 1px"
+              >
+                pontos gastos
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tp-layout" style="display: grid; grid-template-columns: 1fr 300px; gap: 30px">
+          <div id="tp-trees-container" class="talent-trees-container" style="grid-column: 1">
+            <!-- Trees rendered by JS -->
+          </div>
+
+          <aside class="tp-sidebar" style="grid-column: 2">
+            <div class="panel">
+              <div class="corner corner-tl"></div>
+              <div class="corner corner-tr"></div>
+              <div class="corner corner-bl"></div>
+              <div class="corner corner-br"></div>
+              <div class="panel-title">Ações</div>
+              <div class="section" style="padding: 20px">
+                <button
+                  class="btn-search"
+                  style="width: 100%; margin-bottom: 10px"
+                  onclick="ArmoryController.resetTPToCurrent()"
+                >
+                  Resetar para Atual
+                </button>
+                <button
+                  class="btn-search"
+                  style="width: 100%; margin-bottom: 10px"
+                  onclick="ArmoryController.clearTP()"
+                >
+                  Limpar Tudo
+                </button>
+                <hr style="border: 0; border-top: 1px solid #1a1010; margin: 15px 0" />
+                <input
+                  type="text"
+                  class="sets-input"
+                  id="tp-build-name"
+                  placeholder="Nome da build..."
+                  style="width: 100%; margin-bottom: 10px"
+                />
+                <button
+                  class="btn-save"
+                  style="
+                    width: 100%;
+                    padding: 12px;
+                    background: var(--horde-red);
+                    color: #fff;
+                    border: none;
+                    border-radius: 4px;
+                    font-weight: 900;
+                    cursor: pointer;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    font-family: 'Cinzel';
+                  "
+                  onclick="ArmoryController.saveTPBuild()"
+                >
+                  Salvar Build
+                </button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="corner corner-tl"></div>
+              <div class="corner corner-tr"></div>
+              <div class="corner corner-bl"></div>
+              <div class="corner corner-br"></div>
+              <div class="panel-title">Distribuição</div>
+              <div class="section" id="tp-distribution" style="padding: 20px">
+                <!-- Bars rendered by JS -->
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Modal for Planner -->
+    <div
+      class="search-overlay"
+      id="search-overlay"
+      onclick="if (event.target.id === 'search-overlay') ArmoryController.closeSearch();"
+    >
+      <div class="search-modal">
         <div class="search-header">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 id="search-title" style="margin:0; font-family:'Cinzel'; color:var(--gold);">Buscar Item</h3>
-                <button onclick="closeSearch()" style="background:none; border:none; color:#666; cursor:pointer; font-size:20px;">✕</button>
-            </div>
-            <div class="search-input-wrap">
-                <input type="text" id="search-input" class="search-input" placeholder="Digite o nome do item..." onkeydown="if(event.key==='Enter') doSearch()">
-                <button class="search-btn" onclick="doSearch()">Buscar</button>
-            </div>
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <h3 id="search-title" style="margin: 0; font-family: 'Cinzel'; color: var(--gold)">Buscar Item</h3>
+            <button
+              onclick="ArmoryController.closeSearch()"
+              style="background: none; border: none; color: #666; cursor: pointer; font-size: 20px"
+            >
+              ✕
+            </button>
+          </div>
+          <div class="search-input-wrap">
+            <input
+              type="text"
+              id="search-input"
+              class="search-input"
+              placeholder="Digite o nome do item..."
+              onkeydown="if (event.key === 'Enter') ArmoryController.doSearch();"
+            />
+            <button class="search-btn" onclick="ArmoryController.doSearch()">Buscar</button>
+          </div>
         </div>
         <div class="search-results" id="search-results">
-            <div style="text-align:center; padding:40px; color:#444;">Digite um nome e clique em buscar.</div>
+          <div style="text-align: center; padding: 40px; color: #444">Digite um nome e clique em buscar.</div>
         </div>
+      </div>
     </div>
-</div>
 
-<!-- ===================== SETS FLOATING PANEL ===================== -->
-<div class="sets-panel" id="sets-panel">
-    <div class="sets-panel-header">
+    <!-- ===================== SETS FLOATING PANEL ===================== -->
+    <div class="sets-panel" id="sets-panel">
+      <div class="sets-panel-header">
         <span class="sets-panel-title">⚔️ Meus Sets</span>
-        <button class="sets-close-btn" onclick="toggleSetsPanel()">✕</button>
-    </div>
-    <div class="sets-save-area">
+        <button class="sets-close-btn" onclick="ArmoryController.toggleSetsPanel()">✕</button>
+      </div>
+      <div class="sets-save-area">
         <label>Salvar configuração atual como set</label>
         <div class="sets-save-row">
-            <input type="text" class="sets-input" id="set-name-input" placeholder="Nome do set (ex: PvP BM, Raid SV...)" maxlength="40">
-            <button class="sets-save-btn" id="sets-save-btn" onclick="saveCurrentSet()" disabled>
-                + Salvar
-            </button>
+          <input
+            type="text"
+            class="sets-input"
+            id="set-name-input"
+            placeholder="Nome do set (ex: PvP BM, Raid SV...)"
+            maxlength="40"
+          />
+          <button class="sets-save-btn" id="sets-save-btn" onclick="ArmoryController.saveCurrentSet()" disabled>
+            + Salvar
+          </button>
         </div>
+      </div>
+      <div class="sets-list-area" id="sets-list"></div>
     </div>
-    <div class="sets-list-area" id="sets-list"></div>
-</div>
 
-<div class="sets-fab">
-    <button class="sets-fab-btn" onclick="toggleSetsPanel()" id="sets-fab-btn" title="Meus Sets" style="position:relative;">
+    <div class="sets-fab">
+      <button
+        class="sets-fab-btn"
+        onclick="ArmoryController.toggleSetsPanel()"
+        id="sets-fab-btn"
+        title="Meus Sets"
+        style="position: relative"
+      >
         🛡
-        <span class="sets-count-badge" id="sets-count-badge" style="display:none;">0</span>
-    </button>
-</div>
-
-<script src="/js/header.js"></script>
-<script>
-(function() {
-    const pathParts = window.location.pathname.split('/').filter(p => p !== "");
-    const name = pathParts[pathParts.length - 1];
-    const realm = pathParts[pathParts.length - 2] || 'doomhowl';
-    
-    const rarityColors = { 'POOR': '#9d9d9d', 'COMMON': '#ffffff', 'UNCOMMON': '#1eff00', 'RARE': '#0070dd', 'EPIC': '#a335ee', 'LEGENDARY': '#ff8000', 'ARTIFACT': '#e6cc80', 'HEIRLOOM': '#00ccff' };
-    const slotNames = { 
-        'HEAD': 'Cabeça', 'NECK': 'Pescoço', 'SHOULDER': 'Ombros', 'SHIRT': 'Camisa', 'CHEST': 'Torso', 'WAIST': 'Cintura', 
-        'LEGS': 'Pernas', 'FEET': 'Pés', 'WRIST': 'Pulsos', 'HANDS': 'Mãos', 'FINGER_1': 'Anel 1', 'FINGER_2': 'Anel 2', 
-        'TRINKET_1': 'Berloque 1', 'TRINKET_2': 'Berloque 2', 'BACK': 'Costas', 'MAIN_HAND': 'Mão Princ.', 'OFF_HAND': 'Mão Sec.', 
-        'RANGED': 'À Distância', 'TABARD': 'Tabardo' 
-    };
-    const slots = [
-        'HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST',
-        'HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2',
-        'MAIN_HAND', 'OFF_HAND', 'RANGED'
-    ];
-
-    // ===================== TALENT PLANNER =====================
-    let tpState = {};
-    const MAX_TP_PTS = 51;
-
-    function initTP(char) {
-        tpState = {};
-        const groups = char.extra_data?.specializations?.specialization_groups || [];
-        groups.flatMap(g => g.specializations).forEach(spec => {
-            spec.talents?.forEach(t => {
-                tpState[t.talent.id] = t.talent_rank;
-            });
-        });
-        renderTP();
-    }
-
-    function renderTP() {
-        if (!_currentCharData) return;
-        const container = document.getElementById('tp-trees-container');
-        const groups = _currentCharData.extra_data?.specializations?.specialization_groups || [];
-        const charClass = (_currentCharData.class || '').toLowerCase().replace(' ', '');
-        const totalPts = Object.values(tpState).reduce((a, b) => a + b, 0);
-        
-        document.getElementById('tp-total-pts').textContent = totalPts;
-
-        container.innerHTML = groups.flatMap(g => g.specializations).map(s => {
-            const specPts = s.talents?.reduce((acc, t) => acc + (tpState[t.talent.id] || 0), 0) || 0;
-            const specId = s.specialization_id;
-            const bgUrl = `https://wow.zamimg.com/images/wow/talents/backgrounds/classic/${specId}.jpg`;
-
-            // Build grid (7 rows x 4 cols)
-            const rows = 7, cols = 4;
-            const grid = Array.from({length: rows}, () => Array(cols).fill(null));
-            s.talents?.forEach(t => { 
-                if (t.talent.row < rows && t.talent.column < cols) {
-                    grid[t.talent.row][t.talent.column] = t; 
-                }
-            });
-
-            // Arrow Connectors
-            let arrowsHtml = '';
-            const cellSize = 52;
-            const gap = 12;
-            
-            s.talents?.forEach(t => {
-                // Dependency heuristic: find parent in same column, rows above
-                const parent = s.talents.find(p => p.talent.column === t.talent.column && p.talent.row === t.talent.row - 1);
-                if (parent) {
-                    const isActive = (tpState[parent.talent.id] || 0) >= (parent.talent.max_rank || 5);
-                    const topPx = parent.talent.row * (cellSize + gap) + cellSize;
-                    const leftPx = parent.talent.column * (cellSize + gap) + (cellSize / 2) - 2;
-                    const height = gap;
-                    arrowsHtml += `<div class="t-arrow t-arrow-down ${isActive ? 'active' : ''}" 
-                                        style="top:${topPx}px; left:${leftPx}px; height:${height}px;"></div>`;
-                }
-            });
-
-            let talentsHtml = '';
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    const t = grid[r][c];
-                    if (!t) {
-                        talentsHtml += `<div class="talent-item rank-zero" style="grid-row: ${r+1}; grid-column: ${c+1}; pointer-events:none; opacity:0;"></div>`;
-                        continue;
-                    }
-
-                    const tid = t.talent.id;
-                    const cur = tpState[tid] || 0;
-                    const max = t.talent.max_rank || 5;
-                    const icon = t.talent.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : null;
-                    
-                    const reqPts = t.talent.row * 5;
-                    const isLocked = specPts < reqPts && cur === 0;
-                    const isMax = cur >= max;
-                    const isPartial = cur > 0 && !isMax;
-
-                    talentsHtml += `
-                        <div class="talent-item ${isMax ? 'rank-max' : ''} ${isPartial ? 'rank-partial' : ''} ${isLocked ? 'rank-zero' : ''}" 
-                           style="grid-row: ${r+1}; grid-column: ${c+1};"
-                           title="${t.talent.name} (${cur}/${max})"
-                           onclick="addTPPoint('${tid}', ${max}, ${t.talent.row}, '${s.specialization_name}')"
-                           oncontextmenu="event.preventDefault(); removeTPPoint('${tid}', ${t.talent.row}, '${s.specialization_name}')">
-                            <div class="talent-icon-wrap">
-                                <img src="${icon}" class="talent-icon" onerror="this.src='/assets/branding/contentbra.png'">
-                            </div>
-                            ${cur > 0 ? `<div class="talent-rank-badge ${isMax ? '' : 'not-max'}">${cur}</div>` : ''}
-                        </div>
-                    `;
-                }
-            }
-
-            return `
-                <div class="talent-box class-${charClass}" style="--spec-bg: url('${bgUrl}')">
-                    <div class="talent-header">
-                        <span>${s.specialization_name}</span>
-                        <span>${specPts} pts</span>
-                    </div>
-                    <div class="talent-list">
-                        ${arrowsHtml}
-                        ${talentsHtml}
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        renderTPDistribution(groups);
-    }
-
-    function renderTPDistribution(groups) {
-        const distContainer = document.getElementById('tp-distribution');
-        distContainer.innerHTML = groups.flatMap(g => g.specializations).map(s => {
-            const pts = s.talents?.reduce((acc, t) => acc + (tpState[t.talent.id] || 0), 0) || 0;
-            const pct = (pts / MAX_TP_PTS * 100).toFixed(0);
-            return `
-                <div style="margin-bottom:10px;">
-                    <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:4px;">
-                        <span>${s.specialization_name}</span>
-                        <span style="color:var(--gold);">${pts}</span>
-                    </div>
-                    <div style="height:6px; background:rgba(0,0,0,0.5); border-radius:3px; overflow:hidden; border:1px solid #222;">
-                        <div style="height:100%; width:${pct}%; background:var(--gold); box-shadow:0 0 5px var(--gold);"></div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    window.addTPPoint = function(tid, max, row, specName) {
-        const total = Object.values(tpState).reduce((a, b) => a + b, 0);
-        if (total >= MAX_TP_PTS) return;
-        
-        // Row check
-        const groups = _currentCharData.extra_data?.specializations?.specialization_groups || [];
-        const spec = groups.flatMap(g => g.specializations).find(s => s.specialization_name === specName);
-        const specPts = spec.talents?.reduce((acc, t) => acc + (tpState[t.talent.id] || 0), 0) || 0;
-        
-        if (specPts < row * 5) return;
-
-        const cur = tpState[tid] || 0;
-        if (cur < max) {
-            tpState[tid] = cur + 1;
-            renderTP();
-        }
-    };
-
-    window.removeTPPoint = function(tid, row, specName) {
-        const cur = tpState[tid] || 0;
-        if (cur > 0) {
-            // Check if removing breaks rows above
-            const groups = _currentCharData.extra_data?.specializations?.specialization_groups || [];
-            const spec = groups.flatMap(g => g.specializations).find(s => s.specialization_name === specName);
-            
-            // Check dependency
-            const highestRowWithPoints = spec.talents.reduce((maxR, t) => {
-                const r = tpState[t.talent.id] || 0;
-                return (r > 0 && t.talent.row > maxR) ? t.talent.row : maxR;
-            }, 0);
-            
-            const specPtsAfter = spec.talents?.reduce((acc, t) => acc + (tpState[t.talent.id] || 0), 0) - 1;
-            if (specPtsAfter < highestRowWithPoints * 5) {
-                // Cannot remove if it breaks the row unlock for talents already spent
-                return;
-            }
-
-            tpState[tid] = cur - 1;
-            renderTP();
-        }
-    };
-
-    window.resetTPToCurrent = function() {
-        initTP(_currentCharData);
-    };
-
-    window.clearTP = function() {
-        tpState = {};
-        renderTP();
-    };
-
-    window.saveTPBuild = function() {
-        const name = document.getElementById('tp-build-name').value.trim();
-        if (!name) return alert("Dê um nome para a build");
-        
-        // Em um sistema real, salvaríamos no localStorage ou DB
-        // Para esta integração, vamos apenas simular o feedback
-        alert(`Build "${name}" salva com sucesso localmente!`);
-    };
-
-    async function loadData(attempt = 0) {
-        try {
-            const res = await fetch(`/api/armory/full/${realm}/${name}`);
-            if (res.status === 503 && attempt < 5) {
-                setTimeout(() => loadData(attempt + 1), 3000);
-                return;
-            }
-            if (!res.ok) throw new Error("Erro");
-            _currentCharData = await res.json();
-            render(_currentCharData);
-            initPlanner(_currentCharData);
-            initTP(_currentCharData);
-        } catch(e) {
-            document.getElementById('armory-loading').style.display = 'none';
-            document.getElementById('armory-error').style.display = 'block';
-        }
-    }
-
-    function render(char) {
-        document.getElementById('armory-loading').style.display = 'none';
-        document.getElementById('armory-content').style.display = 'block';
-
-        // Header
-        document.getElementById('char-name').textContent = char.name;
-        document.getElementById('char-meta').innerHTML = `Level <b>${char.level}</b> ${char.race} <b>${char.class}</b>`;
-        document.getElementById('char-guild').textContent = char.guild ? `<${char.guild}>` : '';
-        document.getElementById('char-avatar-box').innerHTML = `<img src="${char.avatarUrl || '/assets/branding/contentbra.png'}" class="avatar-img" onerror="this.src='/assets/branding/contentbra.png'">`;
-        document.getElementById('char-lore-link').href = `/personagem.html?name=${char.name}`;
-
-        // Gear
-        const gearContainer = document.getElementById('gear-grid');
-        gearContainer.innerHTML = slots.map(slot => {
-            const item = char.items.find(i => i.slot === slot);
-            const color = item?.item_quality ? rarityColors[item.item_quality] : (item?.quality ? rarityColors[item.quality] : '#1a1a1a');
-            
-            // Lógica de ícone robusta: prioriza item_icon (do join) e trata URLs completas
-            const iconData = item?.item_icon || item?.icon;
-            let iconUrl = null;
-            if (iconData) {
-                if (iconData.startsWith('http')) {
-                    iconUrl = iconData;
-                } else {
-                    iconUrl = `https://render.worldofwarcraft.com/classic1x-us/icons/56/${iconData}.jpg`;
-                }
-            }
-            
-            const itemId = item?.item_id || item?.itemId;
-
-            return `
-                <a class="item-link" 
-                   href="${itemId ? `https://www.wowhead.com/classic/item=${itemId}` : '#'}"
-                   onmouseenter="showBrazugTooltip(event, ${itemId || 0})"
-                   onmouseleave="hideBrazugTooltip()"
-                   target="_blank">
-                    <div class="item-icon-box" style="${itemId ? `border-color: ${color}44; box-shadow: inset 0 0 10px ${color}22;` : ''}">
-                        ${iconUrl ? `
-                            <img src="${iconUrl}" 
-                                 onerror="this.onerror=null; this.src='https://wow.zamimg.com/images/wow/icons/large/${iconData || 'inv_misc_questionmark'}.jpg'; this.style.opacity='0.8';" 
-                                 onload="this.style.opacity='1'">
-                        ` : `<span class="item-icon-placeholder">${slot.substring(0,4)}</span>`}
-                    </div>
-                    <div class="min-w-0">
-                        <div class="item-info-meta">${slotNames[slot] || slot}</div>
-                        <div class="item-info-name" style="color: ${itemId ? color : '#333'}">${item?.item_name || item?.name || 'Vazio'}</div>
-                    </div>
-                </a>
-            `;
-        }).join('');
-
-        // Stats
-        const stats = char.extra_data?.statistics || {};
-        renderStats('stats-container', stats);
-
-        // Talents
-        const talentsContainer = document.getElementById('talents-container');
-        const groups = char.extra_data?.specializations?.specialization_groups || [];
-        const charClass = (char.class || '').toLowerCase().replace(' ', '');
-        
-        talentsContainer.innerHTML = groups.flatMap(g => g.specializations).map(s => {
-            const pts = s.talents?.reduce((acc, t) => acc + (t.talent_rank || 1), 0) || 0;
-            const specId = s.specialization_id;
-            // Backgrounds mapping (approximate)
-            const bgUrl = `https://wow.zamimg.com/images/wow/talents/backgrounds/classic/${specId}.jpg`;
-
-            return `
-                <div class="talent-box class-${charClass}" style="--spec-bg: url('${bgUrl}')">
-                    <style>
-                        .talent-box[style*="--spec-bg"]::before { background-image: var(--spec-bg); }
-                    </style>
-                    <div class="talent-header">
-                        <span>${s.specialization_name}</span>
-                        <span>${pts} pts</span>
-                    </div>
-                    <div class="talent-list">
-                        ${s.talents?.map(t => {
-                            const spellId = t.spell_tooltip?.spell?.id;
-                            const icon = t.talent.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : null;
-                            const row = t.talent.row + 1;
-                            const col = t.talent.column + 1;
-                            const isMax = t.talent_rank >= (t.talent.max_rank || 5);
-
-                            return `
-                                <a href="https://www.wowhead.com/classic/spell=${spellId}" 
-                                   class="talent-item ${isMax ? 'rank-max' : ''} ${t.talent_rank === 0 ? 'rank-zero' : ''}" 
-                                   style="grid-row: ${row}; grid-column: ${col};"
-                                   title="${t.talent.name} (${t.talent_rank})"
-                                   target="_blank">
-                                    <div class="talent-icon-wrap">
-                                        <img src="${icon}" class="talent-icon" onerror="this.src='/assets/branding/contentbra.png'">
-                                    </div>
-                                    ${t.talent_rank > 0 ? `<div class="talent-rank-badge ${isMax ? '' : 'not-max'}">${t.talent_rank}</div>` : ''}
-                                </a>
-                            `;
-                        }).join('') || '<div style="font-size:10px; color:#444; font-style:italic; grid-column: 1/-1; padding: 20px 0; z-index:2;">Árvore vazia</div>'}
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        // Professions
-        const profsContainer = document.getElementById('professions-container');
-        const profs = char.professions || [];
-        profsContainer.innerHTML = profs.map(p => `
-            <div class="stat-line">
-                <span class="stat-name">${p.name}</span>
-                <span class="stat-val" style="font-size: 14px;">${p.skillPoints} / ${p.maxSkillPoints}</span>
-            </div>
-        `).join('') || '<p style="color:#444; font-size:12px; font-style:italic;">Nenhuma profissão ativa.</p>';
-
-        if (window.$WowheadPower) window.$WowheadPower.refreshLinks();
-
-        // Enable Sets system with loaded data
-        enableSetSave(char);
-
-        // Admin Sync Button Visibility
-        const role = localStorage.getItem("brazug_admin_role");
-        if (role === 'admin') {
-            const syncBtn = document.getElementById('admin-sync-btn');
-            if (syncBtn) syncBtn.style.display = 'inline-block';
-        }
-        }
-
-        window.triggerAdminSync = async function() {
-        const btn = document.getElementById('admin-sync-btn');
-        const originalText = btn.innerHTML;
-
-        if (!confirm(`Deseja forçar a sincronização de ${document.getElementById('char-name').textContent} com a Blizzard?`)) return;
-
-        try {
-            btn.disabled = true;
-            btn.innerHTML = "⏳ Sincronizando...";
-
-            const pathParts = window.location.pathname.split('/').filter(p => p !== "");
-            const name = pathParts[pathParts.length - 1];
-            const realm = pathParts[pathParts.length - 2] || 'doomhowl';
-            const token = localStorage.getItem("brazug_admin_token");
-
-            const res = await fetch('/api/character/sync', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ name, realm, region: 'us' })
-            });
-
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Erro ao sincronizar");
-
-            alert("Sincronização concluída com sucesso!");
-            location.reload();
-        } catch (e) {
-            alert("Falha na sincronização: " + e.message);
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
-        };
-
-        function renderStats(containerId, stats) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = `
-            <div class="stat-line"><span class="stat-name">Vida</span><span class="stat-val" style="color:#2ecc71;">${stats.health || '--'}</span></div>
-            <div class="stat-line"><span class="stat-name">Poder</span><span class="stat-val" style="color:#3498db;">${stats.power || '--'}</span></div>
-            <div class="stat-line"><span class="stat-name">Força</span><span class="stat-val">${stats.strength?.effective || stats.strength || '--'}</span></div>
-            <div class="stat-line"><span class="stat-name">Agilidade</span><span class="stat-val">${stats.agility?.effective || stats.agility || '--'}</span></div>
-            <div class="stat-line"><span class="stat-name">Intelecto</span><span class="stat-val">${stats.intellect?.effective || stats.intellect || '--'}</span></div>
-            <div class="stat-line"><span class="stat-name">Vigor</span><span class="stat-val">${stats.stamina?.effective || stats.stamina || '--'}</span></div>
-        `;
-    }
-
-    loadData();
-
-    // ===================== TABS =====================
-    window.switchTab = function(tabId) {
-        document.querySelectorAll('.armory-tab-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.getAttribute('onclick').includes(tabId));
-        });
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-        document.getElementById(`tab-${tabId}`).classList.add('active');
-    };
-
-    // ===================== PLANNER =====================
-    let plannerItems = {};
-    let activeSearchSlot = null;
-
-    function initPlanner(char) {
-        plannerItems = {};
-        char.items.forEach(item => { plannerItems[item.slot] = item; });
-        renderPlannerGrid();
-        recalcPlannerStats();
-    }
-
-    function renderPlannerGrid() {
-        const grid = document.getElementById('planner-slot-grid');
-        grid.innerHTML = slots.map(slot => {
-            const item = plannerItems[slot];
-            const color = item?.quality ? rarityColors[item.quality] : '#1a1a1a';
-            
-            let iconUrl = null;
-            if (item?.icon) {
-                iconUrl = item.icon.startsWith('http') ? item.icon : `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg`;
-            }
-            
-            return `
-                <div class="slot-card ${item ? 'has-item' : ''}" onclick="openSearch('${slot}')"
-                     onmouseenter="${item ? `showBrazugTooltip(event, ${item.itemId})` : ''}"
-                     onmouseleave="hideBrazugTooltip()">
-                    <div class="slot-icon-box" style="${item ? `border-color: ${color}44; box-shadow: inset 0 0 10px ${color}22;` : ''}">
-                        ${iconUrl ? `
-                            <img src="${iconUrl}" 
-                                 onerror="this.onerror=null; this.src='https://wow.zamimg.com/images/wow/icons/large/${item?.icon || 'inv_misc_questionmark'}.jpg';">
-                        ` : `<span class="slot-icon-placeholder">${slot.substring(0,4)}</span>`}
-                    </div>
-                    <div class="min-w-0">
-                        <div class="slot-info-meta">${slotNames[slot] || slot}</div>
-                        <div class="slot-item-name ${item ? 'filled' : ''}" style="color: ${item ? color : '#333'}">${item?.name || 'Vazio'}</div>
-                    </div>
-                    <button class="slot-clear-btn" onclick="event.stopPropagation(); clearSlot('${slot}')">✕</button>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function recalcPlannerStats() {
-        if (!_currentCharData) return;
-        
-        const baseStats = _currentCharData.extra_data?.statistics || {};
-        const simulated = {
-            health: baseStats.health || 0,
-            power: baseStats.power || 0,
-            strength: baseStats.strength?.effective || baseStats.strength || 0,
-            agility: baseStats.agility?.effective || baseStats.agility || 0,
-            intellect: baseStats.intellect?.effective || baseStats.intellect || 0,
-            stamina: baseStats.stamina?.effective || baseStats.stamina || 0
-        };
-
-        // Lógica de Diferença:
-        // 1. Subtrai stats do equipamento ATUAL (original)
-        _currentCharData.items.forEach(origItem => {
-            if (origItem.tooltip_data?.stats) {
-                origItem.tooltip_data.stats.forEach(s => {
-                    const val = s.value;
-                    const type = s.type?.type;
-                    if (type === 'STAMINA') simulated.stamina -= val;
-                    if (type === 'STRENGTH') simulated.strength -= val;
-                    if (type === 'AGILITY') simulated.agility -= val;
-                    if (type === 'INTELLECT') simulated.intellect -= val;
-                });
-            }
-        });
-
-        // 2. Adiciona stats do equipamento SIMULADO
-        Object.values(plannerItems).forEach(simItem => {
-            const data = simItem.tooltipData || simItem.tooltip_data;
-            if (data?.stats) {
-                data.stats.forEach(s => {
-                    const val = s.value;
-                    const type = s.type?.type;
-                    if (type === 'STAMINA') simulated.stamina += val;
-                    if (type === 'STRENGTH') simulated.strength += val;
-                    if (type === 'AGILITY') simulated.agility += val;
-                    if (type === 'INTELLECT') simulated.intellect += val;
-                });
-            }
-        });
-
-        // Atualiza Vida baseada no novo Stamina (Vanilla: ~10 vida por Stamina)
-        const staminaDiff = simulated.stamina - (baseStats.stamina?.effective || baseStats.stamina || 0);
-        simulated.health += (staminaDiff * 10);
-
-        renderStats('planner-stats-container', simulated);
-    }
-
-    window.openSearch = function(slot) {
-        activeSearchSlot = slot;
-        document.getElementById('search-title').textContent = `Slot: ${slotNames[slot]}`;
-        document.getElementById('search-overlay').classList.add('open');
-        document.getElementById('search-input').focus();
-    };
-
-    window.closeSearch = function() {
-        document.getElementById('search-overlay').classList.remove('open');
-    };
-
-    window.closeSearchIfOutside = function(e) {
-        if (e.target.id === 'search-overlay') closeSearch();
-    };
-
-    window.doSearch = async function() {
-        const q = document.getElementById('search-input').value;
-        if (!q) return;
-        
-        const resultsEl = document.getElementById('search-results');
-        resultsEl.innerHTML = '<div style="text-align:center; padding:40px;">⏳ Buscando...</div>';
-        
-        try {
-            const res = await fetch(`/api/armory/items?q=${encodeURIComponent(q)}`);
-            const items = await res.json();
-            
-            if (items.length === 0) {
-                resultsEl.innerHTML = '<div style="text-align:center; padding:40px; color:#444;">Nenhum item encontrado no banco local.</div>';
-                return;
-            }
-            
-            resultsEl.innerHTML = items.map(item => `
-                <div class="search-item" onclick="selectItem(${item.id})">
-                    <img src="https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg" style="width:32px; height:32px; border-radius:4px;">
-                    <div>
-                        <div style="font-weight:700; color:${rarityColors[item.quality] || '#fff'}">${item.name}</div>
-                        <div style="font-size:10px; color:#555;">${item.quality}</div>
-                    </div>
-                </div>
-            `).join('');
-        } catch (e) {
-            resultsEl.innerHTML = '<div style="text-align:center; padding:40px; color:var(--horde-red);">Erro ao buscar itens.</div>';
-        }
-    };
-
-    window.selectItem = async function(itemId) {
-        try {
-            const res = await fetch(`/api/armory/items/${itemId}`);
-            const item = await res.json();
-            
-            plannerItems[activeSearchSlot] = {
-                itemId: item.id,
-                name: item.name,
-                quality: item.quality,
-                icon: item.icon,
-                slot: activeSearchSlot,
-                tooltipData: item.tooltip_data
-            };
-            
-            renderPlannerGrid();
-            recalcPlannerStats();
-            closeSearch();
-        } catch (e) {
-            alert("Erro ao selecionar item.");
-        }
-    };
-
-    window.clearSlot = function(slot) {
-        delete plannerItems[slot];
-        renderPlannerGrid();
-        recalcPlannerStats();
-    };
-
-    window.clearPlanner = function() {
-        plannerItems = {};
-        renderPlannerGrid();
-        recalcPlannerStats();
-    };
-
-    window.resetPlannerToCurrent = function() {
-        initPlanner(_currentCharData);
-    };
-
-    // ===================== TOOLTIPS =====================
-    const tt = document.getElementById('brazug-tooltip');
-    let ttCache = {};
-
-    window.showBrazugTooltip = async function(e, itemId) {
-        if (!itemId) return;
-        
-        tt.style.display = 'block';
-        tt.innerHTML = '<div style="color:#666;">Carregando...</div>';
-        updateTTPosition(e);
-        
-        let item = ttCache[itemId];
-        if (!item) {
-            try {
-                const res = await fetch(`/api/armory/items/${itemId}`);
-                item = await res.json();
-                ttCache[itemId] = item;
-            } catch (err) {
-                tt.innerHTML = '<div style="color:red;">Erro ao carregar tooltip.</div>';
-                return;
-            }
-        }
-        
-        renderTooltipContent(item);
-    };
-
-    window.hideBrazugTooltip = function() {
-        tt.style.display = 'none';
-    };
-
-    function updateTTPosition(e) {
-        const x = e.clientX + 20;
-        const y = e.clientY + 20;
-        tt.style.left = x + 'px';
-        tt.style.top = y + 'px';
-    }
-
-    function renderTooltipContent(item) {
-        const data = item.tooltip_data || {};
-        const color = rarityColors[item.quality] || '#fff';
-        
-        let html = `
-            <div class="tt-name" style="color:${color}">${item.name}</div>
-            <div class="tt-quality" style="color:${color}">${item.quality}</div>
-        `;
-
-        if (data.level) {
-            html += `<div style="color:#fff">Item Level ${data.level.value || data.level}</div>`;
-        }
-        
-        if (data.binding) {
-            html += `<div style="color:#fff">${data.binding.name}</div>`;
-        }
-
-        if (data.inventory_type) {
-            html += `<div class="tt-slot">${data.inventory_type.name}</div>`;
-        }
-        if (data.item_subclass) {
-            html += `<div class="tt-type">${data.item_subclass.name}</div>`;
-        }
-        html += `<div class="tt-clear"></div>`;
-
-        // Weapon Stats
-        if (data.weapon) {
-            const w = data.weapon;
-            if (w.damage) html += `<div style="color:#fff">${w.damage.display_string}</div>`;
-            if (w.attack_speed) html += `<div style="color:#fff; float:left;">Velocidade ${w.attack_speed.display_string}</div>`;
-            if (w.dps) html += `<div style="color:#fff; float:right;">(${w.dps.display_string} por segundo)</div>`;
-            html += `<div class="tt-clear"></div>`;
-        }
-
-        // Armor
-        if (data.armor) {
-            html += `<div style="color:#fff">${data.armor.display.display_string}</div>`;
-        }
-        
-        // Stats (Attributes)
-        if (data.stats) {
-            data.stats.forEach(s => {
-                const isGreen = s.type?.type === 'STAMINA' || s.is_relative; // Heuristica
-                const statClass = (s.display.color?.r === 0 && s.display.color?.g === 255) ? 'tt-green' : 'tt-stat';
-                html += `<div class="${statClass}">${s.display.display_string}</div>`;
-            });
-        }
-        
-        // Spells / Effects / Equip
-        if (data.spells) {
-            data.spells.forEach(s => {
-                html += `<div class="tt-green">${s.description}</div>`;
-            });
-        }
-
-        // Durability
-        if (data.durability) {
-            html += `<div style="color:#fff">${data.durability.display_string}</div>`;
-        }
-
-        // Requirements
-        if (data.required_level) {
-            html += `<div style="color:#fff">Requer Nível ${data.required_level}</div>`;
-        }
-        
-        // Set info
-        if (data.set) {
-            html += `<div class="tt-gold" style="margin-top:10px;">${data.set.display_string}</div>`;
-            data.set.items.forEach(si => {
-                html += `<div style="color:#666; font-size:11px; margin-left:10px;">${si.item.name}</div>`;
-            });
-        }
-
-        if (item.description || data.description) {
-            html += `<div class="tt-desc">"${item.description || data.description}"</div>`;
-        }
-
-        if (data.sell_price) {
-            html += `<div style="color:#fff; margin-top:10px;">Preço de Venda: ${data.sell_price.display_strings?.header || ''} ${data.sell_price.display_strings?.gold || ''} ${data.sell_price.display_strings?.silver || ''} ${data.sell_price.display_strings?.copper || ''}</div>`;
-        }
-        
-        tt.innerHTML = html;
-    }
-
-    document.addEventListener('mousemove', (e) => {
-        if (tt.style.display === 'block') updateTTPosition(e);
-    });
-
-})();
-</script>
-<script>
-// ===================== SETS SYSTEM =====================
-const SETS_KEY = 'brazug_char_sets';
-let _currentCharData = null;
-
-function getSets() {
-    try { return JSON.parse(localStorage.getItem(SETS_KEY) || '[]'); } catch { return []; }
-}
-function saveSets(sets) {
-    localStorage.setItem(SETS_KEY, JSON.stringify(sets));
-}
-
-function updateSetsBadge() {
-    const sets = getSets();
-    const badge = document.getElementById('sets-count-badge');
-    if (sets.length > 0) {
-        badge.textContent = sets.length;
-        badge.style.display = 'flex';
-    } else {
-        badge.style.display = 'none';
-    }
-}
-
-function toggleSetsPanel() {
-    const panel = document.getElementById('sets-panel');
-    panel.classList.toggle('open');
-    if (panel.classList.contains('open')) renderSetsList();
-}
-
-function saveCurrentSet() {
-    const nameInput = document.getElementById('set-name-input');
-    const name = nameInput.value.trim();
-    if (!name || !_currentCharData) return;
-
-    const char = _currentCharData;
-    const stats = char.extra_data?.statistics || {};
-    const groups = char.extra_data?.specializations?.specialization_groups || [];
-    const talents = groups.flatMap(g => g.specializations).map(s => ({
-        name: s.specialization_name,
-        pts: s.talents?.reduce((acc, t) => acc + (t.talent_rank || 1), 0) || 0
-    }));
-
-    const set = {
-        id: Date.now(),
-        name,
-        savedAt: new Date().toISOString(),
-        char: {
-            name: char.name,
-            level: char.level,
-            race: char.race,
-            class: char.class,
-            guild: char.guild,
-            avatarUrl: char.avatarUrl
-        },
-        stats: {
-            health: stats.health,
-            power: stats.power,
-            strength: stats.strength?.effective,
-            agility: stats.agility?.effective,
-            intellect: stats.intellect?.effective,
-            stamina: stats.stamina?.effective,
-        },
-        talents,
-        gear: (char.items || []).map(i => ({
-            slot: i.slot,
-            name: i.name,
-            quality: i.quality,
-            icon: i.icon,
-            itemId: i.itemId
-        }))
-    };
-
-    const sets = getSets();
-    sets.unshift(set);
-    saveSets(sets);
-    nameInput.value = '';
-    updateSetsBadge();
-    renderSetsList();
-
-    // Feedback visual
-    const btn = document.getElementById('sets-save-btn');
-    btn.textContent = '✓ Salvo!';
-    btn.style.background = 'linear-gradient(135deg, #1a8a4a, #0d5a2e)';
-    setTimeout(() => {
-        btn.textContent = '+ Salvar';
-        btn.style.background = '';
-    }, 2000);
-}
-
-function deleteSet(id) {
-    const sets = getSets().filter(s => s.id !== id);
-    saveSets(sets);
-    updateSetsBadge();
-    renderSetsList();
-}
-
-function toggleSetCard(id) {
-    const body = document.getElementById(`set-body-${id}`);
-    if (body) body.classList.toggle('expanded');
-}
-
-function renderSetsList() {
-    const container = document.getElementById('sets-list');
-    const sets = getSets();
-
-    if (sets.length === 0) {
-        container.innerHTML = `
-            <div class="sets-empty">
-                <div class="sets-empty-icon">🛡️</div>
-                <div>Nenhum set salvo ainda.</div>
-                <div style="margin-top:6px; font-size:10px;">Carregue um personagem e salve sua configuração atual.</div>
-            </div>`;
-        return;
-    }
-
-    const rarityColors = { 'POOR': '#9d9d9d', 'COMMON': '#ffffff', 'UNCOMMON': '#1eff00', 'RARE': '#0070dd', 'EPIC': '#a335ee', 'LEGENDARY': '#ff8000', 'ARTIFACT': '#e6cc80', 'HEIRLOOM': '#00ccff' };
-    const isActive = _currentCharData?.name;
-
-    container.innerHTML = sets.map(set => {
-        const date = new Date(set.savedAt).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'2-digit' });
-        const gearIcons = set.gear.slice(0, 12).map(item => {
-            const color = rarityColors[item.quality] || '#333';
-            const iconUrl = item.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg` : null;
-            return `<div class="set-gear-icon" style="border-color:${color}44;" title="${item.name || item.slot}">
-                ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.opacity='0'">` : ''}
-            </div>`;
-        }).join('');
-
-        const talentChips = set.talents?.filter(t => t.pts > 0).map(t =>
-            `<span class="set-talent-chip">${t.name} <b>${t.pts}</b></span>`
-        ).join('') || '<span style="color:#333; font-size:10px; font-style:italic;">Sem talentos</span>';
-
-        const isCurrentChar = isActive && isActive.toLowerCase() === set.char.name.toLowerCase();
-
-        return `
-        <div class="set-card ${isCurrentChar ? 'active-set' : ''}" id="set-card-${set.id}">
-            <div class="set-card-header" onclick="toggleSetCard(${set.id})">
-                <div class="set-card-avatar">
-                    <img src="${set.char.avatarUrl || '/assets/branding/contentbra.png'}" onerror="this.src='/assets/branding/contentbra.png'">
-                </div>
-                <div class="set-card-info">
-                    <div class="set-card-name">${set.name}</div>
-                    <div class="set-card-meta">
-                        <b>${set.char.name}</b> · Lv${set.char.level} ${set.char.race} ${set.char.class} · ${date}
-                    </div>
-                </div>
-                <div class="set-card-actions">
-                    <button class="set-action-btn" title="Detalhes" onclick="event.stopPropagation(); toggleSetCard(${set.id})">▾</button>
-                    <button class="set-action-btn danger" title="Deletar" onclick="event.stopPropagation(); deleteSet(${set.id})">✕</button>
-                </div>
-            </div>
-
-            <div class="set-card-body" id="set-body-${set.id}">
-                <div class="set-stats-grid">
-                    <div class="set-stat-chip">
-                        <div class="set-stat-chip-label">Vida</div>
-                        <div class="set-stat-chip-val" style="color:#2ecc71;">${set.stats.health || '—'}</div>
-                    </div>
-                    <div class="set-stat-chip">
-                        <div class="set-stat-chip-label">Poder</div>
-                        <div class="set-stat-chip-val" style="color:#3498db;">${set.stats.power || '—'}</div>
-                    </div>
-                    <div class="set-stat-chip">
-                        <div class="set-stat-chip-label">Vigor</div>
-                        <div class="set-stat-chip-val">${set.stats.stamina || '—'}</div>
-                    </div>
-                    <div class="set-stat-chip">
-                        <div class="set-stat-chip-label">Força</div>
-                        <div class="set-stat-chip-val">${set.stats.strength || '—'}</div>
-                    </div>
-                    <div class="set-stat-chip">
-                        <div class="set-stat-chip-label">Agilidade</div>
-                        <div class="set-stat-chip-val">${set.stats.agility || '—'}</div>
-                    </div>
-                    <div class="set-stat-chip">
-                        <div class="set-stat-chip-label">Intelecto</div>
-                        <div class="set-stat-chip-val">${set.stats.intellect || '—'}</div>
-                    </div>
-                </div>
-
-                <div style="font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#444; font-weight:700; margin-top:14px; margin-bottom:6px;">Equipamento</div>
-                <div class="set-gear-preview">${gearIcons}</div>
-
-                <div style="font-size:9px; text-transform:uppercase; letter-spacing:1px; color:#444; font-weight:700; margin-top:14px; margin-bottom:6px;">Talentos</div>
-                <div class="set-talents-preview">${talentChips}</div>
-            </div>
-        </div>`;
-    }).join('');
-}
-
-// Enable save button when char is loaded
-function enableSetSave(charData) {
-    _currentCharData = charData;
-    const btn = document.getElementById('sets-save-btn');
-    if (btn) btn.disabled = false;
-    updateSetsBadge();
-}
-
-// Init
-updateSetsBadge();
-document.getElementById('set-name-input')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') saveCurrentSet();
-});
-</script>
-</body>
+        <span class="sets-count-badge" id="sets-count-badge" style="display: none">0</span>
+      </button>
+    </div>
+
+    <script src="/js/header.js"></script>
+    <script src="/js/models/ArmoryModel.js"></script>
+    <script src="/js/views/ArmoryView.js"></script>
+    <script src="/js/controllers/ArmoryController.js"></script>
+  </body>
 </html>
