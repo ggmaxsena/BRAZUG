@@ -44,12 +44,17 @@
             <div class="footer-section">
               <h4>Brazug Radio</h4>
               <div class="spotify-radio-mini" id="spotify-footer-player">
-                <div class="spotify-icon-wrap">
-                  <i class="fab fa-spotify"></i>
+                <div class="spotify-icon-wrap" id="spotify-play-pause">
+                  <i class="fas fa-play" id="spotify-icon-main"></i>
                 </div>
                 <div class="radio-info">
                   <div class="radio-status">Offline</div>
                   <div class="radio-track">Conecte sua conta Spotify</div>
+                </div>
+                <div class="radio-controls">
+                  <button id="spotify-mute-btn" class="radio-btn" title="Mudar Volume">
+                    <i class="fas fa-volume-up" id="spotify-mute-icon"></i>
+                  </button>
                 </div>
               </div>
               <p style="font-size: 10px; margin-top: 10px; color: #444;">Spotify Premium necessário para reprodução direta no site.</p>
@@ -80,8 +85,8 @@
 
       const trackNameEl = playerEl.querySelector('.radio-track');
       const statusEl = playerEl.querySelector('.radio-status');
-
-      let spotifyPlayer = null;
+      const muteBtn = document.getElementById('spotify-mute-btn');
+      const muteIcon = document.getElementById('spotify-mute-icon');
 
       // 1. Carregar Script do SDK
       if (!document.getElementById('spotify-sdk-script')) {
@@ -98,26 +103,49 @@
         this.initPlayer();
       };
 
-      // 3. Lógica de Interação (Clique para Conectar/Play)
-      playerEl.style.cursor = 'pointer';
-      playerEl.onclick = async () => {
-        if (!spotifyPlayer) {
-          // Tentar autenticar
-          const res = await fetch("/api/spotify/auth-url");
-          const { url } = await res.json();
-          window.open(url, "Spotify Login", "width=600,height=800");
+      // 3. Lógica de Interação (Play/Pause)
+      const playPauseWrap = document.getElementById('spotify-play-pause');
+      
+      // Clique no ícone/bola de play
+      playPauseWrap.onclick = (e) => {
+        e.stopPropagation();
+        console.log("[Spotify] Click on Play/Pause. Player exists:", !!this.spotifyPlayer);
+        if (!this.spotifyPlayer) {
+          this.loginSpotify();
         } else {
-          spotifyPlayer.togglePlay();
+          this.spotifyPlayer.togglePlay().then(() => {
+            console.log("[Spotify] TogglePlay command sent");
+          });
         }
       };
 
-      // 4. Ouvir sucesso da autenticação via postMessage (vinda da rota de callback)
+      // Clique no resto do retângulo da rádio
+      playerEl.onclick = (e) => {
+        if (!this.spotifyPlayer) {
+          console.log("[Spotify] Click on player body, initiating login...");
+          this.loginSpotify();
+        }
+      };
+
+      // Mute Toggle
+      let isMuted = localStorage.getItem('spotify_muted') === 'true';
+      this.updateMuteUI(isMuted);
+
+      muteBtn.onclick = (e) => {
+        e.stopPropagation();
+        isMuted = !isMuted;
+        localStorage.setItem('spotify_muted', isMuted);
+        if (this.spotifyPlayer) {
+          this.spotifyPlayer.setVolume(isMuted ? 0 : 0.5);
+        }
+        this.updateMuteUI(isMuted);
+      };
+
+      // 4. Ouvir sucesso da autenticação via postMessage
       window.addEventListener("message", (event) => {
         if (event.data.type === "SPOTIFY_AUTH_SUCCESS") {
-          console.log("[Spotify] Auth Success, initializing player...");
           this.initPlayer(event.data.tokens.access_token);
           
-          // Salva o refresh token se o usuário estiver logado
           const brazugToken = localStorage.getItem("brazug_admin_token");
           if (brazugToken && event.data.tokens.refresh_token) {
             fetch("/api/spotify/save-token", {
@@ -132,8 +160,21 @@
         }
       }, false);
 
-      // 5. Tentar carregar token automático (Rádio Brazug) no início
       this.initPlayer();
+    },
+
+    async loginSpotify() {
+      const res = await fetch("/api/spotify/auth-url");
+      const { url } = await res.json();
+      window.open(url, "Spotify Login", "width=600,height=800");
+    },
+
+    updateMuteUI(isMuted) {
+      const muteIcon = document.getElementById('spotify-mute-icon');
+      if (muteIcon) {
+        muteIcon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+        muteIcon.style.color = isMuted ? '#c41e3a' : '#1DB954';
+      }
     },
 
     async initPlayer(manualToken = null) {
@@ -142,7 +183,6 @@
 
       try {
         let token = manualToken;
-        
         if (!token) {
           const brazugToken = localStorage.getItem("brazug_admin_token");
           const headers = brazugToken ? { "Authorization": `Bearer ${brazugToken}` } : {};
@@ -158,14 +198,14 @@
           return;
         }
 
+        const isMuted = localStorage.getItem('spotify_muted') === 'true';
         const player = new window.Spotify.Player({
           name: 'BRAZUG Radio Web',
           getOAuthToken: cb => { cb(token); },
-          volume: 0.5
+          volume: isMuted ? 0 : 0.5
         });
 
         player.addListener('ready', ({ device_id }) => {
-          console.log('[Spotify] Ready with Device ID', device_id);
           const statusEl = document.querySelector('.radio-status');
           if (statusEl) {
             statusEl.textContent = "Online";
@@ -173,29 +213,24 @@
           }
         });
 
-        player.addListener('not_ready', ({ device_id }) => {
-          console.log('[Spotify] Device ID has gone offline', device_id);
-        });
-
         player.addListener('player_state_changed', state => {
           if (!state) return;
-          
           const track = state.track_window.current_track;
           const trackNameEl = document.querySelector('.radio-track');
           const statusEl = document.querySelector('.radio-status');
+          const mainIcon = document.getElementById('spotify-icon-main');
 
           if (trackNameEl) trackNameEl.textContent = `${track.name} - ${track.artists[0].name}`;
           if (statusEl) {
             statusEl.textContent = state.paused ? "Pausado" : "Reproduzindo";
-            statusEl.style.color = state.paused ? "#888" : "#1DB954";
+          }
+          if (mainIcon) {
+            mainIcon.className = state.paused ? 'fas fa-play' : 'fas fa-pause';
           }
         });
 
         player.connect().then(success => {
-          if (success) {
-            console.log('[Spotify] Connected successfully');
-            this.spotifyPlayer = player;
-          }
+          if (success) this.spotifyPlayer = player;
         });
 
       } catch (err) {
