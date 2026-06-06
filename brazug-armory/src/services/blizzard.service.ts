@@ -2,12 +2,17 @@ import 'dotenv/config';
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
 function logToFile(message: string) {
-  const logDir = process.env.NODE_ENV === 'production' ? '/tmp' : process.cwd();
-  const logPath = path.join(logDir, 'sync-debug.log');
-  const timestamp = new Date().toISOString();
-  fs.appendFileSync(logPath, `[BLIZZARD-LOG] ${timestamp} ${message}\n`);
+  try {
+    const logDir = process.env.NODE_ENV === 'production' ? os.tmpdir() : process.cwd();
+    const logPath = path.join(logDir, 'sync-debug.log');
+    const timestamp = new Date().toISOString();
+    fs.appendFileSync(logPath, `[BLIZZARD-LOG] ${timestamp} ${message}\n`);
+  } catch (e) {
+    console.error(`[LOG-ERROR] Failed to write log: ${message}`);
+  }
 }
 
 class BlizzardService {

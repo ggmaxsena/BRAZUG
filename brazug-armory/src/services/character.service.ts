@@ -1,5 +1,6 @@
 import prisma from '../lib/prisma';
 import { Character, CharacterItem as PrismaItem, CharacterProfession as PrismaProfession, CharacterProfile } from '@prisma/client';
+import { blizzardService } from './blizzard.service';
 
 console.log("DATABASE_URL sendo usada pelo serviço:", process.env.DATABASE_URL);
 

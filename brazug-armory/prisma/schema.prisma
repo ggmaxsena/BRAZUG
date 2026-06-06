@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters", "multiSchema"]
@@ -8,88 +5,97 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-  schemas  = ["public", "armory"]
+  schemas  = ["armory", "public"]
 }
 
-// --- PUBLIC SCHEMA (Existing Website Tables) ---
-
 model User {
-  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  username          String             @unique
-  email             String?            @unique
-  password          String
-  role              String             @default("guildmember")
-  isVerified        Boolean            @default(false) @map("is_verified")
-  createdAt         DateTime           @default(now()) @map("created_at")
-  characters        CharacterProfile[]
+  id                                       String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username                                 String             @unique
+  email                                    String?            @unique
+  password                                 String
+  role                                     String             @default("guildmember")
+  isVerified                               Boolean            @default(false) @map("is_verified")
+  createdAt                                DateTime           @default(now()) @map("created_at")
+  verification_token                       String?
+  reset_token                              String?
+  reset_expires                            DateTime?          @db.Timestamptz(6)
+  spotify_refresh_token                    String?
+  adventures_adventures_approved_byTousers Adventure[]        @relation("adventures_approved_byTousers")
+  adventures_adventures_user_idTousers     Adventure[]        @relation("adventures_user_idTousers")
+  characters                               CharacterProfile[]
 
   @@map("users")
   @@schema("public")
 }
 
 model Adventure {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title       String   @default("")
-  body        String   @default("")
-  author      String   @default("")
-  imageUrl    String   @default("") @map("image_url")
-  imageData   String?  @map("image_data")
-  eventDate   DateTime @default(now()) @map("event_date") @db.Date
-  published   Boolean  @default(true)
-  visibility  String   @default("public")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @map("updated_at")
+  id                                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                               String   @default("")
+  body                                String   @default("")
+  author                              String   @default("")
+  imageUrl                            String   @default("") @map("image_url")
+  imageData                           String?  @map("image_data")
+  eventDate                           DateTime @default(now()) @map("event_date") @db.Date
+  published                           Boolean  @default(true)
+  visibility                          String   @default("public")
+  createdAt                           DateTime @default(now()) @map("created_at")
+  updatedAt                           DateTime @default(now()) @map("updated_at")
+  user_id                             String?  @db.Uuid
+  is_approved                         Boolean  @default(false)
+  approved_by                         String?  @db.Uuid
+  users_adventures_approved_byTousers User?    @relation("adventures_approved_byTousers", fields: [approved_by], references: [id], onUpdate: NoAction)
+  users_adventures_user_idTousers     User?    @relation("adventures_user_idTousers", fields: [user_id], references: [id], onUpdate: NoAction)
 
+  @@index([eventDate(sort: Desc), createdAt(sort: Desc)], map: "idx_adventures_event_date")
+  @@index([published], map: "idx_adventures_published")
+  @@index([visibility], map: "idx_adventures_visibility")
   @@map("adventures")
   @@schema("public")
 }
 
 model CharacterProfile {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId          String?   @map("user_id") @db.Uuid
-  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                                                      String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                                                  String?     @map("user_id") @db.Uuid
+  characterId                                             Int?        @map("character_id")
+  name                                                    String
+  class                                                   String
+  race                                                    String
+  level                                                   Int         @default(1)
+  guild                                                   String      @default("BRAZUG")
+  imageUrl                                                String?     @map("image_url")
+  lore                                                    String?     @default("")
+  visibility                                              String      @default("public")
+  isDead                                                  Boolean     @default(false) @map("is_dead")
+  deathCause                                              String?     @map("death_cause")
+  deathLocation                                           String?     @map("death_location")
+  deathLevel                                              Int?        @map("death_level")
+  region                                                  String?     @default("us")
+  realm                                                   String?     @default("doomhowl")
+  prof1Name                                               String?     @map("prof1_name")
+  prof1Lvl                                                Int?        @map("prof1_lvl")
+  prof2Name                                               String?     @map("prof2_name")
+  prof2Lvl                                                Int?        @map("prof2_lvl")
+  profCookingLvl                                          Int?        @map("prof_cooking_lvl")
+  profAidLvl                                              Int?        @map("prof_aid_lvl")
+  profFishingLvl                                          Int?        @map("prof_fishing_lvl")
+  twitchUrl                                               String?     @map("twitch_url")
+  youtubeUrl                                              String?     @map("youtube_url")
+  createdAt                                               DateTime    @default(now()) @map("created_at")
+  updatedAt                                               DateTime    @default(now()) @map("updated_at")
+  video_url                                               String?     @default("")
+  video_platform                                          String?
+  video_id                                                String?
+  bids                                                    bids[]
+  feedbacks_feedbacks_author_character_idTowow_characters feedbacks[] @relation("feedbacks_author_character_idTowow_characters")
+  feedbacks_feedbacks_target_character_idTowow_characters feedbacks[] @relation("feedbacks_target_character_idTowow_characters")
+  sales_sales_buyer_character_idTowow_characters          sales[]     @relation("sales_buyer_character_idTowow_characters")
+  sales_sales_character_idTowow_characters                sales[]     @relation("sales_character_idTowow_characters")
+  armoryCharacter                                         Character?  @relation(fields: [characterId], references: [id])
+  user                                                    User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Link to automatic armory data
-  characterId     Int?      @map("character_id")
-  armoryCharacter Character? @relation(fields: [characterId], references: [id])
-
-  name            String
-  class           String
-  race            String
-
-  level           Int       @default(1)
-  guild           String    @default("BRAZUG")
-  imageUrl        String?   @map("image_url")
-  lore            String?   @default("")
-  visibility      String    @default("public")
-  isDead          Boolean   @default(false) @map("is_dead")
-  deathCause      String?   @map("death_cause")
-  deathLocation   String?   @map("death_location")
-  deathLevel      Int?      @map("death_level")
-  region          String?   @default("us")
-  realm           String?   @default("doomhowl")
-  
-  // Profession manual fields (from legacy system)
-  prof1Name       String?   @map("prof1_name")
-  prof1Lvl        Int?      @map("prof1_lvl")
-  prof2Name       String?   @map("prof2_name")
-  prof2Lvl        Int?      @map("prof2_lvl")
-  profCookingLvl  Int?      @map("prof_cooking_lvl")
-  profAidLvl      Int?      @map("prof_aid_lvl")
-  profFishingLvl  Int?      @map("prof_fishing_lvl")
-
-  // Social
-  twitchUrl       String?   @map("twitch_url")
-  youtubeUrl      String?   @map("youtube_url")
-
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @default(now()) @map("updated_at")
-
-  // Loose relation to automatic armory data (No FK to avoid migration errors with existing data)
-  // We will handle this join in the application logic or use a view later.
-  // armoryCharacter Character? @relation(fields: [name, realm, region], references: [name, realm, region])
-
+  @@index([createdAt(sort: Desc)], map: "idx_characters_created_at")
+  @@index([userId], map: "idx_characters_user_id")
+  @@index([visibility], map: "idx_characters_visibility")
   @@map("wow_characters")
   @@schema("public")
 }
@@ -102,10 +108,8 @@ model SiteSetting {
   @@schema("public")
 }
 
-// --- ARMORY SCHEMA (Automatic Blizzard Data) ---
-
 model Character {
-  id          Int      @id @default(autoincrement())
+  id          Int                   @id @default(autoincrement())
   name        String
   realm       String
   region      String
@@ -116,10 +120,9 @@ model Character {
   guild       String?
   spec        String?
   avatarUrl   String?
-  extraData   Json?    @map("extra_data")
-  lastSync    DateTime @default(now()) @map("last_sync")
-  updatedAt   DateTime @updatedAt
-
+  lastSync    DateTime              @default(now()) @map("last_sync")
+  updatedAt   DateTime              @updatedAt
+  extraData   Json?                 @map("extra_data")
   items       CharacterItem[]
   professions CharacterProfession[]
   profiles    CharacterProfile[]
@@ -129,13 +132,12 @@ model Character {
 }
 
 model Item {
-  id          Int       @id // ID do item da Blizzard
-  name        String
-  quality     String
-  icon        String?   // URL do ícone
-  tooltipData Json?     @map("tooltip_data") // JSON com stats, descrição, etc.
-  lastUpdated DateTime  @default(now()) @map("last_updated")
-  
+  id             Int             @id
+  name           String
+  quality        String
+  icon           String?
+  tooltipData    Json?           @map("tooltip_data")
+  lastUpdated    DateTime        @default(now()) @map("last_updated")
   characterItems CharacterItem[]
 
   @@schema("armory")
@@ -144,28 +146,91 @@ model Item {
 model CharacterItem {
   id          Int       @id @default(autoincrement())
   characterId Int       @map("character_id")
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  
+  slot        String
   itemId      Int       @map("item_id")
-  item        Item      @relation(fields: [itemId], references: [id])
-  slot        String    // e.g., "HEAD", "CHEST"
-  
-  // Mantém legado para evitar perda de dados durante a transição
+  icon        String?
   name        String?
   quality     String?
-  icon        String?
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  item        Item      @relation(fields: [itemId], references: [id])
 
   @@schema("armory")
 }
 
 model CharacterProfession {
-  id          Int       @id @default(autoincrement())
-  characterId Int       @map("character_id")
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-
-  name        String
-  skillPoints Int       @map("skill_points")
-  maxSkillPoints Int    @map("max_skill_points")
+  id             Int       @id @default(autoincrement())
+  characterId    Int       @map("character_id")
+  name           String
+  skillPoints    Int       @map("skill_points")
+  maxSkillPoints Int       @map("max_skill_points")
+  character      Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@schema("armory")
+}
+
+model bids {
+  id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sale_id             String?           @db.Uuid
+  bidder_character_id String?           @db.Uuid
+  amount              Int
+  created_at          DateTime          @default(now()) @db.Timestamptz(6)
+  wow_characters      CharacterProfile? @relation(fields: [bidder_character_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sales               sales?            @relation(fields: [sale_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model feedbacks {
+  id                                                           String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sale_id                                                      String?           @db.Uuid
+  author_character_id                                          String?           @db.Uuid
+  target_character_id                                          String?           @db.Uuid
+  rating                                                       Int
+  comment                                                      String?
+  target_role                                                  String?
+  created_at                                                   DateTime          @default(now()) @db.Timestamptz(6)
+  wow_characters_feedbacks_author_character_idTowow_characters CharacterProfile? @relation("feedbacks_author_character_idTowow_characters", fields: [author_character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sales                                                        sales?            @relation(fields: [sale_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  wow_characters_feedbacks_target_character_idTowow_characters CharacterProfile? @relation("feedbacks_target_character_idTowow_characters", fields: [target_character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([sale_id, author_character_id])
+  @@schema("public")
+}
+
+model item {
+  id            Int     @id
+  name          String
+  quality       String?
+  slot          String?
+  icon_filename String?
+  max_stack     Int?    @default(1)
+  sales         sales[]
+
+  @@schema("public")
+}
+
+model sales {
+  id                                                      String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  character_id                                            String?           @db.Uuid
+  item_name                                               String
+  price                                                   String
+  description                                             String?
+  status                                                  String            @default("open")
+  created_at                                              DateTime          @default(now()) @db.Timestamptz(6)
+  item_id                                                 Int?
+  quantity                                                Int?              @default(1)
+  duration_hours                                          Int?              @default(24)
+  ends_at                                                 DateTime?         @default(dbgenerated("(now() + '24:00:00'::interval)")) @db.Timestamptz(6)
+  seller_ok                                               Boolean?          @default(false)
+  buyer_ok                                                Boolean?          @default(false)
+  buyer_character_id                                      String?           @db.Uuid
+  updated_at                                              DateTime?         @default(now()) @db.Timestamptz(6)
+  bids                                                    bids[]
+  feedbacks                                               feedbacks[]
+  wow_characters_sales_buyer_character_idTowow_characters CharacterProfile? @relation("sales_buyer_character_idTowow_characters", fields: [buyer_character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  wow_characters_sales_character_idTowow_characters       CharacterProfile? @relation("sales_character_idTowow_characters", fields: [character_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  item                                                    item?             @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
 }

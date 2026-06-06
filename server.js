@@ -13,6 +13,7 @@ const adminRoutes = require("./lib/admin-routes.cjs");
 const characterRoutes = require("./lib/character-routes.cjs");
 const salesRoutes = require("./lib/sales-routes.cjs");
 const twitch = require("./lib/twitch.cjs");
+const spotifyRoutes = require("./lib/spotify-routes.cjs");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -236,6 +237,7 @@ app.get("/api/health", async (req, res) => {
 app.use("/api/auth", authRoutes.createAuthRouter());
 app.use("/api/admin", adminRoutes.createAdminRouter());
 app.use("/api/sales", salesRoutes.createSalesRouter());
+app.use("/api/spotify", spotifyRoutes.createSpotifyRouter());
 app.use("/api", characterRoutes.createCharacterRouter());
 
 async function start() {
