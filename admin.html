@@ -105,6 +105,23 @@
         </div>
     </div>
 
+    <!-- MODAL DE PREVIEW DA AVENTURA -->
+    <div id="mural-modal" class="mural-modal" hidden>
+      <div class="mural-modal-backdrop" data-action="close"></div>
+      <div class="mural-modal-panel">
+        <button type="button" class="mural-modal-close" data-action="close">×</button>
+        <img id="mural-modal-img" class="mural-modal-img" src="" alt="" />
+        <div class="mural-modal-copy">
+          <p id="mural-modal-date"></p>
+          <h2 id="mural-modal-title"></h2>
+          <div id="mural-modal-body" class="mural-modal-body"></div>
+          <p id="mural-modal-author" style="font-weight: bold; color: var(--gold);"></p>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+
     <script src="/js/models/AdminModel.js"></script>
     <script src="/js/views/AdminView.js"></script>
     <script src="/js/controllers/AdminController.js"></script>

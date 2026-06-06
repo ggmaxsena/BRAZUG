@@ -28,6 +28,7 @@
           </div>
           <div style="display: flex; gap: 5px;">
             ${approveBtn}
+            <button class="btn-small" style="background: var(--gold); color: #000;" onclick="AdminController.handlePreview('${a.id}')">Preview</button>
             <button class="btn-small" onclick="AdminController.handleEdit('${a.id}')">Editar</button>
             <button class="btn-small danger" onclick="AdminController.handleDelete('${a.id}')">Excluir</button>
           </div>

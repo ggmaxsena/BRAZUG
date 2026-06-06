@@ -2,6 +2,19 @@
   "use strict";
 
   const AdminController = {
+    adventuresCache: [],
+
+    formatDateForInput(dateVal) {
+      if (!dateVal) return "";
+      try {
+        const d = new Date(dateVal);
+        if (isNaN(d.getTime())) return "";
+        return d.toISOString().split('T')[0];
+      } catch (e) {
+        return "";
+      }
+    },
+
     async init() {
       const token = localStorage.getItem("brazug_admin_token");
       if (!token) return window.location.href = "/login.html";
@@ -64,6 +77,13 @@
       }
 
       try {
+        const isEditPage = window.location.pathname.includes("cadastro-aventura.html");
+        const isAdminPage = window.location.pathname.includes("admin.html");
+
+        const advRes = await AdminModel.fetchAdventures(token);
+        const adventures = Array.isArray(advRes) ? advRes : (advRes.adventures || []);
+        this.adventuresCache = adventures;
+
         // Adventure Form Logic (for cadastro-aventura.html)
         const adventureForm = document.getElementById("adventure-form");
         if (adventureForm) {
@@ -110,19 +130,31 @@
             const params = new URLSearchParams(window.location.search);
             const editId = params.get('id');
             if (editId) {
-                document.querySelector(".section-title").textContent = "Editar Aventura";
-                const advRes = await AdminModel.fetchAdventures(token);
-                const adventures = Array.isArray(advRes) ? advRes : (advRes.adventures || []);
-                const adv = adventures.find(a => a.id === editId);
-                if (adv) {
-                    adventureForm.title.value = adv.title;
-                    adventureForm.event_date.value = adv.event_date;
-                    if (quill) quill.root.innerHTML = adv.body || "";
-                    adventureForm.image_url.value = adv.image_url;
-                    adventureForm.published.checked = !!adv.published;
-                    adventureForm.visibility.value = adv.visibility;
-                    const authorInput = document.getElementById("author-input");
-                    if (authorInput) authorInput.value = adv.author || "";
+                // Tenta encontrar o título da seção específico da página de cadastro
+                const titleEl = document.querySelector(".panel-title");
+                if (titleEl && isEditPage) titleEl.textContent = "Editar Aventura";
+                
+                try {
+                    console.log("[Admin] Buscando dados da aventura para edição:", editId);
+                    const res = await AdminModel.fetchAdventure(editId, token);
+                    const adv = res.adventure;
+                    
+                    if (adv) {
+                        console.log("[Admin] Populando formulário com:", adv.title);
+                        adventureForm.title.value = adv.title;
+                        adventureForm.event_date.value = this.formatDateForInput(adv.event_date);
+                        if (quill) quill.root.innerHTML = adv.body || "";
+                        adventureForm.image_url.value = adv.image_url;
+                        adventureForm.published.checked = !!adv.published;
+                        adventureForm.visibility.value = adv.visibility;
+                        const authorInput = document.getElementById("author-input");
+                        if (authorInput) authorInput.value = adv.author || "";
+                    } else {
+                        console.warn("[Admin] Aventura não encontrada no servidor:", editId);
+                    }
+                } catch (err) {
+                    console.error("[Admin] Erro ao carregar aventura para edição:", err);
+                    alert(`Erro ao carregar os dados: ${err.message}. Verifique o console do navegador para detalhes.`);
                 }
             }
 
@@ -165,8 +197,8 @@
                   }
                   alert("Aventura salva!");
                   
-                  // Redirecionamento inteligente: admins voltam para o painel, staff volta para a lista
-                  if (me.user.role === "admin") {
+                  // Redirecionamento: se for staff volta para o painel se estiver lá, ou recarrega
+                  if (serverRole === "admin" || isAdminPage) {
                       window.location.href = "/admin.html";
                   } else {
                       window.location.href = "/cadastro-aventura.html";
@@ -175,8 +207,6 @@
             };
         }
 
-        const advRes = await AdminModel.fetchAdventures(token);
-        const adventures = Array.isArray(advRes) ? advRes : (advRes.adventures || []);
         AdminView.renderAdventures(adventures);
 
         const role = localStorage.getItem("brazug_admin_role");
@@ -253,6 +283,89 @@
         if (!role) return;
         await AdminModel.updateUserRole(id, role, localStorage.getItem("brazug_admin_token"));
         this.init();
+    },
+
+    handlePreview(id) {
+      const adventure = this.adventuresCache.find(a => a.id === id);
+      if (!adventure) return alert("Aventura não encontrada no cache.");
+
+      const modal = document.getElementById("mural-modal");
+      if (!modal) return;
+
+      const img = document.getElementById("mural-modal-img");
+      if (img) {
+          img.src = adventure.image_url || "";
+          img.style.display = adventure.image_url ? "block" : "none";
+      }
+
+      document.getElementById("mural-modal-title").textContent = adventure.title;
+      
+      const rawBody = this.renderBody(adventure.body);
+      let cleanBody = "";
+      if (typeof DOMPurify !== 'undefined') {
+          cleanBody = DOMPurify.sanitize(rawBody);
+      } else {
+          console.warn("DOMPurify não carregado. Usando fallback seguro.");
+          const div = document.createElement("div");
+          div.textContent = rawBody.replace(/<[^>]*>/g, ""); // Remove tags se não puder sanitizar
+          cleanBody = div.innerHTML;
+      }
+      document.getElementById("mural-modal-body").innerHTML = cleanBody;
+      
+      document.getElementById("mural-modal-date").textContent = adventure.event_date;
+      document.getElementById("mural-modal-author").textContent = "Relato de: " + adventure.author;
+
+      const handleEsc = (e) => {
+        if (e.key === "Escape") close();
+      };
+
+      const close = () => {
+        modal.hidden = true;
+        document.body.style.overflow = "";
+        document.removeEventListener("keydown", handleEsc);
+      };
+
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+
+      modal.querySelectorAll("[data-action='close']").forEach(btn => btn.onclick = close);
+      const backdrop = modal.querySelector(".mural-modal-backdrop");
+      if (backdrop) backdrop.onclick = close;
+
+      document.addEventListener("keydown", handleEsc);
+    },
+
+    renderBody(text) {
+        if (!text) return "";
+        if (text.trim().startsWith('{')) {
+            try {
+                const data = JSON.parse(text);
+                if (data.blocks) {
+                    return data.blocks.map(block => {
+                        switch (block.type) {
+                            case 'paragraph':
+                                return `<p style="margin-bottom: 1.2em; line-height: 1.7;">${block.data.text}</p>`;
+                            case 'header':
+                                return `<h${block.data.level} style="color: var(--gold); margin: 1.2em 0 0.5em 0;">${block.data.text}</h${block.data.level}>`;
+                            case 'list':
+                                const tag = block.data.style === 'ordered' ? 'ol' : 'ul';
+                                const items = block.data.items.map(item => `<li style="margin-bottom: 0.4em;">${item}</li>`).join('');
+                                return `<${tag} style="margin-bottom: 1.2em; padding-left: 20px;">${items}</${tag}>`;
+                            case 'image':
+                                return `<div style="margin: 20px 0; text-align: center;">
+                                    <img src="${block.data.file?.url || block.data.url}" style="max-width: 100%; border-radius: 8px; border: 1px solid #333;">
+                                    ${block.data.caption ? `<p style="font-size: 0.85em; color: #888; margin-top: 8px;">${block.data.caption}</p>` : ""}
+                                </div>`;
+                            case 'quote':
+                                return `<blockquote style="border-left: 3px solid var(--gold); padding: 5px 15px; font-style: italic; background: rgba(255,255,255,0.03); margin-bottom: 1.2em;">${block.data.text}</blockquote>`;
+                            default:
+                                return "";
+                        }
+                    }).join("");
+                }
+            } catch (e) {}
+        }
+        return text; // Fallback para HTML legado
     }
   };
 

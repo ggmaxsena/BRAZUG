@@ -10,6 +10,11 @@
       return await this.api("/adventures", "GET", null, token);
     },
 
+    async fetchAdventure(id, token) {
+      console.log(`[AdminModel] Fetching adventure: ${id}`);
+      return await this.api("/adventures/" + id, "GET", null, token);
+    },
+
     async updateAdventure(id, adventure, token) {
       return await this.api("/adventures/" + id, "PUT", adventure, token);
     },
@@ -42,10 +47,20 @@
       if (token) options.headers["Authorization"] = "Bearer " + token;
       if (body) options.body = JSON.stringify(body);
 
-      const res = await fetch("/api/admin" + path, options);
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Erro na requisição");
-      return data;
+      const url = "/api/admin" + path;
+      try {
+        const res = await fetch(url, options);
+        const data = await res.json().catch(() => ({}));
+        
+        if (!res.ok) {
+          console.error(`[API ERROR] ${method} ${url} -> Status: ${res.status}`, data);
+          throw new Error(data.error || `Erro ${res.status} na requisição`);
+        }
+        return data;
+      } catch (err) {
+        console.error(`[NETWORK ERROR] ${method} ${url}`, err);
+        throw err;
+      }
     }
   };
 
