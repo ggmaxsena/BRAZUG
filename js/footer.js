@@ -174,20 +174,21 @@
           const vol = parseInt(e.target.value);
 
           // Garante que o player esteja desmutado antes de ajustar volume
-        if (vol > 0) {
-            this.ytPlayer.unMute();
-            this.ytPlayer.setVolume(vol);
-        } else {
-            this.ytPlayer.mute();
-        }
+          if (vol > 0) {
+              this.ytPlayer.unMute();
+              this.ytPlayer.setVolume(vol);
+          } else {
+              this.ytPlayer.mute();
+          }
 
-        localStorage.setItem('yt_volume', vol);
-        this.updateYTMuteUI(vol === 0);
-      };
+          localStorage.setItem('yt_volume', vol);
+          this.updateYTMuteUI(vol === 0);
+        };
 
-      // Load saved volume
-      const savedVol = localStorage.getItem('yt_volume') || 2;
-      volumeSlider.value = savedVol;
+        // Load saved volume
+        const savedVol = localStorage.getItem('yt_volume') || 2;
+        volumeSlider.value = savedVol;
+      }
     },
 
     fadeInVolume(player) {
