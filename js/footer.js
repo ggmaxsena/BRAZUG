@@ -144,7 +144,7 @@
         let token = manualToken;
         
         if (!token) {
-          const brazugToken = localStorage.getItem("brazug_admin_user");
+          const brazugToken = localStorage.getItem("brazug_admin_token");
           const headers = brazugToken ? { "Authorization": `Bearer ${brazugToken}` } : {};
           const res = await fetch("/api/spotify/token", { headers });
           if (res.ok) {
