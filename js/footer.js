@@ -135,29 +135,45 @@
       };
 
       // Previous/Next Controls
-      document.getElementById('yt-prev-btn').onclick = (e) => { e.stopPropagation(); if (this.ytPlayer) this.ytPlayer.previousVideo(); };
-      document.getElementById('yt-next-btn').onclick = (e) => { e.stopPropagation(); if (this.ytPlayer) this.ytPlayer.nextVideo(); };
+      const ytPrevBtn = document.getElementById('yt-prev-btn');
+      if (ytPrevBtn) {
+        ytPrevBtn.onclick = (e) => { 
+          e.stopPropagation(); 
+          if (this.ytPlayer && typeof this.ytPlayer.previousVideo === 'function') this.ytPlayer.previousVideo(); 
+        };
+      }
 
-      ytPlayPause.onclick = (e) => {
-        e.stopPropagation();
-        if (!this.ytPlayer) return;
-        const state = this.ytPlayer.getPlayerState();
-        if (state === YT.PlayerState.PLAYING) {
-          this.ytPlayer.pauseVideo();
-        } else {
-          this.ytPlayer.unMute(); // Garante som ao dar play
-          this.ytPlayer.playVideo();
-        }
-      };
+      const ytNextBtn = document.getElementById('yt-next-btn');
+      if (ytNextBtn) {
+        ytNextBtn.onclick = (e) => { 
+          e.stopPropagation(); 
+          if (this.ytPlayer && typeof this.ytPlayer.nextVideo === 'function') this.ytPlayer.nextVideo(); 
+        };
+      }
+
+      if (ytPlayPause) {
+        ytPlayPause.onclick = (e) => {
+          e.stopPropagation();
+          if (!this.ytPlayer || typeof this.ytPlayer.getPlayerState !== 'function') return;
+          const state = this.ytPlayer.getPlayerState();
+          if (state === YT.PlayerState.PLAYING) {
+            this.ytPlayer.pauseVideo();
+          } else {
+            this.ytPlayer.unMute(); // Garante som ao dar play
+            this.ytPlayer.playVideo();
+          }
+        };
+      }
 
       // Volume Control - Refined
       const volumeSlider = document.getElementById('yt-volume-slider');
-      volumeSlider.oninput = (e) => {
-        if (!this.ytPlayer || typeof this.ytPlayer.setVolume !== 'function') return;
+      if (volumeSlider) {
+        volumeSlider.oninput = (e) => {
+          if (!this.ytPlayer || typeof this.ytPlayer.setVolume !== 'function') return;
 
-        const vol = parseInt(e.target.value);
+          const vol = parseInt(e.target.value);
 
-        // Garante que o player esteja desmutado antes de ajustar volume
+          // Garante que o player esteja desmutado antes de ajustar volume
         if (vol > 0) {
             this.ytPlayer.unMute();
             this.ytPlayer.setVolume(vol);
