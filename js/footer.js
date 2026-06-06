@@ -11,12 +11,14 @@
           <div class="footer-container">
             <!-- Brand Section -->
             <div class="footer-section footer-brand">
-              <img src="/assets/branding/LOGO.png" alt="BRAZUG Logo" class="footer-logo" onerror="this.src='/assets/branding/contentbra.png'">
-              <p>A maior comunidade Hardcore do WoW Classic na América Latina. Forjada em sangue e honra, unida pelo destino de Azeroth.</p>
-              <div class="horde-badge">
-                <img src="/assets/branding/mhorda.png" alt="Horde" onerror="this.style.display='none'">
-                <span>Pela Horda!</span>
+
+              <div class="album-carousel" id="album-carousel">
+                  <!-- Spotify Artist Embed -->
+                  <div class="carousel-container">
+                      <iframe src="https://open.spotify.com/embed/artist/7d2pfUNb5463ZeyejrDwdI?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                  </div>
               </div>
+
             </div>
 
             <!-- Site Map -->
@@ -41,29 +43,30 @@
             </div>
 
             <!-- Spotify Integration Space -->
-            <div class="footer-section">
-              <h4>Brazug Radio</h4>
-              <div class="spotify-radio-mini" id="spotify-footer-player">
-                <div class="spotify-icon-wrap" id="spotify-play-pause">
-                  <i class="fas fa-play" id="spotify-icon-main"></i>
-                </div>
-                <div class="radio-info">
-                  <div class="radio-status">Offline</div>
-                  <div class="radio-track">Conecte sua conta Spotify</div>
-                </div>
-                <div class="radio-controls">
-                  <button id="spotify-mute-btn" class="radio-btn" title="Mudar Volume">
-                    <i class="fas fa-volume-up" id="spotify-mute-icon"></i>
-                  </button>
-                </div>
+            <div class="footer-section promo-artist">
+              <h4>Ouvindo agora: Ggmaxsena</h4>
+              <p style="font-size: 12px; margin-bottom: 10px;">Apoie o artista da nossa guilda!</p>
+
+
+
+              <!-- YouTube Guild Radio (Global) -->
+              <div class="youtube-radio-mini" id="youtube-guild-radio" style="flex-direction: column; align-items: stretch;">
+                  <div id="yt-player-container" style="height: 200px; width: 100%;"></div>
+                  <div class="radio-controls" style="display:flex; justify-content:center; align-items:center; gap:10px; margin-top: 5px;">
+                      <button id="yt-prev-btn" class="radio-btn" title="Anterior"><i class="fas fa-step-backward"></i></button>
+                      <button id="yt-play-btn" class="radio-btn" title="Play/Pause"><i class="fas fa-music" id="yt-icon-main"></i></button>
+                      <button id="yt-next-btn" class="radio-btn" title="Próxima"><i class="fas fa-step-forward"></i></button>
+                      <button id="yt-mute-btn" class="radio-btn" title="Silenciar"><i class="fas fa-volume-up" id="yt-mute-icon"></i></button>
+                      <input type="range" id="yt-volume-slider" min="0" max="100" value="2" style="width: 60px; cursor: pointer;">
+                  </div>
               </div>
-              <p style="font-size: 10px; margin-top: 10px; color: #444;">Spotify Premium necessário para reprodução direta no site.</p>
             </div>
+
           </div>
 
           <div class="footer-bottom">
             <div class="copyright">
-              &copy; 2026 BRAZUG Community. Todos os direitos reservados. 
+              &copy; 2026 BRAZUG Community. Todos os direitos reservados.
               <span style="color: #333; margin-left: 10px;">World of Warcraft e Blizzard Entertainment são marcas registradas.</span>
             </div>
             <div class="footer-meta">
@@ -77,6 +80,124 @@
       document.body.insertAdjacentHTML('beforeend', footerHtml);
 
       this.setupSpotify();
+      this.setupYouTube();
+    },
+
+    async setupYouTube() {
+      const ytPlayerContainer = document.getElementById('yt-player-container');
+      const ytPlayPause = document.getElementById('yt-play-pause');
+      const ytMuteBtn = document.getElementById('yt-mute-btn');
+
+      // Playlist atualizada: Trilha épica Brazug
+      const playlistId = 'PLKqwDqLHZSr32NwfIJdHgaEJBPqzVQGXv';
+
+      // 1. Carregar IFrame API
+      if (!window.YT) {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      }
+
+      window.onYouTubeIframeAPIReady = () => {
+        this.ytPlayer = new YT.Player('yt-player-container', {
+          height: '0',
+          width: '0',
+          playerVars: {
+            'listType': 'playlist',
+            'list': playlistId,
+            'autoplay': 1,
+            'mute': 1,
+            'controls': 0,
+            'disablekb': 1,
+            'fs': 0,
+            'modestbranding': 1,
+            'loop': 1
+          },
+          events: {
+            'onReady': (event) => {
+              console.log("[YouTube] Ready");
+              const isMuted = localStorage.getItem('yt_muted') === 'true';
+              if (isMuted) event.target.mute();
+              this.updateYTMuteUI(isMuted);
+            },
+            'onStateChange': (event) => {
+              const icon = document.getElementById('yt-icon-main');
+              if (event.data === YT.PlayerState.PLAYING) {
+                if (icon) icon.className = 'fas fa-pause';
+                this.fadeInVolume(event.target);
+              } else {
+                if (icon) icon.className = 'fas fa-music';
+              }
+            }
+          }
+        });
+      };
+
+      // Previous/Next Controls
+      document.getElementById('yt-prev-btn').onclick = (e) => { e.stopPropagation(); if (this.ytPlayer) this.ytPlayer.previousVideo(); };
+      document.getElementById('yt-next-btn').onclick = (e) => { e.stopPropagation(); if (this.ytPlayer) this.ytPlayer.nextVideo(); };
+
+      ytPlayPause.onclick = (e) => {
+        e.stopPropagation();
+        if (!this.ytPlayer) return;
+        const state = this.ytPlayer.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+          this.ytPlayer.pauseVideo();
+        } else {
+          this.ytPlayer.unMute(); // Garante som ao dar play
+          this.ytPlayer.playVideo();
+        }
+      };
+
+      // Volume Control - Refined
+      const volumeSlider = document.getElementById('yt-volume-slider');
+      volumeSlider.oninput = (e) => {
+        if (!this.ytPlayer || typeof this.ytPlayer.setVolume !== 'function') return;
+
+        const vol = parseInt(e.target.value);
+
+        // Garante que o player esteja desmutado antes de ajustar volume
+        if (vol > 0) {
+            this.ytPlayer.unMute();
+            this.ytPlayer.setVolume(vol);
+        } else {
+            this.ytPlayer.mute();
+        }
+
+        localStorage.setItem('yt_volume', vol);
+        this.updateYTMuteUI(vol === 0);
+      };
+
+      // Load saved volume
+      const savedVol = localStorage.getItem('yt_volume') || 2;
+      volumeSlider.value = savedVol;
+    },
+
+    fadeInVolume(player) {
+      if (this._fading) return;
+      this._fading = true;
+      let currentVol = 0;
+      player.setVolume(currentVol);
+      player.unMute();
+
+      const step = 0.2; // Aumenta 0.2% a cada intervalo
+      const interval = setInterval(() => {
+        currentVol += step;
+        player.setVolume(currentVol);
+        if (currentVol >= 2) {
+          clearInterval(interval);
+          this._fading = false;
+        }
+      }, 1000); // 1000ms * 10 passos = 10 segundos
+    },
+
+    updateYTMuteUI(isMuted) {
+      const icon = document.getElementById('yt-mute-icon');
+      if (icon) {
+        icon.className = isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+        icon.style.color = isMuted ? '#c41e3a' : '#ff0000';
+      }
     },
 
     async setupSpotify() {
@@ -105,7 +226,7 @@
 
       // 3. Lógica de Interação (Play/Pause)
       const playPauseWrap = document.getElementById('spotify-play-pause');
-      
+
       // Clique no ícone/bola de play
       playPauseWrap.onclick = (e) => {
         e.stopPropagation();
@@ -145,12 +266,12 @@
       window.addEventListener("message", (event) => {
         if (event.data.type === "SPOTIFY_AUTH_SUCCESS") {
           this.initPlayer(event.data.tokens.access_token);
-          
+
           const brazugToken = localStorage.getItem("brazug_admin_token");
           if (brazugToken && event.data.tokens.refresh_token) {
             fetch("/api/spotify/save-token", {
               method: "POST",
-              headers: { 
+              headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${brazugToken}`
               },

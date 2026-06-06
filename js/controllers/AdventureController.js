@@ -86,12 +86,24 @@
       document.getElementById("mural-modal-date").textContent = adventure.event_date;
       document.getElementById("mural-modal-author").textContent = "Relato de: " + adventure.author;
 
-      modal.hidden = false;
+      const handleEsc = (e) => {
+        if (e.key === "Escape") close();
+      };
 
-      const close = () => modal.hidden = true;
+      const close = () => {
+        modal.hidden = true;
+        document.body.style.overflow = "";
+        document.removeEventListener("keydown", handleEsc);
+      };
+
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+
       modal.querySelectorAll("[data-action='close']").forEach(btn => btn.onclick = close);
       const backdrop = modal.querySelector(".mural-modal-backdrop");
       if (backdrop) backdrop.onclick = close;
+
+      document.addEventListener("keydown", handleEsc);
     },
 
     renderBody(text) {

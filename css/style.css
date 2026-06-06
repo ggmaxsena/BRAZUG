@@ -328,6 +328,33 @@ section { padding: 60px 0; }
 /* ===================================== */
 /* MODAL */
 /* ===================================== */
+.mural-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.mural-modal[hidden] {
+    display: none !important;
+}
+
+.mural-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+}
+
 .mural-modal-panel {
     position: relative;
     z-index: 2001;
@@ -339,6 +366,38 @@ section { padding: 60px 0; }
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 20px 80px rgba(196, 30, 58, 0.4);
+    display: flex;
+    flex-direction: column;
+}
+
+.mural-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--gold);
+    font-size: 32px;
+    cursor: pointer;
+    z-index: 10;
+    line-height: 1;
+    transition: transform 0.2s;
+}
+
+.mural-modal-close:hover {
+    transform: scale(1.1);
+    color: #fff;
+}
+
+.mural-modal-img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--border);
+}
+
+.mural-modal-copy {
+    padding: 40px;
 }
 
 .mural-modal-title {
@@ -348,6 +407,41 @@ section { padding: 60px 0; }
     margin-bottom: 15px;
     text-transform: uppercase;
     letter-spacing: 2px;
+}
+
+.mural-modal-body {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #ccc;
+    margin: 25px 0;
+}
+
+.mural-modal-body p {
+    margin-bottom: 1.5rem;
+}
+
+.mural-modal-body ul, .mural-modal-body ol {
+    margin-bottom: 1.5rem;
+    padding-left: 20px;
+}
+
+.mural-modal-body li {
+    margin-bottom: 0.5rem;
+}
+
+.mural-modal-body blockquote {
+    border-left: 3px solid var(--gold);
+    padding: 10px 20px;
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 1.5rem;
+}
+
+.mural-modal-body img {
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin: 20px 0;
 }
 
 /* ===================================== */

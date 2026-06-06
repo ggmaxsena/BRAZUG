@@ -12,7 +12,7 @@
         <div class="mural-card" data-adventure-id="${a.id}" style="cursor: pointer;">
           ${a.image_url ? `<img src="${this.escapeHtml(a.image_url)}" class="mural-card-img" alt="${this.escapeHtml(a.title)}">` : ""}
           <div class="mural-card-body">
-            <div class="mural-card-meta">${a.event_date}</div>
+            <div class="mural-card-meta">${this.escapeHtml(a.event_date)}</div>
             <h3 class="mural-card-title">${this.escapeHtml(a.title)}</h3>
             <p class="mural-card-text">Por: ${this.escapeHtml(a.author)}</p>
           </div>

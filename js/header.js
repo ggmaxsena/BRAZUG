@@ -37,14 +37,6 @@
             </div>
 
             <div class="header-right">
-                <div class="spotify-wrap">
-                  <iframe
-                    src="https://open.spotify.com/embed/playlist/7dHRaqukEPMaQZSESR5v4C?utm_source=generator&autoplay=1"
-                    frameborder="0"
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    loading="lazy"
-                  ></iframe>
-                </div>
                 <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
                     <span></span><span></span><span></span>
                 </button>
