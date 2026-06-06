@@ -32,7 +32,7 @@ module.exports = {
     },
     {
       name: "brazug-sync-daily",
-      script: "scripts/daily-sync.js",
+      script: "scripts/daily-sync-v2.js",
       cwd: path.resolve(__dirname, "brazug-armory"),
       instances: 1,
       autorestart: false,
