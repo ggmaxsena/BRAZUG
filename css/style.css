@@ -391,8 +391,10 @@ section { padding: 60px 0; }
 
 .mural-modal-img {
     width: 100%;
-    max-height: 400px;
-    object-fit: cover;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    background: #000;
     border-bottom: 1px solid var(--border);
 }
 
