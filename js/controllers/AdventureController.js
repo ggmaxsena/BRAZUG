@@ -86,6 +86,46 @@
       document.getElementById("mural-modal-date").textContent = adventure.event_date;
       document.getElementById("mural-modal-author").textContent = "Relato de: " + adventure.author;
 
+      // Video Rendering
+      const videoContainerId = "mural-modal-video-container";
+      let videoContainer = document.getElementById(videoContainerId);
+      
+      if (!videoContainer) {
+          videoContainer = document.createElement("div");
+          videoContainer.id = videoContainerId;
+          videoContainer.style.marginTop = "20px";
+          videoContainer.style.width = "100%";
+          const bodyEl = document.getElementById("mural-modal-body");
+          bodyEl.parentNode.insertBefore(videoContainer, bodyEl);
+      }
+
+      videoContainer.innerHTML = "";
+      if (adventure.video_id && adventure.video_platform) {
+          let iframeSrc = "";
+          if (adventure.video_platform === 'youtube') {
+              iframeSrc = `https://www.youtube.com/embed/${adventure.video_id}`;
+          } else if (adventure.video_platform === 'twitch') {
+              iframeSrc = `https://player.twitch.tv/?video=${adventure.video_id}&parent=${window.location.hostname}&autoplay=false`;
+          } else if (adventure.video_platform === 'twitch_clip') {
+              iframeSrc = `https://clips.twitch.tv/embed?clip=${adventure.video_id}&parent=${window.location.hostname}&autoplay=false`;
+          }
+
+          if (iframeSrc) {
+              videoContainer.innerHTML = `
+                  <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; border: 1px solid var(--horde-red); background: #000;">
+                      <iframe src="${iframeSrc}" 
+                              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                              frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+                  </div>
+              `;
+              videoContainer.style.display = "block";
+          } else {
+              videoContainer.style.display = "none";
+          }
+      } else {
+          videoContainer.style.display = "none";
+      }
+
       const handleEsc = (e) => {
         if (e.key === "Escape") close();
       };
