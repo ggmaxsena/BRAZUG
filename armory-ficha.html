@@ -11,6 +11,7 @@
     </script>
     <script src="https://wow.zamimg.com/js/tooltips.js"></script>
     <link rel="stylesheet" href="/css/armory.css" />
+    <link rel="stylesheet" href="/css/talent-trees.css" />
     <link rel="stylesheet" href="/css/footer.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   </head>
@@ -128,7 +129,7 @@
               <div class="corner corner-tr"></div>
               <div class="corner corner-bl"></div>
               <div class="corner corner-br"></div>
-              <div class="panel-title">Especialização e Talentos</div>
+              <div class="panel-title">Árvores de Talentos</div>
               <div class="talents-container-row" id="talents-container">
                 <!-- Trees rendered by JS -->
               </div>
@@ -202,110 +203,74 @@
       </div>
 
       <div id="tab-planner" class="redesign-container tab-content">
-        <div class="tp-hero" style="padding: 20px 0; margin-bottom: 20px">
-          <div style="display: flex; justify-content: space-between; align-items: center">
-            <div>
-              <h2 class="tp-hero-title" style="font-size: 28px; font-family: 'Cinzel'; color: #fff">
-                Planejador de Talentos
-              </h2>
-              <p class="tp-hero-sub" style="color: var(--text-muted)">Simule uma nova build para este personagem</p>
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--brazug-gold); padding-bottom: 15px;">
+          <div>
+            <h2 style="font-size: 24px; font-family: 'Cinzel'; color: #fff; margin-bottom: 4px">
+              Planejador de Talentos
+            </h2>
+            <p style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Simule uma nova build para este personagem</p>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 24px; font-weight: 900; color: var(--brazug-gold); font-family: 'Cinzel'; line-height: 1;">
+              <span id="tp-total-pts">0</span><span style="color: #444; font-size: 16px;"> / 51</span>
             </div>
-            <div
-              class="tp-pts-badge"
-              style="
-                padding: 10px 20px;
-                background: rgba(0, 0, 0, 0.5);
-                border: 1px solid var(--brazug-gold);
-                border-radius: 8px;
-                text-align: center;
-                box-shadow: 0 0 20px rgba(247, 193, 77, 0.2);
-              "
-            >
-              <div
-                class="tp-pts-num"
-                id="tp-total-pts"
-                style="font-size: 28px; font-weight: 900; color: var(--brazug-gold)"
-              >
-                0
-              </div>
-              <div
-                class="tp-pts-label"
-                style="font-size: 10px; text-transform: uppercase; color: #fff; letter-spacing: 1px"
-              >
-                pontos gastos
-              </div>
+            <div style="font-size: 9px; color: #666; letter-spacing: 1px; margin-top: 4px;">PONTOS GASTOS</div>
+            <div style="height: 4px; width: 150px; background: #111; border: 1px solid #333; margin-top: 6px; border-radius: 2px; overflow: hidden;">
+              <div id="tp-pts-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #7a5a1a, #f7c14d); transition: width 0.3s ease;"></div>
             </div>
           </div>
         </div>
 
-        <div class="tp-layout" style="display: grid; grid-template-columns: 1fr 300px; gap: 30px">
-          <div id="tp-trees-container" class="talent-trees-container" style="grid-column: 1">
-            <!-- Trees rendered by JS -->
+        <div id="tp-trees-container" class="talent-trees-container">
+          <!-- Trees rendered by TalentTreeEngine -->
+        </div>
+
+        <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+          <div>
+            <button
+              class="btn-search"
+              style="width: 100%; margin-bottom: 10px"
+              onclick="ArmoryController.resetTPToCurrent()"
+            >
+              ↺ Resetar para Atual
+            </button>
+            <button class="btn-search" style="width: 100%" onclick="ArmoryController.clearTP()">✕ Limpar Tudo</button>
           </div>
-
-          <aside class="tp-sidebar" style="grid-column: 2">
-            <div class="panel">
-              <div class="corner corner-tl"></div>
-              <div class="corner corner-tr"></div>
-              <div class="corner corner-bl"></div>
-              <div class="corner corner-br"></div>
-              <div class="panel-title">Ações</div>
-              <div class="section" style="padding: 20px">
-                <button
-                  class="btn-search"
-                  style="width: 100%; margin-bottom: 10px"
-                  onclick="ArmoryController.resetTPToCurrent()"
-                >
-                  Resetar para Atual
-                </button>
-                <button
-                  class="btn-search"
-                  style="width: 100%; margin-bottom: 10px"
-                  onclick="ArmoryController.clearTP()"
-                >
-                  Limpar Tudo
-                </button>
-                <hr style="border: 0; border-top: 1px solid #1a1010; margin: 15px 0" />
-                <input
-                  type="text"
-                  class="sets-input"
-                  id="tp-build-name"
-                  placeholder="Nome da build..."
-                  style="width: 100%; margin-bottom: 10px"
-                />
-                <button
-                  class="btn-save"
-                  style="
-                    width: 100%;
-                    padding: 12px;
-                    background: var(--horde-red);
-                    color: #fff;
-                    border: none;
-                    border-radius: 4px;
-                    font-weight: 900;
-                    cursor: pointer;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    font-family: 'Cinzel';
-                  "
-                  onclick="ArmoryController.saveTPBuild()"
-                >
-                  Salvar Build
-                </button>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="corner corner-tl"></div>
-              <div class="corner corner-tr"></div>
-              <div class="corner corner-bl"></div>
-              <div class="corner corner-br"></div>
-              <div class="panel-title">Distribuição</div>
-              <div class="section" id="tp-distribution" style="padding: 20px">
-                <!-- Bars rendered by JS -->
-              </div>
-            </div>
-          </aside>
+          <div>
+            <input
+              type="text"
+              class="sets-input"
+              id="tp-build-name"
+              placeholder="Nome da build..."
+              style="
+                width: 100%;
+                margin-bottom: 10px;
+                padding: 8px;
+                border: 1px solid var(--brazug-gold);
+                background: #080605;
+                color: #fff;
+              "
+            />
+            <button
+              class="btn-save"
+              style="
+                width: 100%;
+                padding: 12px;
+                background: var(--horde-red);
+                color: #fff;
+                border: none;
+                border-radius: 4px;
+                font-weight: 900;
+                cursor: pointer;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                font-family: 'Cinzel';
+              "
+              onclick="ArmoryController.saveTPBuild()"
+            >
+              💾 Salvar Build
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -382,6 +347,8 @@
     </div>
 
     <script src="/js/header.js"></script>
+    <script src="/js/TalentTreeEngine.js"></script>
+    <script src="/js/data/talent-trees.js"></script>
     <script src="/js/models/ArmoryModel.js"></script>
     <script src="/js/views/ArmoryView.js"></script>
     <script src="/js/footer.js"></script>

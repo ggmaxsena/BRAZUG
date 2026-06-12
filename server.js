@@ -38,13 +38,13 @@ app.get("/assets/icons/:filename", async (req, res) => {
   if (fs.existsSync(filePath)) {
     return res.sendFile(filePath);
   }
-  
+
   // Download if not exists
   try {
     const url = `https://render.worldofwarcraft.com/classic1x-us/icons/56/${req.params.filename}`;
     const response = await fetch(url);
     if (!response.ok) return res.status(404).send("Icon not found");
-    
+
     const buffer = Buffer.from(await response.arrayBuffer());
     fs.writeFileSync(filePath, buffer);
     res.type('image/jpeg').send(buffer);
@@ -61,23 +61,6 @@ app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 /* =========================================
    ARMORY SYSTEM (INTEGRATION)
 ========================================= */
-
-// Proxy para a API de busca/sync do Armory
-app.get("/api/character/fetch/:realm/:name", async (req, res) => {
-  try {
-    const { realm, name } = req.params;
-    console.log(`[Proxy] Fetching character ${name}-${realm} from Armory...`);
-    
-    const response = await fetch(`${ARMORY_URL}/api/character/fetch/${realm}/${name}`);
-    const data = await response.json();
-    
-    if (!response.ok) return res.status(response.status).json(data);
-    res.json(data);
-  } catch (err) {
-    console.error("[Proxy Error] /api/character/fetch:", err.message);
-    res.status(500).json({ error: "Falha ao conectar com o módulo Armory" });
-  }
-});
 
 app.get("/api/armory/full/:realm/:name", async (req, res) => {
   try {
@@ -139,13 +122,13 @@ app.get("/armory*", (req, res) => {
 const protectPage = (allowedRoles) => {
   return (req, res, next) => {
     // Para páginas HTML, o token geralmente vem via query param ou cookie se quisermos proteção total no GET
-    // Mas aqui as páginas são estáticas. O ideal é que o frontend valide, 
+    // Mas aqui as páginas são estáticas. O ideal é que o frontend valide,
     // porém para uma segurança extra, podemos interceptar o GET se houver um cookie.
     // Como o app usa localStorage, o servidor não tem acesso ao token no GET inicial da página.
     // SOLUÇÃO: Vamos transformar /admin.html em uma rota que exige validação se possível,
     // ou ao menos garantir que o frontend redirecione AGRESSIVAMENTE.
-    
-    // Por enquanto, vamos manter a lógica de que a API é o que importa, 
+
+    // Por enquanto, vamos manter a lógica de que a API é o que importa,
     // mas vamos adicionar uma rota de verificação que o frontend DEVE chamar.
     next();
   };
@@ -189,8 +172,8 @@ app.get("/api/health", async (req, res) => {
   const pg = await db.pingPostgres();
   let armory = { ok: false };
   try {
-    const aRes = await fetch(`${ARMORY_URL}/api/test-env`).catch(() => null);
-    if (aRes && aRes.ok) armory.ok = true;
+    const aRes = await fetch(`${ARMORY_URL}/api/character/fetch/unknown/unknown`).catch(() => null);
+    if (aRes && [200, 400, 404].includes(aRes.status)) armory.ok = true;
   } catch (e) {}
 
   // Check file system
@@ -254,7 +237,7 @@ function loadEnv() {
     for (const line of text.split("\n")) {
       const t = line.trim();
       if (!t || t.startsWith("#") || !t.includes("=")) continue;
-      
+
       const idx = t.indexOf("=");
       const k = t.substring(0, idx).trim();
       const v = t.substring(idx + 1).trim().replace(/^["']|["']$/g, "");

@@ -1,0 +1,497 @@
+/**
+ * Talent Tree CSS for TalentTreeEngine
+ * Modular & configurable styling compatible with BRAZUG theme
+ */
+
+:root {
+  --tt-bg: #0b0a07;
+  --tt-panel: #14120d;
+  --tt-border: #4a3a1a;
+  --tt-border2: #6b4f20;
+  --tt-gold: #f7c14d;
+  --tt-gold2: #c8972a;
+  --tt-gold3: #7a5a1a;
+  --tt-gold4: #4a3010;
+  --tt-text: #c8b580;
+  --tt-muted: #8a7050;
+  --tt-dim: #2a2010;
+
+  /* Tree accents */
+  --tt-tree-accent: #f7c14d;
+  --tt-tree-accent-bg: rgba(247, 193, 77, 0.1);
+}
+
+/* ════════════════════════════════════════════════════════════
+   CONTAINER & LAYOUT
+   ════════════════════════════════════════════════════════════ */
+
+.talent-trees-container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tt-tree {
+  flex: 1;
+  min-width: 280px;
+  background: var(--tt-panel);
+  border: 1px solid var(--tt-border);
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Corner ornaments */
+.tt-tree::before,
+.tt-tree::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--tt-gold3);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tt-tree::before {
+  top: -1px;
+  left: -1px;
+  border-width: 2px 0 0 2px;
+}
+
+.tt-tree::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+.tt-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--tt-gold3);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tt-corner-tr {
+  top: -1px;
+  right: -1px;
+  border-width: 2px 2px 0 0;
+}
+
+.tt-corner-bl {
+  bottom: -1px;
+  left: -1px;
+  border-width: 0 0 2px 2px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   TREE LABEL
+   ════════════════════════════════════════════════════════════ */
+
+.tt-tree-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px 12px;
+  border-bottom: 1px solid var(--tt-border);
+  position: relative;
+}
+
+.tt-tree-label-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tt-tree-label-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tt-gold2);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: 'Cinzel', serif;
+}
+
+.tt-tree-label-pts {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--tt-gold4);
+  letter-spacing: 1px;
+  transition: color 0.2s;
+  font-family: 'Cinzel', serif;
+}
+
+.tt-tree-label-pts.has {
+  color: var(--tt-gold);
+}
+
+/* Tier unlock pips */
+.tt-tier-pip-row {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.tt-tier-pip {
+  width: 16px;
+  height: 3px;
+  background: var(--tt-dim);
+  transition: background 0.2s;
+  border-radius: 1px;
+}
+
+.tt-tier-pip.on {
+  background: var(--tt-gold3);
+}
+
+.tt-tier-pip.maxed {
+  background: var(--tt-gold2);
+}
+
+/* ════════════════════════════════════════════════════════════
+   CANVAS & GRID
+   ════════════════════════════════════════════════════════════ */
+
+.tt-tree-canvas {
+  position: relative;
+  overflow: hidden;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.1), transparent);
+}
+
+/* Tier dividers */
+.tt-tier-div {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--tt-dim) 30%,
+    var(--tt-dim) 70%,
+    transparent
+  );
+  pointer-events: none;
+  z-index: 1;
+  transition: background 0.2s;
+}
+
+.tt-tier-div.unlocked {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--tt-gold4) 30%,
+    var(--tt-gold4) 70%,
+    transparent
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   TALENT NODES
+   ════════════════════════════════════════════════════════════ */
+
+.tt-node {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  z-index: 3;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+.tt-node:hover {
+  transform: scale(1.08);
+  z-index: 20;
+}
+
+/* Node frame/icon */
+.tt-node-frame {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--tt-border);
+  background: #080605;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tt-node img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  filter: grayscale(100%) brightness(0.5);
+  transition: filter 0.2s;
+}
+
+/* Rank badge */
+.tt-node-rank {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  font-size: 8px;
+  font-family: sans-serif;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.9);
+  color: var(--tt-muted);
+  padding: 0 3px;
+  line-height: 12px;
+  z-index: 4;
+  pointer-events: none;
+  border-top: 1px solid var(--tt-border);
+  border-left: 1px solid var(--tt-border);
+  transition: color 0.2s;
+}
+
+/* ════════════════════════════════════════════════════════════
+   NODE STATES
+   ════════════════════════════════════════════════════════════ */
+
+/* LOCKED */
+.tt-node.locked {
+  cursor: not-allowed;
+  opacity: 0.22;
+}
+
+.tt-node.locked:hover {
+  transform: none;
+}
+
+/* AVAILABLE (0 pts, tier unlocked) */
+.tt-node.available .tt-node-frame {
+  border-color: var(--tt-border2);
+}
+
+.tt-node.available img {
+  filter: grayscale(60%) brightness(0.7);
+}
+
+/* PARTIAL (some ranks invested) */
+.tt-node.partial .tt-node-frame {
+  border-color: var(--tt-gold3);
+  box-shadow: inset 0 0 8px rgba(247, 193, 77, 0.1);
+}
+
+.tt-node.partial img {
+  filter: grayscale(20%) brightness(0.9);
+}
+
+.tt-node.partial .tt-node-rank {
+  color: var(--tt-gold2);
+}
+
+/* MAXED (full ranks) */
+.tt-node.maxed .tt-node-frame {
+  border-color: var(--tt-gold2);
+  box-shadow: 0 0 8px rgba(200, 151, 42, 0.35), inset 0 0 8px rgba(247, 193, 77, 0.15);
+}
+
+.tt-node.maxed img {
+  filter: grayscale(0%) brightness(1.05) saturate(1.1);
+}
+
+.tt-node.maxed .tt-node-rank {
+  color: var(--tt-gold);
+  background: rgba(0, 0, 0, 0.95);
+}
+
+/* SPEC TALENT (signature ability at tier 9) */
+.tt-node.spec-talent .tt-node-frame {
+  border-color: var(--tt-gold);
+  box-shadow: 0 0 14px rgba(247, 193, 77, 0.5), inset 0 0 10px rgba(247, 193, 77, 0.2);
+}
+
+.tt-node.spec-talent img {
+  filter: brightness(1.1) saturate(1.2) drop-shadow(0 0 4px rgba(247, 193, 77, 0.5));
+}
+
+.tt-node.spec-talent .tt-node-rank {
+  color: var(--tt-gold);
+  border-color: var(--tt-gold2);
+}
+
+/* Diamond corner marks for spec talents */
+.tt-node.spec-talent::before,
+.tt-node.spec-talent::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--tt-gold);
+  transform: rotate(45deg);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.tt-node.spec-talent::before {
+  top: -3px;
+  left: calc(50% - 3px);
+}
+
+.tt-node.spec-talent::after {
+  bottom: -3px;
+  left: calc(50% - 3px);
+}
+
+/* Spec talent glow animation */
+@keyframes tt-spec-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 14px rgba(247, 193, 77, 0.5), inset 0 0 10px rgba(247, 193, 77, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(247, 193, 77, 0.75), inset 0 0 14px rgba(247, 193, 77, 0.3);
+  }
+}
+
+.tt-node.spec-talent.maxed .tt-node-frame {
+  animation: tt-spec-glow 2.2s ease-in-out infinite;
+}
+
+/* PREREQ BLOCKED */
+.tt-node.prereq-blocked {
+  cursor: not-allowed;
+}
+
+.tt-node.prereq-blocked .tt-node-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #8b1a1a;
+}
+
+/* ════════════════════════════════════════════════════════════
+   SVG ARROWS
+   ════════════════════════════════════════════════════════════ */
+
+.tt-arrows-svg {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.tt-arrow-path {
+  fill: none;
+  stroke-width: 1.5;
+  stroke: var(--tt-dim);
+  transition: stroke 0.25s;
+}
+
+.tt-arrow-path.prereq-met {
+  stroke: var(--tt-gold3);
+}
+
+/* ════════════════════════════════════════════════════════════
+   TOOLTIP
+   ════════════════════════════════════════════════════════════ */
+
+.tt-tooltip {
+  position: fixed;
+  background: linear-gradient(180deg, #1e1a0e 0%, #13110a 100%);
+  border: 1px solid var(--tt-gold3);
+  padding: 10px 14px;
+  max-width: 260px;
+  pointer-events: none;
+  z-index: 9999;
+  display: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  border-radius: 2px;
+  font-family: 'Cinzel', serif;
+}
+
+.tt-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 6px;
+  height: 6px;
+  border-top: 2px solid var(--tt-gold3);
+  border-left: 2px solid var(--tt-gold3);
+}
+
+.tt-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 6px;
+  height: 6px;
+  border-bottom: 2px solid var(--tt-gold3);
+  border-right: 2px solid var(--tt-gold3);
+}
+
+.tt-tooltip-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tt-gold);
+  margin-bottom: 4px;
+}
+
+.tt-tooltip-rank {
+  font-size: 10px;
+  color: var(--tt-gold2);
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.tt-tooltip-desc {
+  font-size: 11px;
+  color: var(--tt-text);
+  line-height: 1.6;
+  font-family: sans-serif;
+  font-style: italic;
+}
+
+.tt-tooltip-hint {
+  font-size: 10px;
+  color: var(--tt-muted);
+  margin-top: 6px;
+  font-family: sans-serif;
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1200px) {
+  .talent-trees-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tt-tree {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .tt-node {
+    width: 40px;
+    height: 40px;
+  }
+
+  .tt-tree-label-name {
+    font-size: 11px;
+  }
+
+  .tt-tooltip {
+    max-width: 200px;
+  }
+
+  .tt-tooltip-desc {
+    font-size: 10px;
+  }
+}

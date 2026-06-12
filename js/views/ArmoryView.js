@@ -8,7 +8,7 @@
       document.getElementById('char-guild').textContent = char.guild ? `<${char.guild}>` : '';
       document.getElementById('char-avatar-box').innerHTML = `<img src="${char.avatarUrl || '/assets/branding/contentbra.png'}" class="avatar-img" onerror="this.src='/assets/branding/contentbra.png'">`;
       document.getElementById('char-lore-link').href = `/personagem.html?name=${char.name}`;
-      
+
       const statusBadge = document.getElementById('status-badge');
       if (statusBadge) {
         const isDead = char.profile?.is_dead;
@@ -42,7 +42,7 @@
         const color = rarityColors[quality] || '#9d9d9d';
         const iconData = item?.item_icon || item?.icon;
         const itemId = item?.item_id || item?.itemId;
-        
+
         let iconUrl = null;
         if (iconData) {
           // Use local proxy for icons
@@ -51,7 +51,7 @@
         }
 
         return `
-          <div class="gear-slot-item" 
+          <div class="gear-slot-item"
                onmouseenter="ArmoryController.handleMouseEnter(event, ${itemId || 0})"
                onmouseleave="ArmoryController.handleMouseLeave()"
                onclick="${itemId ? `window.open('https://www.wowhead.com/classic/item=${itemId}', '_blank')` : ''}">
@@ -71,7 +71,7 @@
           <div class="gear-side">
             ${leftSlots.map(s => renderSlot(s)).join('')}
           </div>
-          
+
           <div class="gear-center">
             <div class="char-model-frame">
               <img src="${avatarUrl || '/assets/branding/contentbra.png'}" onerror="this.src='/assets/branding/contentbra.png'">
@@ -119,7 +119,7 @@
           ${renderLine('Força', stats.strength?.effective || stats.strength || '--')}
           ${renderLine('Agilidade', stats.agility?.effective || stats.agility || '--')}
           ${renderLine('Intelecto', stats.intellect?.effective || stats.intellect || '--')}
-          
+
           <div class="stat-section-title">Ataque</div>
           ${renderLine('Poder de Ataque', stats.attack_power || '--')}
           ${renderLine('Crítico', (parseFloat(stats.crit_chance || 0)).toFixed(2) + '%' || '--')}
@@ -138,57 +138,160 @@
       const container = document.getElementById(containerId);
       if (!container) return;
 
-      container.innerHTML = groups.flatMap(g => g.specializations).map(s => {
-        const specPts = s.talents?.reduce((acc, t) => acc + (t.talent_rank || 0), 0) || 0;
-        const specId = s.specialization_id;
-        const bgUrl = `https://wow.zamimg.com/images/wow/talents/backgrounds/classic/${specId}.jpg`;
+      const CLASS_SPECS = {
+        'warrior': ['Armas', 'Fúria', 'Proteção'],
+        'paladin': ['Sagrado', 'Proteção', 'Retribuição'],
+        'hunter': ['Domínio das Feras', 'Precisão', 'Sobrevivência'],
+        'rogue': ['Assassinato', 'Combate', 'Subterfúgio'],
+        'priest': ['Disciplina', 'Sagrado', 'Sombra'],
+        'shaman': ['Elemental', 'Aperfeiçoamento', 'Restauração'],
+        'mage': ['Arcano', 'Fogo', 'Gelo'],
+        'warlock': ['Suplício', 'Demonologia', 'Destruição'],
+        'druid': ['Equilíbrio', 'Feral', 'Restauração']
+      };
 
-        const rows = 7, cols = 4;
-        const grid = Array.from({length: rows}, () => Array(cols).fill(null));
-        s.talents?.forEach(t => { 
-            if (t.talent.row < rows && t.talent.column < cols) {
-                grid[t.talent.row][t.talent.column] = t; 
-            }
-        });
+      let allSpecs = groups.flatMap(g => g.specializations || []);
+      
+      // Ensure we have exactly 3 specs if possible
+      const expectedNames = CLASS_SPECS[charClass] || [];
+      if (allSpecs.length < 3 && expectedNames.length === 3) {
+          const foundNames = allSpecs.map(s => (s.specialization_name || s.specialization?.name || '').toLowerCase());
+          expectedNames.forEach(name => {
+              if (!foundNames.includes(name.toLowerCase())) {
+                  allSpecs.push({
+                      specialization_name: name,
+                      spent_points: 0,
+                      talents: []
+                  });
+              }
+          });
+      }
+
+      // Update Panel Title with Build Summary (e.g. 31 / 20 / 0)
+      const buildSummaryArray = allSpecs.map(s => {
+          if (typeof s.spent_points === 'number') return s.spent_points;
+          return s.talents?.reduce((acc, t) => acc + (parseInt(t.talent_rank) || 0), 0) || 0;
+      });
+      while (buildSummaryArray.length < 3) buildSummaryArray.push(0);
+      const buildSummary = buildSummaryArray.slice(0, 3).join(' / ');
+
+      const panelTitle = container.closest('.panel')?.querySelector('.panel-title');
+      if (panelTitle) {
+          panelTitle.innerHTML = `Árvores de Talentos <span style="color:#fff; margin-left:10px; opacity:0.6;">[ ${buildSummary} ]</span>`;
+      }
+
+      if (allSpecs.length === 0) {
+        container.innerHTML = `
+          <div class="talent-box class-${charClass}">
+            <div class="talent-header"><span>Nenhum talento disponível</span><span>0 pts</span></div>
+            <div class="talent-list" style="grid-template-columns: repeat(1, 1fr); justify-items: center; color:#888; font-size:12px; padding: 40px 0;">Sem dados de talentos para este personagem.</div>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = allSpecs.map(s => {
+        const specPts = s.spent_points !== undefined ? s.spent_points : (s.talents?.reduce((acc, t) => acc + (parseInt(t.talent_rank || 0)), 0) || 0);
+        const specId = s.specialization_id || s.specialization?.id || '';
+        const specName = s.specialization_name || s.specialization?.name || 'Especialização';
+        const bgUrl = `https://wow.zamimg.com/images/wow/talents/backgrounds/classic/${specId || 'default'}.jpg`;
+
+        const talents = s.talents || [];
+        const hasGridCoords = talents.some(t => typeof t.talent?.row === 'number' && typeof t.talent?.column === 'number');
 
         let talentsHtml = '';
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                const t = grid[r][c];
-                if (!t) {
-                    talentsHtml += `<div class="talent-item rank-zero" style="grid-row: ${r+1}; grid-column: ${c+1}; pointer-events:none; opacity:0;"></div>`;
-                    continue;
-                }
+        let arrowsHtml = '';
 
-                const spellId = t.spell_tooltip?.spell?.id;
-                const icon = t.talent.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : null;
-                const isMax = t.talent_rank >= (t.talent.max_rank || 5);
+        // Grid parameters
+        const rows = 7, cols = 4;
+        const cellSize = 40, gap = 8;
 
-                talentsHtml += `
-                    <div class="talent-item ${isMax ? 'rank-max' : ''} ${t.talent_rank === 0 ? 'rank-zero' : 'rank-partial'}" 
-                       style="grid-row: ${r+1}; grid-column: ${c+1};"
-                       onmouseenter="ArmoryController.handleMouseEnter(event, ${spellId}, 'spell')"
-                       onmouseleave="ArmoryController.handleMouseLeave()">
-                        <div class="talent-icon-wrap">
-                            <img src="${icon}" class="talent-icon" onerror="this.src='/assets/branding/contentbra.png'">
-                        </div>
-                        ${t.talent_rank > 0 ? `<div class="talent-rank-badge ${isMax ? '' : 'not-max'}">${t.talent_rank}</div>` : ''}
-                    </div>
-                `;
-            }
+        if (hasGridCoords || talents.length === 0) {
+          const grid = Array.from({length: rows}, () => Array(cols).fill(null));
+          talents.forEach(t => {
+              if (typeof t.talent?.row === 'number' && typeof t.talent?.column === 'number' && t.talent.row < rows && t.talent.column < cols) {
+                  grid[t.talent.row][t.talent.column] = t;
+              }
+          });
+
+          // Arrows
+          talents.forEach(t => {
+              const parent = talents.find(p => p.talent.column === t.talent.column && p.talent.row === t.talent.row - 1);
+              if (parent) {
+                  const isActive = (parent.talent_rank || 0) >= (parent.talent.max_rank || 5);
+                  const topPx = parent.talent.row * (cellSize + gap) + cellSize;
+                  const leftPx = parent.talent.column * (cellSize + gap) + (cellSize / 2) - 6;
+                  arrowsHtml += `<div class="t-arrow t-arrow-down ${isActive ? 'active' : ''}" style="top:${topPx}px; left:${leftPx}px; height:${gap}px;"></div>`;
+              }
+          });
+
+          for (let r = 0; r < rows; r++) {
+              for (let c = 0; c < cols; c++) {
+                  const t = grid[r][c];
+                  if (!t) {
+                      talentsHtml += `<div class="talent-item empty-slot" style="grid-row: ${r+1}; grid-column: ${c+1}; border:none; background:none; pointer-events:none;"></div>`;
+                      continue;
+                  }
+
+                  const spellId = t.spell_tooltip?.spell?.id;
+                  const icon = t.talent.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : '/assets/branding/contentbra.png';
+                  const rank = parseInt(t.talent_rank || 0);
+                  const maxRank = t.talent.max_rank || 5;
+                  const isMax = rank >= maxRank;
+
+                  talentsHtml += `
+                      <div class="talent-item ${isMax ? 'rank-max' : rank === 0 ? 'rank-zero' : 'rank-partial'}"
+                         style="grid-row: ${r+1}; grid-column: ${c+1};"
+                         ${spellId ? `onmouseenter="ArmoryController.handleMouseEnter(event, ${spellId}, 'spell')"` : ''}
+                         onmouseleave="ArmoryController.handleMouseLeave()">
+                          <div class="talent-icon-wrap">
+                              <img src="${icon}" class="talent-icon" onerror="this.src='/assets/branding/contentbra.png'">
+                          </div>
+                          <div class="talent-rank-display">${rank}</div>
+                      </div>
+                  `;
+              }
+          }
+        } else {
+          // List Fallback for trees with talents but no coordinates
+          talentsHtml = talents.map(t => {
+              const spellId = t.spell_tooltip?.spell?.id;
+              const icon = t.talent?.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : '/assets/branding/contentbra.png';
+              const rank = parseInt(t.talent_rank || 0);
+              const maxRank = t.talent?.max_rank || 5;
+              const name = t.talent?.name || t.spell_tooltip?.spell?.name || 'Talento';
+              const description = t.spell_tooltip?.spell?.description || 'Descrição não disponível.';
+              const isFullySpent = rank >= maxRank;
+
+              return `
+                  <div class="talent-list-row" title="${name} (${rank}/${maxRank})"
+                       onmouseenter="this.style.background='rgba(200, 181, 128, 0.15)'; ArmoryController.handleMouseEnter(event, ${spellId}, 'spell')"
+                       onmouseleave="this.style.background=''; ArmoryController.handleMouseLeave()">
+                      <div class="talent-icon-wrap" style="width:44px; height:44px; position:relative;">
+                          <img src="${icon}" class="talent-icon" style="width:100%; height:100%; border-radius:4px;" onerror="this.src='/assets/branding/contentbra.png'">
+                          <div style="position:absolute; bottom:0; right:0; background:rgba(0,0,0,0.85); color:#ffd100; font-size:10px; font-weight:bold; padding:2px 4px; border-radius:2px; min-width:18px; text-align:center;">${rank}</div>
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:4px;">
+                          <strong style="font-size:14px; color:${isFullySpent ? '#ffd100' : rank > 0 ? '#c8b580' : '#8a7050'}">${name}</strong>
+                          <span style="color:#999; font-size:11px; line-height:1.3;">${description}</span>
+                      </div>
+                      <div style="text-align:right; display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
+                          <div style="font-size:12px; font-weight:bold; color:${isFullySpent ? '#ffd100' : rank > 0 ? '#c8972a' : '#555'}">${rank}/${maxRank}</div>
+                      </div>
+                  </div>`;
+          }).join('');
         }
 
         return `
             <div class="talent-box class-${charClass}" style="--spec-bg: url('${bgUrl}')">
                 <div class="talent-header">
-                    <span>${s.specialization_name}</span>
-                    <span>${specPts} pts</span>
+                    <span class="talent-spec-name">${specName}</span>
+                    <span class="talent-spec-points" style="color:${specPts > 0 ? '#ffd100' : '#8a7050'}">${specPts} pts</span>
                 </div>
-                <div class="talent-list">
+                <div class="talent-list ${hasGridCoords || talents.length === 0 ? '' : 'talent-list-grid-fallback'}">
+                    ${arrowsHtml}
                     ${talentsHtml}
                 </div>
-            </div>
-        `;
+            </div>`;
       }).join('');
     },
 
@@ -217,7 +320,7 @@
         const color = item?.quality ? rarityColors[item.quality] : '#1a1a1a';
         const iconData = item?.icon;
         const itemId = item?.itemId;
-        
+
         let iconUrl = null;
         if (iconData) {
           // Use local proxy for icons
@@ -226,7 +329,7 @@
         }
 
         return `
-            <div class="item-slot ${item ? 'has-item' : ''}" 
+            <div class="item-slot ${item ? 'has-item' : ''}"
                  style="${itemId ? `border-color: ${color}99; box-shadow: 0 0 10px ${color}44;` : ''}"
                  onclick="ArmoryController.openSearch('${slot}')"
                  onmouseenter="${item ? `ArmoryController.handleMouseEnter(event, ${item.itemId})` : ''}"
@@ -263,67 +366,99 @@
         const specPts = s.talents?.reduce((acc, t) => acc + (tpState[t.talent.id] || 0), 0) || 0;
         const specId = s.specialization_id;
         const bgUrl = `https://wow.zamimg.com/images/wow/talents/backgrounds/classic/${specId}.jpg`;
-
-        // Build grid (7 rows x 4 cols)
-        const rows = 7, cols = 4;
-        const grid = Array.from({length: rows}, () => Array(cols).fill(null));
-        s.talents?.forEach(t => { 
-            if (t.talent.row < rows && t.talent.column < cols) {
-                grid[t.talent.row][t.talent.column] = t; 
-            }
-        });
-
-        // Arrow Connectors
-        let arrowsHtml = '';
-        const cellSize = 52;
-        const gap = 12;
-        
-        s.talents?.forEach(t => {
-            const parent = s.talents.find(p => p.talent.column === t.talent.column && p.talent.row === t.talent.row - 1);
-            if (parent) {
-                const isActive = (tpState[parent.talent.id] || 0) >= (parent.talent.max_rank || 5);
-                const topPx = parent.talent.row * (cellSize + gap) + cellSize;
-                const leftPx = parent.talent.column * (cellSize + gap) + (cellSize / 2) - 2;
-                const height = gap;
-                arrowsHtml += `<div class="t-arrow t-arrow-down ${isActive ? 'active' : ''}" 
-                                    style="top:${topPx}px; left:${leftPx}px; height:${height}px;"></div>`;
-            }
-        });
+        const hasGridCoords = (s.talents || []).some(t => typeof t.talent?.row === 'number' && typeof t.talent?.column === 'number');
 
         let talentsHtml = '';
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                const t = grid[r][c];
-                if (!t) {
-                    talentsHtml += `<div class="talent-item rank-zero" style="grid-row: ${r+1}; grid-column: ${c+1}; pointer-events:none; opacity:0;"></div>`;
-                    continue;
-                }
+        let arrowsHtml = '';
+        if (hasGridCoords) {
+          // Grid layout
+          const rows = 7, cols = 4;
+          const grid = Array.from({length: rows}, () => Array(cols).fill(null));
+          s.talents?.forEach(t => {
+              if (typeof t.talent?.row === 'number' && typeof t.talent?.column === 'number' && t.talent.row < rows && t.talent.column < cols) {
+                  grid[t.talent.row][t.talent.column] = t;
+              }
+          });
 
-                const tid = t.talent.id;
-                const cur = tpState[tid] || 0;
-                const max = t.talent.max_rank || 5;
-                const icon = t.talent.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : null;
-                
-                const reqPts = t.talent.row * 5;
-                const isLocked = specPts < reqPts && cur === 0;
-                const isMax = cur >= max;
-                const isPartial = cur > 0 && !isMax;
+          // Arrow Connectors
+          const cellSize = 40;
+          const gap = 8;
+          s.talents?.forEach(t => {
+              const parent = s.talents.find(p => p.talent.column === t.talent.column && p.talent.row === t.talent.row - 1);
+              if (parent) {
+                  const isActive = (tpState[parent.talent.id] || 0) >= (parent.talent.max_rank || 5);
+                  const topPx = parent.talent.row * (cellSize + gap) + cellSize;
+                  const leftPx = parent.talent.column * (cellSize + gap) + (cellSize / 2) - 6;
+                  arrowsHtml += `<div class="t-arrow t-arrow-down ${isActive ? 'active' : ''}"
+                                      style="top:${topPx}px; left:${leftPx}px; height:${gap}px;"></div>`;
+              }
+          });
 
-                talentsHtml += `
-                    <div class="talent-item ${isMax ? 'rank-max' : ''} ${isPartial ? 'rank-partial' : ''} ${isLocked ? 'rank-zero' : ''}" 
-                       style="grid-row: ${r+1}; grid-column: ${c+1};"
-                       title="${t.talent.name} (${cur}/${max})"
-                       onmouseenter="ArmoryController.handleMouseEnter(event, ${t.spell_tooltip?.spell?.id}, 'spell')"
-                       onmouseleave="ArmoryController.handleMouseLeave()"
+          for (let r = 0; r < rows; r++) {
+              for (let c = 0; c < cols; c++) {
+                  const t = grid[r][c];
+                  if (!t) {
+                      talentsHtml += `<div class="talent-item rank-zero" style="grid-row: ${r+1}; grid-column: ${c+1}; pointer-events:none; opacity:0;"></div>`;
+                      continue;
+                  }
+
+                  const tid = t.talent.id;
+                  const cur = tpState[tid] || 0;
+                  const max = t.talent.max_rank || 5;
+                  const icon = t.talent.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : '/assets/branding/contentbra.png';
+
+                  const reqPts = t.talent.row * 5;
+                  const isLocked = specPts < reqPts && cur === 0;
+                  const isMax = cur >= max;
+                  const isPartial = cur > 0 && !isMax;
+
+                  talentsHtml += `
+                      <div class="talent-item ${isMax ? 'rank-max' : ''} ${isPartial ? 'rank-partial' : ''} ${isLocked ? 'rank-zero' : ''}"
+                         style="grid-row: ${r+1}; grid-column: ${c+1}; cursor:${isLocked ? 'not-allowed' : 'pointer'};"
+                         title="${t.talent.name} (${cur}/${max})"
+                         onmouseenter="ArmoryController.handleMouseEnter(event, ${t.spell_tooltip?.spell?.id}, 'spell')"
+                         onmouseleave="ArmoryController.handleMouseLeave()"
+                         onclick="ArmoryController.addTPPoint('${tid}', ${max}, ${t.talent.row}, '${s.specialization_name}')"
+                         oncontextmenu="event.preventDefault(); ArmoryController.removeTPPoint('${tid}', ${t.talent.row}, '${s.specialization_name}')">
+                          <div class="talent-icon-wrap">
+                              <img src="${icon}" class="talent-icon" onerror="this.src='/assets/branding/contentbra.png'">
+                          </div>
+                          <div class="talent-rank-display">${cur}</div>
+                      </div>
+                  `;
+              }
+          }
+        } else {
+          // List layout - show ALL talents for point allocation
+          talentsHtml = (s.talents || []).map(t => {
+              const tid = t.talent.id;
+              const cur = tpState[tid] || 0;
+              const max = t.talent?.max_rank || 5;
+              const icon = t.talent?.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : '/assets/branding/contentbra.png';
+              const name = t.talent?.name || t.spell_tooltip?.spell?.name || 'Talento';
+              const description = t.spell_tooltip?.spell?.description || 'Descrição não disponível.';
+              const isFullySpent = cur >= max;
+              const canSpend = specPts >= 0; // In list mode, no restriction (simplified)
+
+              return `
+                  <div class="talent-list-row" title="${name} (${cur}/${max}) - Click para adicionar, Right-click para remover"
+                       onmouseenter="this.style.background='rgba(200, 181, 128, 0.15)'; ArmoryController.handleMouseEnter(event, ${t.spell_tooltip?.spell?.id}, 'spell')"
+                       onmouseleave="this.style.background=''; ArmoryController.handleMouseLeave()"
                        onclick="ArmoryController.addTPPoint('${tid}', ${max}, ${t.talent.row}, '${s.specialization_name}')"
                        oncontextmenu="event.preventDefault(); ArmoryController.removeTPPoint('${tid}', ${t.talent.row}, '${s.specialization_name}')">
-                        <div class="talent-icon-wrap">
-                            <img src="${icon}" class="talent-icon" onerror="this.src='/assets/branding/contentbra.png'">
-                        </div>
-                        ${cur > 0 ? `<div class="talent-rank-badge ${isMax ? '' : 'not-max'}">${cur}</div>` : ''}
-                    </div>
-                `;
-            }
+                      <div class="talent-icon-wrap" style="width:44px; height:44px; position:relative;">
+                          <img src="${icon}" class="talent-icon" style="width:100%; height:100%; border-radius:4px;" onerror="this.src='/assets/branding/contentbra.png'">
+                          <div style="position:absolute; bottom:0; right:0; background:rgba(0,0,0,0.85); color:#ffd100; font-size:10px; font-weight:bold; padding:2px 4px; border-radius:2px; min-width:18px; text-align:center;">${cur}</div>
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:4px;">
+                          <strong style="font-size:14px; color:${isFullySpent ? '#ffd100' : cur > 0 ? '#c8b580' : '#8a7050'}">${name}</strong>
+                          <span style="color:#999; font-size:11px; line-height:1.3;">${description}</span>
+                      </div>
+                      <div style="text-align:right; display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
+                          <div style="font-size:12px; font-weight:bold; color:${isFullySpent ? '#ffd100' : cur > 0 ? '#c8972a' : '#555'}">${cur}/${max}</div>
+                      </div>
+                  </div>`;
+          }).join('');
         }
 
         return `
@@ -332,7 +467,7 @@
                     <span>${s.specialization_name}</span>
                     <span>${specPts} pts</span>
                 </div>
-                <div class="talent-list">
+                <div class="talent-list" style="${hasGridCoords ? '' : 'display:grid; grid-template-columns:1fr; gap:8px;'}">
                     ${arrowsHtml}
                     ${talentsHtml}
                 </div>
@@ -370,7 +505,7 @@
           resultsEl.innerHTML = '<div style="text-align:center; padding:40px; color:#444;">Nenhum item encontrado no banco local.</div>';
           return;
       }
-      
+
       resultsEl.innerHTML = items.map(item => `
           <div class="search-item" onclick="ArmoryController.selectItem(${item.id})">
               <img src="https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg" style="width:32px; height:32px; border-radius:4px;">
@@ -388,7 +523,7 @@
 
       const data = item.tooltip_data || {};
       const color = rarityColors[item.quality] || '#fff';
-      
+
       let html = `
           <div class="tt-name" style="color:${color}">${item.name}</div>
           <div class="tt-quality" style="color:${color}">${item.quality}</div>
@@ -397,7 +532,7 @@
       if (data.level) {
           html += `<div style="color:#fff">Item Level ${data.level.value || data.level}</div>`;
       }
-      
+
       if (data.binding) {
           html += `<div style="color:#fff">${data.binding.name}</div>`;
       }
@@ -421,14 +556,14 @@
       if (data.armor) {
           html += `<div style="color:#fff">${data.armor.display.display_string}</div>`;
       }
-      
+
       if (data.stats) {
           data.stats.forEach(s => {
               const statClass = (s.display.color?.r === 0 && s.display.color?.g === 255) ? 'tt-green' : 'tt-stat';
               html += `<div class="${statClass}">${s.display.display_string}</div>`;
           });
       }
-      
+
       if (data.spells) {
           data.spells.forEach(s => {
               html += `<div class="tt-green">${s.description}</div>`;
@@ -442,7 +577,7 @@
       if (data.required_level) {
           html += `<div style="color:#fff">Requer Nível ${data.required_level}</div>`;
       }
-      
+
       if (data.set) {
           html += `<div class="tt-gold" style="margin-top:10px;">${data.set.display_string}</div>`;
           data.set.items.forEach(si => {
@@ -457,7 +592,7 @@
       if (data.sell_price) {
           html += `<div style="color:#fff; margin-top:10px;">Preço de Venda: ${data.sell_price.display_strings?.header || ''} ${data.sell_price.display_strings?.gold || ''} ${data.sell_price.display_strings?.silver || ''} ${data.sell_price.display_strings?.copper || ''}</div>`;
       }
-      
+
       tt.innerHTML = html;
     },
 
@@ -466,7 +601,7 @@
       if (!tt) return;
 
       const spell = data.spell || {};
-      
+
       let html = `
           <div class="tt-name" style="color:#ffd100">${spell.name}</div>
           <div class="tt-type" style="color:#fff">${data.cast_time || 'Passivo'}</div>
@@ -488,7 +623,7 @@
       if (data.description) {
           html += `<div class="tt-green" style="margin-top:8px;">${data.description}</div>`;
       }
-      
+
       tt.innerHTML = html;
     },
 

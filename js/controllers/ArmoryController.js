@@ -7,23 +7,24 @@
     _tpState: {},
     _ttCache: {},
     _activeSearchSlot: null,
-    
+
     MAX_TP_PTS: 51,
     SETS_KEY: 'brazug_char_sets',
-    
-    rarityColors: { 
-      'POOR': '#9d9d9d', 'COMMON': '#ffffff', 'UNCOMMON': '#1eff00', 
-      'RARE': '#0070dd', 'EPIC': '#a335ee', 'LEGENDARY': '#ff8000', 
-      'ARTIFACT': '#e6cc80', 'HEIRLOOM': '#00ccff' 
+    TP_BUILDS_KEY: 'brazug_tp_builds',
+
+    rarityColors: {
+      'POOR': '#9d9d9d', 'COMMON': '#ffffff', 'UNCOMMON': '#1eff00',
+      'RARE': '#0070dd', 'EPIC': '#a335ee', 'LEGENDARY': '#ff8000',
+      'ARTIFACT': '#e6cc80', 'HEIRLOOM': '#00ccff'
     },
-    
-    slotNames: { 
-      'HEAD': 'Cabeça', 'NECK': 'Pescoço', 'SHOULDER': 'Ombros', 'SHIRT': 'Camisa', 'CHEST': 'Torso', 'WAIST': 'Cintura', 
-      'LEGS': 'Pernas', 'FEET': 'Pés', 'WRIST': 'Pulsos', 'HANDS': 'Mãos', 'FINGER_1': 'Anel 1', 'FINGER_2': 'Anel 2', 
-      'TRINKET_1': 'Berloque 1', 'TRINKET_2': 'Berloque 2', 'BACK': 'Costas', 'MAIN_HAND': 'Mão Princ.', 'OFF_HAND': 'Mão Sec.', 
-      'RANGED': 'À Distância', 'TABARD': 'Tabardo' 
+
+    slotNames: {
+      'HEAD': 'Cabeça', 'NECK': 'Pescoço', 'SHOULDER': 'Ombros', 'SHIRT': 'Camisa', 'CHEST': 'Torso', 'WAIST': 'Cintura',
+      'LEGS': 'Pernas', 'FEET': 'Pés', 'WRIST': 'Pulsos', 'HANDS': 'Mãos', 'FINGER_1': 'Anel 1', 'FINGER_2': 'Anel 2',
+      'TRINKET_1': 'Berloque 1', 'TRINKET_2': 'Berloque 2', 'BACK': 'Costas', 'MAIN_HAND': 'Mão Princ.', 'OFF_HAND': 'Mão Sec.',
+      'RANGED': 'À Distância', 'TABARD': 'Tabardo'
     },
-    
+
     slots: [
       'HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST',
       'HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2',
@@ -34,17 +35,17 @@
       const pathParts = window.location.pathname.split('/').filter(p => p !== "");
       const name = pathParts[pathParts.length - 1];
       const realm = pathParts[pathParts.length - 2] || 'doomhowl';
-      
+
       this._realm = realm;
       this._name = name;
 
       await this.loadData();
-      
+
       // Event listeners for global UI elements
       document.getElementById('set-name-input')?.addEventListener('keydown', e => {
           if (e.key === 'Enter') this.saveCurrentSet();
       });
-      
+
       document.addEventListener('mousemove', (e) => {
           const tt = document.getElementById('brazug-tooltip');
           if (tt && tt.style.display === 'block') this.updateTTPosition(e);
@@ -54,7 +55,7 @@
     async loadData(attempt = 0) {
       try {
         const data = await ArmoryModel.fetchFullCharacter(this._realm, this._name);
-        
+
         if (data.retry && attempt < 5) {
           setTimeout(() => this.loadData(attempt + 1), 3000);
           return;
@@ -89,6 +90,60 @@
       return 'warrior';
     },
 
+    getSpecializationGroups() {
+      if (!this._currentCharData) return [];
+      const extra = this._currentCharData.extra_data || this._currentCharData.extraData || {};
+      const specs = extra.specializations || this._currentCharData.specializations;
+      const charClass = this.normalizeClass(this._currentCharData.class);
+
+      const CLASS_SPECS = {
+        'warrior': ['Armas', 'Fúria', 'Proteção'],
+        'paladin': ['Sagrado', 'Proteção', 'Retribuição'],
+        'hunter': ['Domínio das Feras', 'Precisão', 'Sobrevivência'],
+        'rogue': ['Assassinato', 'Combate', 'Subterfúgio'],
+        'priest': ['Disciplina', 'Sagrado', 'Sombra'],
+        'shaman': ['Elemental', 'Aperfeiçoamento', 'Restauração'],
+        'mage': ['Arcano', 'Fogo', 'Gelo'],
+        'warlock': ['Suplício', 'Demonologia', 'Destruição'],
+        'druid': ['Equilíbrio', 'Feral', 'Restauração']
+      };
+
+      console.log("[BRAZUG-DEBUG] Raw Specs Data:", specs);
+
+      let allFoundSpecs = [];
+
+      if (specs) {
+          if (Array.isArray(specs)) {
+              allFoundSpecs = specs;
+          } else if (specs.specialization_groups && Array.isArray(specs.specialization_groups)) {
+              const activeGroup = specs.specialization_groups.find(g => g.is_active) || specs.specialization_groups[0];
+              allFoundSpecs = activeGroup.specializations || [];
+          } else if (specs.specializations && Array.isArray(specs.specializations)) {
+              allFoundSpecs = specs.specializations;
+          }
+      }
+
+      // If still empty, use map to create skeletons
+      if (allFoundSpecs.length === 0 && charClass) {
+          const names = CLASS_SPECS[charClass] || [];
+          allFoundSpecs = names.map(n => ({ specialization_name: n, spent_points: 0, talents: [] }));
+      }
+
+      if (allFoundSpecs.length > 0) {
+          return [{ specializations: allFoundSpecs }];
+      }
+
+      return [];
+    },
+
+    getTPBuilds() {
+      try { return JSON.parse(localStorage.getItem(this.TP_BUILDS_KEY) || '[]'); } catch { return []; }
+    },
+
+    saveTPBuilds(builds) {
+      localStorage.setItem(this.TP_BUILDS_KEY, JSON.stringify(builds));
+    },
+
     renderAll() {
       document.getElementById('armory-loading').style.display = 'none';
       document.getElementById('armory-content').style.display = 'block';
@@ -103,9 +158,9 @@
       ArmoryView.renderHeader(char, role);
       ArmoryView.renderGear('gear-grid', char.items, this.slots, this.slotNames, this.rarityColors, char.avatarUrl);
       ArmoryView.renderStats('stats-container', char.extra_data?.statistics || {});
-      ArmoryView.renderTalents('talents-container', char.extra_data?.specializations?.specialization_groups || [], charClass);
+      ArmoryView.renderTalents('talents-container', this.getSpecializationGroups(), charClass);
       ArmoryView.renderProfessions('professions-container', char.professions || []);
-      
+
       // Apply class-specific border to main panels
       document.querySelectorAll('.panel').forEach(p => p.classList.add(`class-${charClass}`));
 
@@ -121,14 +176,14 @@
           const btnOnclick = btn.getAttribute('onclick') || '';
           btn.classList.toggle('active', btnOnclick.includes(`'${tabId}'`));
       });
-      
+
       // Set active content
       document.querySelectorAll('.tab-content').forEach(content => {
           content.classList.remove('active');
           // Important: also ensure display is handled if CSS .active is not enough
           content.style.display = 'none';
       });
-      
+
       const activeTab = document.getElementById(`tab-${tabId}`);
       if (activeTab) {
           activeTab.classList.add('active');
@@ -143,7 +198,7 @@
     // ===================== PLANNER (MIN-MAX) =====================
     initPlanner() {
       this._plannerItems = {};
-      this._currentCharData.items.forEach(item => { 
+      this._currentCharData.items.forEach(item => {
         this._plannerItems[item.slot] = {
           itemId: item.item_id || item.itemId,
           name: item.item_name || item.name,
@@ -151,7 +206,7 @@
           icon: item.item_icon || item.icon,
           slot: item.slot,
           tooltipData: item.tooltip_data || item.tooltipData
-        }; 
+        };
       });
       this.renderPlanner();
     },
@@ -164,7 +219,7 @@
 
     recalcPlannerStats() {
       if (!this._currentCharData) return;
-      
+
       const baseStats = this._currentCharData.extra_data?.statistics || {};
       const simulated = {
           health: baseStats.health || 0,
@@ -225,10 +280,10 @@
     async doSearch() {
       const q = document.getElementById('search-input').value;
       if (!q) return;
-      
+
       const resultsEl = document.getElementById('search-results');
       resultsEl.innerHTML = '<div style="text-align:center; padding:40px;">⏳ Buscando...</div>';
-      
+
       try {
           const items = await ArmoryModel.searchItems(q);
           ArmoryView.renderSearchResults('search-results', items, this.rarityColors);
@@ -240,7 +295,7 @@
     async selectItem(itemId) {
       try {
           const item = await ArmoryModel.getItemDetails(itemId);
-          
+
           this._plannerItems[this._activeSearchSlot] = {
               itemId: item.id,
               name: item.name,
@@ -249,7 +304,7 @@
               slot: this._activeSearchSlot,
               tooltipData: item.tooltip_data
           };
-          
+
           this.renderPlanner();
           this.closeSearch();
       } catch (e) {
@@ -271,92 +326,120 @@
       this.renderPlanner();
     },
 
-    // ===================== TALENT PLANNER =====================
+    // ===================== TALENT PLANNER (NEW ENGINE) =====================
     initTP() {
-      this._tpState = {};
-      const groups = this._currentCharData.extra_data?.specializations?.specialization_groups || [];
-      groups.flatMap(g => g.specializations).forEach(spec => {
-          spec.talents?.forEach(t => {
-              this._tpState[t.talent.id] = t.talent_rank;
+      if (!this._currentCharData) return;
+
+      const charClass = this.normalizeClass(this._currentCharData.class);
+      const classData = TALENT_TREES_DATA[charClass];
+
+      if (!classData) {
+        console.error(`[ArmoryController] No talent data for class: ${charClass}`);
+        return;
+      }
+
+      // Initialize TalentTreeEngine
+      const container = document.getElementById('tp-trees-container');
+      if (!container) return;
+
+      const success = TalentTreeEngine.init(charClass, classData.trees, '#tp-trees-container', this.renderTP.bind(this));
+      if (!success) return;
+
+      // Load current talent distribution from character data
+      const extraData = this._currentCharData.extra_data || this._currentCharData.extraData || {};
+      const specs = extraData.specializations || this._currentCharData.specializations;
+
+      if (specs && Array.isArray(specs)) {
+        Object.keys(classData.trees).forEach(treeKey => {
+          const tree = classData.trees[treeKey];
+          // Initialize from character spec data if available
+          const spec = specs.find(s => {
+            const sName = (s.specialization_name || "").toLowerCase();
+            const tk = treeKey.toLowerCase();
+            const label = (tree.label || "").toLowerCase();
+            return sName.includes(tk) || tk.includes(sName) || sName.includes(label) || label.includes(sName);
           });
-      });
+
+          if (spec && spec.talents) {
+            // Map character talents to tree structure
+            tree.talents.forEach(talent => {
+              const charTalent = spec.talents.find(t => t.talent?.name === talent.name);
+              if (charTalent && charTalent.talent_rank) {
+                talent.rank = Math.min(charTalent.talent_rank, talent.maxRank);
+              }
+            });
+          }
+        });
+      }
+
       this.renderTP();
     },
 
     renderTP() {
-      if (!this._currentCharData) return;
-      const groups = this._currentCharData.extra_data?.specializations?.specialization_groups || [];
-      const charClass = (this._currentCharData.class || '').toLowerCase().replace(' ', '');
-      const totalPts = Object.values(this._tpState).reduce((a, b) => a + b, 0);
-      
-      document.getElementById('tp-total-pts').textContent = totalPts;
+      if (!TalentTreeEngine.container) return;
 
-      ArmoryView.renderTPTrees('tp-trees-container', groups, this._tpState, charClass);
-      ArmoryView.renderTPDistribution('tp-distribution', groups, this._tpState, this.MAX_TP_PTS);
-    },
+      const totalPts = TalentTreeEngine.getTotalPoints();
+      const ptsEl = document.getElementById('tp-total-pts');
+      const barEl = document.getElementById('tp-pts-bar');
 
-    addTPPoint(tid, max, row, specName) {
-      const total = Object.values(this._tpState).reduce((a, b) => a + b, 0);
-      if (total >= this.MAX_TP_PTS) return;
-      
-      const groups = this._currentCharData.extra_data?.specializations?.specialization_groups || [];
-      const spec = groups.flatMap(g => g.specializations).find(s => s.specialization_name === specName);
-      const specPts = spec.talents?.reduce((acc, t) => acc + (this._tpState[t.talent.id] || 0), 0) || 0;
-      
-      if (specPts < row * 5) return;
-
-      const cur = this._tpState[tid] || 0;
-      if (cur < max) {
-          this._tpState[tid] = cur + 1;
-          this.renderTP();
-      }
-    },
-
-    removeTPPoint(tid, row, specName) {
-      const cur = this._tpState[tid] || 0;
-      if (cur > 0) {
-          const groups = this._currentCharData.extra_data?.specializations?.specialization_groups || [];
-          const spec = groups.flatMap(g => g.specializations).find(s => s.specialization_name === specName);
-          
-          const highestRowWithPoints = spec.talents.reduce((maxR, t) => {
-              const r = this._tpState[t.talent.id] || 0;
-              return (r > 0 && t.talent.row > maxR) ? t.talent.row : maxR;
-          }, 0);
-          
-          const specPtsAfter = spec.talents?.reduce((acc, t) => acc + (this._tpState[t.talent.id] || 0), 0) - 1;
-          if (specPtsAfter < highestRowWithPoints * 5) {
-              return;
-          }
-
-          this._tpState[tid] = cur - 1;
-          this.renderTP();
+      if (ptsEl) ptsEl.textContent = totalPts;
+      if (barEl) {
+          const pct = (totalPts / this.MAX_TP_PTS) * 100;
+          barEl.style.width = pct + '%';
       }
     },
 
     resetTPToCurrent() {
       this.initTP();
+      this.renderTP();
     },
 
     clearTP() {
-      this._tpState = {};
+      if (TalentTreeEngine) {
+        TalentTreeEngine.reset();
+      }
       this.renderTP();
     },
 
     saveTPBuild() {
       const name = document.getElementById('tp-build-name').value.trim();
-      if (!name) return alert("Dê um nome para a build");
-      alert(`Build "${name}" salva com sucesso localmente!`);
+      if (!name) return alert("Dê um nome para a build.");
+      if (!this._currentCharData) return alert("Nenhum personagem carregado.");
+
+      const charClass = this.normalizeClass(this._currentCharData.class);
+      const distribution = TalentTreeEngine.exportToCharacter();
+
+      const build = {
+        id: Date.now(),
+        name,
+        savedAt: new Date().toISOString(),
+        character: {
+          name: this._currentCharData.name,
+          realm: this._realm,
+          class: this._currentCharData.class,
+          level: this._currentCharData.level
+        },
+        classType: charClass,
+        distribution: distribution,
+        totalPoints: TalentTreeEngine.getTotalPoints()
+      };
+
+      const builds = this.getTPBuilds();
+      builds.unshift(build);
+      this.saveTPBuilds(builds);
+      document.getElementById('tp-build-name').value = '';
+      alert(`Build "${name}" salva com sucesso!`);
     },
 
     // ===================== TOOLTIPS =====================
     async handleMouseEnter(e, id, type = 'item') {
       if (!id) return;
-      
+
       const tt = document.getElementById('brazug-tooltip');
       tt.style.display = 'block';
       tt.innerHTML = '<div style="color:#666;">Carregando...</div>';
       this.updateTTPosition(e);
-      
+
       if (type === 'item') {
           let item = this._ttCache[id];
           if (!item) {
@@ -380,11 +463,11 @@
     },
 
     findSpellData(spellId) {
-        if (!this._currentCharData) return null;
-        const groups = this._currentCharData.extra_data?.specializations?.specialization_groups || [];
+        if (!this._currentCharData || !spellId) return null;
+        const groups = this.getSpecializationGroups();
         for (const g of groups) {
             for (const s of g.specializations) {
-                const t = s.talents?.find(tal => tal.spell_tooltip?.spell?.id === spellId);
+                const t = (s.talents || []).find(tal => tal.spell_tooltip?.spell?.id === spellId);
                 if (t) return t.spell_tooltip;
             }
         }
@@ -408,7 +491,7 @@
     getSets() {
       try { return JSON.parse(localStorage.getItem(this.SETS_KEY) || '[]'); } catch { return []; }
     },
-    
+
     saveSets(sets) {
       localStorage.setItem(this.SETS_KEY, JSON.stringify(sets));
     },

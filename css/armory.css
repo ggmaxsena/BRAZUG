@@ -15,9 +15,9 @@
 }
 
 /* 1. Global Wrapper (Site Background) */
-.armory-wrap { 
-    padding-bottom: 80px; 
-    background: 
+.armory-wrap {
+    padding-bottom: 80px;
+    background:
         radial-gradient(circle at top, #330000 0%, #050505 60%),
         linear-gradient(160deg, #0d0a07 0%, #1a1008 40%, #0d0a07 100%);
     background-attachment: fixed;
@@ -256,44 +256,218 @@
     gap: 20px;
 }
 
-.talents-container-row {
+.talents-container-row, .talent-trees-container {
     display: flex;
     gap: 15px;
     padding: 20px;
+    flex-wrap: nowrap;
+    justify-content: center;
+    overflow-x: auto;
 }
 
 .talent-box {
-    flex: 1;
-    background: rgba(0,0,0,0.6);
-    border: 1px solid var(--border);
-    min-height: 480px;
+    flex: 0 0 280px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.88) 0%, rgba(8,6,4,0.95) 100%);
+    border: 1px solid rgba(180,150,80,0.18);
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
 }
+
+.talent-box::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--spec-bg);
+    background-size: cover;
+    background-position: 50% 40%;
+    opacity: 0.08;
+    pointer-events: none;
+}
+
+.talent-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top center, rgba(255,209,0,0.06), transparent 42%);
+    pointer-events: none;
+}
+
+.talent-box.class-shaman { border-top: 3px solid var(--color-shaman); }
 
 .talent-header {
     display: flex; justify-content: space-between;
-    padding: 10px 14px;
-    border-bottom: 1px solid #1a1a1a;
-    font-family: 'Cinzel'; font-size: 10px; color: var(--brazug-gold);
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-family: 'Cinzel'; font-size: 12px; color: #f2d18b;
+    background: rgba(8, 6, 4, 0.55);
+}
+
+.talent-spec-name {
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.talent-spec-points {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .talent-list {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(4, 40px);
     grid-template-rows: repeat(7, 40px);
     gap: 8px;
     justify-content: center;
-    padding: 20px 0;
+    padding: 22px 16px 24px;
+    background: rgba(0,0,0,0.08);
 }
 
-.talent-item { width: 40px; height: 40px; position: relative; }
-.talent-icon-wrap { width: 100%; height: 100%; border: 1px solid #222; border-radius: 4px; overflow: hidden; }
-.talent-icon { width: 100%; height: 100%; object-fit: cover; }
+.talent-list::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(255,209,0,0.08);
+    pointer-events: none;
+}
+
+/* Connectors / Arrows */
+.t-arrow {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to bottom, #333, #222);
+    width: 12px;
+    border-radius: 2px;
+    opacity: 0.3;
+}
+
+.t-arrow.active {
+    background: linear-gradient(to bottom, #c41e3a, #8b0000);
+    opacity: 1;
+}
+
+.t-arrow::after {
+    content: '▼';
+    position: absolute;
+    bottom: -8px;
+    font-size: 10px;
+    color: inherit;
+}
+
+.talent-list-grid-fallback {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 20px;
+    background: rgba(0,0,0,0.04);
+}
+
+.talent-list-row {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(20, 14, 8, 0.35);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+.talent-list-row:hover {
+    background: rgba(255,209,0,0.12);
+    border-color: rgba(255,209,0,0.18);
+    transform: translateY(-1px);
+}
+
+.talent-item {
+    width: 40px;
+    height: 40px;
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255,209,0,0.05);
+    background: linear-gradient(180deg, rgba(15,11,7,0.95) 0%, rgba(0,0,0,0.48) 100%);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.talent-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(0,0,0,0.42);
+    border-color: rgba(255,209,0,0.24);
+}
+
+.talent-item.rank-zero {
+    border-color: rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.4);
+}
+
+.talent-item.rank-zero .talent-icon {
+    filter: grayscale(100%) brightness(50%);
+    opacity: 0.5;
+}
+
+.talent-item.rank-partial {
+    border-color: rgba(200, 137, 42, 0.8);
+    background: linear-gradient(180deg, rgba(45, 30, 15, 0.95) 0%, rgba(0,0,0,0.45) 100%);
+    box-shadow: inset 0 0 10px rgba(255,165,0,0.1);
+}
+
+.talent-item.rank-max {
+    border-color: #ffd100;
+    box-shadow: 0 0 12px rgba(255,209,0,0.25), inset 0 0 15px rgba(255,209,0,0.15);
+    background: linear-gradient(180deg, rgba(62, 46, 18, 0.95) 0%, rgba(0,0,0,0.44) 100%);
+}
+
+.talent-item.rank-max .talent-icon {
+    filter: brightness(110%) contrast(110%);
+}
+
+.talent-icon-wrap {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #222;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.talent-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.talent-rank-display {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #ffd100;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
+    min-width: 20px;
+    text-align: center;
+    line-height: 1;
+}
 
 .talent-rank-badge {
     position: absolute; bottom: -4px; right: -4px;
     background: #000; color: #1eff00; font-size: 8px; font-weight: 900;
     padding: 1px 3px; border-radius: 2px; border: 1px solid #333;
 }
+
 
 /* 8. TABS */
 .armory-tabs {

@@ -213,6 +213,15 @@
       const token = localStorage.getItem("brazug_admin_token");
       let imageUrl = document.getElementById("image_url").value;
 
+      // Basic validation
+      const name = document.getElementById("name").value.trim();
+      const charClass = document.getElementById("class").value;
+      const race = document.getElementById("race").value;
+
+      if (!name) return alert("O nome do personagem é obrigatório.");
+      if (!charClass) return alert("A classe do personagem é obrigatória.");
+      if (!race) return alert("A raça do personagem é obrigatória.");
+
       // Handle file upload if present
       const imageFile = document.getElementById("image_file").files[0];
       if (imageFile) {
@@ -233,9 +242,9 @@
       }
 
       const char = {
-          name: document.getElementById("name").value,
-          class: document.getElementById("class").value,
-          race: document.getElementById("race").value,
+          name: name,
+          class: charClass,
+          race: race,
           level: parseInt(document.getElementById("level").value) || 1,
           guild: document.getElementById("guild").value,
           visibility: document.getElementById("visibility").value,
@@ -260,7 +269,7 @@
       
       try {
         await CharacterModel.save(char, token, id);
-        alert("Ficha salva!");
+        alert("Ficha salva com sucesso!");
         location.reload();
       } catch (e) {
         alert("Erro ao salvar: " + e.message);

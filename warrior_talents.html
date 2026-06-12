@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guerreiro — Talentos | WoW Classic</title>
+<!--
+  WOWHEAD TOOLTIPS — descomentar no projeto pai:
+  <script>var whTooltips={colorLinks:true,iconizeLinks:true,renameLinks:true,domain:'classic'};</script>
+  <script src="https://wow.zamimg.com/js/tooltips.js"></script>
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── TOKENS ─────────────────────────────────────────── */
+:root{
+  --bg:       #0b0a07;
+  --panel:    #14120d;
+  --border:   #4a3a1a;
+  --border2:  #6b4f20;
+  --gold:     #f7c14d;
+  --gold2:    #c8972a;
+  --gold3:    #7a5a1a;
+  --gold4:    #4a3010;
+  --text:     #c8b580;
+  --muted:    #8a7050;
+  --dim:      #2a2010;
+
+  /* per-tree accent (set via JS class) */
+  --t-arms-a:  #c41f1f;
+  --t-arms-b:  #8b1a1a44;
+  --t-fury-a:  #d4761a;
+  --t-fury-b:  #8b5a1a44;
+  --t-prot-a:  #2a6aaf;
+  --t-prot-b:  #1a3a6a44;
+
+  /* grid math */
+  --n: 44px;          /* node side */
+  --cg: 16px;         /* col gap   */
+  --rg: 28px;         /* row gap   */
+  --cs: calc(var(--n) + var(--cg)); /* col step 60 */
+  --rs: calc(var(--n) + var(--rg)); /* row step 72 */
+}
+
+/* ── BASE ────────────────────────────────────────────── */
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Cinzel',serif;
+  padding:20px;
+  min-width:860px;
+}
+
+/* ── HEADER ──────────────────────────────────────────── */
+.war-header{
+  display:flex;align-items:center;gap:14px;
+  padding-bottom:14px;margin-bottom:18px;
+  border-bottom:1px solid var(--border2);
+}
+.war-class-icon{
+  width:52px;height:52px;
+  border:2px solid var(--gold3);
+  image-rendering:pixelated;
+}
+.war-title{font-size:24px;font-weight:900;color:var(--gold);letter-spacing:2px}
+.war-sub  {font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px}
+
+.war-pts-wrap{margin-left:auto;text-align:right}
+.war-pts-total{
+  font-size:28px;font-weight:900;color:var(--gold);line-height:1;
+}
+.war-pts-total span{font-size:16px;color:var(--muted)}
+.war-pts-label{font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:2px}
+.war-pts-bar-wrap{
+  height:4px;width:180px;
+  background:var(--dim);border:1px solid var(--border);
+  margin-top:4px;
+}
+.war-pts-bar{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));transition:width .2s}
+
+.war-reset-btn{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;
+  padding:6px 16px;
+  background:var(--dim);border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;transition:all .15s;margin-left:16px;
+}
+.war-reset-btn:hover{border-color:var(--gold2);color:var(--gold)}
+
+/* ── SPEC BADGES (header) ────────────────────────────── */
+.spec-badges{display:flex;gap:8px;margin-left:16px}
+.spec-badge{
+  padding:4px 12px;font-size:10px;letter-spacing:1px;
+  border:1px solid var(--border);color:var(--muted);
+  transition:all .2s;
+}
+.spec-badge.active{border-color:var(--gold2);color:var(--gold)}
+
+/* ── TREES ROW ───────────────────────────────────────── */
+.war-trees{display:flex;gap:20px;align-items:flex-start}
+
+/* ── TREE PANEL ──────────────────────────────────────── */
+.war-tree{
+  flex:1;
+  background:var(--panel);
+  border:1px solid var(--border);
+  position:relative;
+  /* corner ornaments */
+}
+.war-tree::before,.war-tree::after{
+  content:'';position:absolute;
+  width:10px;height:10px;
+  border-color:var(--gold3);border-style:solid;
+  pointer-events:none;z-index:10;
+}
+.war-tree::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.war-tree::after {bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+
+/* additional corners via inner divs added by JS */
+.corner-tr,.corner-bl{
+  position:absolute;width:10px;height:10px;
+  border-color:var(--gold3);border-style:solid;
+  pointer-events:none;z-index:10;
+}
+.corner-tr{top:-1px;right:-1px;border-width:2px 2px 0 0}
+.corner-bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+
+/* ── TREE LABEL ──────────────────────────────────────── */
+.tree-label{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px 8px;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+.tree-label-name{
+  font-size:13px;font-weight:700;color:var(--gold2);
+  letter-spacing:2px;text-transform:uppercase;
+}
+.tree-label-pts{
+  font-size:13px;font-weight:900;color:var(--gold4);
+  letter-spacing:1px;transition:color .2s;
+}
+.tree-label-pts.has{color:var(--gold)}
+
+/* tier unlock pip row */
+.tree-pip-row{
+  display:flex;gap:3px;align-items:center;margin-top:3px;
+}
+.tier-pip{
+  width:16px;height:3px;
+  background:var(--dim);
+  transition:background .2s;
+}
+.tier-pip.on{background:var(--gold3)}
+.tier-pip.maxed{background:var(--gold2)}
+
+/* ── TREE CANVAS (positions nodes + SVG) ─────────────── */
+.tree-canvas{
+  position:relative;
+  /* sized by JS: width = 4*60-16+2*14, height = 9*72-28+2*14 */
+  padding:14px;
+  overflow:hidden;
+}
+
+/* BIG BACKGROUND ICON — faded spec art */
+.tree-bg-art{
+  position:absolute;
+  width:200px;height:200px;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  opacity:.04;
+  image-rendering:pixelated;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* tier dividers */
+.tier-div{
+  position:absolute;
+  left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--dim) 30%,var(--dim) 70%,transparent);
+  pointer-events:none;z-index:1;
+}
+.tier-div.unlocked{background:linear-gradient(90deg,transparent,var(--gold4) 30%,var(--gold4) 70%,transparent)}
+
+/* tier requirement label */
+.tier-req{
+  position:absolute;
+  right:0;font-size:8px;color:var(--dim);
+  letter-spacing:1px;text-align:right;
+  pointer-events:none;z-index:2;
+  transition:color .2s;
+  font-family:'Cinzel',serif;
+}
+.tier-req.unlocked{color:var(--gold4)}
+
+/* ── SVG arrows ──────────────────────────────────────── */
+.arrows-svg{
+  position:absolute;top:14px;left:14px;
+  pointer-events:none;z-index:2;
+  overflow:visible;
+}
+.arrow-path{
+  fill:none;stroke-width:1.5;
+  stroke:var(--dim);
+  transition:stroke .25s;
+}
+.arrow-path.prereq-met{stroke:var(--gold3)}
+
+/* ── TALENT NODE ─────────────────────────────────────── */
+.tn{
+  position:absolute;
+  width:var(--n);height:var(--n);
+  z-index:3;cursor:pointer;
+  transition:transform .1s,box-shadow .2s;
+}
+.tn:hover{transform:scale(1.08);z-index:20}
+
+/* icon frame */
+.tn-frame{
+  position:absolute;inset:0;
+  border:2px solid var(--border);
+  background:#080605;
+  overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+.tn img{
+  width:100%;height:100%;
+  display:block;
+  image-rendering:pixelated;
+  filter:grayscale(100%) brightness(.5);
+  transition:filter .2s;
+}
+
+/* rank badge */
+.tn-rank{
+  position:absolute;bottom:-1px;right:-1px;
+  font-size:8px;font-family:sans-serif;font-weight:700;
+  background:rgba(0,0,0,.9);color:var(--muted);
+  padding:0 3px;line-height:12px;z-index:4;
+  pointer-events:none;
+  border-top:1px solid var(--border);
+  border-left:1px solid var(--border);
+  transition:color .2s;
+}
+
+/* ── NODE STATES ─────────────────────────────────────── */
+
+/* LOCKED TIER */
+.tn.locked{cursor:not-allowed;opacity:.22}
+.tn.locked:hover{transform:none}
+
+/* AVAILABLE (0 pts, tier unlocked) */
+.tn.available .tn-frame{border-color:var(--border2)}
+.tn.available img{filter:grayscale(60%) brightness(.7)}
+
+/* PARTIAL */
+.tn.partial .tn-frame{
+  border-color:var(--gold3);
+  box-shadow:inset 0 0 8px rgba(247,193,77,.1);
+}
+.tn.partial img{filter:grayscale(20%) brightness(.9)}
+.tn.partial .tn-rank{color:var(--gold2)}
+
+/* MAXED */
+.tn.maxed .tn-frame{
+  border-color:var(--gold2);
+  box-shadow:0 0 8px rgba(200,151,42,.35),inset 0 0 8px rgba(247,193,77,.15);
+}
+.tn.maxed img{filter:grayscale(0%) brightness(1.05) saturate(1.1)}
+.tn.maxed .tn-rank{color:var(--gold);background:rgba(0,0,0,.95)}
+
+/* SPEC TALENT (final 31pt) */
+.tn.spec-talent .tn-frame{
+  border-color:var(--gold);
+  box-shadow:0 0 14px rgba(247,193,77,.5),inset 0 0 10px rgba(247,193,77,.2);
+}
+.tn.spec-talent img{filter:brightness(1.1) saturate(1.2) drop-shadow(0 0 4px rgba(247,193,77,.5))}
+.tn.spec-talent .tn-rank{color:var(--gold);border-color:var(--gold2)}
+
+/* spec: diamond corner marks */
+.tn.spec-talent::before,.tn.spec-talent::after{
+  content:'';position:absolute;
+  width:6px;height:6px;
+  background:var(--gold);
+  transform:rotate(45deg);
+  z-index:5;pointer-events:none;
+}
+.tn.spec-talent::before{top:-3px;left:calc(50% - 3px)}
+.tn.spec-talent::after {bottom:-3px;left:calc(50% - 3px)}
+
+/* spec talent: animated glow when available */
+@keyframes spec-glow{
+  0%,100%{box-shadow:0 0 14px rgba(247,193,77,.5),inset 0 0 10px rgba(247,193,77,.2)}
+  50%    {box-shadow:0 0 22px rgba(247,193,77,.75),inset 0 0 14px rgba(247,193,77,.3)}
+}
+.tn.spec-talent.maxed .tn-frame{animation:spec-glow 2.2s ease-in-out infinite}
+
+/* ── PREREQ UNAVAILABLE overlay ──────────────────────── */
+.tn.prereq-blocked{cursor:not-allowed}
+.tn.prereq-blocked .tn-frame::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(0,0,0,.5);
+  border:1px solid #8b1a1a;
+}
+
+/* ── TOOLTIP (native) ────────────────────────────────── */
+.war-tooltip{
+  position:fixed;
+  background:linear-gradient(180deg,#1e1a0e 0%,#13110a 100%);
+  border:1px solid var(--gold3);
+  padding:10px 14px;max-width:260px;
+  pointer-events:none;z-index:9999;
+  display:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.8);
+}
+.war-tooltip::before{
+  content:'';position:absolute;top:-1px;left:-1px;
+  width:6px;height:6px;
+  border-top:2px solid var(--gold3);border-left:2px solid var(--gold3);
+}
+.war-tooltip::after{
+  content:'';position:absolute;bottom:-1px;right:-1px;
+  width:6px;height:6px;
+  border-bottom:2px solid var(--gold3);border-right:2px solid var(--gold3);
+}
+.tt-name{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:4px}
+.tt-rank{font-size:10px;color:var(--gold2);margin-bottom:6px;letter-spacing:1px}
+.tt-desc{font-size:11px;color:var(--text);line-height:1.6;font-family:sans-serif;font-style:italic}
+.tt-hint{font-size:10px;color:var(--muted);margin-top:6px;font-family:sans-serif}
+
+/* ── FOOTER LEGEND ───────────────────────────────────── */
+.war-footer{
+  margin-top:18px;padding-top:12px;
+  border-top:1px solid var(--border);
+  display:flex;gap:20px;align-items:center;flex-wrap:wrap;
+}
+.legend{display:flex;gap:16px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);letter-spacing:1px}
+.leg-dot{
+  width:14px;height:14px;border:2px solid var(--border);background:#080605;flex-shrink:0;
+}
+.leg-dot.available{border-color:var(--border2)}
+.leg-dot.partial  {border-color:var(--gold3);background:var(--panel)}
+.leg-dot.maxed    {border-color:var(--gold2);box-shadow:0 0 5px rgba(200,151,42,.4)}
+.leg-dot.spec     {border-color:var(--gold);box-shadow:0 0 8px rgba(247,193,77,.5)}
+.leg-dot.locked   {opacity:.22}
+
+/* api note */
+.api-note{
+  margin-top:16px;padding:10px 14px;
+  background:#0e0c08;border:1px solid var(--dim);
+  border-left:3px solid var(--gold3);
+  font-size:9px;color:var(--muted);line-height:1.9;letter-spacing:.5px;
+}
+.api-note code{color:var(--gold2);font-family:monospace;font-size:10px}
+</style>
+</head>
+<body>
+
+<div class="war-tooltip" id="war-tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-rank" id="tt-rank"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+  <div class="tt-hint" id="tt-hint"></div>
+</div>
+
+<!-- ── HEADER ──────────────────────────────────────── -->
+<div class="war-header">
+  <img class="war-class-icon"
+       src="https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg"
+       alt="Guerreiro"
+       onerror="this.style.display='none'">
+  <div>
+    <div class="war-title">Guerreiro</div>
+    <div class="war-sub">WoW CLASSIC 1.12 · 51 PONTOS DE TALENTO</div>
+  </div>
+  <div class="spec-badges" id="spec-badges"></div>
+  <div class="war-pts-wrap">
+    <div class="war-pts-total"><span id="pts-spent">0</span><span> / 51</span></div>
+    <div class="war-pts-label">PONTOS GASTOS</div>
+    <div class="war-pts-bar-wrap"><div class="war-pts-bar" id="pts-bar" style="width:0%"></div></div>
+  </div>
+  <button class="war-reset-btn" onclick="WarriorTree.reset()">↺ Resetar</button>
+</div>
+
+<!-- ── TREES ───────────────────────────────────────── -->
+<div class="war-trees" id="war-trees"></div>
+
+<!-- ── FOOTER ──────────────────────────────────────── -->
+<div class="war-footer">
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot locked"></div>Tier bloqueado</div>
+    <div class="leg-item"><div class="leg-dot available"></div>Disponível</div>
+    <div class="leg-item"><div class="leg-dot partial"></div>Parcial</div>
+    <div class="leg-item"><div class="leg-dot maxed"></div>Máximo</div>
+    <div class="leg-item"><div class="leg-dot spec"></div>Talento Final</div>
+  </div>
+</div>
+
+<div class="api-note">
+  <strong style="color:var(--gold2)">BACKEND API</strong> —
+  <code>WarriorTree.load({ arms:[[r,r,r,r],...], fury:[[...]], protection:[[...]] })</code>
+  · Cada sub-array = uma linha; cada número = rank alocado (null = célula vazia).
+  · Tooltips Wowhead: ativar <code>whTooltips</code> no &lt;head&gt; do projeto pai.
+  · Click-esquerdo aloca ponto · Click-direito remove ponto.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DADOS & ENGINE
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+/* ─── CONSTANTS ─────────────────────────────────────────────── */
+const N      = 44;    // node px
+const CG     = 16;    // col gap px
+const RG     = 28;    // row gap px
+const CS     = N+CG;  // col step 60
+const RS     = N+RG;  // row step 72
+const PAD    = 14;    // canvas padding
+const COLS   = 4;
+const ROWS   = 9;
+const MAX_PTS= 51;
+const PTS_PER_TIER = 5;
+const CDN    = 'https://wow.zamimg.com/images/wow/icons/medium';
+const WH     = 'https://www.wowhead.com/classic/spell=';
+
+/* ─── TALENT DATA ──────────────────────────────────────────────
+   row / col : grid position (0-indexed, 0 = top)
+   spellId   : Wowhead Classic spell ID (verify against Wowhead DB in prod)
+   icon      : zamimg CDN slug
+   maxRank   : max talent points
+   rank      : currently invested (default 0)
+   spec      : true = tier-9 signature talent (needs 40 pts in tree)
+   prereq    : { row, col } – explicit talent dependency (arrow)
+   desc      : tooltip description (rank 1/max)
+   ──────────────────────────────────────────────────────────── */
+const TREES_DATA = {
+
+  arms: {
+    label   : 'Armas',
+    accent  : '#c41f1f',
+    bgIcon  : 'ability_warrior_savageblow',
+    talents : [
+      // ─── TIER 1 (0 pts) ─────────────────────────────────
+      { row:0,col:0, spellId:12282, icon:'ability_rogue_ambush',       name:'Improved Heroic Strike',         maxRank:5, rank:0,
+        desc:'Reduces the Rage cost of your Heroic Strike by 1 per rank.' },
+      { row:0,col:1, spellId:16462, icon:'ability_parry',               name:'Deflection',                     maxRank:5, rank:0,
+        desc:'Increases your Parry chance by 1% per rank.' },
+      { row:0,col:2, spellId:12285, icon:'ability_gouge',               name:'Improved Rend',                  maxRank:2, rank:0,
+        desc:'Increases the bleed damage done by your Rend ability by 25% per rank.' },
+      // ─── TIER 2 (5 pts) ─────────────────────────────────
+      { row:1,col:0, spellId:12701, icon:'ability_warrior_charge',      name:'Improved Charge',                maxRank:2, rank:0,
+        desc:'Increases the Rage generated by your Charge ability by 3 per rank.' },
+      { row:1,col:1, spellId:20254, icon:'spell_magic_magearmor',       name:'Iron Will',                      maxRank:5, rank:0,
+        desc:'Increases your chance to resist Stun and Charm effects by 5% per rank.' },
+      { row:1,col:2, spellId:12295, icon:'spell_nature_enchantarmor',   name:'Tactical Mastery',               maxRank:5, rank:0,
+        desc:'You retain up to 5 Rage per rank when you change stances.' },
+      // ─── TIER 3 (10 pts) ─────────────────────────────────
+      { row:2,col:1, spellId:12958, icon:'spell_holy_blessingofstamina',name:'Anger Management',               maxRank:1, rank:0,
+        prereq:{row:1,col:2},
+        desc:'Increases time for Rage to decay by 20% out of combat. Generates 1 Rage every 3 sec in combat.' },
+      // ─── TIER 4 (15 pts) ─────────────────────────────────
+      { row:3,col:0, spellId:12290, icon:'inv_sword_27',                name:'Two-Handed Weapon Specialization',maxRank:5, rank:0,
+        desc:'Increases the damage you deal with two-handed melee weapons by 1% per rank.' },
+      { row:3,col:1, spellId:12850, icon:'ability_criticalstrike',      name:'Impale',                         maxRank:2, rank:0,
+        desc:'Increases the critical strike damage bonus of your melee abilities by 10% per rank.' },
+      { row:3,col:2, spellId:16494, icon:'ability_backstab',            name:'Deep Wounds',                    maxRank:3, rank:0,
+        desc:'Your critical strikes cause the target to bleed for 16/32/48% of your weapon damage over 12 sec.' },
+      // ─── TIER 5 (20 pts) ─────────────────────────────────
+      { row:4,col:0, spellId:12292, icon:'ability_rogue_slicedice',     name:'Sweeping Strikes',               maxRank:1, rank:0,
+        desc:'Your next 5 melee attacks strike an additional nearby opponent.' },
+      { row:4,col:1, spellId:12307, icon:'inv_mace_01',                 name:'Mace Specialization',            maxRank:5, rank:0,
+        desc:'Gives you a 1% per rank chance to stun the opponent for 3 sec when using a mace.' },
+      { row:4,col:2, spellId:12284, icon:'inv_sword_04',                name:'Sword Specialization',           maxRank:5, rank:0,
+        desc:'Gives you a 1% per rank chance to get an extra attack when you hit with a sword.' },
+      { row:4,col:3, spellId:12786, icon:'inv_weapon_halberd04',        name:'Polearm Specialization',         maxRank:5, rank:0,
+        desc:'Increases your expertise with Polearms by 1 per rank.' },
+      // ─── TIER 6 (25 pts) ─────────────────────────────────
+      { row:5,col:1, spellId:20658, icon:'ability_shockwave',           name:'Improved Hamstring',             maxRank:3, rank:0,
+        desc:'Gives your Hamstring ability a 5% per rank chance to immobilize the target for 5 sec.' },
+      { row:5,col:2, spellId:12286, icon:'ability_warrior_offensivestance',name:'Improved Slam',               maxRank:2, rank:0,
+        desc:'Decreases the swing timer of Slam by 0.5 sec per rank.' },
+      // ─── TIER 7 (30 pts) ─────────────────────────────────
+      { row:6,col:1, spellId:12289, icon:'inv_axe_01',                  name:'Axe Specialization',             maxRank:5, rank:0,
+        desc:'Increases your expertise with Axes and Two-Handed Axes by 1 per rank.' },
+      // ─── TIER 8 (35 pts) ─────────────────────────────────
+      { row:7,col:1, spellId:21553, icon:'ability_meleedamage',         name:'Improved Overpower',             maxRank:2, rank:0,
+        desc:'Increases the critical strike chance of your Overpower ability by 25% per rank.' },
+      // ─── TIER 9 (40 pts) — SPEC ──────────────────────────
+      { row:8,col:1, spellId:12294, icon:'ability_warrior_savageblow',  name:'Mortal Strike',                  maxRank:1, rank:0, spec:true,
+        prereq:{row:7,col:1},
+        desc:'A vicious strike that deals weapon damage plus 85 and wounds the target, reducing healing received by 50% for 10 sec.' },
+    ]
+  },
+
+  fury: {
+    label   : 'Fúria',
+    accent  : '#d4761a',
+    bgIcon  : 'spell_nature_bloodlust',
+    talents : [
+      // ─── TIER 1 ──────────────────────────────────────────
+      { row:0,col:0, spellId:12296, icon:'spell_nature_purge',           name:'Booming Voice',                  maxRank:5, rank:0,
+        desc:'Increases the area and duration of your Battle Shout and Demoralizing Shout by 20% per rank.' },
+      { row:0,col:1, spellId:12317, icon:'ability_rogue_feigndeath',     name:'Cruelty',                        maxRank:5, rank:0,
+        desc:'Increases your chance to get a critical strike with melee weapons by 1% per rank.' },
+      // ─── TIER 2 ──────────────────────────────────────────
+      { row:1,col:0, spellId:12318, icon:'spell_shadow_deathscream',     name:'Improved Demoralizing Shout',    maxRank:5, rank:0,
+        desc:'Increases the melee attack power reduction of your Demoralizing Shout by 8% per rank.' },
+      { row:1,col:2, spellId:12319, icon:'spell_nature_stoneclawtotem',  name:'Unbridled Wrath',                maxRank:5, rank:0,
+        desc:'Gives you an 8% per rank chance to generate an extra Rage point on each melee hit.' },
+      // ─── TIER 3 ──────────────────────────────────────────
+      { row:2,col:1, spellId:12320, icon:'ability_warrior_cleave',       name:'Improved Cleave',                maxRank:3, rank:0,
+        desc:'Increases the bonus damage done by your Cleave ability by 40% per rank.' },
+      { row:2,col:3, spellId:23588, icon:'spell_shadow_deathscream',     name:'Piercing Howl',                  maxRank:1, rank:0,
+        desc:'Causes all nearby enemies to be dazed, reducing movement speed by 50% for 6 sec.' },
+      // ─── TIER 4 ──────────────────────────────────────────
+      { row:3,col:0, spellId:12323, icon:'spell_shadow_lifedrain',       name:'Blood Craze',                    maxRank:3, rank:0,
+        desc:'Regenerates 1% of your total health per rank over 6 sec after being hit by a critical strike.' },
+      { row:3,col:2, spellId:13046, icon:'ability_warrior_battleshout',  name:'Improved Battle Shout',          maxRank:5, rank:0,
+        desc:'Increases the melee attack power bonus of your Battle Shout by 5% per rank.' },
+      // ─── TIER 5 ──────────────────────────────────────────
+      { row:4,col:1, spellId:12324, icon:'ability_dualwield',            name:'Dual Wield Specialization',      maxRank:5, rank:0,
+        desc:'Increases the damage done by your offhand weapon by 5% per rank.' },
+      // ─── TIER 6 ──────────────────────────────────────────
+      { row:5,col:0, spellId:12325, icon:'inv_sword_48',                 name:'Improved Execute',               maxRank:2, rank:0,
+        desc:'Reduces the Rage cost of your Execute ability by 5 per rank.' },
+      { row:5,col:2, spellId:12326, icon:'spell_shadow_unholyfrenzy',    name:'Enrage',                         maxRank:5, rank:0,
+        desc:'Increases your melee damage by 8% per rank for 12 sec after you take a critical hit.' },
+      // ─── TIER 7 ──────────────────────────────────────────
+      { row:6,col:1, spellId:12328, icon:'spell_shadow_deathpact',       name:'Death Wish',                     maxRank:1, rank:0,
+        prereq:{row:5,col:2},
+        desc:'Increases your physical damage by 20% and makes you immune to Fear for 30 sec. Also increases damage taken by 5%.' },
+      // ─── TIER 8 ──────────────────────────────────────────
+      { row:7,col:1, spellId:12974, icon:'ability_ghoulfrenzy',          name:'Flurry',                         maxRank:5, rank:0,
+        desc:'Increases your attack speed by 10% per rank for your next 3 swings after a melee critical strike.' },
+      // ─── TIER 9 — SPEC ────────────────────────────────────
+      { row:8,col:1, spellId:23881, icon:'spell_nature_bloodlust',       name:'Bloodthirst',                    maxRank:1, rank:0, spec:true,
+        prereq:{row:7,col:1},
+        desc:'Instantly attack the target for 45% of your attack power. The next 5 successful melee attacks restore 10 health.' },
+    ]
+  },
+
+  protection: {
+    label   : 'Proteção',
+    accent  : '#2a6aaf',
+    bgIcon  : 'ability_warrior_defensivestance',
+    talents : [
+      // ─── TIER 1 ──────────────────────────────────────────
+      { row:0,col:0, spellId:12298, icon:'ability_racial_bloodrage',     name:'Improved Bloodrage',             maxRank:2, rank:0,
+        desc:'Increases the instant Rage generated by your Bloodrage ability by 25% per rank.' },
+      { row:0,col:1, spellId:12727, icon:'inv_shield_06',                name:'Shield Specialization',          maxRank:5, rank:0,
+        desc:'Increases your chance to block attacks with a shield by 1% per rank and adds 10% to block value per rank.' },
+      // ─── TIER 2 ──────────────────────────────────────────
+      { row:1,col:0, spellId:12329, icon:'ability_warrior_shieldblock',  name:'Anticipation',                   maxRank:5, rank:0,
+        desc:'Increases your Defense skill by 4 per rank.' },
+      { row:1,col:2, spellId:12330, icon:'inv_chest_plate04',            name:'Toughness',                      maxRank:5, rank:0,
+        desc:'Increases your armor value from items by 2% per rank.' },
+      // ─── TIER 3 ──────────────────────────────────────────
+      { row:2,col:0, spellId:12809, icon:'spell_holy_ashestoashes',      name:'Last Stand',                     maxRank:1, rank:0,
+        desc:'Temporarily grants you 30% of your maximum hit points for 20 sec. After the effect expires, the hit points are lost.' },
+      { row:2,col:2, spellId:12333, icon:'ability_defend',               name:'Improved Shield Block',          maxRank:3, rank:0,
+        prereq:{row:0,col:1},
+        desc:'Increases the number of attacks blocked by your Shield Block ability by 1 per rank.' },
+      // ─── TIER 4 ──────────────────────────────────────────
+      { row:3,col:1, spellId:12311, icon:'ability_warrior_revenge',      name:'Improved Revenge',               maxRank:3, rank:0,
+        desc:'Gives your Revenge ability a 15% per rank chance to stun the target for 3 sec.' },
+      { row:3,col:2, spellId:12312, icon:'ability_warrior_innerrage',    name:'Defiance',                       maxRank:5, rank:0,
+        desc:'Increases the threat generated by your attacks by 5% per rank while in Defensive Stance.' },
+      // ─── TIER 5 ──────────────────────────────────────────
+      { row:4,col:2, spellId:20191, icon:'ability_warrior_disarm',       name:'Improved Disarm',                maxRank:3, rank:0,
+        desc:'Increases the duration of your Disarm ability by 25% per rank.' },
+      // ─── TIER 6 ──────────────────────────────────────────
+      { row:5,col:1, spellId:20243, icon:'ability_warrior_sunder',       name:'Improved Sunder Armor',          maxRank:3, rank:0,
+        desc:'Reduces the Rage cost of your Sunder Armor ability by 1 per rank.' },
+      // ─── TIER 7 ──────────────────────────────────────────
+      { row:6,col:1, spellId:20202, icon:'spell_nature_reincarnation',   name:'Improved Taunt',                 maxRank:2, rank:0,
+        desc:'Reduces the cooldown of your Taunt ability by 1 sec per rank.' },
+      // ─── TIER 8 ──────────────────────────────────────────
+      { row:7,col:1, spellId:20237, icon:'ability_thunderbolt',          name:'Concussion Blow',                maxRank:1, rank:0,
+        prereq:{row:6,col:1},
+        desc:'Stuns the opponent for 5 sec.' },
+      // ─── TIER 9 — SPEC ────────────────────────────────────
+      { row:8,col:1, spellId:20252, icon:'inv_shield_05',                name:'Shield Slam',                    maxRank:1, rank:0, spec:true,
+        prereq:{row:7,col:1},
+        desc:'Slam the target with your shield for 225-235 damage (modified by block value), and dispel 1 magic effect on the target.' },
+    ]
+  }
+};
+
+/* ─── GRID HELPERS ──────────────────────────────────────────── */
+const nodeX  = col => col * CS;
+const nodeY  = row => row * RS;
+const centerX= col => nodeX(col) + N/2;
+const centerY= row => nodeY(row) + N/2;
+// canvas size
+const CANVAS_W = COLS * CS - CG + PAD*2;
+const CANVAS_H = ROWS * RS - RG + PAD*2;
+
+/* ─── STATE ─────────────────────────────────────────────────── */
+// keyed by "treeKey:row:col"
+function talentKey(tk,t){ return `${tk}:${t.row}:${t.col}` }
+function getT(tk,r,c){ return TREES_DATA[tk].talents.find(t=>t.row===r&&t.col===c)||null }
+function treePts(tk){ return TREES_DATA[tk].talents.reduce((s,t)=>s+t.rank,0) }
+function totalPts(){ return Object.keys(TREES_DATA).reduce((s,k)=>s+treePts(k),0) }
+function tierUnlocked(tk,row){ return treePts(tk) >= row * PTS_PER_TIER }
+
+/* ─── RULES ─────────────────────────────────────────────────── */
+function prereqMet(tk, talent){
+  if(!talent.prereq) return true;
+  const p = getT(tk, talent.prereq.row, talent.prereq.col);
+  return p && p.rank === p.maxRank;
+}
+
+function canAdd(tk, talent){
+  if(totalPts() >= MAX_PTS) return false;
+  if(talent.rank >= talent.maxRank) return false;
+  if(!tierUnlocked(tk, talent.row)) return false;
+  if(!prereqMet(tk, talent)) return false;
+  return true;
+}
+
+function canRemove(tk, talent){
+  if(talent.rank <= 0) return false;
+  // Would removing break a dependent talent's prereq?
+  const deps = TREES_DATA[tk].talents.filter(t=>
+    t.prereq && t.prereq.row===talent.row && t.prereq.col===talent.col && t.rank>0
+  );
+  if(deps.length && talent.rank-1 < talent.maxRank) return false;
+  // Would removing lock a tier that has invested points?
+  const newPts = treePts(tk) - 1;
+  const maxLockedRow = Math.floor(newPts / PTS_PER_TIER); // last unlocked tier (0-indexed)
+  const higherInvested = TREES_DATA[tk].talents.some(t=>
+    t.row > maxLockedRow && t.rank > 0 && !(t.row===talent.row&&t.col===talent.col)
+  );
+  if(higherInvested) return false;
+  return true;
+}
+
+/* ─── ADD / REMOVE ──────────────────────────────────────────── */
+function addPoint(tk, talent){
+  if(!canAdd(tk,talent)) return false;
+  talent.rank++;
+  renderAll();
+  return true;
+}
+
+function removePoint(tk, talent){
+  if(!canRemove(tk,talent)) return false;
+  talent.rank--;
+  renderAll();
+  return true;
+}
+
+/* ─── NODE STATE CLASS ──────────────────────────────────────── */
+function nodeStateClass(tk, talent){
+  if(!tierUnlocked(tk, talent.row)) return 'locked';
+  if(!prereqMet(tk, talent) && talent.rank===0) return 'prereq-blocked';
+  const s = talent.rank===0 ? 'available' : talent.rank===talent.maxRank ? 'maxed' : 'partial';
+  return talent.spec ? (talent.rank===talent.maxRank ? 'spec-talent maxed' : 'spec-talent ' + (talent.rank>0?'partial':'available')) : s;
+}
+
+/* ─── TOOLTIP ───────────────────────────────────────────────── */
+const tip  = document.getElementById('war-tooltip');
+const tipN = document.getElementById('tt-name');
+const tipR = document.getElementById('tt-rank');
+const tipD = document.getElementById('tt-desc');
+const tipH = document.getElementById('tt-hint');
+
+function showTip(e, tk, talent){
+  tipN.textContent = talent.name;
+  tipR.textContent = `Rank ${talent.rank} / ${talent.maxRank}`;
+  tipD.textContent = talent.desc || '';
+  const hints = [];
+  if(canAdd(tk,talent))    hints.push('Clique para adicionar ponto');
+  else if(talent.rank===talent.maxRank) hints.push('Talento no máximo');
+  else if(!tierUnlocked(tk,talent.row))hints.push(`Requer ${talent.row*PTS_PER_TIER} pontos em ${TREES_DATA[tk].label}`);
+  else if(!prereqMet(tk,talent)){
+    const p=getT(tk,talent.prereq.row,talent.prereq.col);
+    hints.push(`Requer ${p?p.name:'pré-requisito'} no máximo`);
+  } else if(totalPts()>=MAX_PTS) hints.push('Sem pontos restantes');
+  if(canRemove(tk,talent)) hints.push('Clique-direito para remover');
+  tipH.textContent = hints.join(' · ');
+  moveTip(e);
+  tip.style.display='block';
+}
+
+function moveTip(e){
+  const margin=12;
+  let x=e.clientX+margin, y=e.clientY+margin;
+  const tw=tip.offsetWidth||260, th=tip.offsetHeight||100;
+  if(x+tw>window.innerWidth-8)  x=e.clientX-tw-margin;
+  if(y+th>window.innerHeight-8) y=e.clientY-th-margin;
+  tip.style.left=x+'px';
+  tip.style.top =y+'px';
+}
+
+document.addEventListener('mousemove', e=>{
+  if(tip.style.display==='block') moveTip(e);
+});
+
+/* ─── RENDER ────────────────────────────────────────────────── */
+function renderAll(){
+  const total = totalPts();
+  document.getElementById('pts-spent').textContent = total;
+  document.getElementById('pts-bar').style.width = (total/MAX_PTS*100)+'%';
+
+  // spec badges
+  const badges = document.getElementById('spec-badges');
+  badges.innerHTML = Object.keys(TREES_DATA).map(tk=>{
+    const pts = treePts(tk);
+    return `<div class="spec-badge${pts>0?' active':''}">${TREES_DATA[tk].label}: ${pts}</div>`;
+  }).join('');
+
+  // each tree
+  Object.keys(TREES_DATA).forEach(tk=>renderTree(tk));
+
+  // re-init wowhead if present
+  if(window.$WowheadPower?.refreshLinks) window.$WowheadPower.refreshLinks();
+}
+
+function renderTree(tk){
+  const tree = TREES_DATA[tk];
+  const container = document.getElementById(`tree-${tk}`);
+  if(!container) return;
+
+  // label pts
+  const ptsEl = container.querySelector('.tree-label-pts');
+  const pts   = treePts(tk);
+  ptsEl.textContent = pts;
+  ptsEl.className   = 'tree-label-pts' + (pts>0?' has':'');
+
+  // tier pips
+  const pipRow = container.querySelector('.tree-pip-row');
+  pipRow.innerHTML = '';
+  for(let t=0;t<ROWS;t++){
+    const needed = t * PTS_PER_TIER;
+    const unlocked = pts >= needed;
+    const pip = document.createElement('div');
+    pip.className = 'tier-pip' + (unlocked ? (pts>=needed+PTS_PER_TIER?'':' on') : '');
+    if(pts >= needed+PTS_PER_TIER) pip.className='tier-pip maxed';
+    else if(unlocked) pip.className='tier-pip on';
+    else pip.className='tier-pip';
+    pipRow.appendChild(pip);
+  }
+
+  // update existing nodes
+  tree.talents.forEach(talent=>{
+    const nodeEl = document.getElementById(`tn-${tk}-${talent.row}-${talent.col}`);
+    if(!nodeEl) return;
+    // rebuild class
+    const sc = nodeStateClass(tk, talent);
+    nodeEl.className = 'tn ' + sc;
+    // rank badge
+    const rankEl = nodeEl.querySelector('.tn-rank');
+    if(rankEl){
+      rankEl.textContent = `${talent.rank}/${talent.maxRank}`;
+      rankEl.style.color = talent.rank===talent.maxRank ? 'var(--gold)' : 'var(--muted)';
+    }
+
+    // tier dividers
+    const divEl = container.querySelector(`.tier-div[data-row="${talent.row}"]`);
+    // (dividers are static, no update needed)
+  });
+
+  // update arrows
+  updateArrows(tk, container);
+}
+
+function updateArrows(tk, container){
+  const svg = container.querySelector('.arrows-svg');
+  if(!svg) return;
+  const paths = svg.querySelectorAll('.arrow-path');
+  TREES_DATA[tk].talents.forEach(talent=>{
+    if(!talent.prereq) return;
+    const prereq = getT(tk, talent.prereq.row, talent.prereq.col);
+    const met = prereq && prereq.rank === prereq.maxRank;
+    const pid = `arrow-${tk}-${talent.row}-${talent.col}`;
+    const path = svg.querySelector(`#${pid}`);
+    if(path) path.className.baseVal = 'arrow-path' + (met?' prereq-met':'');
+  });
+}
+
+/* ─── FIRST BUILD ───────────────────────────────────────────── */
+function buildTrees(){
+  const container = document.getElementById('war-trees');
+  container.innerHTML = '';
+
+  Object.keys(TREES_DATA).forEach(tk=>{
+    const tree = TREES_DATA[tk];
+
+    // ── panel ──
+    const panel = document.createElement('div');
+    panel.className = 'war-tree';
+    panel.id = `tree-${tk}`;
+    panel.innerHTML = `<div class="corner-tr"></div><div class="corner-bl"></div>`;
+
+    // ── label ──
+    const label = document.createElement('div');
+    label.className = 'tree-label';
+    label.innerHTML = `
+      <div>
+        <div class="tree-label-name" style="color:${tree.accent}">${tree.label}</div>
+        <div class="tree-pip-row"></div>
+      </div>
+      <div class="tree-label-pts">0</div>`;
+    panel.appendChild(label);
+
+    // ── canvas ──
+    const canvas = document.createElement('div');
+    canvas.className = 'tree-canvas';
+    canvas.style.width  = CANVAS_W + 'px';
+    canvas.style.height = CANVAS_H + 'px';
+
+    // bg art
+    const bgArt = document.createElement('img');
+    bgArt.className = 'tree-bg-art';
+    bgArt.src = `${CDN}/${tree.bgIcon}.jpg`;
+    bgArt.alt = '';
+    canvas.appendChild(bgArt);
+
+    // tier dividers + req labels
+    for(let r=1;r<ROWS;r++){
+      const needed = r * PTS_PER_TIER;
+      const y = PAD + nodeY(r) - RG/2;
+      const div = document.createElement('div');
+      div.className = 'tier-div';
+      div.dataset.row = r;
+      div.style.top = y+'px';
+      canvas.appendChild(div);
+
+      const req = document.createElement('div');
+      req.className = 'tier-req';
+      req.dataset.row = r;
+      req.style.top  = (y-10)+'px';
+      req.style.right= '0px';
+      req.textContent= `${needed} pts`;
+      canvas.appendChild(req);
+    }
+
+    // ── SVG arrows ──
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','arrows-svg');
+    svg.setAttribute('width', CANVAS_W - PAD*2);
+    svg.setAttribute('height',CANVAS_H - PAD*2);
+    svg.setAttribute('overflow','visible');
+
+    const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+    ['arrow-off','arrow-on'].forEach((id,i)=>{
+      const m = document.createElementNS('http://www.w3.org/2000/svg','marker');
+      m.setAttribute('id',id);
+      m.setAttribute('markerWidth','7');
+      m.setAttribute('markerHeight','5');
+      m.setAttribute('refX','6');
+      m.setAttribute('refY','2.5');
+      m.setAttribute('orient','auto');
+      const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      poly.setAttribute('points','0 0, 7 2.5, 0 5');
+      poly.setAttribute('fill', i===0 ? '#2a2010' : '#c8972a');
+      m.appendChild(poly);
+      defs.appendChild(m);
+    });
+    svg.appendChild(defs);
+
+    // draw arrows for prereqs
+    tree.talents.forEach(talent=>{
+      if(!talent.prereq) return;
+      const pr = talent.prereq;
+      const x1 = centerX(pr.col),   y1 = nodeY(pr.row)+N;
+      const x2 = centerX(talent.col), y2 = nodeY(talent.row);
+
+      let d;
+      if(pr.col===talent.col){
+        d=`M ${x1} ${y1} L ${x2} ${y2}`;
+      } else {
+        const midY = (y1+y2)/2;
+        d=`M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
+      }
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d', d);
+      path.setAttribute('id', `arrow-${tk}-${talent.row}-${talent.col}`);
+      path.setAttribute('class','arrow-path');
+      path.setAttribute('marker-end','url(#arrow-off)');
+      path.setAttribute('stroke-width','1.5');
+      path.setAttribute('fill','none');
+      svg.appendChild(path);
+    });
+    canvas.appendChild(svg);
+
+    // ── talent nodes ──
+    tree.talents.forEach(talent=>{
+      const node = document.createElement('div');
+      node.id = `tn-${tk}-${talent.row}-${talent.col}`;
+      node.className = 'tn available';
+      node.style.left = (PAD + nodeX(talent.col)) + 'px';
+      node.style.top  = (PAD + nodeY(talent.row)) + 'px';
+
+      const frame = document.createElement('div');
+      frame.className = 'tn-frame';
+
+      const img = document.createElement('img');
+      img.src = `${CDN}/${talent.icon}.jpg`;
+      img.width = N; img.height = N;
+      img.alt  = talent.name;
+      img.onerror = function(){ this.src=`${CDN}/inv_misc_questionmark.jpg` };
+
+      frame.appendChild(img);
+
+      // wowhead link wrapper
+      const link = document.createElement('a');
+      link.href = `${WH}${talent.spellId}`;
+      link.dataset.whIconSize = 'small';
+      link.style.cssText = 'position:absolute;inset:0;display:block';
+      link.onclick = e => e.preventDefault();
+      frame.appendChild(link);
+
+      const rankBadge = document.createElement('span');
+      rankBadge.className = 'tn-rank';
+      rankBadge.textContent = `0/${talent.maxRank}`;
+
+      node.appendChild(frame);
+      node.appendChild(rankBadge);
+
+      // ── EVENTS ──
+      node.addEventListener('click', e=>{
+        e.preventDefault();
+        addPoint(tk, talent);
+        if(tip.style.display==='block') showTip(e,tk,talent);
+      });
+      node.addEventListener('contextmenu', e=>{
+        e.preventDefault();
+        removePoint(tk, talent);
+        if(tip.style.display==='block') showTip(e,tk,talent);
+      });
+      node.addEventListener('mouseenter', e => showTip(e,tk,talent));
+      node.addEventListener('mouseleave', ()=> tip.style.display='none');
+      node.addEventListener('mousemove',  e => moveTip(e));
+
+      canvas.appendChild(node);
+    });
+
+    panel.appendChild(canvas);
+    container.appendChild(panel);
+  });
+
+  renderAll();
+}
+
+/* ─── PUBLIC API ─────────────────────────────────────────────── */
+window.WarriorTree = {
+  // Inject ranks from backend
+  // data = { arms: [[r,r,r,r],...], fury: [[...]], protection: [[...]] }
+  // Each sub-array = a row; each element = rank (number) or null (skip).
+  load(data){
+    Object.keys(data).forEach(tk=>{
+      if(!TREES_DATA[tk]) return;
+      data[tk].forEach((rowArr, ri)=>{
+        if(!rowArr) return;
+        rowArr.forEach((rank, ci)=>{
+          if(rank==null) return;
+          const t = getT(tk, ri, ci);
+          if(t) t.rank = Math.min(rank, t.maxRank);
+        });
+      });
+    });
+    renderAll();
+  },
+  reset(){
+    Object.keys(TREES_DATA).forEach(tk=>
+      TREES_DATA[tk].talents.forEach(t=>{ t.rank=0; })
+    );
+    renderAll();
+  }
+};
+
+// ── INIT ──
+buildTrees();
+</script>
+
+</body>
+</html>

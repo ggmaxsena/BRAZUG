@@ -21,8 +21,12 @@
         },
         body: JSON.stringify(character)
       });
-      if (!res.ok) throw new Error("Erro ao salvar ficha");
-      return await res.json();
+      
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || data.message || "Erro ao salvar ficha");
+      }
+      return data;
     },
 
     async delete(id, token) {
