@@ -13,7 +13,7 @@ const prismaClientSingleton = () => {
   const url = new URL(connectionString);
   const pool = new pg.Pool({
     user: url.username,
-    password: url.password,
+    password: url.password.replace('!', '%21'),
     host: url.hostname,
     port: parseInt(url.port || '5432'),
     database: url.pathname.slice(1),
