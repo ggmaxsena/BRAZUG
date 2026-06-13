@@ -56,9 +56,17 @@
       try {
         const data = await ArmoryModel.fetchFullCharacter(this._realm, this._name);
 
-        if (data.retry && attempt < 5) {
-          setTimeout(() => this.loadData(attempt + 1), 3000);
-          return;
+        if (data && data.retry) {
+          if (attempt < 5) {
+            setTimeout(() => this.loadData(attempt + 1), 3000);
+            return;
+          } else {
+            throw new Error("O servidor de sincronização está demorando mais que o esperado. Por favor, tente recarregar a página em instantes.");
+          }
+        }
+
+        if (!data || !data.name) {
+          throw new Error("Dados do personagem não encontrados.");
         }
 
         this._currentCharData = data;
@@ -69,8 +77,13 @@
       } catch (e) {
         const loadingEl = document.getElementById('armory-loading');
         const errorEl = document.getElementById('armory-error');
+        const errorMsgEl = errorEl?.querySelector('p');
+        
         if (loadingEl) loadingEl.style.display = 'none';
-        if (errorEl) errorEl.style.display = 'block';
+        if (errorEl) {
+          errorEl.style.display = 'block';
+          if (errorMsgEl) errorMsgEl.innerText = e.message;
+        }
         console.error("Failed to load character data:", e);
       }
     },

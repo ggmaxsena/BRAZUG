@@ -31,6 +31,11 @@
       const container = document.getElementById(containerId);
       if (!container) return;
 
+      if (!items || !Array.isArray(items)) {
+        container.innerHTML = '<div class="col-span-full text-center py-8 text-white/50">Equipamento não disponível</div>';
+        return;
+      }
+
       const leftSlots = ['HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST'];
       const rightSlots = ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'];
       const weaponSlots = ['MAIN_HAND', 'OFF_HAND', 'RANGED'];

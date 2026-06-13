@@ -114,6 +114,7 @@ class CharacterService {
     console.log(`[DB-DEBUG] Itens antigos deletados: ${deleted.count}`);
 
     // 3. Insere os novos
+    console.log(`[DB-DEBUG] Exemplo de item antes de salvar:`, JSON.stringify(items[0], null, 2));
     const created = await prisma.characterItem.createMany({
       data: items.map(item => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -4,13 +4,13 @@
   const ArmoryModel = {
     async fetchFullCharacter(realm, name) {
       const res = await fetch(`/api/armory/full/${encodeURIComponent(realm)}/${encodeURIComponent(name)}`);
-      // Status 530 is handled by the caller with retries if needed, 
-      // but here we just return the response or throw on error.
+      
       if (!res.ok) {
         if (res.status === 503) {
            return { retry: true };
         }
-        throw new Error("Personagem não encontrado ou erro na API");
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Personagem não encontrado ou erro na API");
       }
       return await res.json();
     },

@@ -73,7 +73,7 @@ app.get("/api/armory/full/:realm/:name", async (req, res) => {
       let syncRes = null;
       try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000);
+        const timeout = setTimeout(() => controller.abort(), 30000); // 30s for Blizzard syncs
         syncRes = await fetch(`${ARMORY_URL}/api/character/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -82,24 +82,28 @@ app.get("/api/armory/full/:realm/:name", async (req, res) => {
         });
         clearTimeout(timeout);
       } catch (e) {
-        // Timeout ou módulo armory indisponível: transitório, peça retry
-        console.error(`[Armory] Sync request failed for ${name}-${realm}: ${e.message}`);
-        return res.status(503).json({ error: "Sincronizando personagem, tente novamente em instantes." });
+        console.error(`[Armory] Sync request failed/timeout for ${name}-${realm}: ${e.message}`);
+        return res.status(503).json({ error: "O servidor de sincronização está demorando. Tente novamente em instantes." });
       }
 
-      // Blizzard confirmou que o personagem não existe de fato
       if (syncRes.status === 404) {
-        return res.status(404).json({ error: "Não encontrado" });
+        return res.status(404).json({ error: "Personagem não encontrado na Blizzard." });
       }
 
-      if (syncRes.ok) char = await db.getFullArmoryCharacter(name, realm);
+      if (!syncRes.ok) {
+        const errorData = await syncRes.json().catch(() => ({}));
+        console.error(`[Armory] Sync backend error for ${name}-${realm}:`, syncRes.status, errorData);
+        return res.status(syncRes.status).json({ error: errorData.error || "Erro ao sincronizar com o Armory." });
+      }
+
+      char = await db.getFullArmoryCharacter(name, realm);
     }
 
-    // Sync respondeu mas o banco ainda não refletiu (lentidão/transitório): peça retry
-    if (!char) return res.status(503).json({ error: "Sincronizando personagem, tente novamente em instantes." });
+    if (!char) return res.status(503).json({ error: "Sincronizando personagem... os dados estarão prontos em instantes." });
     res.json(char);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("[Armory Route Error]", err);
+    res.status(500).json({ error: "Erro interno ao processar dados do Armory" });
   }
 });
 
@@ -214,6 +218,14 @@ app.get("/api/health", async (req, res) => {
     armory: armory,
     fileSystem: fsStatus,
     timestamp: new Date().toISOString()
+  });
+});
+
+app.get("/api/debug-env", (req, res) => {
+  res.json({
+    ARMORY_URL: process.env.ARMORY_URL,
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT
   });
 });
 
