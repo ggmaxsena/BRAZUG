@@ -115,10 +115,14 @@ class CharacterService {
 
     // 3. Insere os novos
     const created = await prisma.characterItem.createMany({
-      data: items.map(item => ({
-        ...item,
-        characterId,
-      })),
+      data: items.map(item => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { tooltipData, ...rest } = item;
+        return {
+          ...rest,
+          characterId,
+        };
+      }),
     });
     console.log(`[DB-DEBUG] Itens novos inseridos: ${created.count}`);
     return created;
