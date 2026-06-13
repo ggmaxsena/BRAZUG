@@ -5,6 +5,10 @@ import pg from 'pg'
 const prismaClientSingleton = () => {
   const connectionString = process.env.DATABASE_URL
 
+  // DEBUG LOGGING
+  console.log("DEBUG: DATABASE_URL loaded, length:", connectionString?.length);
+  console.log("DEBUG: DATABASE_URL preview:", connectionString?.substring(0, 30));
+
   if (!connectionString) {
     throw new Error('DATABASE_URL is not defined')
   }
