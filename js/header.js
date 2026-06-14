@@ -4,10 +4,25 @@
     const headerContainer = document.getElementById('universal-header');
     if (!headerContainer) return;
 
-    function renderHeader() {
+    async function getDiscordUrl() {
+        if (window.BRAZUG_CONFIG && window.BRAZUG_CONFIG.DISCORD_URL) {
+            return window.BRAZUG_CONFIG.DISCORD_URL;
+        }
+        try {
+            const res = await fetch('/api/config');
+            const config = await res.json();
+            window.BRAZUG_CONFIG = config;
+            return config.DISCORD_URL;
+        } catch (e) {
+            return 'https://discord.gg/brazug';
+        }
+    }
+
+    async function renderHeader() {
         const token = localStorage.getItem("brazug_admin_token");
         const username = localStorage.getItem("brazug_admin_user");
         const role = localStorage.getItem("brazug_admin_role");
+        const discordUrl = await getDiscordUrl();
 
         let authItems = `<a href="/login.html" class="nav-link">Login</a>`;
 
@@ -40,7 +55,7 @@
                 <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
                     <span></span><span></span><span></span>
                 </button>
-                <a class="discord-btn" href="https://discord.gg/2Qt92YqjG" target="_blank" rel="noopener noreferrer">Discord</a>
+                <a class="discord-btn" href="${discordUrl}" target="_blank" rel="noopener noreferrer">Discord</a>
             </div>
         `;
 

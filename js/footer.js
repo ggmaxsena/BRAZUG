@@ -2,9 +2,25 @@
   "use strict";
 
   const GlobalFooter = {
-    init() {
+    async getDiscordUrl() {
+        if (window.BRAZUG_CONFIG && window.BRAZUG_CONFIG.DISCORD_URL) {
+            return window.BRAZUG_CONFIG.DISCORD_URL;
+        }
+        try {
+            const res = await fetch('/api/config');
+            const config = await res.json();
+            window.BRAZUG_CONFIG = config;
+            return config.DISCORD_URL;
+        } catch (e) {
+            return 'https://discord.gg/brazug';
+        }
+    },
+
+    async init() {
       // Check if footer already exists to avoid duplication
       if (document.querySelector('.brazug-footer')) return;
+
+      const discordUrl = await this.getDiscordUrl();
 
       const footerHtml = `
         <footer class="brazug-footer">
@@ -36,7 +52,7 @@
             <div class="footer-section">
               <h4>Comunidade</h4>
               <ul class="footer-links">
-                <li><a href="https://discord.gg/brazug" target="_blank">Discord Oficial</a></li>
+                <li><a href="${discordUrl}" target="_blank">Discord Oficial</a></li>
                 <li><a href="https://twitch.tv/directory/game/World%20of%20Warcraft" target="_blank">Streams da Guilda</a></li>
                 <li><a href="/register.html">Alistar-se</a></li>
               </ul>

@@ -235,6 +235,12 @@ app.use("/api/sales", salesRoutes.createSalesRouter());
 app.use("/api/spotify", spotifyRoutes.createSpotifyRouter());
 app.use("/api", characterRoutes.createCharacterRouter());
 
+app.get("/api/config", (req, res) => {
+  res.json({
+    DISCORD_URL: process.env.DISCORD_URL || "https://discord.gg/brazug"
+  });
+});
+
 async function start() {
   await db.init();
   app.listen(PORT, "0.0.0.0", () => {
