@@ -156,6 +156,12 @@ app.get("/vendas.html", (req, res) => res.sendFile(path.resolve(__dirname, "vend
 /* =========================================
    API
 ========================================= */
+app.get("/api/config", (req, res) => {
+  res.json({
+    DISCORD_URL: process.env.DISCORD_URL || "https://discord.gg/brazug"
+  });
+});
+
 app.get("/api/characters/search", async (req, res) => {
   const char = await db.getCharacterByName(req.query.name);
   if (!char) return res.status(404).json({ error: "Não encontrado" });
@@ -234,12 +240,6 @@ app.use("/api/admin", adminRoutes.createAdminRouter());
 app.use("/api/sales", salesRoutes.createSalesRouter());
 app.use("/api/spotify", spotifyRoutes.createSpotifyRouter());
 app.use("/api", characterRoutes.createCharacterRouter());
-
-app.get("/api/config", (req, res) => {
-  res.json({
-    DISCORD_URL: process.env.DISCORD_URL || "https://discord.gg/brazug"
-  });
-});
 
 async function start() {
   await db.init();
