@@ -6,8 +6,15 @@ const prismaClientSingleton = () => {
   const connectionString = process.env.DATABASE_URL
 
   // DEBUG LOGGING
-  console.log("DEBUG: DATABASE_URL loaded, length:", connectionString?.length);
-  console.log("DEBUG: DATABASE_URL preview:", connectionString?.substring(0, 30));
+  if (connectionString) {
+    const url = new URL(connectionString.replace('postgresql://', 'http://')); // URL parser trick
+    console.log("DEBUG: DATABASE_URL loaded, length:", connectionString.length);
+    console.log("DEBUG: DATABASE_URL hostname:", url.hostname);
+    console.log("DEBUG: DATABASE_URL port:", url.port);
+    console.log("DEBUG: DATABASE_URL database:", url.pathname);
+  } else {
+    console.error("DEBUG: DATABASE_URL IS MISSING!");
+  }
 
   if (!connectionString) {
     throw new Error('DATABASE_URL is not defined')
