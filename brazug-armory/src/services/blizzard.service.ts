@@ -36,20 +36,32 @@ class BlizzardService {
     }
 
     const auth = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
-    const response = await axios.post(
-      `https://${this.region}.battle.net/oauth/token`,
-      'grant_type=client_credentials',
-      {
-        headers: {
-          Authorization: `Basic ${auth}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      }
-    );
+    
+    // LOG PARA DEBUG
+    console.log(`[DEBUG-AUTH] URL Token: https://${this.region}.battle.net/oauth/token`);
+    console.log(`[DEBUG-AUTH] Header Auth (Basic): Basic ${auth}`);
 
-    this.accessToken = response.data.access_token;
-    this.tokenExpiresAt = Date.now() + response.data.expires_in * 1000;
-    return this.accessToken;
+    try {
+      const response = await axios.post(
+        `https://${this.region}.battle.net/oauth/token`,
+        'grant_type=client_credentials',
+        {
+          headers: {
+            Authorization: `Basic ${auth}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
+
+      this.accessToken = response.data.access_token;
+      this.tokenExpiresAt = Date.now() + response.data.expires_in * 1000;
+      return this.accessToken;
+    } catch (error: any) {
+      // LOG DETALHADO DO ERRO
+      console.error(`[DEBUG-AUTH-ERROR] Status: ${error.response?.status}`);
+      console.error(`[DEBUG-AUTH-ERROR] Data:`, error.response?.data);
+      throw error;
+    }
   }
 
   private async fetchFromBlizzard(path: string, namespaceSuffix: string = 'profile', singleNamespace: boolean = false) {
