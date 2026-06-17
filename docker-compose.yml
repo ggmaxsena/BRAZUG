@@ -2,25 +2,25 @@
 # Uso: docker compose up -d
 
 services:
-  website:
-    build: .
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-      # Use o IP da VPS ou o hostname 'host.docker.internal' (se configurado)
-      - DATABASE_URL=${DATABASE_URL}
-      - ARMORY_URL=http://armory:3001
-    depends_on:
-      armory:
-        condition: service_started
-    volumes:
-      - ./uploads:/uploads
-    # Permite que o container acesse o banco no localhost da VPS
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+#  website:
+#    build: .
+#    restart: unless-stopped
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      - NODE_ENV=production
+#      - PORT=3000
+#      # Use o IP da VPS ou o hostname 'host.docker.internal' (se configurado)
+#      - DATABASE_URL=${DATABASE_URL}
+#      - ARMORY_URL=http://armory:3001
+#    depends_on:
+#      armory:
+#        condition: service_started
+#    volumes:
+#      - ./uploads:/uploads
+#    # Permite que o container acesse o banco no localhost da VPS
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
 
   armory:
     build: ./brazug-armory
