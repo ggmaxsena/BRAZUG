@@ -71,30 +71,62 @@ app.get("/api/armory/full/:realm/:name", async (req, res) => {
     if (!char) {
       console.log(`[Armory] Character ${name}-${realm} not found. Attempting quick sync...`);
 
+      const realLocal = "http://localhost:3001";
+      const remoteUrl = "http://2.24.124.162:3001";
       let syncRes = null;
-      try {
+
+      async function performSync(url) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 30000); // 30s for Blizzard syncs
-        syncRes = await fetch(`${ARMORY_URL}/api/character/sync`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, realm, region: 'us' }),
-          signal: controller.signal
+        try {
+          const res = await fetch(`${url}/api/character/sync`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, realm, region: 'us' }),
+            signal: controller.signal
+          });
+          
+          if (!res.ok && res.status !== 404) {
+             let errorMsg = `HTTP ${res.status}`;
+             try {
+               const errData = await res.json();
+               errorMsg += ` - ${errData.error || errData.message || JSON.stringify(errData)}`;
+             } catch (e) {}
+             throw new Error(errorMsg);
+          }
+          return res;
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+
+      const urlsToTry = [...new Set([realLocal, ARMORY_URL, remoteUrl])];
+      let lastError = null;
+
+      for (const url of urlsToTry) {
+        try {
+          console.log(`[Armory] Trying sync at ${url}...`);
+          syncRes = await performSync(url);
+          // Se for 404 (Não encontrado na Blizzard), não adianta tentar outros servers
+          if (syncRes.status === 404) break;
+          // Se for OK, conseguimos sincronizar
+          if (syncRes.ok) break;
+        } catch (e) {
+          lastError = e;
+          console.warn(`[Armory] Sync failed at ${url}: ${e.message}`);
+        }
+      }
+
+      if (!syncRes || (!syncRes.ok && syncRes.status !== 404)) {
+        console.error(`[Armory] All sync attempts failed for ${name}-${realm}`);
+        return res.status(503).json({ 
+          error: "O servidor de sincronização está indisponível.", 
+          details: lastError?.message || "Erro desconhecido" 
         });
-        clearTimeout(timeout);
-      } catch (e) {
-        console.error(`[Armory] Sync request failed/timeout for ${name}-${realm}: ${e.message}`);
-        return res.status(503).json({ error: "O servidor de sincronização está demorando. Tente novamente em instantes." });
       }
 
       if (syncRes.status === 404) {
         return res.status(404).json({ error: "Personagem não encontrado na Blizzard." });
-      }
-
-      if (!syncRes.ok) {
-        const errorData = await syncRes.json().catch(() => ({}));
-        console.error(`[Armory] Sync backend error for ${name}-${realm}:`, syncRes.status, errorData);
-        return res.status(syncRes.status).json({ error: errorData.error || "Erro ao sincronizar com o Armory." });
       }
 
       char = await db.getFullArmoryCharacter(name, realm);
