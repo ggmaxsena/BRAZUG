@@ -16,6 +16,7 @@ const twitch = require("./lib/twitch.cjs");
 const spotifyRoutes = require("./lib/spotify-routes.cjs");
 
 const app = express();
+app.set('trust proxy', 1); // Trust the first hop (proxy)
 const PORT = process.env.PORT || 3000;
 const ARMORY_URL = process.env.ARMORY_URL || "http://2.24.124.162:3001";
 

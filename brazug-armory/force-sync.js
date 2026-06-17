@@ -26,7 +26,12 @@ async function getBlizzardToken() {
 }
 
 async function forceSync(name, realm) {
-  const connectionString = 'postgresql://brazug:BrazugUgjd8dO2Gmabs!25@2.24.124.162:5432/brazug';
+  // Parsing original URL to encode password
+  const originalUrl = 'postgresql://brazug:BrazugUgjd8dO2Gmabs!25@2.24.124.162:5432/brazug';
+  const urlObj = new URL(originalUrl);
+  const password = encodeURIComponent(urlObj.password);
+  const connectionString = `postgresql://${urlObj.username}:${password}@${urlObj.host}${urlObj.pathname}`;
+  
   const pool = new pg.Pool({ connectionString });
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
