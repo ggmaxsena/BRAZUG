@@ -13,19 +13,12 @@ const prismaClientSingleton = () => {
     throw new Error('DATABASE_URL is not defined')
   }
 
-  // Parse connection string manually to handle special characters in password
-  const url = new URL(connectionString);
-  // Encode the password specifically before creating the pool configuration
-  const password = encodeURIComponent(url.password);
-
+  // Establish the connection explicitly with the pg driver
   const pool = new pg.Pool({
-    user: url.username,
-    password: password,
-    host: url.hostname,
-    port: parseInt(url.port || '5432'),
-    database: url.pathname.slice(1),
+    connectionString: connectionString,
   })
-  
+
+  // The PrismaPg adapter will use the established pool, avoiding Prisma's own parsing.
   const adapter = new PrismaPg(pool)
 
   return new PrismaClient({ adapter })
