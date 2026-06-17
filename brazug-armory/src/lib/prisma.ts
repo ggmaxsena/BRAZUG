@@ -15,9 +15,12 @@ const prismaClientSingleton = () => {
 
   // Parse connection string manually to handle special characters in password
   const url = new URL(connectionString);
+  // Encode the password specifically before creating the pool configuration
+  const password = encodeURIComponent(url.password);
+
   const pool = new pg.Pool({
     user: url.username,
-    password: url.password,
+    password: password,
     host: url.hostname,
     port: parseInt(url.port || '5432'),
     database: url.pathname.slice(1),
