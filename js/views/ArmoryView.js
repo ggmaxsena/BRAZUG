@@ -48,12 +48,18 @@
         const iconData = item?.item_icon || item?.icon;
         const itemId = item?.item_id || item?.itemId;
 
-        let iconUrl = null;
-        if (iconData) {
-          // Use local proxy for icons
-          const iconName = iconData.includes('.') ? iconData : `${iconData}.jpg`;
-          iconUrl = iconData.startsWith('http') ? iconData : `/assets/icons/${iconName}`;
-        }
+        // Cascade: local proxy → classic CDN → TBC CDN → question mark
+        const iconBase = iconData ? (iconData.replace(/\.jpg$/i,'')) : null;
+        const iconUrl1 = iconBase ? `/assets/icons/${iconBase}.jpg` : null;
+        const iconUrl2 = iconBase ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${iconBase}.jpg` : null;
+        const iconUrl3 = iconBase ? `https://render.worldofwarcraft.com/us/icons/56/${iconBase}.jpg` : null;
+        const iconFallback = 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg';
+
+        const imgTag = iconBase
+          ? `<img src="${iconUrl1}"
+               onerror="this.src='${iconUrl2}'; this.onerror=function(){this.src='${iconUrl3}'; this.onerror=function(){this.src='${iconFallback}';}};"
+             >`
+          : `<span style="font-size:8px; color:#222;">${slot.substring(0,3)}</span>`;
 
         return `
           <div class="gear-slot-item"
@@ -61,7 +67,7 @@
                onmouseleave="ArmoryController.handleMouseLeave()"
                onclick="${itemId ? `window.open('https://www.wowhead.com/classic/item=${itemId}', '_blank')` : ''}">
               <div class="gear-icon-box ${quality.toLowerCase()}">
-                  ${iconUrl ? `<img src="${iconUrl}" onerror="this.style.opacity='0.5'">` : `<span style="font-size:8px; color:#222;">${slot.substring(0,3)}</span>`}
+                  ${imgTag}
               </div>
               <div class="gear-text-box">
                   <div class="gear-slot-label">${slotNames[slot] || slot}</div>
@@ -257,33 +263,36 @@
               }
           }
         } else {
-          // List Fallback for trees with talents but no coordinates
-          talentsHtml = talents.map(t => {
+          // List Fallback — only show invested talents, cleaner display
+          const activeTalents = talents.filter(t => parseInt(t.talent_rank || 0) > 0);
+          if (activeTalents.length === 0) {
+            talentsHtml = `<div style="color:#555; font-size:11px; font-style:italic; padding:20px; text-align:center;">Nenhum ponto investido nesta árvore.</div>`;
+          } else {
+            talentsHtml = activeTalents.map(t => {
               const spellId = t.spell_tooltip?.spell?.id;
-              const icon = t.talent?.icon ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${t.talent.icon}.jpg` : '/assets/branding/contentbra.png';
+              const iconBase = t.talent?.icon || '';
+              const icon1 = iconBase ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${iconBase}.jpg` : '/assets/branding/contentbra.png';
+              const icon2 = iconBase ? `https://render.worldofwarcraft.com/us/icons/56/${iconBase}.jpg` : '/assets/branding/contentbra.png';
               const rank = parseInt(t.talent_rank || 0);
               const maxRank = t.talent?.max_rank || 5;
               const name = t.talent?.name || t.spell_tooltip?.spell?.name || 'Talento';
-              const description = t.spell_tooltip?.spell?.description || 'Descrição não disponível.';
               const isFullySpent = rank >= maxRank;
 
               return `
-                  <div class="talent-list-row" title="${name} (${rank}/${maxRank})"
-                       onmouseenter="this.style.background='rgba(200, 181, 128, 0.15)'; ArmoryController.handleMouseEnter(event, ${spellId}, 'spell')"
-                       onmouseleave="this.style.background=''; ArmoryController.handleMouseLeave()">
-                      <div class="talent-icon-wrap" style="width:44px; height:44px; position:relative;">
-                          <img src="${icon}" class="talent-icon" style="width:100%; height:100%; border-radius:4px;" onerror="this.src='/assets/branding/contentbra.png'">
-                          <div style="position:absolute; bottom:0; right:0; background:rgba(0,0,0,0.85); color:#ffd100; font-size:10px; font-weight:bold; padding:2px 4px; border-radius:2px; min-width:18px; text-align:center;">${rank}</div>
+                  <div class="talent-list-row"
+                       onmouseenter="ArmoryController.handleMouseEnter(event, ${spellId || 0}, 'spell')"
+                       onmouseleave="ArmoryController.handleMouseLeave()">
+                      <div class="talent-icon-wrap" style="width:40px; height:40px; flex-shrink:0; position:relative; border-radius:4px; overflow:hidden; border:1px solid ${isFullySpent ? '#ffd100' : '#3a2a10'};">
+                          <img src="${icon1}" class="talent-icon" style="width:100%; height:100%;" onerror="this.src='${icon2}'; this.onerror=null;">
+                          <div style="position:absolute; bottom:0; right:0; background:rgba(0,0,0,0.85); color:${isFullySpent ? '#ffd100' : '#c8b580'}; font-size:9px; font-weight:bold; padding:1px 3px; min-width:16px; text-align:center;">${rank}</div>
                       </div>
-                      <div style="display:flex; flex-direction:column; gap:4px;">
-                          <strong style="font-size:14px; color:${isFullySpent ? '#ffd100' : rank > 0 ? '#c8b580' : '#8a7050'}">${name}</strong>
-                          <span style="color:#999; font-size:11px; line-height:1.3;">${description}</span>
-                      </div>
-                      <div style="text-align:right; display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
-                          <div style="font-size:12px; font-weight:bold; color:${isFullySpent ? '#ffd100' : rank > 0 ? '#c8972a' : '#555'}">${rank}/${maxRank}</div>
+                      <div style="flex:1; min-width:0;">
+                          <div style="font-size:12px; font-weight:600; color:${isFullySpent ? '#ffd100' : '#c8b580'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
+                          <div style="font-size:10px; color:#666;">${rank} / ${maxRank}</div>
                       </div>
                   </div>`;
-          }).join('');
+            }).join('');
+          }
         }
 
         return `
@@ -333,14 +342,20 @@
         const item = plannerItems[slot];
         const color = item?.quality ? (rarityColors[item.quality] || '#666') : '#2a2018';
         const iconData = item?.icon;
-        let iconUrl = null;
-        if (iconData) {
-          const iconName = iconData.includes('.') ? iconData : `${iconData}.jpg`;
-          iconUrl = iconData.startsWith('http') ? iconData : `/assets/icons/${iconName}`;
-        }
-        const fallbackIcon = `https://wow.zamimg.com/images/wow/icons/large/${iconData || 'inv_misc_questionmark'}.jpg`;
+
+        // Cascade: local → classic CDN → US CDN → question mark
+        const iconBase = iconData ? iconData.replace(/\.jpg$/i, '') : null;
+        const iconUrl1 = iconBase ? `/assets/icons/${iconBase}.jpg` : null;
+        const iconUrl2 = iconBase ? `https://render.worldofwarcraft.com/classic1x-us/icons/56/${iconBase}.jpg` : null;
+        const iconUrl3 = iconBase ? `https://render.worldofwarcraft.com/us/icons/56/${iconBase}.jpg` : null;
+        const iconFallback = 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg';
+
         const slotLabel = slotNames[slot] || slot;
         const qualLabel = item ? (qualityLabels[item.quality] || item.quality || '') : 'Vazio';
+
+        const imgTag = iconBase
+          ? `<img src="${iconUrl1}" onerror="this.src='${iconUrl2}'; this.onerror=function(){this.src='${iconUrl3}'; this.onerror=function(){this.src='${iconFallback}';}};">`
+          : `<span class="planner-icon-empty">+</span>`;
 
         return `
           <div class="planner-slot-row ${item ? 'filled' : ''}" data-slot="${slot}"
@@ -349,9 +364,7 @@
                onmouseenter="${item ? `ArmoryController.handleMouseEnter(event, ${item.itemId})` : ''}"
                onmouseleave="ArmoryController.handleMouseLeave()">
             <div class="planner-icon" style="${item ? `border-color: ${color}; box-shadow: 0 0 8px ${color}44;` : ''}">
-              ${iconUrl
-                ? `<img src="${iconUrl}" onerror="this.onerror=null;this.src='${fallbackIcon}';">`
-                : `<span class="planner-icon-empty">+</span>`}
+              ${imgTag}
             </div>
             <div class="planner-slot-info">
               <div class="planner-slot-label">${slotLabel}</div>
