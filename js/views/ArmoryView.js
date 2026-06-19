@@ -515,15 +515,38 @@
           return;
       }
 
-      resultsEl.innerHTML = items.map(item => `
-          <div class="search-item" onclick="ArmoryController.selectItem(${item.id})">
-              <img src="https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg" style="width:32px; height:32px; border-radius:4px;">
-              <div>
-                  <div style="font-weight:700; color:${rarityColors[item.quality] || '#fff'}">${item.name}</div>
-                  <div style="font-size:10px; color:#555;">${item.quality}</div>
+      resultsEl.innerHTML = items.map(item => {
+          const data = item.tooltip_data || {};
+          let statsHtml = '';
+          
+          if (data.level) {
+              statsHtml += `<span style="color:#ffd100; margin-right:6px;" title="Item Level">iLvl ${data.level.value || data.level}</span>`;
+          }
+          if (data.armor) {
+              statsHtml += `<span style="color:#ddd; margin-right:6px;">${data.armor.display.display_string}</span>`;
+          }
+          if (data.weapon && data.weapon.dps) {
+              statsHtml += `<span style="color:#ddd; margin-right:6px;">${data.weapon.dps.display_string}</span>`;
+          }
+          if (data.stats) {
+              const topStats = data.stats.slice(0, 3);
+              topStats.forEach(s => {
+                  statsHtml += `<span style="color:#1eff00; margin-right:6px;">${s.display.display_string}</span>`;
+              });
+          }
+
+          return `
+          <div class="search-item" onclick="ArmoryController.selectItem(${item.id})" style="display: flex; gap: 10px; padding: 10px; border-bottom: 1px solid #222; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='transparent'">
+              <img src="https://render.worldofwarcraft.com/classic1x-us/icons/56/${item.icon}.jpg" style="width:36px; height:36px; border-radius:4px; border: 1px solid ${rarityColors[item.quality] || '#444'};">
+              <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                  <div style="font-weight:bold; font-size:13px; color:${rarityColors[item.quality] || '#fff'}">${item.name}</div>
+                  <div style="font-size:10px; margin-top:4px; display:flex; flex-wrap:wrap; line-height: 1.4;">
+                      ${statsHtml || '<span style="color:#555;">Sem atributos extras</span>'}
+                  </div>
               </div>
           </div>
-      `).join('');
+          `;
+      }).join('');
     },
 
     renderTooltip(containerId, item, rarityColors) {

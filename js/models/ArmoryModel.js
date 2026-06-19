@@ -15,8 +15,10 @@
       return await res.json();
     },
 
-    async searchItems(query) {
-      const res = await fetch(`/api/armory/items?q=${encodeURIComponent(query)}`);
+    async searchItems(query, slot = null) {
+      let url = `/api/armory/items?q=${encodeURIComponent(query)}`;
+      if (slot) url += `&slot=${encodeURIComponent(slot)}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Erro ao buscar itens");
       return await res.json();
     },

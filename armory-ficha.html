@@ -178,30 +178,61 @@
           </div>
 
           <aside>
-            <div class="panel">
-              <div class="corner corner-tl"></div>
-              <div class="corner corner-tr"></div>
-              <div class="corner corner-bl"></div>
-              <div class="corner corner-br"></div>
-              <div class="panel-title">Atributos Simulados</div>
-              <div id="planner-stats-container" style="padding: 15px"></div>
+            <div id="minmax-default-sidebar">
+              <div class="panel">
+                <div class="corner corner-tl"></div>
+                <div class="corner corner-tr"></div>
+                <div class="corner corner-bl"></div>
+                <div class="corner corner-br"></div>
+                <div class="panel-title">Atributos Simulados</div>
+                <div id="planner-stats-container" style="padding: 15px"></div>
+              </div>
+
+              <div class="panel" style="margin-top: 20px;">
+                <div class="corner corner-tl"></div>
+                <div class="corner corner-tr"></div>
+                <div class="corner corner-bl"></div>
+                <div class="corner corner-br"></div>
+                <div class="panel-title">Controles</div>
+                <div style="padding: 20px">
+                  <button
+                    class="btn-search"
+                    style="width: 100%; margin-bottom: 10px"
+                    onclick="ArmoryController.resetPlannerToCurrent()"
+                  >
+                    Resetar
+                  </button>
+                  <button class="btn-search" style="width: 100%" onclick="ArmoryController.clearPlanner()">Limpar</button>
+                </div>
+              </div>
             </div>
 
-            <div class="panel">
+            <div id="minmax-search-sidebar" style="display:none;" class="panel">
               <div class="corner corner-tl"></div>
               <div class="corner corner-tr"></div>
               <div class="corner corner-bl"></div>
               <div class="corner corner-br"></div>
-              <div class="panel-title">Controles</div>
-              <div style="padding: 20px">
+              <div class="panel-title" id="search-title">Buscar Item</div>
+              <div style="padding: 15px;">
                 <button
-                  class="btn-search"
-                  style="width: 100%; margin-bottom: 10px"
-                  onclick="ArmoryController.resetPlannerToCurrent()"
+                  onclick="ArmoryController.closeSearch()"
+                  style="width: 100%; margin-bottom: 15px; padding: 6px; background: none; border: 1px solid #444; color: #999; cursor: pointer; text-transform: uppercase; font-size: 10px; letter-spacing: 1px;"
                 >
-                  Resetar
+                  ← Voltar aos Atributos
                 </button>
-                <button class="btn-search" style="width: 100%" onclick="ArmoryController.clearPlanner()">Limpar</button>
+                <div class="search-input-wrap">
+                  <input
+                    type="text"
+                    id="search-input"
+                    class="search-input"
+                    placeholder="Nome do item..."
+                    onkeydown="if (event.key === 'Enter') ArmoryController.doSearch();"
+                  />
+                  <button class="search-btn" onclick="ArmoryController.doSearch()">Buscar</button>
+                </div>
+                <div class="search-results" id="search-results" style="max-height: 500px; overflow-y: auto; margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">
+                  <div style="text-align: center; color: #444; padding: 20px;">Digite um nome e busque.</div>
+                </div>
               </div>
             </div>
           </aside>
@@ -281,40 +312,7 @@
       </div>
     </div>
 
-    <!-- Search Modal for Planner -->
-    <div
-      class="search-overlay"
-      id="search-overlay"
-      onclick="if (event.target.id === 'search-overlay') ArmoryController.closeSearch();"
-    >
-      <div class="search-modal">
-        <div class="search-header">
-          <div style="display: flex; justify-content: space-between; align-items: center">
-            <h3 id="search-title" style="margin: 0; font-family: 'Cinzel'; color: var(--gold)">Buscar Item</h3>
-            <button
-              onclick="ArmoryController.closeSearch()"
-              style="background: none; border: none; color: #666; cursor: pointer; font-size: 20px"
-            >
-              ✕
-            </button>
-          </div>
-          <div class="search-input-wrap">
-            <input
-              type="text"
-              id="search-input"
-              class="search-input"
-              placeholder="Digite o nome do item..."
-              onkeydown="if (event.key === 'Enter') ArmoryController.doSearch();"
-            />
-            <button class="search-btn" onclick="ArmoryController.doSearch()">Buscar</button>
-          </div>
-        </div>
-        <div class="search-results" id="search-results">
-          <div style="text-align: center; padding: 40px; color: #444">Digite um nome e clique em buscar.</div>
-        </div>
-      </div>
-    </div>
-
+    <!-- Search UI has been moved inline to tab-min-max -->
     <!-- ===================== SETS FLOATING PANEL ===================== -->
     <div class="sets-panel" id="sets-panel">
       <div class="sets-panel-header">

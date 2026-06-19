@@ -206,6 +206,16 @@
               activeTab.style.display = 'grid';
           }
       }
+
+      // Handle Sets FAB visibility
+      const setsFab = document.querySelector('.sets-fab');
+      const setsPanel = document.getElementById('sets-panel');
+      if (setsFab) {
+        setsFab.style.display = (tabId === 'min-max') ? 'block' : 'none';
+      }
+      if (setsPanel && tabId !== 'min-max') {
+        setsPanel.classList.remove('open');
+      }
     },
 
     // ===================== PLANNER (MIN-MAX) =====================
@@ -281,13 +291,30 @@
 
     openSearch(slot) {
       this._activeSearchSlot = slot;
-      document.getElementById('search-title').textContent = `Slot: ${this.slotNames[slot]}`;
-      document.getElementById('search-overlay').classList.add('open');
-      document.getElementById('search-input').focus();
+      document.getElementById('search-title').textContent = `Buscar: ${this.slotNames[slot]}`;
+      
+      const defaultSidebar = document.getElementById('minmax-default-sidebar');
+      const searchSidebar = document.getElementById('minmax-search-sidebar');
+      
+      if (defaultSidebar) defaultSidebar.style.display = 'none';
+      if (searchSidebar) searchSidebar.style.display = 'block';
+      
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      
+      const resultsEl = document.getElementById('search-results');
+      if (resultsEl) resultsEl.innerHTML = '<div style="text-align: center; color: #444; padding: 20px;">Digite um nome e busque.</div>';
     },
 
     closeSearch() {
-      document.getElementById('search-overlay').classList.remove('open');
+      const defaultSidebar = document.getElementById('minmax-default-sidebar');
+      const searchSidebar = document.getElementById('minmax-search-sidebar');
+      
+      if (defaultSidebar) defaultSidebar.style.display = 'block';
+      if (searchSidebar) searchSidebar.style.display = 'none';
     },
 
     async doSearch() {
@@ -298,7 +325,7 @@
       resultsEl.innerHTML = '<div style="text-align:center; padding:40px;">⏳ Buscando...</div>';
 
       try {
-          const items = await ArmoryModel.searchItems(q);
+          const items = await ArmoryModel.searchItems(q, this._activeSearchSlot);
           ArmoryView.renderSearchResults('search-results', items, this.rarityColors);
       } catch (e) {
           resultsEl.innerHTML = '<div style="text-align:center; padding:40px; color:var(--horde-red);">Erro ao buscar itens.</div>';
