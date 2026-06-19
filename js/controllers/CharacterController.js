@@ -53,16 +53,17 @@
             let primaryCount = 0;
             data.professions.forEach((p) => {
                 const name = p.name.toLowerCase();
+                const sp = p.skillPoints !== undefined ? p.skillPoints : p.skill_points;
                 if (name.includes("culinária") || name.includes("cooking")) {
-                    document.getElementById("prof_cooking_lvl").value = p.skillPoints;
+                    document.getElementById("prof_cooking_lvl").value = sp;
                 } else if (name.includes("primeiros socorros") || name.includes("first aid")) {
-                    document.getElementById("prof_aid_lvl").value = p.skillPoints;
+                    document.getElementById("prof_aid_lvl").value = sp;
                 } else if (name.includes("pesca") || name.includes("fishing")) {
-                    document.getElementById("prof_fishing_lvl").value = p.skillPoints;
+                    document.getElementById("prof_fishing_lvl").value = sp;
                 } else if (primaryCount < 2) {
                     primaryCount++;
                     document.getElementById(`prof${primaryCount}_name`).value = p.name;
-                    document.getElementById(`prof${primaryCount}_lvl`).value = p.skillPoints;
+                    document.getElementById(`prof${primaryCount}_lvl`).value = sp;
                 }
             });
             

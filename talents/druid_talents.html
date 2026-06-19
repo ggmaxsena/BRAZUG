@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Druida — Talentos | WoW Classic</title>
+<!--
+  WOWHEAD TOOLTIPS — descomentar no projeto pai:
+  <script>var whTooltips={colorLinks:true,iconizeLinks:true,renameLinks:true,domain:'classic'};</script>
+  <script src="https://wow.zamimg.com/js/tooltips.js"></script>
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:     #06090a;
+  --panel:  #0c1009;
+  --border: #1e2e14;
+  --border2:#2e4820;
+  --gold:   #f7c14d;
+  --gold2:  #c8972a;
+  --gold3:  #7a5a1a;
+  --text:   #bccca0;
+  --muted:  #5a7840;
+  --dim:    #121a0c;
+
+  --n:  44px;
+  --cg: 16px;
+  --rg: 28px;
+  --cs: calc(var(--n) + var(--cg));
+  --rs: calc(var(--n) + var(--rg));
+}
+
+body{background:var(--bg);color:var(--text);font-family:'Cinzel',serif;padding:20px;min-width:860px}
+
+/* ── HEADER ──────────────────────────────────────────── */
+.dr-header{
+  display:flex;align-items:center;gap:14px;
+  padding-bottom:14px;margin-bottom:18px;
+  border-bottom:1px solid var(--border2);
+  position:relative;
+}
+.dr-header::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,#7755dd 20%,#dd7722 50%,#44bb44 80%,transparent);
+}
+.dr-class-icon{width:52px;height:52px;border:2px solid var(--border2);image-rendering:pixelated}
+.dr-title{font-size:24px;font-weight:900;color:var(--gold);letter-spacing:2px}
+.dr-sub  {font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px}
+
+.dr-pts-wrap{margin-left:auto;text-align:right}
+.dr-pts-total{font-size:28px;font-weight:900;color:var(--gold);line-height:1}
+.dr-pts-total span{font-size:16px;color:var(--muted)}
+.dr-pts-label{font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:2px}
+.dr-pts-bar-wrap{height:4px;width:180px;background:var(--dim);border:1px solid var(--border);margin-top:4px}
+.dr-pts-bar{height:100%;background:linear-gradient(90deg,#7755dd,#dd7722,#44bb44);transition:width .2s}
+
+.dr-reset-btn{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;padding:6px 16px;background:var(--dim);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s;margin-left:16px}
+.dr-reset-btn:hover{border-color:#44bb44;color:var(--gold)}
+
+/* ── SPEC BADGES ─────────────────────────────────────── */
+.spec-badges{display:flex;gap:8px;margin-left:16px}
+.spec-badge{padding:4px 12px;font-size:10px;letter-spacing:1px;border:1px solid var(--border);color:var(--muted);transition:all .2s}
+.spec-badge.active{border-color:var(--gold2);color:var(--gold)}
+
+/* ── TREES ───────────────────────────────────────────── */
+.dr-trees{display:flex;gap:20px;align-items:flex-start}
+
+/* ── TREE PANEL ──────────────────────────────────────── */
+.dr-tree{flex:1;background:var(--panel);border:1px solid var(--border);position:relative}
+.dr-tree::before,.dr-tree::after{content:'';position:absolute;width:10px;height:10px;border-color:var(--border2);border-style:solid;pointer-events:none;z-index:10}
+.dr-tree::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.dr-tree::after {bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.corner-tr,.corner-bl{position:absolute;width:10px;height:10px;border-color:var(--border2);border-style:solid;pointer-events:none;z-index:10}
+.corner-tr{top:-1px;right:-1px;border-width:2px 2px 0 0}
+.corner-bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+
+/* ── TREE LABEL ──────────────────────────────────────── */
+.tree-label{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 8px;border-bottom:1px solid var(--border)}
+.tree-label-name{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.tree-label-pts{font-size:13px;font-weight:900;color:var(--dim);letter-spacing:1px;transition:color .2s}
+.tree-label-pts.has{color:var(--gold)}
+.tree-pip-row{display:flex;gap:3px;margin-top:4px}
+.tier-pip{width:18px;height:3px;background:var(--dim);transition:background .25s}
+
+/* ── CANVAS ──────────────────────────────────────────── */
+.tree-canvas{position:relative;padding:14px;overflow:hidden}
+.tree-bg-art{position:absolute;width:220px;height:220px;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.042;image-rendering:pixelated;pointer-events:none;z-index:0}
+.tier-div{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--dim) 30%,var(--dim) 70%,transparent);pointer-events:none;z-index:1}
+.tier-div.unlocked{opacity:.65}
+.tier-req{position:absolute;right:0;font-size:8px;color:var(--dim);letter-spacing:1px;font-family:'Cinzel',serif;pointer-events:none;z-index:2;transition:color .2s}
+.tier-req.unlocked{color:var(--border2)}
+
+/* ── SVG ARROWS ──────────────────────────────────────── */
+.arrows-svg{position:absolute;top:14px;left:14px;pointer-events:none;z-index:2;overflow:visible}
+.arrow-path{fill:none;stroke-width:1.5;stroke:var(--dim);stroke-dasharray:4 3;transition:stroke .25s,stroke-dasharray .25s}
+.arrow-path.prereq-met{stroke-dasharray:none}
+
+/* ── NODE BASE ───────────────────────────────────────── */
+.tn{position:absolute;width:var(--n);height:var(--n);z-index:3;cursor:pointer;transition:transform .1s}
+.tn:hover{transform:scale(1.09);z-index:20}
+.tn-frame{position:absolute;inset:0;border:2px solid var(--border);background:#060a05;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.tn img{width:100%;height:100%;display:block;image-rendering:pixelated;filter:grayscale(100%) brightness(.4);transition:filter .2s}
+.tn-rank{position:absolute;bottom:-1px;right:-1px;font-size:8px;font-family:sans-serif;font-weight:700;background:rgba(0,0,0,.92);color:var(--muted);padding:0 3px;line-height:12px;z-index:4;pointer-events:none;border-top:1px solid var(--border);border-left:1px solid var(--border);transition:color .2s}
+
+/* ── NODE STATES ─────────────────────────────────────── */
+.tn.locked{cursor:not-allowed;opacity:.2}
+.tn.locked:hover{transform:none}
+.tn.available .tn-frame{border-color:var(--border2)}
+.tn.available img{filter:grayscale(50%) brightness(.6)}
+.tn.partial .tn-frame{border-color:var(--tree-accent,#44bb44);box-shadow:inset 0 0 8px rgba(68,187,68,.12)}
+.tn.partial img{filter:grayscale(10%) brightness(.9)}
+.tn.partial .tn-rank{color:#aaddaa}
+.tn.maxed .tn-frame{border-color:var(--tree-accent,#44bb44);box-shadow:0 0 10px rgba(68,187,68,.38),inset 0 0 8px rgba(68,187,68,.16)}
+.tn.maxed img{filter:grayscale(0%) brightness(1.06) saturate(1.12)}
+.tn.maxed .tn-rank{color:var(--gold);background:rgba(0,0,0,.95)}
+/* spec talent */
+.tn.spec-talent .tn-frame{border-color:var(--gold);box-shadow:0 0 18px rgba(119,255,119,.3),inset 0 0 12px rgba(247,193,77,.18)}
+.tn.spec-talent img{filter:brightness(1.12) saturate(1.22) drop-shadow(0 0 6px rgba(100,220,100,.4))}
+.tn.spec-talent .tn-rank{color:var(--gold);border-color:var(--gold2)}
+.tn.spec-talent::before,.tn.spec-talent::after{content:'';position:absolute;width:6px;height:6px;background:var(--gold);transform:rotate(45deg);z-index:5;pointer-events:none}
+.tn.spec-talent::before{top:-3px;left:calc(50% - 3px)}
+.tn.spec-talent::after {bottom:-3px;left:calc(50% - 3px)}
+@keyframes spec-glow-dr{
+  0%,100%{box-shadow:0 0 18px rgba(119,255,119,.3),inset 0 0 12px rgba(247,193,77,.18)}
+  50%    {box-shadow:0 0 30px rgba(119,255,119,.6),inset 0 0 20px rgba(247,193,77,.3)}
+}
+.tn.spec-talent.maxed .tn-frame{animation:spec-glow-dr 2.2s ease-in-out infinite}
+.tn.prereq-blocked .tn-frame::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.55);border:1px solid #6b1a1a}
+
+/* ── TOOLTIP ─────────────────────────────────────────── */
+.dr-tooltip{position:fixed;background:linear-gradient(180deg,#101a0c 0%,#090e08 100%);border:1px solid #2e4820;padding:10px 14px;max-width:270px;pointer-events:none;z-index:9999;display:none;box-shadow:0 4px 24px rgba(0,0,0,.9),0 0 20px rgba(68,187,68,.08)}
+.dr-tooltip::before{content:'';position:absolute;top:-1px;left:-1px;width:6px;height:6px;border-top:2px solid #44bb44;border-left:2px solid #44bb44}
+.dr-tooltip::after {content:'';position:absolute;bottom:-1px;right:-1px;width:6px;height:6px;border-bottom:2px solid #44bb44;border-right:2px solid #44bb44}
+.tt-name{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:4px}
+.tt-rank{font-size:10px;color:#aaddaa;margin-bottom:6px;letter-spacing:1px}
+.tt-desc{font-size:11px;color:var(--text);line-height:1.65;font-family:sans-serif;font-style:italic}
+.tt-hint{font-size:10px;color:var(--muted);margin-top:6px;font-family:sans-serif;border-top:1px solid var(--border);padding-top:5px}
+
+/* ── FOOTER ──────────────────────────────────────────── */
+.dr-footer{margin-top:18px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap}
+.legend{display:flex;gap:16px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);letter-spacing:1px}
+.leg-dot{width:14px;height:14px;border:2px solid var(--border);background:#060a05;flex-shrink:0}
+.leg-dot.available{border-color:var(--border2)}
+.leg-dot.partial  {border-color:#44bb44;background:var(--panel)}
+.leg-dot.maxed    {border-color:#44bb44;box-shadow:0 0 5px rgba(68,187,68,.45)}
+.leg-dot.spec     {border-color:var(--gold);box-shadow:0 0 8px rgba(247,193,77,.5)}
+.leg-dot.locked   {opacity:.2}
+
+.api-note{margin-top:16px;padding:10px 14px;background:#0a0e08;border:1px solid var(--dim);border-left:3px solid #2e4820;font-size:9px;color:var(--muted);line-height:1.9;letter-spacing:.5px}
+.api-note code{color:#aaddaa;font-family:monospace;font-size:10px}
+</style>
+</head>
+<body>
+
+<div class="dr-tooltip" id="dr-tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-rank" id="tt-rank"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+  <div class="tt-hint" id="tt-hint"></div>
+</div>
+
+<div class="dr-header">
+  <img class="dr-class-icon"
+       src="https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg"
+       alt="Druida" onerror="this.style.display='none'">
+  <div>
+    <div class="dr-title">Druida</div>
+    <div class="dr-sub">WoW CLASSIC 1.12 · 51 PONTOS DE TALENTO</div>
+  </div>
+  <div class="spec-badges" id="spec-badges"></div>
+  <div class="dr-pts-wrap">
+    <div class="dr-pts-total"><span id="pts-spent">0</span><span> / 51</span></div>
+    <div class="dr-pts-label">PONTOS GASTOS</div>
+    <div class="dr-pts-bar-wrap"><div class="dr-pts-bar" id="pts-bar" style="width:0%"></div></div>
+  </div>
+  <button class="dr-reset-btn" onclick="DruidTree.reset()">↺ Resetar</button>
+</div>
+
+<div class="dr-trees" id="dr-trees"></div>
+
+<div class="dr-footer">
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot locked"></div>Tier bloqueado</div>
+    <div class="leg-item"><div class="leg-dot available"></div>Disponível</div>
+    <div class="leg-item"><div class="leg-dot partial"></div>Parcial</div>
+    <div class="leg-item"><div class="leg-dot maxed"></div>Máximo</div>
+    <div class="leg-item"><div class="leg-dot spec"></div>Talento Final</div>
+  </div>
+</div>
+
+<div class="api-note">
+  <strong style="color:#aaddaa">BACKEND API</strong> —
+  <code>DruidTree.load({ balance:[[r,…],…], feral:[[…]], restoration:[[…]] })</code>
+  · Sub-array = linha; número = rank (null = célula vazia).
+  · Click-esquerdo aloca · Click-direito remove · Tooltips via <code>whTooltips</code>.
+</div>
+
+<script>
+/* ─── GRID ───────────────────────────────────────────── */
+const N=44,CG=16,RG=28,CS=N+CG,RS=N+RG,PAD=14;
+const COLS=4,ROWS=7,MAX_PTS=51,PTS_PER_TIER=5;
+const CDN='https://wow.zamimg.com/images/wow/icons/medium';
+const WH='https://www.wowhead.com/classic/spell=';
+const CANVAS_W=COLS*CS-CG+PAD*2;
+const CANVAS_H=ROWS*RS-RG+PAD*2;
+const nodeX=c=>c*CS, nodeY=r=>r*RS, centX=c=>nodeX(c)+N/2;
+
+/* ─── DATA ───────────────────────────────────────────────────────────────
+   Fonte: WoW Classic 1.12.1 Druid talent trees
+──────────────────────────────────────────────────────────────────────── */
+const TREES_DATA = {
+
+  /* ══════════════════════════════════════════════════════════
+     EQUILÍBRIO — Lua, estrelas, forma Lua-Kin
+  ══════════════════════════════════════════════════════════ */
+  balance:{
+    label:'Equilíbrio',
+    accent:'#8866ee',
+    bgIcon:'spell_nature_starfall',
+    talents:[
+      /* Tier 1 */
+      { row:0,col:0, spellId:16836, icon:'spell_nature_lightning',
+        name:'Improved Wrath',             maxRank:5, rank:0,
+        desc:'Reduces the cast time of your Wrath spell by 0.1 sec per rank.' },
+      { row:0,col:1, spellId:16689, icon:'spell_nature_stranglevines',
+        name:"Nature's Grasp",             maxRank:1, rank:0,
+        desc:'While active, any time an enemy strikes the caster, they have a 35% chance to become entangled in roots for 9 sec. Only one target can be affected at a time. Lasts 45 sec.' },
+      /* Tier 2 */
+      { row:1,col:0, spellId:16695, icon:'spell_nature_stranglevines',
+        name:"Improved Nature's Grasp",    maxRank:4, rank:0,
+        prereq:{row:0,col:1},
+        desc:'Increases the chance for your Nature\'s Grasp to entangle an enemy by 15% per rank.' },
+      { row:1,col:1, spellId:16864, icon:'spell_nature_crystalball',
+        name:'Omen of Clarity',            maxRank:1, rank:0,
+        desc:'Imbues the caster with natural energy. Each of the caster\'s melee attacks has a chance of causing a Clearcasting state. The Clearcasting state reduces the Mana cost of your next damage or healing spell by 100%.' },
+      { row:1,col:2, spellId:16843, icon:'spell_nature_wispsplode',
+        name:"Nature's Reach",             maxRank:2, rank:0,
+        desc:'Increases the range of your Wrath, Starfire, Moonfire, Entangling Roots, and Faerie Fire spells by 10% per rank, and reduces the threat caused by these spells by 15% per rank.' },
+      /* Tier 3 */
+      { row:2,col:0, spellId:16849, icon:'ability_criticalstrike',
+        name:'Vengeance',                  maxRank:5, rank:0,
+        desc:'Increases the critical strike damage bonus of your Starfire, Moonfire, and Wrath spells by 20% per rank.' },
+      { row:2,col:2, spellId:16856, icon:'spell_nature_starfall',
+        name:'Improved Moonfire',          maxRank:5, rank:0,
+        prereq:{row:1,col:2},
+        desc:'Increases the damage and critical strike chance of your Moonfire spell by 2% per rank.' },
+      /* Tier 4 */
+      { row:3,col:0, spellId:16886, icon:'spell_nature_shamanrelictotem',
+        name:"Nature's Grace",             maxRank:1, rank:0,
+        desc:'All spell criticals grace you with a blessing that reduces the casting time of your next spell by 0.5 sec.' },
+      { row:3,col:1, spellId:16880, icon:'spell_nature_moonglow',
+        name:'Moonglow',                   maxRank:3, rank:0,
+        desc:'Reduces the Mana cost of your Moonfire, Starfire, Starsurge, Wrath, Healing Touch, Regrowth, and Rejuvenation spells by 3% per rank.' },
+      /* Tier 5 */
+      { row:4,col:1, spellId:16896, icon:'spell_arcane_starfire',
+        name:'Moonfury',                   maxRank:5, rank:0,
+        prereq:{row:3,col:1},
+        desc:'Increases the damage done by your Starfire, Moonfire, and Wrath spells by 2% per rank.' },
+      /* Tier 6 */
+      { row:5,col:0, spellId:16889, icon:'spell_nature_sleep',
+        name:'Dreamstate',                 maxRank:3, rank:0,
+        desc:'Allows 4% per rank of your Mana regeneration to continue while casting.' },
+      { row:5,col:2, spellId:16870, icon:'spell_nature_naturesblessing',
+        name:'Improved Thorns',            maxRank:3, rank:0,
+        desc:'Increases the damage caused by your Thorns and Barkskin spells by 25% per rank.' },
+      /* Tier 7 — SPEC */
+      { row:6,col:1, spellId:24858, icon:'ability_druid_moonfire',
+        name:'Moonkin Form',               maxRank:1, rank:0, spec:true,
+        prereq:{row:4,col:1},
+        desc:'Shapeshift into Moonkin Form, increasing Spell Critical chance of all nearby friendly targets by 3%. While in this form the armor contribution from items is increased by 360% and you attack with nature and arcane power, but you cannot cast healing spells. The act of shapeshifting frees the caster of Polymorph and Movement Impairing effects.' },
+    ]
+  },
+
+  /* ══════════════════════════════════════════════════════════
+     FERAL — Urso, Gato, carga selvagem
+  ══════════════════════════════════════════════════════════ */
+  feral:{
+    label:'Feral',
+    accent:'#dd7722',
+    bgIcon:'ability_druid_catform',
+    talents:[
+      /* Tier 1 */
+      { row:0,col:0, spellId:16934, icon:'ability_druid_ferociousbite',
+        name:'Ferocity',                   maxRank:5, rank:0,
+        desc:'Reduces the cost of your Maul, Swipe, Claw, and Rake abilities by 1 Rage or Energy per rank.' },
+      { row:0,col:1, spellId:16940, icon:'ability_druid_demoralizingroar',
+        name:'Feral Aggression',           maxRank:5, rank:0,
+        desc:'Increases the Attack Power reduction of your Demoralizing Roar by 8% per rank and increases the damage caused by your Ferocious Bite by 3% per rank.' },
+      /* Tier 2 */
+      { row:1,col:0, spellId:16947, icon:'ability_ambush',
+        name:'Feral Instinct',             maxRank:3, rank:0,
+        desc:'Increases the damage done by your Swipe ability by 5% per rank and reduces the chance enemies have to detect you while in Cat Form. More effective than Prowl.' },
+      { row:1,col:1, spellId:16949, icon:'ability_druid_bash',
+        name:'Brutal Impact',              maxRank:2, rank:0,
+        desc:'Increases the stun duration of your Bash and Pounce abilities by 0.5 sec per rank.' },
+      { row:1,col:2, spellId:16952, icon:'ability_druid_demoralizingroar',
+        name:'Thick Hide',                 maxRank:3, rank:0,
+        desc:'Increases your Armor contribution from items by 4% per rank.' },
+      /* Tier 3 */
+      { row:2,col:0, spellId:17002, icon:'ability_druid_dash',
+        name:'Feline Swiftness',           maxRank:2, rank:0,
+        desc:'Increases your movement speed while in Cat Form by 15% per rank and increases your chance to dodge while in Cat Form by 2% per rank.' },
+      { row:2,col:1, spellId:16979, icon:'ability_warrior_charge',
+        name:'Feral Charge',               maxRank:1, rank:0,
+        desc:'Causes you to charge an enemy, immobilizing and interrupting any spell being cast for 4 sec.' },
+      /* Tier 4 */
+      { row:3,col:1, spellId:16966, icon:'ability_druid_rake',
+        name:'Sharpened Claws',            maxRank:3, rank:0,
+        prereq:{row:2,col:1},
+        desc:'Increases your critical strike chance while in Bear, Dire Bear or Cat Form by 2% per rank.' },
+      { row:3,col:2, spellId:16968, icon:'ability_druid_shred',
+        name:'Improved Shred',             maxRank:2, rank:0,
+        desc:'Reduces the Energy cost of your Shred ability by 9 per rank.' },
+      /* Tier 5 */
+      { row:4,col:0, spellId:16972, icon:'ability_hunter_pet_cat',
+        name:'Predatory Strikes',          maxRank:3, rank:0,
+        prereq:{row:3,col:1},
+        desc:'Increases your melee attack power in Cat, Bear, and Dire Bear Forms by 50% per rank of your level.' },
+      { row:4,col:1, spellId:16974, icon:'spell_shadow_unholyfrenzy',
+        name:'Blood Frenzy',               maxRank:2, rank:0,
+        desc:'Your Claw and Rake abilities have a 50% per rank chance to add a combo point to your target.' },
+      /* Tier 6 */
+      { row:5,col:0, spellId:16998, icon:'ability_druid_mangle',
+        name:'Savage Fury',                maxRank:2, rank:0,
+        desc:'Increases the damage caused by your Claw, Rake, Maul, and Swipe abilities by 10% per rank.' },
+      { row:5,col:2, spellId:17003, icon:'ability_druid_hearteofthewild',
+        name:'Heart of the Wild',          maxRank:5, rank:0,
+        desc:'Increases your Intellect by 4% per rank. In addition, while in Bear or Dire Bear Form your Stamina is increased by 4% per rank, and while in Cat Form your Strength is increased by 4% per rank.' },
+      /* Tier 7 — SPEC */
+      { row:6,col:1, spellId:17007, icon:'ability_druid_primaltenacity',
+        name:'Leader of the Pack',         maxRank:1, rank:0, spec:true,
+        prereq:{row:5,col:2},
+        desc:'While in Cat, Bear or Dire Bear Form, the Leader of the Pack increases ranged and melee critical chance of all party members within 45 yards by 3%.' },
+    ]
+  },
+
+  /* ══════════════════════════════════════════════════════════
+     RESTAURAÇÃO — cura, HoTs, Swiftmend
+  ══════════════════════════════════════════════════════════ */
+  restoration:{
+    label:'Restauração',
+    accent:'#44bb44',
+    bgIcon:'spell_nature_healingwavegreater',
+    talents:[
+      /* Tier 1 */
+      { row:0,col:0, spellId:17050, icon:'spell_nature_regeneration',
+        name:'Improved Mark of the Wild',  maxRank:5, rank:0,
+        desc:'Increases the effects of your Mark of the Wild and Gift of the Wild spells by 7% per rank.' },
+      { row:0,col:1, spellId:17056, icon:'spell_nature_stoneclawtotem',
+        name:'Furor',                      maxRank:5, rank:0,
+        desc:'Gives you a 20% per rank chance to gain 10 Rage when you shapeshift into Bear or Dire Bear Form, or 40 Energy when you shapeshift into Cat Form.' },
+      /* Tier 2 */
+      { row:1,col:0, spellId:17069, icon:'spell_nature_naturesblessing',
+        name:"Nature's Focus",             maxRank:5, rank:0,
+        desc:'Reduces the chance you will be interrupted when casting Healing Touch, Regrowth, or Tranquility by 14% per rank.' },
+      { row:1,col:2, spellId:17074, icon:'spell_nature_healingwavegreater',
+        name:'Improved Healing Touch',     maxRank:5, rank:0,
+        desc:'Reduces the cast time of your Healing Touch spell by 0.1 sec per rank.' },
+      /* Tier 3 */
+      { row:2,col:0, spellId:17111, icon:'spell_nature_polymorph',
+        name:'Natural Shapeshifter',       maxRank:3, rank:0,
+        desc:'Reduces the Mana cost of all your shapeshifting by 10% per rank.' },
+      { row:2,col:1, spellId:17106, icon:'spell_nature_manaregentotem',
+        name:'Tranquil Spirit',            maxRank:5, rank:0,
+        prereq:{row:1,col:0},
+        desc:'Reduces the Mana cost of your Healing Touch and Tranquility spells by 2% per rank.' },
+      /* Tier 4 */
+      { row:3,col:0, spellId:17116, icon:'spell_nature_ravenform',
+        name:"Nature's Swiftness",         maxRank:1, rank:0,
+        prereq:{row:2,col:0},
+        desc:'When activated, your next Nature spell with a casting time less than 10 sec becomes an instant cast spell.' },
+      { row:3,col:1, spellId:17118, icon:'spell_holy_healingfocus',
+        name:'Gift of Nature',             maxRank:5, rank:0,
+        prereq:{row:2,col:1},
+        desc:'Increases the amount healed by your Healing Touch, Regrowth, Rejuvenation, and Tranquility spells by 2% per rank.' },
+      /* Tier 5 */
+      { row:4,col:0, spellId:17123, icon:'spell_nature_tranquility',
+        name:'Improved Tranquility',       maxRank:2, rank:0,
+        desc:'Reduces threat caused by Tranquility by 50% per rank and reduces the cooldown of Tranquility by 50% per rank.' },
+      { row:4,col:2, spellId:17128, icon:'spell_nature_resistnature',
+        name:'Empowered Touch',            maxRank:2, rank:0,
+        prereq:{row:3,col:1},
+        desc:'Increases the bonus healing effects of your Healing Touch spell by 10% per rank.' },
+      /* Tier 6 */
+      { row:5,col:1, spellId:17138, icon:'spell_nature_resistnature',
+        name:'Improved Regrowth',          maxRank:5, rank:0,
+        prereq:{row:4,col:2},
+        desc:'Increases the critical effect chance of your Regrowth spell by 10% per rank.' },
+      /* Tier 7 — SPEC */
+      { row:6,col:1, spellId:18562, icon:'spell_nature_swiftmend',
+        name:'Swiftmend',                  maxRank:1, rank:0, spec:true,
+        prereq:{row:5,col:1},
+        desc:'Consumes a Rejuvenation or Regrowth effect on a friendly target to instantly heal them an amount equal to 12 sec of Rejuvenation or 18 sec of Regrowth.' },
+    ]
+  }
+};
+
+/* ─── ENGINE ─────────────────────────────────────────── */
+const TREE_KEYS=Object.keys(TREES_DATA);
+const getT=(tk,r,c)=>TREES_DATA[tk].talents.find(t=>t.row===r&&t.col===c)||null;
+const treePts=tk=>TREES_DATA[tk].talents.reduce((s,t)=>s+t.rank,0);
+const totalPts=()=>TREE_KEYS.reduce((s,k)=>s+treePts(k),0);
+const tierUnlocked=(tk,row)=>treePts(tk)>=row*PTS_PER_TIER;
+
+function prereqMet(tk,t){
+  if(!t.prereq)return true;
+  const p=getT(tk,t.prereq.row,t.prereq.col);
+  return p&&p.rank===p.maxRank;
+}
+function canAdd(tk,t){
+  return totalPts()<MAX_PTS&&t.rank<t.maxRank&&tierUnlocked(tk,t.row)&&prereqMet(tk,t);
+}
+function canRemove(tk,t){
+  if(t.rank<=0)return false;
+  const deps=TREES_DATA[tk].talents.filter(d=>d.prereq&&d.prereq.row===t.row&&d.prereq.col===t.col&&d.rank>0);
+  if(deps.length&&t.rank-1<t.maxRank)return false;
+  const np=treePts(tk)-1,mt=Math.floor(np/PTS_PER_TIER);
+  return !TREES_DATA[tk].talents.some(d=>d.row>mt&&d.rank>0&&!(d.row===t.row&&d.col===t.col));
+}
+function nodeStateClass(tk,t){
+  if(!tierUnlocked(tk,t.row))return 'locked';
+  if(!prereqMet(tk,t)&&t.rank===0)return 'prereq-blocked';
+  const s=t.rank===0?'available':t.rank===t.maxRank?'maxed':'partial';
+  return t.spec?'spec-talent '+(t.rank===t.maxRank?'maxed':t.rank>0?'partial':'available'):s;
+}
+
+/* ─── TOOLTIP ─────────────────────────────────────────── */
+const tip=document.getElementById('dr-tooltip');
+const tipN=document.getElementById('tt-name'),tipR=document.getElementById('tt-rank');
+const tipD=document.getElementById('tt-desc'),tipH=document.getElementById('tt-hint');
+function showTip(e,tk,t){
+  tipN.textContent=t.name;tipR.textContent=`Rank ${t.rank} / ${t.maxRank}`;tipD.textContent=t.desc||'';
+  const h=[];
+  if(canAdd(tk,t))              h.push('Clique para adicionar ponto');
+  else if(t.rank===t.maxRank)   h.push('Talento no máximo');
+  else if(!tierUnlocked(tk,t.row)) h.push(`Requer ${t.row*PTS_PER_TIER} pts em ${TREES_DATA[tk].label}`);
+  else if(!prereqMet(tk,t)){const p=getT(tk,t.prereq.row,t.prereq.col);h.push(`Requer "${p?p.name:'pré-requisito'}" no máximo`);}
+  else if(totalPts()>=MAX_PTS)  h.push('Sem pontos disponíveis');
+  if(canRemove(tk,t))h.push('Clique-direito para remover');
+  tipH.textContent=h.join(' · ');
+  moveTip(e);tip.style.display='block';
+}
+function moveTip(e){
+  const m=12,tw=tip.offsetWidth||270,th=tip.offsetHeight||110;
+  let x=e.clientX+m,y=e.clientY+m;
+  if(x+tw>window.innerWidth-8)x=e.clientX-tw-m;
+  if(y+th>window.innerHeight-8)y=e.clientY-th-m;
+  tip.style.left=x+'px';tip.style.top=y+'px';
+}
+document.addEventListener('mousemove',e=>{if(tip.style.display==='block')moveTip(e)});
+
+/* ─── RENDER ──────────────────────────────────────────── */
+function renderAll(){
+  const total=totalPts();
+  document.getElementById('pts-spent').textContent=total;
+  document.getElementById('pts-bar').style.width=(total/MAX_PTS*100)+'%';
+  document.getElementById('spec-badges').innerHTML=TREE_KEYS.map(tk=>{
+    const p=treePts(tk),col=TREES_DATA[tk].accent;
+    return `<div class="spec-badge${p>0?' active':''}" style="${p>0?`border-color:${col};color:${col}`:''}">
+      ${TREES_DATA[tk].label}: ${p}</div>`;
+  }).join('');
+  TREE_KEYS.forEach(renderTree);
+  if(window.$WowheadPower?.refreshLinks)window.$WowheadPower.refreshLinks();
+}
+function renderTree(tk){
+  const tree=TREES_DATA[tk],panel=document.getElementById(`tree-${tk}`);
+  if(!panel)return;
+  const pts=treePts(tk);
+  const pe=panel.querySelector('.tree-label-pts');
+  pe.textContent=pts;pe.className='tree-label-pts'+(pts>0?' has':'');
+  const pr=panel.querySelector('.tree-pip-row');pr.innerHTML='';
+  for(let t=0;t<ROWS;t++){
+    const pip=document.createElement('div');
+    const full=pts>=(t+1)*PTS_PER_TIER,on=pts>=t*PTS_PER_TIER;
+    pip.className=full?'tier-pip maxed':on?'tier-pip on':'tier-pip';
+    pip.style.background=full||on?tree.accent:'';pr.appendChild(pip);
+  }
+  tree.talents.forEach(t=>{
+    const el=document.getElementById(`tn-${tk}-${t.row}-${t.col}`);if(!el)return;
+    el.className='tn '+nodeStateClass(tk,t);
+    const rb=el.querySelector('.tn-rank');
+    if(rb){rb.textContent=`${t.rank}/${t.maxRank}`;rb.style.color=t.rank===t.maxRank?'var(--gold)':'';}
+  });
+  for(let r=1;r<ROWS;r++){
+    const d=panel.querySelector(`.tier-div[data-row="${r}"]`);
+    const rl=panel.querySelector(`.tier-req[data-row="${r}"]`);
+    const ul=pts>=r*PTS_PER_TIER;
+    if(d){d.className='tier-div'+(ul?' unlocked':'');d.style.background=ul?`linear-gradient(90deg,transparent,${tree.accent}55 30%,${tree.accent}55 70%,transparent)`:'';}
+    if(rl)rl.className='tier-req'+(ul?' unlocked':'');
+  }
+  const svg=panel.querySelector('.arrows-svg');
+  if(svg)tree.talents.forEach(t=>{
+    if(!t.prereq)return;
+    const p=getT(tk,t.prereq.row,t.prereq.col),met=p&&p.rank===p.maxRank;
+    const path=svg.querySelector(`#arrow-${tk}-${t.row}-${t.col}`);
+    if(path){
+      path.className.baseVal='arrow-path'+(met?' prereq-met':'');
+      path.setAttribute('stroke',met?tree.accent:'var(--dim)');
+      path.setAttribute('stroke-dasharray',met?'none':'4 3');
+      path.setAttribute('marker-end',`url(#ah-${met?'on':'off'}-${tk})`);
+    }
+  });
+}
+
+/* ─── BUILD ───────────────────────────────────────────── */
+function buildTrees(){
+  const container=document.getElementById('dr-trees');container.innerHTML='';
+  TREE_KEYS.forEach(tk=>{
+    const tree=TREES_DATA[tk];
+    const panel=document.createElement('div');
+    panel.className='dr-tree';panel.id=`tree-${tk}`;
+    panel.style.setProperty('--tree-accent',tree.accent);
+    panel.innerHTML='<div class="corner-tr"></div><div class="corner-bl"></div>';
+    const label=document.createElement('div');label.className='tree-label';
+    label.innerHTML=`<div><div class="tree-label-name" style="color:${tree.accent}">${tree.label}</div>
+      <div class="tree-pip-row"></div></div><div class="tree-label-pts">0</div>`;
+    panel.appendChild(label);
+    const canvas=document.createElement('div');canvas.className='tree-canvas';
+    canvas.style.width=CANVAS_W+'px';canvas.style.height=CANVAS_H+'px';
+    canvas.style.setProperty('--tree-accent',tree.accent);
+    const bg=document.createElement('img');bg.className='tree-bg-art';
+    bg.src=`${CDN}/${tree.bgIcon}.jpg`;bg.alt='';canvas.appendChild(bg);
+    for(let r=1;r<ROWS;r++){
+      const y=PAD+nodeY(r)-RG/2;
+      const d=document.createElement('div');d.className='tier-div';d.dataset.row=r;d.style.top=y+'px';canvas.appendChild(d);
+      const rl=document.createElement('div');rl.className='tier-req';rl.dataset.row=r;rl.style.top=(y-10)+'px';rl.textContent=`${r*PTS_PER_TIER} pts`;canvas.appendChild(rl);
+    }
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','arrows-svg');svg.setAttribute('width',CANVAS_W-PAD*2);
+    svg.setAttribute('height',CANVAS_H-PAD*2);svg.setAttribute('overflow','visible');
+    const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+    [['off','#121a0c'],['on',tree.accent]].forEach(([id,col])=>{
+      const m=document.createElementNS('http://www.w3.org/2000/svg','marker');
+      m.setAttribute('id',`ah-${id}-${tk}`);m.setAttribute('markerWidth','7');
+      m.setAttribute('markerHeight','5');m.setAttribute('refX','6');
+      m.setAttribute('refY','2.5');m.setAttribute('orient','auto');
+      const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      p.setAttribute('points','0 0,7 2.5,0 5');p.setAttribute('fill',col);
+      m.appendChild(p);defs.appendChild(m);
+    });
+    svg.appendChild(defs);
+    tree.talents.forEach(t=>{
+      if(!t.prereq)return;
+      const pr=t.prereq;
+      const x1=centX(pr.col),y1=nodeY(pr.row)+N,x2=centX(t.col),y2=nodeY(t.row);
+      let d;if(pr.col===t.col)d=`M ${x1} ${y1} L ${x2} ${y2}`;
+      else{const my=(y1+y2)/2;d=`M ${x1} ${y1} L ${x1} ${my} L ${x2} ${my} L ${x2} ${y2}`;}
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',d);path.setAttribute('id',`arrow-${tk}-${t.row}-${t.col}`);
+      path.setAttribute('class','arrow-path');path.setAttribute('marker-end',`url(#ah-off-${tk})`);
+      path.setAttribute('stroke','var(--dim)');path.setAttribute('stroke-dasharray','4 3');
+      path.setAttribute('stroke-width','1.5');path.setAttribute('fill','none');
+      svg.appendChild(path);
+    });
+    canvas.appendChild(svg);
+    tree.talents.forEach(t=>{
+      const node=document.createElement('div');
+      node.id=`tn-${tk}-${t.row}-${t.col}`;node.className='tn available';
+      node.style.left=(PAD+nodeX(t.col))+'px';node.style.top=(PAD+nodeY(t.row))+'px';
+      node.style.setProperty('--tree-accent',tree.accent);
+      const frame=document.createElement('div');frame.className='tn-frame';
+      frame.style.setProperty('--tree-accent',tree.accent);
+      const img=document.createElement('img');
+      img.src=`${CDN}/${t.icon}.jpg`;img.width=N;img.height=N;img.alt=t.name;
+      img.onerror=function(){this.src=`${CDN}/inv_misc_questionmark.jpg`};
+      frame.appendChild(img);
+      const link=document.createElement('a');
+      link.href=`${WH}${t.spellId}`;link.dataset.whIconSize='small';
+      link.style.cssText='position:absolute;inset:0;display:block';link.onclick=e=>e.preventDefault();
+      frame.appendChild(link);
+      const rank=document.createElement('span');rank.className='tn-rank';rank.textContent=`0/${t.maxRank}`;
+      node.appendChild(frame);node.appendChild(rank);
+      node.addEventListener('click',e=>{e.preventDefault();if(canAdd(tk,t)){t.rank++;renderAll();}if(tip.style.display==='block')showTip(e,tk,t);});
+      node.addEventListener('contextmenu',e=>{e.preventDefault();if(canRemove(tk,t)){t.rank--;renderAll();}if(tip.style.display==='block')showTip(e,tk,t);});
+      node.addEventListener('mouseenter',e=>showTip(e,tk,t));
+      node.addEventListener('mouseleave',()=>{tip.style.display='none'});
+      node.addEventListener('mousemove',e=>moveTip(e));
+      canvas.appendChild(node);
+    });
+    panel.appendChild(canvas);container.appendChild(panel);
+  });
+  renderAll();
+}
+
+/* ─── PUBLIC API ──────────────────────────────────────── */
+window.DruidTree={
+  load(data){
+    Object.keys(data).forEach(tk=>{
+      if(!TREES_DATA[tk])return;
+      data[tk].forEach((row,ri)=>{if(!row)return;
+        row.forEach((rank,ci)=>{if(rank==null)return;
+          const t=getT(tk,ri,ci);if(t)t.rank=Math.min(rank,t.maxRank);});});
+    });renderAll();
+  },
+  reset(){TREE_KEYS.forEach(tk=>TREES_DATA[tk].talents.forEach(t=>{t.rank=0}));renderAll();}
+};
+
+buildTrees();
+</script>
+</body>
+</html>

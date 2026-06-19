@@ -40,6 +40,7 @@
                 <nav id="header-nav">
                     <a href="/" class="nav-link">Home</a>
                     <a href="/#mural" class="nav-link">Mural</a>
+                    <a href="/talents/" class="nav-link">Talentos</a>
                     <a href="/#lives" class="nav-link">Streams ao vivo</a>
                     ${authItems}
                 </nav>

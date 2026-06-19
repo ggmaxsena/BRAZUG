@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xamã — Talentos | WoW Classic</title>
+<!--
+  WOWHEAD TOOLTIPS — descomentar no projeto pai:
+  <script>var whTooltips={colorLinks:true,iconizeLinks:true,renameLinks:true,domain:'classic'};</script>
+  <script src="https://wow.zamimg.com/js/tooltips.js"></script>
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── TOKENS ─────────────────────────────────────────── */
+:root{
+  --bg:       #0b0a07;
+  --panel:    #14120d;
+  --border:   #4a3a1a;
+  --border2:  #6b4f20;
+  --gold:     #f7c14d;
+  --gold2:    #c8972a;
+  --gold3:    #7a5a1a;
+  --gold4:    #4a3010;
+  --text:     #c8b580;
+  --muted:    #8a7050;
+  --dim:      #2a2010;
+
+  --n:  44px;
+  --cg: 16px;
+  --rg: 28px;
+  --cs: calc(var(--n) + var(--cg));
+  --rs: calc(var(--n) + var(--rg));
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Cinzel',serif;
+  padding:20px;
+  min-width:860px;
+}
+
+/* ── HEADER ──────────────────────────────────────────── */
+.sha-header{
+  display:flex;align-items:center;gap:14px;
+  padding-bottom:14px;margin-bottom:18px;
+  border-bottom:1px solid var(--border2);
+  position:relative;
+}
+/* shimmer line under header */
+.sha-header::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold3) 30%,var(--gold2) 50%,var(--gold3) 70%,transparent);
+}
+.sha-class-icon{
+  width:52px;height:52px;
+  border:2px solid var(--gold3);
+  image-rendering:pixelated;
+}
+.sha-title{font-size:24px;font-weight:900;color:var(--gold);letter-spacing:2px}
+.sha-sub  {font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px}
+
+.sha-pts-wrap{margin-left:auto;text-align:right}
+.sha-pts-total{font-size:28px;font-weight:900;color:var(--gold);line-height:1}
+.sha-pts-total span{font-size:16px;color:var(--muted)}
+.sha-pts-label{font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:2px}
+.sha-pts-bar-wrap{height:4px;width:180px;background:var(--dim);border:1px solid var(--border);margin-top:4px}
+.sha-pts-bar{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));transition:width .2s}
+
+.sha-reset-btn{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;
+  padding:6px 16px;
+  background:var(--dim);border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;transition:all .15s;margin-left:16px;
+}
+.sha-reset-btn:hover{border-color:var(--gold2);color:var(--gold)}
+
+/* ── SPEC BADGES ─────────────────────────────────────── */
+.spec-badges{display:flex;gap:8px;margin-left:16px}
+.spec-badge{
+  padding:4px 12px;font-size:10px;letter-spacing:1px;
+  border:1px solid var(--border);color:var(--muted);
+  transition:all .2s;
+}
+.spec-badge.active{border-color:var(--gold2);color:var(--gold)}
+
+/* ── TREES ROW ───────────────────────────────────────── */
+.sha-trees{display:flex;gap:20px;align-items:flex-start}
+
+/* ── TREE PANEL ──────────────────────────────────────── */
+.sha-tree{
+  flex:1;
+  background:var(--panel);
+  border:1px solid var(--border);
+  position:relative;
+}
+.sha-tree::before,.sha-tree::after{
+  content:'';position:absolute;
+  width:10px;height:10px;
+  border-color:var(--gold3);border-style:solid;
+  pointer-events:none;z-index:10;
+}
+.sha-tree::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.sha-tree::after {bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.corner-tr,.corner-bl{
+  position:absolute;width:10px;height:10px;
+  border-color:var(--gold3);border-style:solid;
+  pointer-events:none;z-index:10;
+}
+.corner-tr{top:-1px;right:-1px;border-width:2px 2px 0 0}
+.corner-bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+
+/* ── TREE LABEL ──────────────────────────────────────── */
+.tree-label{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px 8px;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+.tree-label-name{
+  font-size:13px;font-weight:700;color:var(--gold2);
+  letter-spacing:2px;text-transform:uppercase;
+}
+.tree-label-pts{
+  font-size:13px;font-weight:900;color:var(--gold4);
+  letter-spacing:1px;transition:color .2s;
+}
+.tree-label-pts.has{color:var(--gold)}
+
+/* tier pip row */
+.tree-pip-row{display:flex;gap:3px;align-items:center;margin-top:4px}
+.tier-pip{width:18px;height:3px;background:var(--dim);transition:background .25s}
+.tier-pip.on   {background:var(--tree-accent,var(--gold3));opacity:.7}
+.tier-pip.maxed{background:var(--tree-accent,var(--gold2));opacity:1}
+
+/* ── CANVAS ──────────────────────────────────────────── */
+.tree-canvas{
+  position:relative;
+  padding:14px;
+  overflow:hidden;
+}
+
+.tree-bg-art{
+  position:absolute;
+  width:220px;height:220px;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  opacity:.045;
+  image-rendering:pixelated;
+  pointer-events:none;z-index:0;
+}
+
+/* tier dividers */
+.tier-div{
+  position:absolute;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--dim) 30%,var(--dim) 70%,transparent);
+  pointer-events:none;z-index:1;
+  transition:background .3s;
+}
+.tier-div.unlocked{
+  background:linear-gradient(90deg,transparent,var(--tree-accent,var(--gold4)) 30%,var(--tree-accent,var(--gold4)) 70%,transparent);
+  opacity:.5;
+}
+.tier-req{
+  position:absolute;right:0;
+  font-size:8px;color:var(--dim);
+  letter-spacing:1px;text-align:right;
+  pointer-events:none;z-index:2;
+  transition:color .2s;
+  font-family:'Cinzel',serif;
+}
+.tier-req.unlocked{color:var(--gold4)}
+
+/* ── SVG ARROWS ──────────────────────────────────────── */
+.arrows-svg{
+  position:absolute;top:14px;left:14px;
+  pointer-events:none;z-index:2;
+  overflow:visible;
+}
+.arrow-path{
+  fill:none;stroke-width:1.5;
+  stroke:var(--dim);
+  stroke-dasharray:4 3;
+  transition:stroke .25s, stroke-dasharray .25s;
+}
+.arrow-path.prereq-met{
+  stroke:var(--tree-accent,var(--gold3));
+  stroke-dasharray:none;
+}
+
+/* ── TALENT NODE ─────────────────────────────────────── */
+.tn{
+  position:absolute;
+  width:var(--n);height:var(--n);
+  z-index:3;cursor:pointer;
+  transition:transform .1s,box-shadow .2s;
+}
+.tn:hover{transform:scale(1.09);z-index:20}
+
+.tn-frame{
+  position:absolute;inset:0;
+  border:2px solid var(--border);
+  background:#080605;
+  overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+.tn img{
+  width:100%;height:100%;
+  display:block;
+  image-rendering:pixelated;
+  filter:grayscale(100%) brightness(.45);
+  transition:filter .2s;
+}
+
+.tn-rank{
+  position:absolute;bottom:-1px;right:-1px;
+  font-size:8px;font-family:sans-serif;font-weight:700;
+  background:rgba(0,0,0,.9);color:var(--muted);
+  padding:0 3px;line-height:12px;z-index:4;
+  pointer-events:none;
+  border-top:1px solid var(--border);
+  border-left:1px solid var(--border);
+  transition:color .2s;
+}
+
+/* ── NODE STATES ─────────────────────────────────────── */
+.tn.locked{cursor:not-allowed;opacity:.2}
+.tn.locked:hover{transform:none}
+
+.tn.available .tn-frame{border-color:var(--border2)}
+.tn.available img{filter:grayscale(55%) brightness(.65)}
+
+.tn.partial .tn-frame{
+  border-color:var(--tree-accent,var(--gold3));
+  box-shadow:inset 0 0 8px rgba(247,193,77,.1);
+}
+.tn.partial img{filter:grayscale(15%) brightness(.9)}
+.tn.partial .tn-rank{color:var(--gold2)}
+
+.tn.maxed .tn-frame{
+  border-color:var(--tree-accent,var(--gold2));
+  box-shadow:0 0 8px rgba(200,151,42,.35),inset 0 0 8px rgba(247,193,77,.15);
+}
+.tn.maxed img{filter:grayscale(0%) brightness(1.05) saturate(1.1)}
+.tn.maxed .tn-rank{color:var(--gold);background:rgba(0,0,0,.95)}
+
+/* spec final */
+.tn.spec-talent .tn-frame{
+  border-color:var(--gold);
+  box-shadow:0 0 14px rgba(247,193,77,.5),inset 0 0 10px rgba(247,193,77,.2);
+}
+.tn.spec-talent img{filter:brightness(1.1) saturate(1.2) drop-shadow(0 0 4px rgba(247,193,77,.4))}
+.tn.spec-talent .tn-rank{color:var(--gold);border-color:var(--gold2)}
+
+.tn.spec-talent::before,.tn.spec-talent::after{
+  content:'';position:absolute;
+  width:6px;height:6px;
+  background:var(--gold);
+  transform:rotate(45deg);
+  z-index:5;pointer-events:none;
+}
+.tn.spec-talent::before{top:-3px;left:calc(50% - 3px)}
+.tn.spec-talent::after {bottom:-3px;left:calc(50% - 3px)}
+
+@keyframes spec-glow{
+  0%,100%{box-shadow:0 0 14px rgba(247,193,77,.5),inset 0 0 10px rgba(247,193,77,.2)}
+  50%    {box-shadow:0 0 24px rgba(247,193,77,.8),inset 0 0 16px rgba(247,193,77,.35)}
+}
+.tn.spec-talent.maxed .tn-frame{animation:spec-glow 2s ease-in-out infinite}
+
+.tn.prereq-blocked .tn-frame::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(0,0,0,.55);
+  border:1px solid #6b1a1a;
+}
+
+/* ── TOOLTIP ─────────────────────────────────────────── */
+.sha-tooltip{
+  position:fixed;
+  background:linear-gradient(180deg,#1e1a0e 0%,#13110a 100%);
+  border:1px solid var(--gold3);
+  padding:10px 14px;max-width:270px;
+  pointer-events:none;z-index:9999;
+  display:none;
+  box-shadow:0 4px 24px rgba(0,0,0,.85);
+}
+.sha-tooltip::before{content:'';position:absolute;top:-1px;left:-1px;width:6px;height:6px;border-top:2px solid var(--gold3);border-left:2px solid var(--gold3)}
+.sha-tooltip::after {content:'';position:absolute;bottom:-1px;right:-1px;width:6px;height:6px;border-bottom:2px solid var(--gold3);border-right:2px solid var(--gold3)}
+.tt-name{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:4px}
+.tt-rank{font-size:10px;color:var(--gold2);margin-bottom:6px;letter-spacing:1px}
+.tt-desc{font-size:11px;color:var(--text);line-height:1.65;font-family:sans-serif;font-style:italic}
+.tt-hint{font-size:10px;color:var(--muted);margin-top:6px;font-family:sans-serif;border-top:1px solid var(--border);padding-top:5px}
+
+/* ── FOOTER ──────────────────────────────────────────── */
+.sha-footer{
+  margin-top:18px;padding-top:12px;
+  border-top:1px solid var(--border);
+  display:flex;gap:20px;align-items:center;flex-wrap:wrap;
+}
+.legend{display:flex;gap:16px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);letter-spacing:1px}
+.leg-dot{width:14px;height:14px;border:2px solid var(--border);background:#080605;flex-shrink:0}
+.leg-dot.available{border-color:var(--border2)}
+.leg-dot.partial  {border-color:var(--gold3);background:var(--panel)}
+.leg-dot.maxed    {border-color:var(--gold2);box-shadow:0 0 5px rgba(200,151,42,.4)}
+.leg-dot.spec     {border-color:var(--gold);box-shadow:0 0 8px rgba(247,193,77,.5)}
+.leg-dot.locked   {opacity:.2}
+
+.api-note{
+  margin-top:16px;padding:10px 14px;
+  background:#0e0c08;border:1px solid var(--dim);
+  border-left:3px solid var(--gold3);
+  font-size:9px;color:var(--muted);line-height:1.9;letter-spacing:.5px;
+}
+.api-note code{color:var(--gold2);font-family:monospace;font-size:10px}
+</style>
+</head>
+<body>
+
+<div class="sha-tooltip" id="sha-tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-rank" id="tt-rank"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+  <div class="tt-hint" id="tt-hint"></div>
+</div>
+
+<!-- ── HEADER ──────────────────────────────────────── -->
+<div class="sha-header">
+  <img class="sha-class-icon"
+       src="https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg"
+       alt="Xamã"
+       onerror="this.style.display='none'">
+  <div>
+    <div class="sha-title">Xamã</div>
+    <div class="sha-sub">WoW CLASSIC 1.12 · 51 PONTOS DE TALENTO</div>
+  </div>
+  <div class="spec-badges" id="spec-badges"></div>
+  <div class="sha-pts-wrap">
+    <div class="sha-pts-total"><span id="pts-spent">0</span><span> / 51</span></div>
+    <div class="sha-pts-label">PONTOS GASTOS</div>
+    <div class="sha-pts-bar-wrap"><div class="sha-pts-bar" id="pts-bar" style="width:0%"></div></div>
+  </div>
+  <button class="sha-reset-btn" onclick="ShamanTree.reset()">↺ Resetar</button>
+</div>
+
+<!-- ── TREES ───────────────────────────────────────── -->
+<div class="sha-trees" id="sha-trees"></div>
+
+<!-- ── FOOTER ─────────────────────────────────────── -->
+<div class="sha-footer">
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot locked"></div>Tier bloqueado</div>
+    <div class="leg-item"><div class="leg-dot available"></div>Disponível</div>
+    <div class="leg-item"><div class="leg-dot partial"></div>Parcial</div>
+    <div class="leg-item"><div class="leg-dot maxed"></div>Máximo</div>
+    <div class="leg-item"><div class="leg-dot spec"></div>Talento Final</div>
+  </div>
+</div>
+
+<div class="api-note">
+  <strong style="color:var(--gold2)">BACKEND API</strong> —
+  <code>ShamanTree.load({ elemental:[[r,r,…],…], enhancement:[[…]], restoration:[[…]] })</code>
+  · Cada sub-array = linha; cada número = rank alocado (null = célula vazia).
+  · Click-esquerdo aloca ponto · Click-direito remove ponto.
+  · Tooltips: ativar <code>whTooltips</code> no &lt;head&gt; do projeto pai.
+</div>
+
+<!-- ════════════════ ENGINE ════════════════════════════ -->
+<script>
+/* ─── GRID CONSTANTS ─────────────────────────────────── */
+const N   = 44;     // node side px
+const CG  = 16;     // col gap px
+const RG  = 28;     // row gap px
+const CS  = N+CG;   // col step = 60
+const RS  = N+RG;   // row step = 72
+const PAD = 14;     // canvas padding
+const COLS= 4;
+const ROWS= 7;      // 7 tiers (0-6), spec at tier 6 — needs 30 pts in tree
+const MAX_PTS      = 51;
+const PTS_PER_TIER = 5;
+const CDN = 'https://wow.zamimg.com/images/wow/icons/medium';
+const WH  = 'https://www.wowhead.com/classic/spell=';
+
+/* ─── TALENT DATA ────────────────────────────────────────
+   Estrutura por árvore:
+   { label, accent, bgIcon, talents:[{row,col,spellId,icon,name,maxRank,rank,spec?,prereq?,desc}] }
+   Fonte: WoW Classic 1.12.1 Shaman talent trees
+─────────────────────────────────────────────────────────── */
+const TREES_DATA = {
+
+  elemental: {
+    label : 'Elemental',
+    accent: '#1a88e0',       /* azul relâmpago */
+    bgIcon: 'spell_nature_lightning',
+    talents: [
+      /* ── TIER 1 (0 pts) ────────────────────────────── */
+      { row:0,col:0, spellId:16162, icon:'spell_frost_stun',
+        name:'Convection',         maxRank:5, rank:0,
+        desc:'Reduces the Mana cost of your Shock spells, Lightning Bolt, Chain Lightning, and Frost Shock by 2% per rank.' },
+      { row:0,col:1, spellId:16160, icon:'spell_nature_lightning',
+        name:'Concussion',         maxRank:5, rank:0,
+        desc:'Increases the damage done by your Lightning Bolt, Chain Lightning, Shock spells, and Frost Shock by 1% per rank.' },
+
+      /* ── TIER 2 (5 pts) ─────────────────────────────── */
+      { row:1,col:0, spellId:16176, icon:'spell_nature_stoneclawtotem',
+        name:"Earth's Grasp",      maxRank:2, rank:0,
+        desc:'Increases the health of your Stoneclaw Totem by 25% per rank and the radius of your Earthbind Totem by 25% per rank.' },
+      { row:1,col:1, spellId:16180, icon:'spell_nature_resistnature',
+        name:'Elemental Warding',  maxRank:3, rank:0,
+        desc:'Reduces damage taken from Fire, Frost, and Nature spells by 2% per rank.' },
+      { row:1,col:2, spellId:16762, icon:'spell_nature_callstorm',
+        name:'Call of Thunder',    maxRank:5, rank:0,
+        desc:'Increases the critical strike chance of your Lightning Bolt and Chain Lightning spells by 1% per rank.' },
+
+      /* ── TIER 3 (10 pts) ────────────────────────────── */
+      { row:2,col:0, spellId:29062, icon:'spell_fire_elementaldevastation',
+        name:'Elemental Devastation', maxRank:3, rank:0,
+        desc:'Your offensive spell critical strikes will increase your melee attack critical strike chance by 10% per rank for 10 sec.' },
+      { row:2,col:2, spellId:16041, icon:'spell_nature_wispsplode',
+        name:'Storm Reach',        maxRank:2, rank:0,
+        desc:'Increases the range of your Lightning Bolt, Chain Lightning and Shock spells by 2 yards per rank.' },
+
+      /* ── TIER 4 (15 pts) ────────────────────────────── */
+      { row:3,col:0, spellId:16109, icon:'spell_frost_wisp',
+        name:'Reverberation',      maxRank:5, rank:0,
+        desc:'Reduces the cooldown of your Shock spells by 0.2 sec per rank.' },
+      { row:3,col:1, spellId:16164, icon:'spell_shadow_manaburn',
+        name:'Elemental Focus',    maxRank:1, rank:0,
+        desc:'After landing a critical strike with a Fire, Frost, or Nature spell, you enter a Clearcasting state that reduces the Mana cost of your next 2 damage or healing spells by 40%.' },
+
+      /* ── TIER 5 (20 pts) ────────────────────────────── */
+      { row:4,col:1, spellId:16290, icon:'spell_fire_volcano',
+        name:'Elemental Fury',     maxRank:5, rank:0,
+        prereq:{row:3,col:1},
+        desc:'Increases the critical strike damage bonus of your Searing Totem, Fire Nova Totem, Lightning Bolt, Chain Lightning, and Shock spells by 100%.' },
+
+      /* ── TIER 6 (25 pts) ────────────────────────────── */
+      { row:5,col:0, spellId:16101, icon:'spell_fire_sealoffire',
+        name:'Improved Fire Totems', maxRank:2, rank:0,
+        desc:'Reduces the delay before your Fire Nova Totem activates by 0.5 sec per rank and decreases the cooldown of your Magma Totem by 1 sec per rank.' },
+      { row:5,col:2, spellId:16033, icon:'spell_nature_eyeofthestorm',
+        name:'Eye of the Storm',   maxRank:3, rank:0,
+        desc:'Reduces the pushback suffered from damaging attacks while casting Lightning Bolt or Chain Lightning by 17% per rank.' },
+
+      /* ── TIER 7 (30 pts) — SPEC ─────────────────────── */
+      { row:6,col:1, spellId:16166, icon:'spell_nature_wispheal',
+        name:'Elemental Mastery',  maxRank:1, rank:0, spec:true,
+        desc:'When activated, your next Fire, Frost, or Nature spell becomes an instant cast spell and has a 100% critical strike chance.' },
+    ]
+  },
+
+  enhancement: {
+    label : 'Aprimoramento',
+    accent: '#d4761a',       /* laranja relâmpago */
+    bgIcon: 'ability_shaman_stormstrike',
+    talents: [
+      /* ── TIER 1 ──────────────────────────────────────── */
+      { row:0,col:0, spellId:16035, icon:'spell_nature_sleep',
+        name:'Ancestral Knowledge', maxRank:5, rank:0,
+        desc:'Increases your maximum Mana by 1% per rank.' },
+      { row:0,col:1, spellId:16040, icon:'inv_shield_06',
+        name:'Shield Specialization', maxRank:5, rank:0,
+        desc:'Increases your chance to block attacks with a shield by 1% per rank and increases the amount blocked by 5% per rank.' },
+
+      /* ── TIER 2 ──────────────────────────────────────── */
+      { row:1,col:0, spellId:16043, icon:'spell_nature_guardianward',
+        name:'Guardian Totems',    maxRank:2, rank:0,
+        desc:'Increases the amount of Mana generated by your Mana Spring Totem by 15% per rank and reduces the cooldown of your Windwall Totem by 30% per rank.' },
+      { row:1,col:1, spellId:16044, icon:'ability_thunderbolt',
+        name:'Thundering Strikes', maxRank:5, rank:0,
+        desc:'Improves your chance to get a critical strike with melee weapons by 1% per rank.' },
+      { row:1,col:2, spellId:16046, icon:'ability_hunter_pet_wolf',
+        name:'Improved Ghost Wolf', maxRank:2, rank:0,
+        desc:'Reduces the cast time of your Ghost Wolf spell by 1 sec per rank.' },
+      { row:1,col:3, spellId:16048, icon:'spell_nature_lightningshield',
+        name:'Improved Lightning Shield', maxRank:3, rank:0,
+        desc:'Increases the damage done by your Lightning Shield orbs by 5% per rank.' },
+
+      /* ── TIER 3 ──────────────────────────────────────── */
+      { row:2,col:0, spellId:16051, icon:'spell_nature_enhancearmor',
+        name:'Enhancing Totems',   maxRank:2, rank:0,
+        desc:'Increases the effect of your Strength of Earth and Grace of Air Totems by 8% per rank.' },
+      { row:2,col:2, spellId:16054, icon:'inv_axe_10',
+        name:'Two-Handed Axes and Maces', maxRank:5, rank:0,
+        desc:'Increases your skill in Two-Handed Axes and Two-Handed Maces by 1 per rank.' },
+
+      /* ── TIER 4 ──────────────────────────────────────── */
+      { row:3,col:0, spellId:16055, icon:'ability_warrior_shield',
+        name:'Anticipation',       maxRank:5, rank:0,
+        desc:'Increases your Defense skill by 4 per rank.' },
+      { row:3,col:1, spellId:16302, icon:'ability_ghoulfrenzy',
+        name:'Flurry',             maxRank:5, rank:0,
+        prereq:{row:1,col:1},
+        desc:'Increases your attack speed by 10% per rank for your next 3 swings after dealing a melee critical strike.' },
+      { row:3,col:2, spellId:16056, icon:'inv_chest_plate04',
+        name:'Toughness',          maxRank:5, rank:0,
+        desc:'Increases your armor value from items by 2% per rank.' },
+
+      /* ── TIER 5 ──────────────────────────────────────── */
+      { row:4,col:0, spellId:29193, icon:'spell_nature_windfury',
+        name:'Improved Weapon Totems', maxRank:2, rank:0,
+        desc:'Increases the melee attack power bonus of your Windfury Totem by 15% per rank and increases the damage bonus of your Flametongue Totem by 6% per rank.' },
+      { row:4,col:2, spellId:16057, icon:'spell_nature_lightningwing',
+        name:'Elemental Weapons',  maxRank:3, rank:0,
+        desc:'Increases the bonus of your Flametongue Weapon by 10% per rank, Frostbrand Weapon by 8% per rank, and the extra damage per Windfury Weapon attack by 13% per rank.' },
+
+      /* ── TIER 6 ──────────────────────────────────────── */
+      { row:5,col:1, spellId:16059, icon:'ability_warrior_challange',
+        name:'Parry',              maxRank:5, rank:0,
+        desc:'Gives you a 1% per rank chance to parry enemy melee attacks.' },
+      { row:5,col:2, spellId:16061, icon:'inv_misc_gem_bloodstone_02',
+        name:'Weapon Mastery',     maxRank:5, rank:0,
+        prereq:{row:4,col:2},
+        desc:'Increases the damage you deal with all weapons by 2% per rank.' },
+
+      /* ── TIER 7 (30 pts) — SPEC ─────────────────────── */
+      { row:6,col:1, spellId:17364, icon:'ability_shaman_stormstrike',
+        name:'Stormstrike',        maxRank:1, rank:0, spec:true,
+        prereq:{row:5,col:2},
+        desc:'Instantly attacks with both weapons for normal damage. In addition, the next 2 sources of Nature damage dealt to the target are increased by 20%. Lasts 12 sec.' },
+    ]
+  },
+
+  restoration: {
+    label : 'Restauração',
+    accent: '#2aaa50',       /* verde natureza */
+    bgIcon: 'spell_nature_magicimmunity',
+    talents: [
+      /* ── TIER 1 ──────────────────────────────────────── */
+      { row:0,col:0, spellId:16182, icon:'spell_nature_healingwavegreater',
+        name:'Improved Healing Wave', maxRank:5, rank:0,
+        desc:'Reduces the cast time of your Healing Wave spell by 0.1 sec per rank.' },
+      { row:0,col:2, spellId:16184, icon:'spell_frost_manarecharge',
+        name:'Tidal Focus',         maxRank:5, rank:0,
+        desc:'Reduces the Mana cost of your healing spells by 1% per rank.' },
+
+      /* ── TIER 2 ──────────────────────────────────────── */
+      { row:1,col:0, spellId:16185, icon:'spell_holy_rapture',
+        name:'Improved Reincarnation', maxRank:2, rank:0,
+        desc:'Reduces the cooldown of your Reincarnation spell by 10 min per rank and increases the amount of health and Mana you reincarnate with by 10% per rank.' },
+      { row:1,col:1, spellId:16187, icon:'spell_nature_undyingstrength',
+        name:'Ancestral Healing',   maxRank:3, rank:0,
+        desc:"Increases your target's armor value by 8% per rank for 15 sec after getting a critical effect from one of your healing spells." },
+      { row:1,col:2, spellId:16189, icon:'spell_nature_tremortotem',
+        name:'Totemic Focus',       maxRank:5, rank:0,
+        desc:'Reduces the Mana cost of your totems by 5% per rank.' },
+
+      /* ── TIER 3 ──────────────────────────────────────── */
+      { row:2,col:0, spellId:16191, icon:'spell_nature_resistnature',
+        name:"Nature's Guidance",   maxRank:3, rank:0,
+        desc:'Increases your chance to hit with melee attacks and spells by 1% per rank.' },
+      { row:2,col:2, spellId:16193, icon:'spell_nature_woodlandguardian',
+        name:'Healing Focus',       maxRank:5, rank:0,
+        desc:'Reduces the pushback suffered from damaging attacks while casting Healing Wave by 14% per rank.' },
+
+      /* ── TIER 4 ──────────────────────────────────────── */
+      { row:3,col:0, spellId:16194, icon:'spell_nature_stoneskintotem',
+        name:'Totemic Mastery',     maxRank:1, rank:0,
+        desc:'The radius of your totems that affect friendly targets is increased to 30 yards.' },
+      { row:3,col:1, spellId:29206, icon:'spell_arcane_blink',
+        name:'Healing Grace',       maxRank:3, rank:0,
+        desc:'Reduces the threat generated by your healing spells by 5% per rank and reduces the chance your spells will be dispelled by 10% per rank.' },
+      { row:3,col:2, spellId:16196, icon:'spell_nature_tranquility',
+        name:'Restorative Totems',  maxRank:5, rank:0,
+        desc:'Increases the effect of your Mana Spring and Healing Stream Totems by 5% per rank.' },
+
+      /* ── TIER 5 ──────────────────────────────────────── */
+      { row:4,col:1, spellId:16200, icon:'spell_frost_wisp',
+        name:'Tidal Mastery',       maxRank:5, rank:0,
+        prereq:{row:3,col:2},
+        desc:'Increases the critical effect chance of your healing and lightning spells by 1% per rank.' },
+
+      /* ── TIER 6 ──────────────────────────────────────── */
+      { row:5,col:0, spellId:29203, icon:'spell_nature_healingwavegreater',
+        name:'Healing Way',         maxRank:3, rank:0,
+        desc:'Your Healing Wave spells have a 33% per rank chance to increase the effect of subsequent Healing Wave spells on that target by 6% for 15 sec.' },
+      { row:5,col:1, spellId:16188, icon:'spell_nature_ravenform',
+        name:"Nature's Swiftness",  maxRank:1, rank:0,
+        prereq:{row:4,col:1},
+        desc:'When activated, your next Nature spell with a cast time less than 10 sec becomes an instant cast spell.' },
+      { row:5,col:2, spellId:29205, icon:'spell_frost_iceshock',
+        name:'Improved Chain Heal', maxRank:2, rank:0,
+        desc:'Increases the amount healed by your Chain Heal spell by 10% per rank.' },
+
+      /* ── TIER 7 (30 pts) — SPEC ─────────────────────── */
+      { row:6,col:1, spellId:16190, icon:'spell_frost_summonwaterelemental',
+        name:'Mana Tide Totem',     maxRank:1, rank:0, spec:true,
+        prereq:{row:5,col:1},
+        desc:'Summons a Mana Tide Totem with 5 health at the feet of the caster for 12 sec that restores 170 Mana to group members every 3 sec.' },
+    ]
+  }
+};
+
+/* ─── HELPERS ────────────────────────────────────────────── */
+const TREE_KEYS = Object.keys(TREES_DATA);
+const nodeX   = col  => col  * CS;
+const nodeY   = row  => row  * RS;
+const centerX = col  => nodeX(col)  + N/2;
+const centerY = row  => nodeY(row)  + N/2;
+const CANVAS_W = COLS * CS - CG + PAD*2;
+const CANVAS_H = ROWS * RS - RG + PAD*2;
+
+function getT(tk,r,c){ return TREES_DATA[tk].talents.find(t=>t.row===r&&t.col===c)||null }
+function treePts(tk){ return TREES_DATA[tk].talents.reduce((s,t)=>s+t.rank,0) }
+function totalPts(){ return TREE_KEYS.reduce((s,k)=>s+treePts(k),0) }
+function tierUnlocked(tk,row){ return treePts(tk) >= row * PTS_PER_TIER }
+
+/* ─── RULES ──────────────────────────────────────────────── */
+function prereqMet(tk, talent){
+  if(!talent.prereq) return true;
+  const p = getT(tk, talent.prereq.row, talent.prereq.col);
+  return p && p.rank === p.maxRank;
+}
+function canAdd(tk, talent){
+  if(totalPts() >= MAX_PTS)         return false;
+  if(talent.rank >= talent.maxRank) return false;
+  if(!tierUnlocked(tk, talent.row)) return false;
+  if(!prereqMet(tk, talent))        return false;
+  return true;
+}
+function canRemove(tk, talent){
+  if(talent.rank <= 0) return false;
+  const deps = TREES_DATA[tk].talents.filter(t=>
+    t.prereq && t.prereq.row===talent.row && t.prereq.col===talent.col && t.rank>0
+  );
+  if(deps.length && talent.rank-1 < talent.maxRank) return false;
+  const newPts      = treePts(tk) - 1;
+  const maxTier     = Math.floor(newPts / PTS_PER_TIER);
+  const higherUsed  = TREES_DATA[tk].talents.some(t=>
+    t.row > maxTier && t.rank > 0 && !(t.row===talent.row&&t.col===talent.col)
+  );
+  if(higherUsed) return false;
+  return true;
+}
+
+/* ─── NODE STATE ─────────────────────────────────────────── */
+function nodeStateClass(tk, talent){
+  if(!tierUnlocked(tk, talent.row)) return 'locked';
+  if(!prereqMet(tk, talent) && talent.rank===0) return 'prereq-blocked';
+  const base = talent.rank===0 ? 'available' : talent.rank===talent.maxRank ? 'maxed' : 'partial';
+  return talent.spec
+    ? 'spec-talent ' + (talent.rank===talent.maxRank ? 'maxed' : talent.rank>0 ? 'partial' : 'available')
+    : base;
+}
+
+/* ─── TOOLTIP ────────────────────────────────────────────── */
+const tip  = document.getElementById('sha-tooltip');
+const tipN = document.getElementById('tt-name');
+const tipR = document.getElementById('tt-rank');
+const tipD = document.getElementById('tt-desc');
+const tipH = document.getElementById('tt-hint');
+
+function showTip(e, tk, talent){
+  tipN.textContent = talent.name;
+  tipR.textContent = `Rank ${talent.rank} / ${talent.maxRank}`;
+  tipD.textContent = talent.desc || '';
+  const hints=[];
+  if(canAdd(tk,talent))              hints.push('Clique para adicionar ponto');
+  else if(talent.rank===talent.maxRank) hints.push('Talento no máximo');
+  else if(!tierUnlocked(tk,talent.row)) hints.push(`Requer ${talent.row*PTS_PER_TIER} pts em ${TREES_DATA[tk].label}`);
+  else if(!prereqMet(tk,talent)){
+    const p=getT(tk,talent.prereq.row,talent.prereq.col);
+    hints.push(`Requer "${p?p.name:'pré-requisito'}" no máximo`);
+  } else if(totalPts()>=MAX_PTS) hints.push('Sem pontos disponíveis');
+  if(canRemove(tk,talent)) hints.push('Clique-direito para remover');
+  tipH.textContent = hints.join(' · ');
+  moveTip(e);
+  tip.style.display='block';
+}
+function moveTip(e){
+  const m=12, tw=tip.offsetWidth||270, th=tip.offsetHeight||110;
+  let x=e.clientX+m, y=e.clientY+m;
+  if(x+tw>window.innerWidth-8)  x=e.clientX-tw-m;
+  if(y+th>window.innerHeight-8) y=e.clientY-th-m;
+  tip.style.left=x+'px';
+  tip.style.top =y+'px';
+}
+document.addEventListener('mousemove', e=>{ if(tip.style.display==='block') moveTip(e) });
+
+/* ─── RENDER ALL ─────────────────────────────────────────── */
+function renderAll(){
+  const total = totalPts();
+  document.getElementById('pts-spent').textContent = total;
+  document.getElementById('pts-bar').style.width   = (total/MAX_PTS*100)+'%';
+
+  document.getElementById('spec-badges').innerHTML = TREE_KEYS.map(tk=>{
+    const pts = treePts(tk);
+    return `<div class="spec-badge${pts>0?' active':''}" style="${pts>0?'border-color:'+TREES_DATA[tk].accent+';color:'+TREES_DATA[tk].accent:''}">${TREES_DATA[tk].label}: ${pts}</div>`;
+  }).join('');
+
+  TREE_KEYS.forEach(tk => renderTree(tk));
+  if(window.$WowheadPower?.refreshLinks) window.$WowheadPower.refreshLinks();
+}
+
+function renderTree(tk){
+  const tree  = TREES_DATA[tk];
+  const panel = document.getElementById(`tree-${tk}`);
+  if(!panel) return;
+
+  const pts = treePts(tk);
+
+  /* label pts */
+  const ptsEl = panel.querySelector('.tree-label-pts');
+  ptsEl.textContent = pts;
+  ptsEl.className   = 'tree-label-pts'+(pts>0?' has':'');
+
+  /* pip row */
+  const pipRow = panel.querySelector('.tree-pip-row');
+  pipRow.innerHTML='';
+  pipRow.style.setProperty('--tree-accent', tree.accent);
+  for(let t=0;t<ROWS;t++){
+    const needed = t * PTS_PER_TIER;
+    const pip = document.createElement('div');
+    pip.className = pts >= needed+PTS_PER_TIER ? 'tier-pip maxed' : pts >= needed ? 'tier-pip on' : 'tier-pip';
+    pipRow.appendChild(pip);
+  }
+
+  /* nodes */
+  tree.talents.forEach(talent=>{
+    const el = document.getElementById(`tn-${tk}-${talent.row}-${talent.col}`);
+    if(!el) return;
+    el.className = 'tn ' + nodeStateClass(tk, talent);
+    const rb = el.querySelector('.tn-rank');
+    if(rb){
+      rb.textContent = `${talent.rank}/${talent.maxRank}`;
+      rb.style.color  = talent.rank===talent.maxRank ? 'var(--gold)' : '';
+    }
+  });
+
+  /* tier dividers */
+  for(let r=1;r<ROWS;r++){
+    const div = panel.querySelector(`.tier-div[data-row="${r}"]`);
+    const req = panel.querySelector(`.tier-req[data-row="${r}"]`);
+    const ul  = pts >= r * PTS_PER_TIER;
+    if(div){ div.className='tier-div'+(ul?' unlocked':''); div.style.setProperty('--tree-accent',tree.accent) }
+    if(req){ req.className='tier-req'+(ul?' unlocked':'') }
+  }
+
+  /* arrows */
+  const svg = panel.querySelector('.arrows-svg');
+  if(svg){
+    tree.talents.forEach(talent=>{
+      if(!talent.prereq) return;
+      const prereq = getT(tk,talent.prereq.row,talent.prereq.col);
+      const met    = prereq && prereq.rank===prereq.maxRank;
+      const path   = svg.querySelector(`#arrow-${tk}-${talent.row}-${talent.col}`);
+      if(path){
+        path.className.baseVal = 'arrow-path'+(met?' prereq-met':'');
+        if(met) path.setAttribute('stroke', tree.accent);
+        else    path.setAttribute('stroke', 'var(--dim)');
+        path.setAttribute('marker-end',`url(#arrowhead-${met?'on':'off'}-${tk})`);
+      }
+    });
+  }
+}
+
+/* ─── BUILD (initial DOM creation) ──────────────────────── */
+function buildTrees(){
+  const container = document.getElementById('sha-trees');
+  container.innerHTML='';
+
+  TREE_KEYS.forEach(tk=>{
+    const tree = TREES_DATA[tk];
+
+    /* panel */
+    const panel = document.createElement('div');
+    panel.className='sha-tree';
+    panel.id=`tree-${tk}`;
+    panel.style.setProperty('--tree-accent', tree.accent);
+    panel.innerHTML='<div class="corner-tr"></div><div class="corner-bl"></div>';
+
+    /* label */
+    const label=document.createElement('div');
+    label.className='tree-label';
+    label.innerHTML=`
+      <div>
+        <div class="tree-label-name" style="color:${tree.accent}">${tree.label}</div>
+        <div class="tree-pip-row"></div>
+      </div>
+      <div class="tree-label-pts">0</div>`;
+    panel.appendChild(label);
+
+    /* canvas */
+    const canvas=document.createElement('div');
+    canvas.className='tree-canvas';
+    canvas.style.width =CANVAS_W+'px';
+    canvas.style.height=CANVAS_H+'px';
+    canvas.style.setProperty('--tree-accent', tree.accent);
+
+    /* bg art */
+    const bg=document.createElement('img');
+    bg.className='tree-bg-art';
+    bg.src=`${CDN}/${tree.bgIcon}.jpg`;
+    bg.alt='';
+    canvas.appendChild(bg);
+
+    /* tier dividers */
+    for(let r=1;r<ROWS;r++){
+      const y = PAD + nodeY(r) - RG/2;
+      const d=document.createElement('div');
+      d.className='tier-div';
+      d.dataset.row=r;
+      d.style.top=y+'px';
+      canvas.appendChild(d);
+
+      const rl=document.createElement('div');
+      rl.className='tier-req';
+      rl.dataset.row=r;
+      rl.style.top=(y-10)+'px';
+      rl.textContent=`${r*PTS_PER_TIER} pts`;
+      canvas.appendChild(rl);
+    }
+
+    /* SVG arrows */
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','arrows-svg');
+    svg.setAttribute('width', CANVAS_W-PAD*2);
+    svg.setAttribute('height',CANVAS_H-PAD*2);
+    svg.setAttribute('overflow','visible');
+
+    /* defs: two arrowhead markers per tree (off/on) */
+    const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+    [['off','#3a2a10'],['on', tree.accent]].forEach(([id,col])=>{
+      const m=document.createElementNS('http://www.w3.org/2000/svg','marker');
+      m.setAttribute('id',`arrowhead-${id}-${tk}`);
+      m.setAttribute('markerWidth','7');
+      m.setAttribute('markerHeight','5');
+      m.setAttribute('refX','6');
+      m.setAttribute('refY','2.5');
+      m.setAttribute('orient','auto');
+      const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      poly.setAttribute('points','0 0, 7 2.5, 0 5');
+      poly.setAttribute('fill',col);
+      m.appendChild(poly);
+      defs.appendChild(m);
+    });
+    svg.appendChild(defs);
+
+    /* draw prereq arrows */
+    tree.talents.forEach(talent=>{
+      if(!talent.prereq) return;
+      const pr=talent.prereq;
+      const x1=centerX(pr.col),       y1=nodeY(pr.row)+N;
+      const x2=centerX(talent.col),   y2=nodeY(talent.row);
+      let d;
+      if(pr.col===talent.col){
+        d=`M ${x1} ${y1} L ${x2} ${y2}`;
+      } else {
+        const midY=(y1+y2)/2;
+        d=`M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
+      }
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',d);
+      path.setAttribute('id',`arrow-${tk}-${talent.row}-${talent.col}`);
+      path.setAttribute('class','arrow-path');
+      path.setAttribute('marker-end',`url(#arrowhead-off-${tk})`);
+      path.setAttribute('stroke','var(--dim)');
+      path.setAttribute('stroke-dasharray','4 3');
+      path.setAttribute('stroke-width','1.5');
+      path.setAttribute('fill','none');
+      svg.appendChild(path);
+    });
+    canvas.appendChild(svg);
+
+    /* nodes */
+    tree.talents.forEach(talent=>{
+      const node=document.createElement('div');
+      node.id=`tn-${tk}-${talent.row}-${talent.col}`;
+      node.className='tn available';
+      node.style.left=(PAD+nodeX(talent.col))+'px';
+      node.style.top =(PAD+nodeY(talent.row))+'px';
+      node.style.setProperty('--tree-accent', tree.accent);
+
+      const frame=document.createElement('div');
+      frame.className='tn-frame';
+      frame.style.setProperty('--tree-accent', tree.accent);
+
+      const img=document.createElement('img');
+      img.src=`${CDN}/${talent.icon}.jpg`;
+      img.width=N; img.height=N; img.alt=talent.name;
+      img.onerror=function(){ this.src=`${CDN}/inv_misc_questionmark.jpg` };
+      frame.appendChild(img);
+
+      /* wowhead link (tooltips) */
+      const link=document.createElement('a');
+      link.href=`${WH}${talent.spellId}`;
+      link.dataset.whIconSize='small';
+      link.style.cssText='position:absolute;inset:0;display:block';
+      link.onclick=e=>e.preventDefault();
+      frame.appendChild(link);
+
+      const rank=document.createElement('span');
+      rank.className='tn-rank';
+      rank.textContent=`0/${talent.maxRank}`;
+
+      node.appendChild(frame);
+      node.appendChild(rank);
+
+      /* events */
+      node.addEventListener('click',e=>{
+        e.preventDefault();
+        addPoint(tk, talent);
+        if(tip.style.display==='block') showTip(e,tk,talent);
+      });
+      node.addEventListener('contextmenu',e=>{
+        e.preventDefault();
+        removePoint(tk,talent);
+        if(tip.style.display==='block') showTip(e,tk,talent);
+      });
+      node.addEventListener('mouseenter', e=>showTip(e,tk,talent));
+      node.addEventListener('mouseleave', ()=>{ tip.style.display='none' });
+      node.addEventListener('mousemove',  e=>moveTip(e));
+
+      canvas.appendChild(node);
+    });
+
+    panel.appendChild(canvas);
+    container.appendChild(panel);
+  });
+
+  renderAll();
+}
+
+/* ─── POINT MUTATION ─────────────────────────────────────── */
+function addPoint(tk,talent){ if(canAdd(tk,talent)){ talent.rank++; renderAll(); } }
+function removePoint(tk,talent){ if(canRemove(tk,talent)){ talent.rank--; renderAll(); } }
+
+/* ─── PUBLIC API ─────────────────────────────────────────── */
+window.ShamanTree = {
+  load(data){
+    Object.keys(data).forEach(tk=>{
+      if(!TREES_DATA[tk]) return;
+      data[tk].forEach((rowArr,ri)=>{
+        if(!rowArr) return;
+        rowArr.forEach((rank,ci)=>{
+          if(rank==null) return;
+          const t=getT(tk,ri,ci);
+          if(t) t.rank=Math.min(rank,t.maxRank);
+        });
+      });
+    });
+    renderAll();
+  },
+  reset(){
+    TREE_KEYS.forEach(tk=>TREES_DATA[tk].talents.forEach(t=>{ t.rank=0 }));
+    renderAll();
+  }
+};
+
+buildTrees();
+</script>
+</body>
+</html>

@@ -304,12 +304,16 @@
       const container = document.getElementById(containerId);
       if (!container) return;
 
-      container.innerHTML = profs.map(p => `
+      container.innerHTML = profs.map(p => {
+          const skillPoints = p.skillPoints !== undefined ? p.skillPoints : p.skill_points;
+          const maxSkillPoints = p.maxSkillPoints !== undefined ? p.maxSkillPoints : p.max_skill_points;
+          return `
           <div class="stat-row">
               <span class="stat-name">${p.name}</span>
-              <span class="stat-val" style="font-size: 14px;">${p.skillPoints} / ${p.maxSkillPoints}</span>
+              <span class="stat-val" style="font-size: 14px;">${skillPoints || 0} / ${maxSkillPoints || 300}</span>
           </div>
-      `).join('') || '<p style="color:#444; font-size:12px; font-style:italic;">Nenhuma profissão ativa.</p>';
+          `;
+      }).join('') || '<p style="color:#444; font-size:12px; font-style:italic;">Nenhuma profissão ativa.</p>';
     },
 
     renderPlannerGrid(containerId, plannerItems, slots, slotNames, rarityColors, avatarUrl) {

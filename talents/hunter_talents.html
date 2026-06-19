@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caçador — Talentos | WoW Classic</title>
+<!--
+  WOWHEAD TOOLTIPS — descomentar no projeto pai:
+  <script>var whTooltips={colorLinks:true,iconizeLinks:true,renameLinks:true,domain:'classic'};</script>
+  <script src="https://wow.zamimg.com/js/tooltips.js"></script>
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:     #090d07;
+  --panel:  #0f1409;
+  --border: #2e4020;
+  --border2:#4a6032;
+  --gold:   #f7c14d;
+  --gold2:  #c8972a;
+  --gold3:  #7a5a1a;
+  --gold4:  #4a3010;
+  --text:   #b8c8a0;
+  --muted:  #6a8058;
+  --dim:    #1a2412;
+
+  --n:  44px;
+  --cg: 16px;
+  --rg: 28px;
+  --cs: calc(var(--n) + var(--cg));
+  --rs: calc(var(--n) + var(--rg));
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Cinzel',serif;
+  padding:20px;
+  min-width:860px;
+}
+
+/* ── HEADER ──────────────────────────────────────────── */
+.hu-header{
+  display:flex;align-items:center;gap:14px;
+  padding-bottom:14px;margin-bottom:18px;
+  border-bottom:1px solid var(--border2);
+  position:relative;
+}
+.hu-header::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,#3a6030 30%,#6aaa50 50%,#3a6030 70%,transparent);
+}
+.hu-class-icon{
+  width:52px;height:52px;
+  border:2px solid #3a6030;
+  image-rendering:pixelated;
+}
+.hu-title{font-size:24px;font-weight:900;color:var(--gold);letter-spacing:2px}
+.hu-sub  {font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px}
+
+.hu-pts-wrap{margin-left:auto;text-align:right}
+.hu-pts-total{font-size:28px;font-weight:900;color:var(--gold);line-height:1}
+.hu-pts-total span{font-size:16px;color:var(--muted)}
+.hu-pts-label{font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:2px}
+.hu-pts-bar-wrap{height:4px;width:180px;background:var(--dim);border:1px solid var(--border);margin-top:4px}
+.hu-pts-bar{height:100%;background:linear-gradient(90deg,#3a6030,#6aaa50);transition:width .2s}
+
+.hu-reset-btn{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;
+  padding:6px 16px;
+  background:var(--dim);border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;transition:all .15s;margin-left:16px;
+}
+.hu-reset-btn:hover{border-color:#6aaa50;color:var(--gold)}
+
+/* ── SPEC BADGES ─────────────────────────────────────── */
+.spec-badges{display:flex;gap:8px;margin-left:16px}
+.spec-badge{padding:4px 12px;font-size:10px;letter-spacing:1px;border:1px solid var(--border);color:var(--muted);transition:all .2s}
+.spec-badge.active{border-color:var(--gold2);color:var(--gold)}
+
+/* ── TREES ───────────────────────────────────────────── */
+.hu-trees{display:flex;gap:20px;align-items:flex-start}
+
+/* ── TREE PANEL ──────────────────────────────────────── */
+.hu-tree{flex:1;background:var(--panel);border:1px solid var(--border);position:relative}
+.hu-tree::before,.hu-tree::after{
+  content:'';position:absolute;width:10px;height:10px;
+  border-color:#3a6030;border-style:solid;pointer-events:none;z-index:10;
+}
+.hu-tree::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.hu-tree::after {bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.corner-tr,.corner-bl{position:absolute;width:10px;height:10px;border-color:#3a6030;border-style:solid;pointer-events:none;z-index:10}
+.corner-tr{top:-1px;right:-1px;border-width:2px 2px 0 0}
+.corner-bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+
+/* ── TREE LABEL ──────────────────────────────────────── */
+.tree-label{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 8px;border-bottom:1px solid var(--border)}
+.tree-label-name{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.tree-label-pts{font-size:13px;font-weight:900;color:#1e3018;letter-spacing:1px;transition:color .2s}
+.tree-label-pts.has{color:var(--gold)}
+.tree-pip-row{display:flex;gap:3px;margin-top:4px}
+.tier-pip{width:18px;height:3px;background:var(--dim);transition:background .25s}
+
+/* ── CANVAS ──────────────────────────────────────────── */
+.tree-canvas{position:relative;padding:14px;overflow:hidden}
+.tree-bg-art{position:absolute;width:220px;height:220px;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.04;image-rendering:pixelated;pointer-events:none;z-index:0}
+.tier-div{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--dim) 30%,var(--dim) 70%,transparent);pointer-events:none;z-index:1}
+.tier-div.unlocked{opacity:.7}
+.tier-req{position:absolute;right:0;font-size:8px;color:#1e3018;letter-spacing:1px;font-family:'Cinzel',serif;pointer-events:none;z-index:2;transition:color .2s}
+.tier-req.unlocked{color:#4a6030}
+
+/* ── SVG ─────────────────────────────────────────────── */
+.arrows-svg{position:absolute;top:14px;left:14px;pointer-events:none;z-index:2;overflow:visible}
+.arrow-path{fill:none;stroke-width:1.5;stroke:var(--dim);stroke-dasharray:4 3;transition:stroke .25s,stroke-dasharray .25s}
+.arrow-path.prereq-met{stroke-dasharray:none}
+
+/* ── NODE BASE ───────────────────────────────────────── */
+.tn{position:absolute;width:var(--n);height:var(--n);z-index:3;cursor:pointer;transition:transform .1s}
+.tn:hover{transform:scale(1.09);z-index:20}
+.tn-frame{position:absolute;inset:0;border:2px solid var(--border);background:#060908;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.tn img{width:100%;height:100%;display:block;image-rendering:pixelated;filter:grayscale(100%) brightness(.4);transition:filter .2s}
+.tn-rank{position:absolute;bottom:-1px;right:-1px;font-size:8px;font-family:sans-serif;font-weight:700;background:rgba(0,0,0,.92);color:var(--muted);padding:0 3px;line-height:12px;z-index:4;pointer-events:none;border-top:1px solid var(--border);border-left:1px solid var(--border);transition:color .2s}
+
+/* ── NODE STATES ─────────────────────────────────────── */
+.tn.locked{cursor:not-allowed;opacity:.2}
+.tn.locked:hover{transform:none}
+.tn.available .tn-frame{border-color:var(--border2)}
+.tn.available img{filter:grayscale(50%) brightness(.6)}
+.tn.partial .tn-frame{border-color:var(--tree-accent,#6aaa50);box-shadow:inset 0 0 8px rgba(106,170,80,.12)}
+.tn.partial img{filter:grayscale(10%) brightness(.9)}
+.tn.partial .tn-rank{color:#aaddaa}
+.tn.maxed .tn-frame{border-color:var(--tree-accent,#6aaa50);box-shadow:0 0 9px rgba(106,170,80,.4),inset 0 0 8px rgba(106,170,80,.15)}
+.tn.maxed img{filter:grayscale(0%) brightness(1.05) saturate(1.1)}
+.tn.maxed .tn-rank{color:var(--gold);background:rgba(0,0,0,.95)}
+.tn.spec-talent .tn-frame{border-color:var(--gold);box-shadow:0 0 14px rgba(106,170,80,.55),inset 0 0 10px rgba(247,193,77,.15)}
+.tn.spec-talent img{filter:brightness(1.1) saturate(1.2) drop-shadow(0 0 4px rgba(106,170,80,.5))}
+.tn.spec-talent .tn-rank{color:var(--gold);border-color:var(--gold2)}
+.tn.spec-talent::before,.tn.spec-talent::after{content:'';position:absolute;width:6px;height:6px;background:var(--gold);transform:rotate(45deg);z-index:5;pointer-events:none}
+.tn.spec-talent::before{top:-3px;left:calc(50% - 3px)}
+.tn.spec-talent::after {bottom:-3px;left:calc(50% - 3px)}
+@keyframes spec-glow-hu{
+  0%,100%{box-shadow:0 0 14px rgba(106,170,80,.55),inset 0 0 10px rgba(247,193,77,.15)}
+  50%    {box-shadow:0 0 26px rgba(106,170,80,.85),inset 0 0 18px rgba(247,193,77,.28)}
+}
+.tn.spec-talent.maxed .tn-frame{animation:spec-glow-hu 2.2s ease-in-out infinite}
+.tn.prereq-blocked .tn-frame::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.55);border:1px solid #6b1a1a}
+
+/* ── TOOLTIP ─────────────────────────────────────────── */
+.hu-tooltip{position:fixed;background:linear-gradient(180deg,#111a0c 0%,#0b1008 100%);border:1px solid #3a6030;padding:10px 14px;max-width:270px;pointer-events:none;z-index:9999;display:none;box-shadow:0 4px 24px rgba(0,0,0,.85),0 0 20px rgba(80,140,50,.1)}
+.hu-tooltip::before{content:'';position:absolute;top:-1px;left:-1px;width:6px;height:6px;border-top:2px solid #6aaa50;border-left:2px solid #6aaa50}
+.hu-tooltip::after {content:'';position:absolute;bottom:-1px;right:-1px;width:6px;height:6px;border-bottom:2px solid #6aaa50;border-right:2px solid #6aaa50}
+.tt-name{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:4px}
+.tt-rank{font-size:10px;color:#aaddaa;margin-bottom:6px;letter-spacing:1px}
+.tt-desc{font-size:11px;color:var(--text);line-height:1.65;font-family:sans-serif;font-style:italic}
+.tt-hint{font-size:10px;color:var(--muted);margin-top:6px;font-family:sans-serif;border-top:1px solid var(--border);padding-top:5px}
+
+/* ── FOOTER ──────────────────────────────────────────── */
+.hu-footer{margin-top:18px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:20px;flex-wrap:wrap}
+.legend{display:flex;gap:16px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);letter-spacing:1px}
+.leg-dot{width:14px;height:14px;border:2px solid var(--border);background:#060908;flex-shrink:0}
+.leg-dot.available{border-color:var(--border2)}
+.leg-dot.partial  {border-color:#6aaa50;background:var(--panel)}
+.leg-dot.maxed    {border-color:#6aaa50;box-shadow:0 0 5px rgba(106,170,80,.45)}
+.leg-dot.spec     {border-color:var(--gold);box-shadow:0 0 8px rgba(247,193,77,.5)}
+.leg-dot.locked   {opacity:.2}
+
+.api-note{margin-top:16px;padding:10px 14px;background:#0b1008;border:1px solid var(--dim);border-left:3px solid #3a6030;font-size:9px;color:var(--muted);line-height:1.9;letter-spacing:.5px}
+.api-note code{color:#aaddaa;font-family:monospace;font-size:10px}
+</style>
+</head>
+<body>
+
+<div class="hu-tooltip" id="hu-tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-rank" id="tt-rank"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+  <div class="tt-hint" id="tt-hint"></div>
+</div>
+
+<div class="hu-header">
+  <img class="hu-class-icon"
+       src="https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg"
+       alt="Caçador" onerror="this.style.display='none'">
+  <div>
+    <div class="hu-title">Caçador</div>
+    <div class="hu-sub">WoW CLASSIC 1.12 · 51 PONTOS DE TALENTO</div>
+  </div>
+  <div class="spec-badges" id="spec-badges"></div>
+  <div class="hu-pts-wrap">
+    <div class="hu-pts-total"><span id="pts-spent">0</span><span> / 51</span></div>
+    <div class="hu-pts-label">PONTOS GASTOS</div>
+    <div class="hu-pts-bar-wrap"><div class="hu-pts-bar" id="pts-bar" style="width:0%"></div></div>
+  </div>
+  <button class="hu-reset-btn" onclick="HunterTree.reset()">↺ Resetar</button>
+</div>
+
+<div class="hu-trees" id="hu-trees"></div>
+
+<div class="hu-footer">
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot locked"></div>Tier bloqueado</div>
+    <div class="leg-item"><div class="leg-dot available"></div>Disponível</div>
+    <div class="leg-item"><div class="leg-dot partial"></div>Parcial</div>
+    <div class="leg-item"><div class="leg-dot maxed"></div>Máximo</div>
+    <div class="leg-item"><div class="leg-dot spec"></div>Talento Final</div>
+  </div>
+</div>
+
+<div class="api-note">
+  <strong style="color:#aaddaa">BACKEND API</strong> —
+  <code>HunterTree.load({ beastMastery:[[r,…],…], marksmanship:[[…]], survival:[[…]] })</code>
+  · Sub-array = linha; número = rank (null = célula vazia).
+  · Click-esquerdo aloca · Click-direito remove · Tooltips via <code>whTooltips</code>.
+</div>
+
+<script>
+/* ─── GRID ───────────────────────────────────────────── */
+const N=44,CG=16,RG=28,CS=N+CG,RS=N+RG,PAD=14;
+const COLS=4,ROWS=7,MAX_PTS=51,PTS_PER_TIER=5;
+const CDN='https://wow.zamimg.com/images/wow/icons/medium';
+const WH='https://www.wowhead.com/classic/spell=';
+const CANVAS_W=COLS*CS-CG+PAD*2;  /* 252 */
+const CANVAS_H=ROWS*RS-RG+PAD*2;  /* 504 */
+const nodeX=c=>c*CS, nodeY=r=>r*RS;
+const centX=c=>nodeX(c)+N/2, centY=r=>nodeY(r)+N/2;
+
+/* ─── DATA ───────────────────────────────────────────────────────────────
+   Fonte: WoW Classic 1.12.1 Hunter talent trees
+──────────────────────────────────────────────────────────────────────── */
+const TREES_DATA = {
+
+  /* ══════════════════════════════════════════════════════════
+     BESTIALIDADE — pet, vínculo, fúria animal
+  ══════════════════════════════════════════════════════════ */
+  beastMastery:{
+    label:'Bestialidade',
+    accent:'#cc8822',
+    bgIcon:'ability_hunter_beasttaming',
+    talents:[
+      /* Tier 1 */
+      { row:0,col:0, spellId:19556, icon:'spell_nature_ravenform',
+        name:'Improved Aspect of the Hawk', maxRank:5, rank:0,
+        desc:'While Aspect of the Hawk is active, all normal ranged attacks have a 2% per rank chance of increasing ranged attack speed by 30% for 12 sec.' },
+      { row:0,col:1, spellId:19623, icon:'ability_hunter_pet_bear',
+        name:'Endurance Training',           maxRank:5, rank:0,
+        desc:'Increases the total health of your pets by 3% per rank.' },
+      /* Tier 2 */
+      { row:1,col:0, spellId:19583, icon:'ability_hunter_eagleeye',
+        name:'Improved Eyes of the Beast',   maxRank:2, rank:0,
+        desc:'Increases the duration of your Eyes of the Beast spell by 1 min per rank.' },
+      { row:1,col:1, spellId:19584, icon:'ability_druid_bash',
+        name:'Improved Aspect of the Monkey',maxRank:5, rank:0,
+        desc:'Increases the Dodge bonus of your Aspect of the Monkey by 2% per rank.' },
+      { row:1,col:2, spellId:19585, icon:'ability_hunter_pet_turtle',
+        name:'Thick Hide',                   maxRank:3, rank:0,
+        desc:'Increases the Armor rating of your pets by 10% per rank.' },
+      /* Tier 3 */
+      { row:2,col:0, spellId:19587, icon:'spell_nature_reincarnation',
+        name:'Improved Revive Pet',          maxRank:2, rank:0,
+        desc:'Reduces the casting time of your Revive Pet spell by 2 sec per rank and reduces the Mana cost by 20% per rank.' },
+      { row:2,col:1, spellId:19590, icon:'ability_hunter_runningshot',
+        name:'Pathfinding',                  maxRank:2, rank:0,
+        desc:'Increases the speed bonus of your Aspect of the Cheetah and Aspect of the Pack by 3% per rank.' },
+      { row:2,col:2, spellId:19593, icon:'ability_hunter_pet_cat',
+        name:'Bestial Swiftness',            maxRank:1, rank:0,
+        desc:'Increases the outdoor movement speed of your pets by 30%.' },
+      /* Tier 4 */
+      { row:3,col:0, spellId:19599, icon:'ability_druid_bash',
+        name:'Unleashed Fury',               maxRank:5, rank:0,
+        desc:'Increases the damage done by your pets by 4% per rank.' },
+      { row:3,col:2, spellId:19602, icon:'spell_holy_blessingofagility',
+        name:'Improved Mend Pet',            maxRank:2, rank:0,
+        desc:'Gives the Mend Pet spell a 15% per rank chance of cleansing one Curse, Disease, Magic or Poison effect from the pet each tick.' },
+      /* Tier 5 */
+      { row:4,col:1, spellId:19609, icon:'ability_hunter_pet_hyena',
+        name:'Ferocity',                     maxRank:5, rank:0,
+        prereq:{row:3,col:0},
+        desc:'Increases the critical strike chance of your pets by 3% per rank.' },
+      /* Tier 6 */
+      { row:5,col:0, spellId:19613, icon:'spell_holy_prayerofhealing02',
+        name:'Spirit Bond',                  maxRank:2, rank:0,
+        desc:'While your pet is alive, you and your pet will regenerate 1% per rank of total health every 10 sec.' },
+      { row:5,col:2, spellId:19577, icon:'ability_hunter_snipertraining',
+        name:'Intimidation',                 maxRank:1, rank:0,
+        prereq:{row:4,col:1},
+        desc:'Command your pet to intimidate the target on the next attack, causing a high amount of threat and stunning the target for 3 sec.' },
+      /* Tier 7 — SPEC */
+      { row:6,col:1, spellId:19574, icon:'ability_hunter_beastwarden',
+        name:'Bestial Wrath',                maxRank:1, rank:0, spec:true,
+        prereq:{row:5,col:2},
+        desc:'Send your pet into a rage causing 50% additional damage for 18 sec. While enraged, the beast does not feel pity or remorse or fear and it cannot be stopped unless killed.' },
+    ]
+  },
+
+  /* ══════════════════════════════════════════════════════════
+     PONTARIA — ranged, crítico, alcance
+  ══════════════════════════════════════════════════════════ */
+  marksmanship:{
+    label:'Pontaria',
+    accent:'#3399cc',
+    bgIcon:'ability_marksmanship',
+    talents:[
+      /* Tier 1 */
+      { row:0,col:0, spellId:19425, icon:'ability_gouge',
+        name:'Improved Concussive Shot',     maxRank:5, rank:0,
+        desc:'Gives your Concussive Shot a 4% per rank chance to stun the target for 3 sec.' },
+      { row:0,col:1, spellId:19416, icon:'spell_frost_iceshock',
+        name:'Efficiency',                   maxRank:5, rank:0,
+        desc:'Reduces the Mana cost of your shots and stings by 2% per rank.' },
+      /* Tier 2 */
+      { row:1,col:0, spellId:19426, icon:'ability_hunter_snipertraining',
+        name:"Improved Hunter's Mark",       maxRank:5, rank:0,
+        desc:"Increases the attack power bonus of your Hunter's Mark spell by 20% per rank." },
+      { row:1,col:1, spellId:19464, icon:'ability_marksmanship',
+        name:'Lethal Shots',                 maxRank:5, rank:0,
+        desc:'Increases the critical strike chance of your ranged attacks by 1% per rank.' },
+      /* Tier 3 */
+      { row:2,col:0, spellId:19434, icon:'ability_hunter_aimedshot',
+        name:'Aimed Shot',                   maxRank:1, rank:0,
+        desc:'An aimed shot that increases ranged damage by 70 and increases the time between the target\'s normal attacks by 50% for 3 sec.' },
+      { row:2,col:1, spellId:19458, icon:'spell_frost_stun',
+        name:'Improved Arcane Shot',         maxRank:5, rank:0,
+        desc:'Reduces the cooldown of your Arcane Shot by 0.2 sec per rank.' },
+      /* Tier 4 */
+      { row:3,col:0, spellId:19454, icon:'ability_hunter_eagleeye',
+        name:'Hawk Eye',                     maxRank:3, rank:0,
+        desc:'Increases the range of your ranged weapons by 2 yards per rank.' },
+      { row:3,col:1, spellId:19465, icon:'ability_hunter_intensivefocus',
+        name:'Improved Serpent Sting',       maxRank:5, rank:0,
+        desc:'Increases the damage dealt by your Serpent Sting by 2% per rank.' },
+      /* Tier 5 */
+      { row:4,col:1, spellId:19506, icon:'ability_criticalstrike',
+        name:'Mortal Shots',                 maxRank:5, rank:0,
+        prereq:{row:1,col:1},
+        desc:'Increases the ranged weapon critical strike damage bonus by 6% per rank.' },
+      /* Tier 6 */
+      { row:5,col:0, spellId:19503, icon:'ability_gouge',
+        name:'Scatter Shot',                 maxRank:1, rank:0,
+        desc:'A short-range attack that deals 50% weapon damage and disorients the target for 4 sec. Any damage caused will remove the effect. Turns off your attack when used.' },
+      { row:5,col:2, spellId:20007, icon:'ability_marksmanship',
+        name:'Ranged Weapon Specialization', maxRank:5, rank:0,
+        prereq:{row:4,col:1},
+        desc:'Increases the damage you deal with ranged weapons by 1% per rank.' },
+      /* Tier 7 — SPEC */
+      { row:6,col:1, spellId:20906, icon:'ability_hunter_trueshot',
+        name:'Trueshot Aura',                maxRank:1, rank:0, spec:true,
+        prereq:{row:5,col:2},
+        desc:'Increases the attack power of all party members within 45 yards by 50. Lasts until cancelled.' },
+    ]
+  },
+
+  /* ══════════════════════════════════════════════════════════
+     SOBREVIVÊNCIA — armadilhas, reflexos, agilidade
+  ══════════════════════════════════════════════════════════ */
+  survival:{
+    label:'Sobrevivência',
+    accent:'#44aa44',
+    bgIcon:'ability_hunter_camouflage',
+    talents:[
+      /* Tier 1 */
+      { row:0,col:0, spellId:19383, icon:'ability_druid_bash',
+        name:'Monster Slaying',              maxRank:3, rank:0,
+        desc:'Increases all damage caused to Beasts, Giants, and Dragonkin targets by 1% per rank and increases your critical strike chance against such targets by 1% per rank.' },
+      { row:0,col:1, spellId:19386, icon:'ability_rogue_feigndeath',
+        name:'Humanoid Slaying',             maxRank:3, rank:0,
+        desc:'Increases all damage caused to Humanoid targets by 1% per rank and increases your critical strike chance against such targets by 1% per rank.' },
+      /* Tier 2 */
+      { row:1,col:0, spellId:19389, icon:'ability_parry',
+        name:'Deflection',                   maxRank:5, rank:0,
+        desc:'Increases your Parry chance by 1% per rank.' },
+      { row:1,col:1, spellId:19392, icon:'ability_meleedamage',
+        name:'Savage Strikes',               maxRank:2, rank:0,
+        desc:'Increases the critical strike chance of Raptor Strike and Mongoose Bite by 10% per rank.' },
+      /* Tier 3 */
+      { row:2,col:0, spellId:19395, icon:'ability_rogue_sprint',
+        name:'Improved Wing Clip',           maxRank:3, rank:0,
+        desc:'Gives your Wing Clip ability a 5% per rank chance to immobilize the target for 5 sec.' },
+      { row:2,col:2, spellId:19398, icon:'ability_hunter_freezingtrap',
+        name:'Entrapment',                   maxRank:5, rank:0,
+        desc:'Gives your Frost Trap and Immolation Trap a 2% per rank chance to entrap the target, preventing them from moving for 5 sec.' },
+      /* Tier 4 */
+      { row:3,col:0, spellId:19401, icon:'ability_hunter_traplauncher',
+        name:'Clever Traps',                 maxRank:2, rank:0,
+        prereq:{row:2,col:2},
+        desc:'Increases the duration of your Freezing Trap, Frost Trap, and Immolation Trap effects by 25% per rank.' },
+      { row:3,col:1, spellId:19403, icon:'ability_hunter_beastmastery',
+        name:'Survivalist',                  maxRank:5, rank:0,
+        desc:'Increases your total Health by 2% per rank.' },
+      /* Tier 5 */
+      { row:4,col:0, spellId:19407, icon:'ability_hunter_steadyshot',
+        name:'Surefooted',                   maxRank:3, rank:0,
+        desc:'Increases your chance to resist Stun and Immobilization effects by 5% per rank and increases your chance to hit when using ranged attacks by 1% per rank.' },
+      { row:4,col:1, spellId:19410, icon:'ability_rogue_feigndeath',
+        name:'Improved Feign Death',         maxRank:2, rank:0,
+        desc:'Reduces the chance your Feign Death ability will be resisted by 2% per rank.' },
+      /* Tier 6 */
+      { row:5,col:0, spellId:26006, icon:'ability_hunter_quickshots',
+        name:'Lightning Reflexes',           maxRank:5, rank:0,
+        desc:'Increases your Agility by 3% per rank.' },
+      { row:5,col:2, spellId:19413, icon:'ability_hunter_freezingtrap',
+        name:'Improved Freezing Trap',       maxRank:3, rank:0,
+        prereq:{row:4,col:0},
+        desc:'Increases the duration of your Freezing Trap effect by 2 sec per rank.' },
+      /* Tier 7 — SPEC */
+      { row:6,col:1, spellId:19386, icon:'ability_hunter_wyvernsting',
+        name:'Wyvern Sting',                 maxRank:1, rank:0, spec:true,
+        prereq:{row:5,col:0},
+        desc:'A stinging shot that puts the target to sleep while also dealing Nature damage over 12 sec. Any damage caused will cancel the effect. Only one Sting per Hunter can be active on any one target.' },
+    ]
+  }
+};
+
+/* ─── ENGINE ─────────────────────────────────────────── */
+const TREE_KEYS=Object.keys(TREES_DATA);
+const getT=(tk,r,c)=>TREES_DATA[tk].talents.find(t=>t.row===r&&t.col===c)||null;
+const treePts=tk=>TREES_DATA[tk].talents.reduce((s,t)=>s+t.rank,0);
+const totalPts=()=>TREE_KEYS.reduce((s,k)=>s+treePts(k),0);
+const tierUnlocked=(tk,row)=>treePts(tk)>=row*PTS_PER_TIER;
+
+function prereqMet(tk,t){
+  if(!t.prereq) return true;
+  const p=getT(tk,t.prereq.row,t.prereq.col);
+  return p&&p.rank===p.maxRank;
+}
+function canAdd(tk,t){
+  return totalPts()<MAX_PTS&&t.rank<t.maxRank&&tierUnlocked(tk,t.row)&&prereqMet(tk,t);
+}
+function canRemove(tk,t){
+  if(t.rank<=0) return false;
+  const deps=TREES_DATA[tk].talents.filter(d=>d.prereq&&d.prereq.row===t.row&&d.prereq.col===t.col&&d.rank>0);
+  if(deps.length&&t.rank-1<t.maxRank) return false;
+  const np=treePts(tk)-1, mt=Math.floor(np/PTS_PER_TIER);
+  return !TREES_DATA[tk].talents.some(d=>d.row>mt&&d.rank>0&&!(d.row===t.row&&d.col===t.col));
+}
+function nodeStateClass(tk,t){
+  if(!tierUnlocked(tk,t.row)) return 'locked';
+  if(!prereqMet(tk,t)&&t.rank===0) return 'prereq-blocked';
+  const s=t.rank===0?'available':t.rank===t.maxRank?'maxed':'partial';
+  return t.spec?'spec-talent '+(t.rank===t.maxRank?'maxed':t.rank>0?'partial':'available'):s;
+}
+
+/* ─── TOOLTIP ─────────────────────────────────────────── */
+const tip=document.getElementById('hu-tooltip');
+const tipN=document.getElementById('tt-name'),tipR=document.getElementById('tt-rank');
+const tipD=document.getElementById('tt-desc'),tipH=document.getElementById('tt-hint');
+function showTip(e,tk,t){
+  tipN.textContent=t.name; tipR.textContent=`Rank ${t.rank} / ${t.maxRank}`; tipD.textContent=t.desc||'';
+  const h=[];
+  if(canAdd(tk,t)) h.push('Clique para adicionar ponto');
+  else if(t.rank===t.maxRank) h.push('Talento no máximo');
+  else if(!tierUnlocked(tk,t.row)) h.push(`Requer ${t.row*PTS_PER_TIER} pts em ${TREES_DATA[tk].label}`);
+  else if(!prereqMet(tk,t)){const p=getT(tk,t.prereq.row,t.prereq.col);h.push(`Requer "${p?p.name:'pré-requisito'}" no máximo`);}
+  else if(totalPts()>=MAX_PTS) h.push('Sem pontos disponíveis');
+  if(canRemove(tk,t)) h.push('Clique-direito para remover');
+  tipH.textContent=h.join(' · ');
+  moveTip(e); tip.style.display='block';
+}
+function moveTip(e){
+  const m=12,tw=tip.offsetWidth||270,th=tip.offsetHeight||110;
+  let x=e.clientX+m,y=e.clientY+m;
+  if(x+tw>window.innerWidth-8) x=e.clientX-tw-m;
+  if(y+th>window.innerHeight-8) y=e.clientY-th-m;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+}
+document.addEventListener('mousemove',e=>{if(tip.style.display==='block')moveTip(e)});
+
+/* ─── RENDER ──────────────────────────────────────────── */
+function renderAll(){
+  const total=totalPts();
+  document.getElementById('pts-spent').textContent=total;
+  document.getElementById('pts-bar').style.width=(total/MAX_PTS*100)+'%';
+  document.getElementById('spec-badges').innerHTML=TREE_KEYS.map(tk=>{
+    const p=treePts(tk), col=TREES_DATA[tk].accent;
+    return `<div class="spec-badge${p>0?' active':''}" style="${p>0?`border-color:${col};color:${col}`:''}">
+      ${TREES_DATA[tk].label}: ${p}</div>`;
+  }).join('');
+  TREE_KEYS.forEach(renderTree);
+  if(window.$WowheadPower?.refreshLinks) window.$WowheadPower.refreshLinks();
+}
+
+function renderTree(tk){
+  const tree=TREES_DATA[tk], panel=document.getElementById(`tree-${tk}`);
+  if(!panel) return;
+  const pts=treePts(tk);
+  const pe=panel.querySelector('.tree-label-pts');
+  pe.textContent=pts; pe.className='tree-label-pts'+(pts>0?' has':'');
+  const pr=panel.querySelector('.tree-pip-row'); pr.innerHTML='';
+  for(let t=0;t<ROWS;t++){
+    const pip=document.createElement('div');
+    const full=pts>=(t+1)*PTS_PER_TIER, on=pts>=t*PTS_PER_TIER;
+    pip.className=full?'tier-pip maxed':on?'tier-pip on':'tier-pip';
+    pip.style.background=full||on?tree.accent:''; pr.appendChild(pip);
+  }
+  tree.talents.forEach(t=>{
+    const el=document.getElementById(`tn-${tk}-${t.row}-${t.col}`); if(!el) return;
+    el.className='tn '+nodeStateClass(tk,t);
+    const rb=el.querySelector('.tn-rank');
+    if(rb){rb.textContent=`${t.rank}/${t.maxRank}`;rb.style.color=t.rank===t.maxRank?'var(--gold)':'';}
+  });
+  for(let r=1;r<ROWS;r++){
+    const d=panel.querySelector(`.tier-div[data-row="${r}"]`);
+    const rl=panel.querySelector(`.tier-req[data-row="${r}"]`);
+    const ul=pts>=r*PTS_PER_TIER;
+    if(d){d.className='tier-div'+(ul?' unlocked':'');d.style.background=ul?`linear-gradient(90deg,transparent,${tree.accent}55 30%,${tree.accent}55 70%,transparent)`:'';}
+    if(rl) rl.className='tier-req'+(ul?' unlocked':'');
+  }
+  const svg=panel.querySelector('.arrows-svg');
+  if(svg) tree.talents.forEach(t=>{
+    if(!t.prereq) return;
+    const p=getT(tk,t.prereq.row,t.prereq.col), met=p&&p.rank===p.maxRank;
+    const path=svg.querySelector(`#arrow-${tk}-${t.row}-${t.col}`);
+    if(path){
+      path.className.baseVal='arrow-path'+(met?' prereq-met':'');
+      path.setAttribute('stroke',met?tree.accent:'var(--dim)');
+      path.setAttribute('stroke-dasharray',met?'none':'4 3');
+      path.setAttribute('marker-end',`url(#ah-${met?'on':'off'}-${tk})`);
+    }
+  });
+}
+
+/* ─── BUILD ───────────────────────────────────────────── */
+function buildTrees(){
+  const container=document.getElementById('hu-trees'); container.innerHTML='';
+  TREE_KEYS.forEach(tk=>{
+    const tree=TREES_DATA[tk];
+    const panel=document.createElement('div');
+    panel.className='hu-tree'; panel.id=`tree-${tk}`;
+    panel.style.setProperty('--tree-accent',tree.accent);
+    panel.innerHTML='<div class="corner-tr"></div><div class="corner-bl"></div>';
+    const label=document.createElement('div'); label.className='tree-label';
+    label.innerHTML=`<div><div class="tree-label-name" style="color:${tree.accent}">${tree.label}</div><div class="tree-pip-row"></div></div><div class="tree-label-pts">0</div>`;
+    panel.appendChild(label);
+    const canvas=document.createElement('div'); canvas.className='tree-canvas';
+    canvas.style.width=CANVAS_W+'px'; canvas.style.height=CANVAS_H+'px';
+    canvas.style.setProperty('--tree-accent',tree.accent);
+    const bg=document.createElement('img'); bg.className='tree-bg-art';
+    bg.src=`${CDN}/${tree.bgIcon}.jpg`; bg.alt=''; canvas.appendChild(bg);
+    for(let r=1;r<ROWS;r++){
+      const y=PAD+nodeY(r)-RG/2;
+      const d=document.createElement('div'); d.className='tier-div'; d.dataset.row=r; d.style.top=y+'px'; canvas.appendChild(d);
+      const rl=document.createElement('div'); rl.className='tier-req'; rl.dataset.row=r; rl.style.top=(y-10)+'px'; rl.textContent=`${r*PTS_PER_TIER} pts`; canvas.appendChild(rl);
+    }
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','arrows-svg'); svg.setAttribute('width',CANVAS_W-PAD*2); svg.setAttribute('height',CANVAS_H-PAD*2); svg.setAttribute('overflow','visible');
+    const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+    [['off','#1e3018'],['on',tree.accent]].forEach(([id,col])=>{
+      const m=document.createElementNS('http://www.w3.org/2000/svg','marker');
+      m.setAttribute('id',`ah-${id}-${tk}`); m.setAttribute('markerWidth','7'); m.setAttribute('markerHeight','5');
+      m.setAttribute('refX','6'); m.setAttribute('refY','2.5'); m.setAttribute('orient','auto');
+      const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      p.setAttribute('points','0 0,7 2.5,0 5'); p.setAttribute('fill',col);
+      m.appendChild(p); defs.appendChild(m);
+    });
+    svg.appendChild(defs);
+    tree.talents.forEach(t=>{
+      if(!t.prereq) return;
+      const pr=t.prereq;
+      const x1=centX(pr.col),y1=nodeY(pr.row)+N,x2=centX(t.col),y2=nodeY(t.row);
+      let d; if(pr.col===t.col) d=`M ${x1} ${y1} L ${x2} ${y2}`;
+      else{const my=(y1+y2)/2; d=`M ${x1} ${y1} L ${x1} ${my} L ${x2} ${my} L ${x2} ${y2}`;}
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',d); path.setAttribute('id',`arrow-${tk}-${t.row}-${t.col}`);
+      path.setAttribute('class','arrow-path'); path.setAttribute('marker-end',`url(#ah-off-${tk})`);
+      path.setAttribute('stroke','var(--dim)'); path.setAttribute('stroke-dasharray','4 3');
+      path.setAttribute('stroke-width','1.5'); path.setAttribute('fill','none');
+      svg.appendChild(path);
+    });
+    canvas.appendChild(svg);
+    tree.talents.forEach(t=>{
+      const node=document.createElement('div');
+      node.id=`tn-${tk}-${t.row}-${t.col}`; node.className='tn available';
+      node.style.left=(PAD+nodeX(t.col))+'px'; node.style.top=(PAD+nodeY(t.row))+'px';
+      node.style.setProperty('--tree-accent',tree.accent);
+      const frame=document.createElement('div'); frame.className='tn-frame';
+      frame.style.setProperty('--tree-accent',tree.accent);
+      const img=document.createElement('img');
+      img.src=`${CDN}/${t.icon}.jpg`; img.width=N; img.height=N; img.alt=t.name;
+      img.onerror=function(){this.src=`${CDN}/inv_misc_questionmark.jpg`};
+      frame.appendChild(img);
+      const link=document.createElement('a');
+      link.href=`${WH}${t.spellId}`; link.dataset.whIconSize='small';
+      link.style.cssText='position:absolute;inset:0;display:block'; link.onclick=e=>e.preventDefault();
+      frame.appendChild(link);
+      const rank=document.createElement('span'); rank.className='tn-rank'; rank.textContent=`0/${t.maxRank}`;
+      node.appendChild(frame); node.appendChild(rank);
+      node.addEventListener('click',e=>{e.preventDefault();if(canAdd(tk,t)){t.rank++;renderAll();}if(tip.style.display==='block')showTip(e,tk,t);});
+      node.addEventListener('contextmenu',e=>{e.preventDefault();if(canRemove(tk,t)){t.rank--;renderAll();}if(tip.style.display==='block')showTip(e,tk,t);});
+      node.addEventListener('mouseenter',e=>showTip(e,tk,t));
+      node.addEventListener('mouseleave',()=>{tip.style.display='none'});
+      node.addEventListener('mousemove',e=>moveTip(e));
+      canvas.appendChild(node);
+    });
+    panel.appendChild(canvas); container.appendChild(panel);
+  });
+  renderAll();
+}
+
+/* ─── PUBLIC API ──────────────────────────────────────── */
+window.HunterTree={
+  load(data){
+    Object.keys(data).forEach(tk=>{
+      if(!TREES_DATA[tk]) return;
+      data[tk].forEach((row,ri)=>{if(!row)return;
+        row.forEach((rank,ci)=>{if(rank==null)return;
+          const t=getT(tk,ri,ci);if(t)t.rank=Math.min(rank,t.maxRank);});});
+    }); renderAll();
+  },
+  reset(){TREE_KEYS.forEach(tk=>TREES_DATA[tk].talents.forEach(t=>{t.rank=0}));renderAll();}
+};
+
+buildTrees();
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadoras de Talentos — BRAZUG</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
+body { background: #0b0a07; color: #c8b580; padding-top: 80px; }
+.talents-hub { max-width: 800px; margin: 40px auto; text-align: center; font-family: 'Cinzel', serif; }
+.talents-title { font-size: 36px; color: #f7c14d; margin-bottom: 30px; text-shadow: 0 0 10px rgba(247,193,77,0.3); }
+.classes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.class-card {
+    background: #14120d; border: 1px solid #4a3a1a; padding: 20px; border-radius: 8px;
+    text-decoration: none; color: #c8b580; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.class-card:hover { border-color: #f7c14d; box-shadow: 0 0 15px rgba(247,193,77,0.2); transform: translateY(-3px); }
+.class-card img { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #4a3a1a; transition: border-color 0.2s; }
+.class-card:hover img { border-color: #f7c14d; }
+.class-name { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+<header class="site-header" id="universal-header"></header>
+
+<div class="talents-hub">
+    <h1 class="talents-title">Calculadoras de Talentos</h1>
+    <div class="classes-grid">
+        <a href="/talents/warrior_talents.html" class="class-card">
+            <img src="https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg" alt="Guerreiro">
+            <span class="class-name">Guerreiro</span>
+        </a>
+        <a href="/talents/mage_talents.html" class="class-card">
+            <img src="https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg" alt="Mago">
+            <span class="class-name">Mago</span>
+        </a>
+        <a href="/talents/warlock_talents.html" class="class-card">
+            <img src="https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg" alt="Bruxo">
+            <span class="class-name">Bruxo</span>
+        </a>
+        <a href="/talents/hunter_talents.html" class="class-card">
+            <img src="https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg" alt="Caçador">
+            <span class="class-name">Caçador</span>
+        </a>
+        <a href="/talents/shaman_talents.html" class="class-card">
+            <img src="https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg" alt="Xamã">
+            <span class="class-name">Xamã</span>
+        </a>
+        <a href="/talents/druid_talents.html" class="class-card">
+            <img src="https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg" alt="Druida">
+            <span class="class-name">Druida</span>
+        </a>
+        <a href="/talents/rogue_talents.html" class="class-card">
+            <img src="https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg" alt="Ladino">
+            <span class="class-name">Ladino</span>
+        </a>
+    </div>
+</div>
+
+<script src="/js/header.js"></script>
+</body>
+</html>

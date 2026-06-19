@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ladino — Talentos | WoW Classic</title>
+<!--
+  WOWHEAD TOOLTIPS — descomentar no projeto pai:
+  <script>var whTooltips={colorLinks:true,iconizeLinks:true,renameLinks:true,domain:'classic'};</script>
+  <script src="https://wow.zamimg.com/js/tooltips.js"></script>
+-->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── TOKENS ─────────────────────────────────────────── */
+:root{
+  --bg:       #0b0a07;
+  --panel:    #14120d;
+  --border:   #4a3a1a;
+  --border2:  #6b4f20;
+  --gold:     #f7c14d;
+  --gold2:    #c8972a;
+  --gold3:    #7a5a1a;
+  --gold4:    #4a3010;
+  --text:     #c8b580;
+  --muted:    #8a7050;
+  --dim:      #2a2010;
+
+  --n:  44px;
+  --cg: 16px;
+  --rg: 28px;
+  --cs: calc(var(--n) + var(--cg));
+  --rs: calc(var(--n) + var(--rg));
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Cinzel',serif;
+  padding:20px;
+  min-width:860px;
+}
+
+/* ── HEADER ──────────────────────────────────────────── */
+.rogue-header{
+  display:flex;align-items:center;gap:14px;
+  padding-bottom:14px;margin-bottom:18px;
+  border-bottom:1px solid var(--border2);
+  position:relative;
+}
+/* shimmer line under header */
+.rogue-header::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold3) 30%,var(--gold2) 50%,var(--gold3) 70%,transparent);
+}
+.rogue-class-icon{
+  width:52px;height:52px;
+  border:2px solid var(--gold3);
+  image-rendering:pixelated;
+}
+.rogue-title{font-size:24px;font-weight:900;color:var(--gold);letter-spacing:2px}
+.rogue-sub  {font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:3px}
+
+.rogue-pts-wrap{margin-left:auto;text-align:right}
+.rogue-pts-total{font-size:28px;font-weight:900;color:var(--gold);line-height:1}
+.rogue-pts-total span{font-size:16px;color:var(--muted)}
+.rogue-pts-label{font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:2px}
+.rogue-pts-bar-wrap{height:4px;width:180px;background:var(--dim);border:1px solid var(--border);margin-top:4px}
+.rogue-pts-bar{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));transition:width .2s}
+
+.rogue-reset-btn{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;
+  padding:6px 16px;
+  background:var(--dim);border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;transition:all .15s;margin-left:16px;
+}
+.rogue-reset-btn:hover{border-color:var(--gold2);color:var(--gold)}
+
+/* ── SPEC BADGES ─────────────────────────────────────── */
+.spec-badges{display:flex;gap:8px;margin-left:16px}
+.spec-badge{
+  padding:4px 12px;font-size:10px;letter-spacing:1px;
+  border:1px solid var(--border);color:var(--muted);
+  transition:all .2s;
+}
+.spec-badge.active{border-color:var(--gold2);color:var(--gold)}
+
+/* ── TREES ROW ───────────────────────────────────────── */
+.rogue-trees{display:flex;gap:20px;align-items:flex-start}
+
+/* ── TREE PANEL ──────────────────────────────────────── */
+.rogue-tree{
+  flex:1;
+  background:var(--panel);
+  border:1px solid var(--border);
+  position:relative;
+}
+.rogue-tree::before,.rogue-tree::after{
+  content:'';position:absolute;
+  width:10px;height:10px;
+  border-color:var(--gold3);border-style:solid;
+  pointer-events:none;z-index:10;
+}
+.rogue-tree::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.rogue-tree::after {bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.corner-tr,.corner-bl{
+  position:absolute;width:10px;height:10px;
+  border-color:var(--gold3);border-style:solid;
+  pointer-events:none;z-index:10;
+}
+.corner-tr{top:-1px;right:-1px;border-width:2px 2px 0 0}
+.corner-bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+
+/* ── TREE LABEL ──────────────────────────────────────── */
+.tree-label{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px 8px;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+.tree-label-name{
+  font-size:13px;font-weight:700;color:var(--gold2);
+  letter-spacing:2px;text-transform:uppercase;
+}
+.tree-label-pts{
+  font-size:13px;font-weight:900;color:var(--gold4);
+  letter-spacing:1px;transition:color .2s;
+}
+.tree-label-pts.has{color:var(--gold)}
+
+/* tier pip row */
+.tree-pip-row{display:flex;gap:3px;align-items:center;margin-top:4px}
+.tier-pip{width:18px;height:3px;background:var(--dim);transition:background .25s}
+.tier-pip.on   {background:var(--tree-accent,var(--gold3));opacity:.7}
+.tier-pip.maxed{background:var(--tree-accent,var(--gold2));opacity:1}
+
+/* ── CANVAS ──────────────────────────────────────────── */
+.tree-canvas{
+  position:relative;
+  padding:14px;
+  overflow:hidden;
+}
+
+.tree-bg-art{
+  position:absolute;
+  width:220px;height:220px;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  opacity:.045;
+  image-rendering:pixelated;
+  pointer-events:none;z-index:0;
+}
+
+/* tier dividers */
+.tier-div{
+  position:absolute;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--dim) 30%,var(--dim) 70%,transparent);
+  pointer-events:none;z-index:1;
+  transition:background .3s;
+}
+.tier-div.unlocked{
+  background:linear-gradient(90deg,transparent,var(--tree-accent,var(--gold4)) 30%,var(--tree-accent,var(--gold4)) 70%,transparent);
+  opacity:.5;
+}
+.tier-req{
+  position:absolute;right:0;
+  font-size:8px;color:var(--dim);
+  letter-spacing:1px;text-align:right;
+  pointer-events:none;z-index:2;
+  transition:color .2s;
+  font-family:'Cinzel',serif;
+}
+.tier-req.unlocked{color:var(--gold4)}
+
+/* ── SVG ARROWS ──────────────────────────────────────── */
+.arrows-svg{
+  position:absolute;top:14px;left:14px;
+  pointer-events:none;z-index:2;
+  overflow:visible;
+}
+.arrow-path{
+  fill:none;stroke-width:1.5;
+  stroke:var(--dim);
+  stroke-dasharray:4 3;
+  transition:stroke .25s, stroke-dasharray .25s;
+}
+.arrow-path.prereq-met{
+  stroke:var(--tree-accent,var(--gold3));
+  stroke-dasharray:none;
+}
+
+/* ── TALENT NODE ─────────────────────────────────────── */
+.tn{
+  position:absolute;
+  width:var(--n);height:var(--n);
+  z-index:3;cursor:pointer;
+  transition:transform .1s,box-shadow .2s;
+}
+.tn:hover{transform:scale(1.09);z-index:20}
+
+.tn-frame{
+  position:absolute;inset:0;
+  border:2px solid var(--border);
+  background:#080605;
+  overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+.tn img{
+  width:100%;height:100%;
+  display:block;
+  image-rendering:pixelated;
+  filter:grayscale(100%) brightness(.45);
+  transition:filter .2s;
+}
+
+.tn-rank{
+  position:absolute;bottom:-1px;right:-1px;
+  font-size:8px;font-family:sans-serif;font-weight:700;
+  background:rgba(0,0,0,.9);color:var(--muted);
+  padding:0 3px;line-height:12px;z-index:4;
+  pointer-events:none;
+  border-top:1px solid var(--border);
+  border-left:1px solid var(--border);
+  transition:color .2s;
+}
+
+/* ── NODE STATES ─────────────────────────────────────── */
+.tn.locked{cursor:not-allowed;opacity:.2}
+.tn.locked:hover{transform:none}
+
+.tn.available .tn-frame{border-color:var(--border2)}
+.tn.available img{filter:grayscale(55%) brightness(.65)}
+
+.tn.partial .tn-frame{
+  border-color:var(--tree-accent,var(--gold3));
+  box-shadow:inset 0 0 8px rgba(247,193,77,.1);
+}
+.tn.partial img{filter:grayscale(15%) brightness(.9)}
+.tn.partial .tn-rank{color:var(--gold2)}
+
+.tn.maxed .tn-frame{
+  border-color:var(--tree-accent,var(--gold2));
+  box-shadow:0 0 8px rgba(200,151,42,.35),inset 0 0 8px rgba(247,193,77,.15);
+}
+.tn.maxed img{filter:grayscale(0%) brightness(1.05) saturate(1.1)}
+.tn.maxed .tn-rank{color:var(--gold);background:rgba(0,0,0,.95)}
+
+/* spec final */
+.tn.spec-talent .tn-frame{
+  border-color:var(--gold);
+  box-shadow:0 0 14px rgba(247,193,77,.5),inset 0 0 10px rgba(247,193,77,.2);
+}
+.tn.spec-talent img{filter:brightness(1.1) saturate(1.2) drop-shadow(0 0 4px rgba(247,193,77,.4))}
+.tn.spec-talent .tn-rank{color:var(--gold);border-color:var(--gold2)}
+
+.tn.spec-talent::before,.tn.spec-talent::after{
+  content:'';position:absolute;
+  width:6px;height:6px;
+  background:var(--gold);
+  transform:rotate(45deg);
+  z-index:5;pointer-events:none;
+}
+.tn.spec-talent::before{top:-3px;left:calc(50% - 3px)}
+.tn.spec-talent::after {bottom:-3px;left:calc(50% - 3px)}
+
+@keyframes spec-glow{
+  0%,100%{box-shadow:0 0 14px rgba(247,193,77,.5),inset 0 0 10px rgba(247,193,77,.2)}
+  50%    {box-shadow:0 0 24px rgba(247,193,77,.8),inset 0 0 16px rgba(247,193,77,.35)}
+}
+.tn.spec-talent.maxed .tn-frame{animation:spec-glow 2s ease-in-out infinite}
+
+.tn.prereq-blocked .tn-frame::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(0,0,0,.55);
+  border:1px solid #6b1a1a;
+}
+
+/* ── TOOLTIP ─────────────────────────────────────────── */
+.rogue-tooltip{
+  position:fixed;
+  background:linear-gradient(180deg,#1e1a0e 0%,#13110a 100%);
+  border:1px solid var(--gold3);
+  padding:10px 14px;max-width:270px;
+  pointer-events:none;z-index:9999;
+  display:none;
+  box-shadow:0 4px 24px rgba(0,0,0,.85);
+}
+.rogue-tooltip::before{content:'';position:absolute;top:-1px;left:-1px;width:6px;height:6px;border-top:2px solid var(--gold3);border-left:2px solid var(--gold3)}
+.rogue-tooltip::after {content:'';position:absolute;bottom:-1px;right:-1px;width:6px;height:6px;border-bottom:2px solid var(--gold3);border-right:2px solid var(--gold3)}
+.tt-name{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:4px}
+.tt-rank{font-size:10px;color:var(--gold2);margin-bottom:6px;letter-spacing:1px}
+.tt-desc{font-size:11px;color:var(--text);line-height:1.65;font-family:sans-serif;font-style:italic}
+.tt-hint{font-size:10px;color:var(--muted);margin-top:6px;font-family:sans-serif;border-top:1px solid var(--border);padding-top:5px}
+
+/* ── FOOTER ──────────────────────────────────────────── */
+.rogue-footer{
+  margin-top:18px;padding-top:12px;
+  border-top:1px solid var(--border);
+  display:flex;gap:20px;align-items:center;flex-wrap:wrap;
+}
+.legend{display:flex;gap:16px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);letter-spacing:1px}
+.leg-dot{width:14px;height:14px;border:2px solid var(--border);background:#080605;flex-shrink:0}
+.leg-dot.available{border-color:var(--border2)}
+.leg-dot.partial  {border-color:var(--gold3);background:var(--panel)}
+.leg-dot.maxed    {border-color:var(--gold2);box-shadow:0 0 5px rgba(200,151,42,.4)}
+.leg-dot.spec     {border-color:var(--gold);box-shadow:0 0 8px rgba(247,193,77,.5)}
+.leg-dot.locked   {opacity:.2}
+
+.api-note{
+  margin-top:16px;padding:10px 14px;
+  background:#0e0c08;border:1px solid var(--dim);
+  border-left:3px solid var(--gold3);
+  font-size:9px;color:var(--muted);line-height:1.9;letter-spacing:.5px;
+}
+.api-note code{color:var(--gold2);font-family:monospace;font-size:10px}
+</style>
+</head>
+<body>
+
+<div class="rogue-tooltip" id="rogue-tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-rank" id="tt-rank"></div>
+  <div class="tt-desc" id="tt-desc"></div>
+  <div class="tt-hint" id="tt-hint"></div>
+</div>
+
+<!-- ── HEADER ──────────────────────────────────────── -->
+<div class="rogue-header">
+  <img class="rogue-class-icon"
+       src="https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg"
+       alt="Ladino"
+       onerror="this.style.display='none'">
+  <div>
+    <div class="rogue-title">Ladino</div>
+    <div class="rogue-sub">WoW CLASSIC 1.12 · 51 PONTOS DE TALENTO</div>
+  </div>
+  <div class="spec-badges" id="spec-badges"></div>
+  <div class="rogue-pts-wrap">
+    <div class="rogue-pts-total"><span id="pts-spent">0</span><span> / 51</span></div>
+    <div class="rogue-pts-label">PONTOS GASTOS</div>
+    <div class="rogue-pts-bar-wrap"><div class="rogue-pts-bar" id="pts-bar" style="width:0%"></div></div>
+  </div>
+  <button class="rogue-reset-btn" onclick="RogueTree.reset()">↺ Resetar</button>
+</div>
+
+<!-- ── TREES ───────────────────────────────────────── -->
+<div class="rogue-trees" id="rogue-trees"></div>
+
+<!-- ── FOOTER ─────────────────────────────────────── -->
+<div class="rogue-footer">
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot locked"></div>Tier bloqueado</div>
+    <div class="leg-item"><div class="leg-dot available"></div>Disponível</div>
+    <div class="leg-item"><div class="leg-dot partial"></div>Parcial</div>
+    <div class="leg-item"><div class="leg-dot maxed"></div>Máximo</div>
+    <div class="leg-item"><div class="leg-dot spec"></div>Talento Final</div>
+  </div>
+</div>
+
+<div class="api-note">
+  <strong style="color:var(--gold2)">BACKEND API</strong> —
+  <code>RogueTree.load({ elemental:[[r,r,…],…], enhancement:[[…]], restoration:[[…]] })</code>
+  · Cada sub-array = linha; cada número = rank alocado (null = célula vazia).
+  · Click-esquerdo aloca ponto · Click-direito remove ponto.
+  · Tooltips: ativar <code>whTooltips</code> no &lt;head&gt; do projeto pai.
+</div>
+
+<!-- ════════════════ ENGINE ════════════════════════════ -->
+<script>
+/* ─── GRID CONSTANTS ─────────────────────────────────── */
+const N   = 44;     // node side px
+const CG  = 16;     // col gap px
+const RG  = 28;     // row gap px
+const CS  = N+CG;   // col step = 60
+const RS  = N+RG;   // row step = 72
+const PAD = 14;     // canvas padding
+const COLS= 4;
+const ROWS= 7;      // 7 tiers (0-6), spec at tier 6 — needs 30 pts in tree
+const MAX_PTS      = 51;
+const PTS_PER_TIER = 5;
+const CDN = 'https://wow.zamimg.com/images/wow/icons/medium';
+const WH  = 'https://www.wowhead.com/classic/spell=';
+
+/* ─── TALENT DATA ────────────────────────────────────────
+   Estrutura por árvore:
+   { label, accent, bgIcon, talents:[{row,col,spellId,icon,name,maxRank,rank,spec?,prereq?,desc}] }
+   Fonte: WoW Classic 1.12.1 Shaman talent trees
+─────────────────────────────────────────────────────────── */
+const TREES_DATA = {
+  "assassination": {
+    "label": "Assassinato",
+    "accent": "#c41f1f",
+    "bgIcon": "ability_rogue_deadlyprecision",
+    "talents": [
+      {
+        "row": 0,
+        "col": 1,
+        "spellId": 14164,
+        "icon": "ability_rogue_eviscerate",
+        "name": "Improved Eviscerate",
+        "maxRank": 3,
+        "rank": 0,
+        "desc": "Increases the damage done by your Eviscerate ability by 5% per rank."
+      },
+      {
+        "row": 0,
+        "col": 2,
+        "spellId": 14164,
+        "icon": "ability_rogue_deadlyprecision",
+        "name": "Malice",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Increases your critical strike chance by 1% per rank."
+      },
+      {
+        "row": 1,
+        "col": 1,
+        "spellId": 14165,
+        "icon": "ability_rogue_remorselessattacks",
+        "name": "Remorseless Attacks",
+        "maxRank": 2,
+        "rank": 0,
+        "desc": "After killing an opponent that yields experience or honor, your next Sinister Strike, Backstab, or Ambush has a 20% per rank increased critical strike chance."
+      },
+      {
+        "row": 1,
+        "col": 2,
+        "spellId": 14165,
+        "icon": "ability_rogue_remorselessattacks",
+        "name": "Ruthlessness",
+        "maxRank": 3,
+        "rank": 0,
+        "desc": "Gives your finishing moves a 20% per rank chance to add a combo point to your target."
+      },
+      {
+        "row": 2,
+        "col": 1,
+        "spellId": 14166,
+        "icon": "ability_rogue_ambush",
+        "name": "Lethality",
+        "maxRank": 5,
+        "rank": 0,
+        "prereq": {
+          "row": 0,
+          "col": 2
+        },
+        "desc": "Increases the critical strike damage bonus of your Sinister Strike, Gouge, Backstab, and Ambush by 6% per rank."
+      },
+      {
+        "row": 2,
+        "col": 2,
+        "spellId": 14166,
+        "icon": "ability_rogue_ambush",
+        "name": "Murder",
+        "maxRank": 2,
+        "rank": 0,
+        "desc": "Increases the damage of your Sinister Strike, Backstab, and Ambush by 1% per rank against Humanoid, Beast, Giant and Dragonkin targets."
+      },
+      {
+        "row": 3,
+        "col": 1,
+        "spellId": 14169,
+        "icon": "ability_rogue_eviscerate",
+        "name": "Improved Slice and Dice",
+        "maxRank": 3,
+        "rank": 0,
+        "desc": "Increases the duration of your Slice and Dice ability by 15% per rank."
+      },
+      {
+        "row": 3,
+        "col": 2,
+        "spellId": 14169,
+        "icon": "ability_rogue_eviscerate",
+        "name": "Improved Kidney Shot",
+        "maxRank": 3,
+        "rank": 0,
+        "desc": "While affected by your Kidney Shot ability, the target receives an additional 3% per rank damage from all sources."
+      },
+      {
+        "row": 4,
+        "col": 1,
+        "spellId": 14177,
+        "icon": "ability_rogue_coldblood",
+        "name": "Cold Blood",
+        "maxRank": 1,
+        "rank": 0,
+        "desc": "When activated, increases the critical strike chance of your next Sinister Strike, Backstab, Ambush, or Eviscerate by 100%."
+      },
+      {
+        "row": 4,
+        "col": 2,
+        "spellId": 14177,
+        "icon": "ability_rogue_coldblood",
+        "name": "Improved Poisons",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Increases the chance to apply poisons to your target by 2% per rank."
+      },
+      {
+        "row": 5,
+        "col": 1,
+        "spellId": 14170,
+        "icon": "ability_rogue_sealfate",
+        "name": "Seal Fate",
+        "maxRank": 5,
+        "rank": 0,
+        "prereq": {
+          "row": 4,
+          "col": 1
+        },
+        "desc": "Your critical strikes from abilities that add combo points have a 20% per rank chance to add an additional combo point to the target."
+      },
+      {
+        "row": 6,
+        "col": 1,
+        "spellId": 14171,
+        "icon": "ability_rogue_shadowstrike",
+        "name": "Vigor",
+        "maxRank": 1,
+        "rank": 0,
+        "spec": true,
+        "desc": "Increases your maximum Energy by 10."
+      }
+    ]
+  },
+  "combat": {
+    "label": "Combate",
+    "accent": "#ff8000",
+    "bgIcon": "ability_dualwield",
+    "talents": [
+      {
+        "row": 0,
+        "col": 1,
+        "spellId": 13960,
+        "icon": "ability_gouge",
+        "name": "Improved Gouge",
+        "maxRank": 3,
+        "rank": 0,
+        "desc": "Increases the duration of your Gouge ability by 0.5 sec per rank."
+      },
+      {
+        "row": 0,
+        "col": 2,
+        "spellId": 13732,
+        "icon": "ability_rogue_sinisterstrike",
+        "name": "Improved Sinister Strike",
+        "maxRank": 2,
+        "rank": 0,
+        "desc": "Reduces the Energy cost of your Sinister Strike ability by 3 per rank."
+      },
+      {
+        "row": 1,
+        "col": 1,
+        "spellId": 13961,
+        "icon": "ability_warrior_cleave",
+        "name": "Lightning Reflexes",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Increases your Dodge chance by 1% per rank."
+      },
+      {
+        "row": 1,
+        "col": 2,
+        "spellId": 13961,
+        "icon": "ability_warrior_cleave",
+        "name": "Improved Backstab",
+        "maxRank": 3,
+        "rank": 0,
+        "desc": "Increases the critical strike chance of your Backstab ability by 10% per rank."
+      },
+      {
+        "row": 2,
+        "col": 1,
+        "spellId": 13962,
+        "icon": "ability_dualwield",
+        "name": "Deflection",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Increases your Parry chance by 1% per rank."
+      },
+      {
+        "row": 2,
+        "col": 2,
+        "spellId": 13962,
+        "icon": "ability_dualwield",
+        "name": "Precision",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Increases your chance to hit with melee weapons by 1% per rank."
+      },
+      {
+        "row": 3,
+        "col": 1,
+        "spellId": 13963,
+        "icon": "ability_warrior_riposte",
+        "name": "Riposte",
+        "maxRank": 1,
+        "rank": 0,
+        "prereq": {
+          "row": 2,
+          "col": 1
+        },
+        "desc": "A strike that becomes active after parrying an opponent's attack. Deals 150% weapon damage and disarms the target for 6 sec."
+      },
+      {
+        "row": 3,
+        "col": 2,
+        "spellId": 13963,
+        "icon": "ability_warrior_riposte",
+        "name": "Improved Sprint",
+        "maxRank": 2,
+        "rank": 0,
+        "desc": "Gives your Sprint ability a 50% per rank chance to remove all movement impairing effects when activated."
+      },
+      {
+        "row": 4,
+        "col": 1,
+        "spellId": 13964,
+        "icon": "ability_rogue_slicedice",
+        "name": "Blade Flurry",
+        "maxRank": 1,
+        "rank": 0,
+        "desc": "Increases your attack speed by 20%. In addition, attacks strike an additional nearby opponent. Lasts 15 sec."
+      },
+      {
+        "row": 4,
+        "col": 2,
+        "spellId": 13964,
+        "icon": "ability_rogue_slicedice",
+        "name": "Sword Specialization",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Gives you a 1% per rank chance to get an extra attack on the same target after dealing damage with your Sword."
+      },
+      {
+        "row": 4,
+        "col": 3,
+        "spellId": 13964,
+        "icon": "ability_rogue_slicedice",
+        "name": "Mace Specialization",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Gives you a 1% per rank chance to stun your target for 3 sec after dealing damage with a Mace."
+      },
+      {
+        "row": 5,
+        "col": 1,
+        "spellId": 13964,
+        "icon": "ability_rogue_slicedice",
+        "name": "Weapon Expertise",
+        "maxRank": 2,
+        "rank": 0,
+        "prereq": {
+          "row": 4,
+          "col": 1
+        },
+        "desc": "Increases your skill with Swords and Maces by 3 per rank."
+      },
+      {
+        "row": 5,
+        "col": 2,
+        "spellId": 13964,
+        "icon": "ability_rogue_slicedice",
+        "name": "Aggression",
+        "maxRank": 3,
+        "rank": 0,
+        "desc": "Increases the damage of your Sinister Strike and Eviscerate abilities by 2% per rank."
+      },
+      {
+        "row": 6,
+        "col": 2,
+        "spellId": 13967,
+        "icon": "ability_warrior_punishingblow",
+        "name": "Adrenaline Rush",
+        "maxRank": 1,
+        "rank": 0,
+        "spec": true,
+        "desc": "Increases your Energy regeneration rate by 100% for 15 sec."
+      }
+    ]
+  },
+  "subtlety": {
+    "label": "Subterfúgio",
+    "accent": "#0070dd",
+    "bgIcon": "ability_stealth",
+    "talents": [
+      {
+        "row": 0,
+        "col": 1,
+        "spellId": 14057,
+        "icon": "ability_stealth",
+        "name": "Master of Deception",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Reduces the chance enemies have to detect you while in Stealth."
+      },
+      {
+        "row": 0,
+        "col": 2,
+        "spellId": 14057,
+        "icon": "ability_stealth",
+        "name": "Camouflage",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Increases your speed while in stealth by 3% per rank and reduces the cooldown of your Stealth ability by 1 sec per rank."
+      },
+      {
+        "row": 1,
+        "col": 1,
+        "spellId": 14058,
+        "icon": "ability_rogue_ambush",
+        "name": "Opportunity",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Increases the damage dealt when striking from behind with Backstab, Garrote, or Ambush by 4% per rank."
+      },
+      {
+        "row": 1,
+        "col": 2,
+        "spellId": 14058,
+        "icon": "ability_rogue_ambush",
+        "name": "Improved Ambush",
+        "maxRank": 3,
+        "rank": 0,
+        "desc": "Increases the critical strike chance of your Ambush ability by 15% per rank."
+      },
+      {
+        "row": 2,
+        "col": 1,
+        "spellId": 14060,
+        "icon": "ability_rogue_pretussin",
+        "name": "Initiative",
+        "maxRank": 3,
+        "rank": 0,
+        "desc": "Gives you a 25% per rank chance to add a combo point to your target when using Ambush, Garrote, or Cheap Shot."
+      },
+      {
+        "row": 2,
+        "col": 2,
+        "spellId": 14060,
+        "icon": "ability_rogue_pretussin",
+        "name": "Ghostly Strike",
+        "maxRank": 1,
+        "rank": 0,
+        "desc": "A strike that deals 125% weapon damage and increases your Dodge chance by 15% for 7 sec. Awards 1 combo point."
+      },
+      {
+        "row": 2,
+        "col": 3,
+        "spellId": 14060,
+        "icon": "ability_rogue_pretussin",
+        "name": "Improved Vanish",
+        "maxRank": 2,
+        "rank": 0,
+        "desc": "Increases your movement speed while Vanished by 15% per rank."
+      },
+      {
+        "row": 3,
+        "col": 1,
+        "spellId": 14061,
+        "icon": "ability_rogue_shadowstep",
+        "name": "Improved Rupture",
+        "maxRank": 3,
+        "rank": 0,
+        "desc": "Increases the damage dealt by your Rupture ability by 10% per rank."
+      },
+      {
+        "row": 3,
+        "col": 2,
+        "spellId": 14061,
+        "icon": "ability_rogue_shadowstep",
+        "name": "Preparation",
+        "maxRank": 1,
+        "rank": 0,
+        "desc": "When activated, this ability immediately finishes the cooldown on your other Rogue abilities."
+      },
+      {
+        "row": 4,
+        "col": 1,
+        "spellId": 14064,
+        "icon": "ability_rogue_hemorrhage",
+        "name": "Improved Cheap Shot",
+        "maxRank": 2,
+        "rank": 0,
+        "desc": "Reduces the Energy cost of your Cheap Shot ability by 10 per rank."
+      },
+      {
+        "row": 4,
+        "col": 2,
+        "spellId": 14064,
+        "icon": "ability_rogue_hemorrhage",
+        "name": "Hemorrhage",
+        "maxRank": 1,
+        "rank": 0,
+        "prereq": {
+          "row": 3,
+          "col": 2
+        },
+        "desc": "An instant strike that damages the opponent and causes the target to take up to 3 additional damage from physical attacks. Awards 1 combo point."
+      },
+      {
+        "row": 5,
+        "col": 1,
+        "spellId": 14064,
+        "icon": "ability_rogue_hemorrhage",
+        "name": "Deadliness",
+        "maxRank": 5,
+        "rank": 0,
+        "desc": "Increases your Attack Power by 2% per rank."
+      },
+      {
+        "row": 6,
+        "col": 2,
+        "spellId": 14064,
+        "icon": "ability_rogue_shadowstrike",
+        "name": "Premeditation",
+        "maxRank": 1,
+        "rank": 0,
+        "spec": true,
+        "prereq": {
+          "row": 4,
+          "col": 2
+        },
+        "desc": "When used, adds 2 combo points to your target. You must be in stealth to use this."
+      }
+    ]
+  }
+};
+
+/* ─── HELPERS ────────────────────────────────────────────── */
+const TREE_KEYS = Object.keys(TREES_DATA);
+const nodeX   = col  => col  * CS;
+const nodeY   = row  => row  * RS;
+const centerX = col  => nodeX(col)  + N/2;
+const centerY = row  => nodeY(row)  + N/2;
+const CANVAS_W = COLS * CS - CG + PAD*2;
+const CANVAS_H = ROWS * RS - RG + PAD*2;
+
+function getT(tk,r,c){ return TREES_DATA[tk].talents.find(t=>t.row===r&&t.col===c)||null }
+function treePts(tk){ return TREES_DATA[tk].talents.reduce((s,t)=>s+t.rank,0) }
+function totalPts(){ return TREE_KEYS.reduce((s,k)=>s+treePts(k),0) }
+function tierUnlocked(tk,row){ return treePts(tk) >= row * PTS_PER_TIER }
+
+/* ─── RULES ──────────────────────────────────────────────── */
+function prereqMet(tk, talent){
+  if(!talent.prereq) return true;
+  const p = getT(tk, talent.prereq.row, talent.prereq.col);
+  return p && p.rank === p.maxRank;
+}
+function canAdd(tk, talent){
+  if(totalPts() >= MAX_PTS)         return false;
+  if(talent.rank >= talent.maxRank) return false;
+  if(!tierUnlocked(tk, talent.row)) return false;
+  if(!prereqMet(tk, talent))        return false;
+  return true;
+}
+function canRemove(tk, talent){
+  if(talent.rank <= 0) return false;
+  const deps = TREES_DATA[tk].talents.filter(t=>
+    t.prereq && t.prereq.row===talent.row && t.prereq.col===talent.col && t.rank>0
+  );
+  if(deps.length && talent.rank-1 < talent.maxRank) return false;
+  const newPts      = treePts(tk) - 1;
+  const maxTier     = Math.floor(newPts / PTS_PER_TIER);
+  const higherUsed  = TREES_DATA[tk].talents.some(t=>
+    t.row > maxTier && t.rank > 0 && !(t.row===talent.row&&t.col===talent.col)
+  );
+  if(higherUsed) return false;
+  return true;
+}
+
+/* ─── NODE STATE ─────────────────────────────────────────── */
+function nodeStateClass(tk, talent){
+  if(!tierUnlocked(tk, talent.row)) return 'locked';
+  if(!prereqMet(tk, talent) && talent.rank===0) return 'prereq-blocked';
+  const base = talent.rank===0 ? 'available' : talent.rank===talent.maxRank ? 'maxed' : 'partial';
+  return talent.spec
+    ? 'spec-talent ' + (talent.rank===talent.maxRank ? 'maxed' : talent.rank>0 ? 'partial' : 'available')
+    : base;
+}
+
+/* ─── TOOLTIP ────────────────────────────────────────────── */
+const tip  = document.getElementById('rogue-tooltip');
+const tipN = document.getElementById('tt-name');
+const tipR = document.getElementById('tt-rank');
+const tipD = document.getElementById('tt-desc');
+const tipH = document.getElementById('tt-hint');
+
+function showTip(e, tk, talent){
+  tipN.textContent = talent.name;
+  tipR.textContent = `Rank ${talent.rank} / ${talent.maxRank}`;
+  tipD.textContent = talent.desc || '';
+  const hints=[];
+  if(canAdd(tk,talent))              hints.push('Clique para adicionar ponto');
+  else if(talent.rank===talent.maxRank) hints.push('Talento no máximo');
+  else if(!tierUnlocked(tk,talent.row)) hints.push(`Requer ${talent.row*PTS_PER_TIER} pts em ${TREES_DATA[tk].label}`);
+  else if(!prereqMet(tk,talent)){
+    const p=getT(tk,talent.prereq.row,talent.prereq.col);
+    hints.push(`Requer "${p?p.name:'pré-requisito'}" no máximo`);
+  } else if(totalPts()>=MAX_PTS) hints.push('Sem pontos disponíveis');
+  if(canRemove(tk,talent)) hints.push('Clique-direito para remover');
+  tipH.textContent = hints.join(' · ');
+  moveTip(e);
+  tip.style.display='block';
+}
+function moveTip(e){
+  const m=12, tw=tip.offsetWidth||270, th=tip.offsetHeight||110;
+  let x=e.clientX+m, y=e.clientY+m;
+  if(x+tw>window.innerWidth-8)  x=e.clientX-tw-m;
+  if(y+th>window.innerHeight-8) y=e.clientY-th-m;
+  tip.style.left=x+'px';
+  tip.style.top =y+'px';
+}
+document.addEventListener('mousemove', e=>{ if(tip.style.display==='block') moveTip(e) });
+
+/* ─── RENDER ALL ─────────────────────────────────────────── */
+function renderAll(){
+  const total = totalPts();
+  document.getElementById('pts-spent').textContent = total;
+  document.getElementById('pts-bar').style.width   = (total/MAX_PTS*100)+'%';
+
+  document.getElementById('spec-badges').innerHTML = TREE_KEYS.map(tk=>{
+    const pts = treePts(tk);
+    return `<div class="spec-badge${pts>0?' active':''}" style="${pts>0?'border-color:'+TREES_DATA[tk].accent+';color:'+TREES_DATA[tk].accent:''}">${TREES_DATA[tk].label}: ${pts}</div>`;
+  }).join('');
+
+  TREE_KEYS.forEach(tk => renderTree(tk));
+  if(window.$WowheadPower?.refreshLinks) window.$WowheadPower.refreshLinks();
+}
+
+function renderTree(tk){
+  const tree  = TREES_DATA[tk];
+  const panel = document.getElementById(`tree-${tk}`);
+  if(!panel) return;
+
+  const pts = treePts(tk);
+
+  /* label pts */
+  const ptsEl = panel.querySelector('.tree-label-pts');
+  ptsEl.textContent = pts;
+  ptsEl.className   = 'tree-label-pts'+(pts>0?' has':'');
+
+  /* pip row */
+  const pipRow = panel.querySelector('.tree-pip-row');
+  pipRow.innerHTML='';
+  pipRow.style.setProperty('--tree-accent', tree.accent);
+  for(let t=0;t<ROWS;t++){
+    const needed = t * PTS_PER_TIER;
+    const pip = document.createElement('div');
+    pip.className = pts >= needed+PTS_PER_TIER ? 'tier-pip maxed' : pts >= needed ? 'tier-pip on' : 'tier-pip';
+    pipRow.appendChild(pip);
+  }
+
+  /* nodes */
+  tree.talents.forEach(talent=>{
+    const el = document.getElementById(`tn-${tk}-${talent.row}-${talent.col}`);
+    if(!el) return;
+    el.className = 'tn ' + nodeStateClass(tk, talent);
+    const rb = el.querySelector('.tn-rank');
+    if(rb){
+      rb.textContent = `${talent.rank}/${talent.maxRank}`;
+      rb.style.color  = talent.rank===talent.maxRank ? 'var(--gold)' : '';
+    }
+  });
+
+  /* tier dividers */
+  for(let r=1;r<ROWS;r++){
+    const div = panel.querySelector(`.tier-div[data-row="${r}"]`);
+    const req = panel.querySelector(`.tier-req[data-row="${r}"]`);
+    const ul  = pts >= r * PTS_PER_TIER;
+    if(div){ div.className='tier-div'+(ul?' unlocked':''); div.style.setProperty('--tree-accent',tree.accent) }
+    if(req){ req.className='tier-req'+(ul?' unlocked':'') }
+  }
+
+  /* arrows */
+  const svg = panel.querySelector('.arrows-svg');
+  if(svg){
+    tree.talents.forEach(talent=>{
+      if(!talent.prereq) return;
+      const prereq = getT(tk,talent.prereq.row,talent.prereq.col);
+      const met    = prereq && prereq.rank===prereq.maxRank;
+      const path   = svg.querySelector(`#arrow-${tk}-${talent.row}-${talent.col}`);
+      if(path){
+        path.className.baseVal = 'arrow-path'+(met?' prereq-met':'');
+        if(met) path.setAttribute('stroke', tree.accent);
+        else    path.setAttribute('stroke', 'var(--dim)');
+        path.setAttribute('marker-end',`url(#arrowhead-${met?'on':'off'}-${tk})`);
+      }
+    });
+  }
+}
+
+/* ─── BUILD (initial DOM creation) ──────────────────────── */
+function buildTrees(){
+  const container = document.getElementById('rogue-trees');
+  container.innerHTML='';
+
+  TREE_KEYS.forEach(tk=>{
+    const tree = TREES_DATA[tk];
+
+    /* panel */
+    const panel = document.createElement('div');
+    panel.className='rogue-tree';
+    panel.id=`tree-${tk}`;
+    panel.style.setProperty('--tree-accent', tree.accent);
+    panel.innerHTML='<div class="corner-tr"></div><div class="corner-bl"></div>';
+
+    /* label */
+    const label=document.createElement('div');
+    label.className='tree-label';
+    label.innerHTML=`
+      <div>
+        <div class="tree-label-name" style="color:${tree.accent}">${tree.label}</div>
+        <div class="tree-pip-row"></div>
+      </div>
+      <div class="tree-label-pts">0</div>`;
+    panel.appendChild(label);
+
+    /* canvas */
+    const canvas=document.createElement('div');
+    canvas.className='tree-canvas';
+    canvas.style.width =CANVAS_W+'px';
+    canvas.style.height=CANVAS_H+'px';
+    canvas.style.setProperty('--tree-accent', tree.accent);
+
+    /* bg art */
+    const bg=document.createElement('img');
+    bg.className='tree-bg-art';
+    bg.src=`${CDN}/${tree.bgIcon}.jpg`;
+    bg.alt='';
+    canvas.appendChild(bg);
+
+    /* tier dividers */
+    for(let r=1;r<ROWS;r++){
+      const y = PAD + nodeY(r) - RG/2;
+      const d=document.createElement('div');
+      d.className='tier-div';
+      d.dataset.row=r;
+      d.style.top=y+'px';
+      canvas.appendChild(d);
+
+      const rl=document.createElement('div');
+      rl.className='tier-req';
+      rl.dataset.row=r;
+      rl.style.top=(y-10)+'px';
+      rl.textContent=`${r*PTS_PER_TIER} pts`;
+      canvas.appendChild(rl);
+    }
+
+    /* SVG arrows */
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','arrows-svg');
+    svg.setAttribute('width', CANVAS_W-PAD*2);
+    svg.setAttribute('height',CANVAS_H-PAD*2);
+    svg.setAttribute('overflow','visible');
+
+    /* defs: two arrowhead markers per tree (off/on) */
+    const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+    [['off','#3a2a10'],['on', tree.accent]].forEach(([id,col])=>{
+      const m=document.createElementNS('http://www.w3.org/2000/svg','marker');
+      m.setAttribute('id',`arrowhead-${id}-${tk}`);
+      m.setAttribute('markerWidth','7');
+      m.setAttribute('markerHeight','5');
+      m.setAttribute('refX','6');
+      m.setAttribute('refY','2.5');
+      m.setAttribute('orient','auto');
+      const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      poly.setAttribute('points','0 0, 7 2.5, 0 5');
+      poly.setAttribute('fill',col);
+      m.appendChild(poly);
+      defs.appendChild(m);
+    });
+    svg.appendChild(defs);
+
+    /* draw prereq arrows */
+    tree.talents.forEach(talent=>{
+      if(!talent.prereq) return;
+      const pr=talent.prereq;
+      const x1=centerX(pr.col),       y1=nodeY(pr.row)+N;
+      const x2=centerX(talent.col),   y2=nodeY(talent.row);
+      let d;
+      if(pr.col===talent.col){
+        d=`M ${x1} ${y1} L ${x2} ${y2}`;
+      } else {
+        const midY=(y1+y2)/2;
+        d=`M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
+      }
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',d);
+      path.setAttribute('id',`arrow-${tk}-${talent.row}-${talent.col}`);
+      path.setAttribute('class','arrow-path');
+      path.setAttribute('marker-end',`url(#arrowhead-off-${tk})`);
+      path.setAttribute('stroke','var(--dim)');
+      path.setAttribute('stroke-dasharray','4 3');
+      path.setAttribute('stroke-width','1.5');
+      path.setAttribute('fill','none');
+      svg.appendChild(path);
+    });
+    canvas.appendChild(svg);
+
+    /* nodes */
+    tree.talents.forEach(talent=>{
+      const node=document.createElement('div');
+      node.id=`tn-${tk}-${talent.row}-${talent.col}`;
+      node.className='tn available';
+      node.style.left=(PAD+nodeX(talent.col))+'px';
+      node.style.top =(PAD+nodeY(talent.row))+'px';
+      node.style.setProperty('--tree-accent', tree.accent);
+
+      const frame=document.createElement('div');
+      frame.className='tn-frame';
+      frame.style.setProperty('--tree-accent', tree.accent);
+
+      const img=document.createElement('img');
+      img.src=`${CDN}/${talent.icon}.jpg`;
+      img.width=N; img.height=N; img.alt=talent.name;
+      img.onerror=function(){ this.src=`${CDN}/inv_misc_questionmark.jpg` };
+      frame.appendChild(img);
+
+      /* wowhead link (tooltips) */
+      const link=document.createElement('a');
+      link.href=`${WH}${talent.spellId}`;
+      link.dataset.whIconSize='small';
+      link.style.cssText='position:absolute;inset:0;display:block';
+      link.onclick=e=>e.preventDefault();
+      frame.appendChild(link);
+
+      const rank=document.createElement('span');
+      rank.className='tn-rank';
+      rank.textContent=`0/${talent.maxRank}`;
+
+      node.appendChild(frame);
+      node.appendChild(rank);
+
+      /* events */
+      node.addEventListener('click',e=>{
+        e.preventDefault();
+        addPoint(tk, talent);
+        if(tip.style.display==='block') showTip(e,tk,talent);
+      });
+      node.addEventListener('contextmenu',e=>{
+        e.preventDefault();
+        removePoint(tk,talent);
+        if(tip.style.display==='block') showTip(e,tk,talent);
+      });
+      node.addEventListener('mouseenter', e=>showTip(e,tk,talent));
+      node.addEventListener('mouseleave', ()=>{ tip.style.display='none' });
+      node.addEventListener('mousemove',  e=>moveTip(e));
+
+      canvas.appendChild(node);
+    });
+
+    panel.appendChild(canvas);
+    container.appendChild(panel);
+  });
+
+  renderAll();
+}
+
+/* ─── POINT MUTATION ─────────────────────────────────────── */
+function addPoint(tk,talent){ if(canAdd(tk,talent)){ talent.rank++; renderAll(); } }
+function removePoint(tk,talent){ if(canRemove(tk,talent)){ talent.rank--; renderAll(); } }
+
+/* ─── PUBLIC API ─────────────────────────────────────────── */
+window.ShamanTree = {
+  load(data){
+    Object.keys(data).forEach(tk=>{
+      if(!TREES_DATA[tk]) return;
+      data[tk].forEach((rowArr,ri)=>{
+        if(!rowArr) return;
+        rowArr.forEach((rank,ci)=>{
+          if(rank==null) return;
+          const t=getT(tk,ri,ci);
+          if(t) t.rank=Math.min(rank,t.maxRank);
+        });
+      });
+    });
+    renderAll();
+  },
+  reset(){
+    TREE_KEYS.forEach(tk=>TREES_DATA[tk].talents.forEach(t=>{ t.rank=0 }));
+    renderAll();
+  }
+};
+
+buildTrees();
+</script>
+</body>
+</html>
