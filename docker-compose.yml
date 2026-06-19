@@ -31,6 +31,6 @@ services:
       - NODE_ENV=production
       - PORT=3001
       - HOSTNAME=0.0.0.0
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgresql://brazug:BrazugUgjd8dO2Gmabs!25@host.docker.internal:5432/brazug
     extra_hosts:
       - "host.docker.internal:host-gateway"
