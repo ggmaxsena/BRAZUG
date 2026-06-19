@@ -21,8 +21,8 @@ async function getBlizzardToken() {
   }
 
   // Fallback
-  clientId = clientId || '3be061db111047e3b110b90a9f171c6a';
-  clientSecret = clientSecret || 'SHRS40y34TB0QEP0kZMswtFSvHdxKfCW';
+  clientId = clientId || '29b527628acc4b359ca8264325f7cff4';
+  clientSecret = clientSecret || 'NlyI0r1IhY8hyuYqImqEBfCV6v43kgFv';
   
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
   try {
