@@ -320,52 +320,72 @@
       const container = document.getElementById(containerId);
       if (!container) return;
 
-      const leftSlots = ['HEAD', 'NECK', 'SHOULDER', 'BACK', 'CHEST', 'SHIRT', 'TABARD', 'WRIST'];
-      const rightSlots = ['HANDS', 'WAIST', 'LEGS', 'FEET', 'FINGER_1', 'FINGER_2', 'TRINKET_1', 'TRINKET_2'];
-      const bottomSlots = ['MAIN_HAND', 'OFF_HAND', 'RANGED'];
+      const leftSlots  = ['HEAD','NECK','SHOULDER','BACK','CHEST','SHIRT','TABARD','WRIST'];
+      const rightSlots = ['HANDS','WAIST','LEGS','FEET','FINGER_1','FINGER_2','TRINKET_1','TRINKET_2'];
+      const bottomSlots = ['MAIN_HAND','OFF_HAND','RANGED'];
 
-      const renderSlot = (slot) => {
+      const qualityLabels = {
+        LEGENDARY: 'Lendário', EPIC: 'Épico', RARE: 'Raro',
+        UNCOMMON: 'Incomum', COMMON: 'Comum', POOR: 'Pobre'
+      };
+
+      const renderSlot = (slot, align = 'left') => {
         const item = plannerItems[slot];
-        const color = item?.quality ? rarityColors[item.quality] : '#1a1a1a';
+        const color = item?.quality ? (rarityColors[item.quality] || '#666') : '#2a2018';
         const iconData = item?.icon;
-        const itemId = item?.itemId;
-
         let iconUrl = null;
         if (iconData) {
-          // Use local proxy for icons
           const iconName = iconData.includes('.') ? iconData : `${iconData}.jpg`;
           iconUrl = iconData.startsWith('http') ? iconData : `/assets/icons/${iconName}`;
         }
+        const fallbackIcon = `https://wow.zamimg.com/images/wow/icons/large/${iconData || 'inv_misc_questionmark'}.jpg`;
+        const slotLabel = slotNames[slot] || slot;
+        const qualLabel = item ? (qualityLabels[item.quality] || item.quality || '') : 'Vazio';
 
         return `
-            <div class="item-slot ${item ? 'has-item' : ''}"
-                 style="${itemId ? `border-color: ${color}99; box-shadow: 0 0 10px ${color}44;` : ''}"
-                 onclick="ArmoryController.openSearch('${slot}')"
-                 onmouseenter="${item ? `ArmoryController.handleMouseEnter(event, ${item.itemId})` : ''}"
-                 onmouseleave="ArmoryController.handleMouseLeave()">
-                ${iconUrl ? `<img src="${iconUrl}" onerror="this.onerror=null; this.src='https://wow.zamimg.com/images/wow/icons/large/${item?.icon || 'inv_misc_questionmark'}.jpg';">` : `<span class="item-slot-label">${slotNames[slot]?.substring(0,4) || slot.substring(0,4)}</span>`}
-                ${item ? `<button class="slot-clear-btn" onclick="event.stopPropagation(); ArmoryController.clearSlot('${slot}')" style="display:block; position:absolute; top:-5px; right:-5px; background:#000; border:1px solid #c41e3a; color:#c41e3a; border-radius:50%; width:16px; height:18px; font-size:10px; cursor:pointer;">✕</button>` : ''}
+          <div class="planner-slot-row ${item ? 'filled' : ''}" data-slot="${slot}"
+               style="${item ? `--slot-color: ${color};` : ''}"
+               onclick="ArmoryController.openSearch('${slot}')"
+               onmouseenter="${item ? `ArmoryController.handleMouseEnter(event, ${item.itemId})` : ''}"
+               onmouseleave="ArmoryController.handleMouseLeave()">
+            <div class="planner-icon" style="${item ? `border-color: ${color}; box-shadow: 0 0 8px ${color}44;` : ''}">
+              ${iconUrl
+                ? `<img src="${iconUrl}" onerror="this.onerror=null;this.src='${fallbackIcon}';">`
+                : `<span class="planner-icon-empty">+</span>`}
             </div>
+            <div class="planner-slot-info">
+              <div class="planner-slot-label">${slotLabel}</div>
+              ${item
+                ? `<div class="planner-item-name" style="color:${color}">${item.name}</div>`
+                : `<div class="planner-item-empty">Clique para buscar</div>`}
+            </div>
+            ${item ? `<button class="planner-clear-btn" onclick="event.stopPropagation(); ArmoryController.clearSlot('${slot}')">✕</button>` : ''}
+          </div>
         `;
       };
 
+      const bgStyle = avatarUrl
+        ? `background-image: url('${avatarUrl}'); background-size: cover; background-position: center 15%;`
+        : '';
+
       container.innerHTML = `
-        <div class="paper-doll-container">
-          <div class="doll-column">
-            ${leftSlots.map(s => renderSlot(s)).join('')}
+        <div class="planner-grid-wrap" style="${bgStyle}">
+          <div class="planner-grid-overlay"></div>
+          <div class="planner-grid-body">
+            <div class="planner-col">
+              ${leftSlots.map(s => renderSlot(s, 'left')).join('')}
+            </div>
+            <div class="planner-col">
+              ${rightSlots.map(s => renderSlot(s, 'right')).join('')}
+            </div>
           </div>
-          <div class="paper-doll-model">
-            <img src="${avatarUrl || '/assets/branding/contentbra.png'}" onerror="this.src='/assets/branding/contentbra.png'">
+          <div class="planner-weapons-row">
+            ${bottomSlots.map(s => renderSlot(s)).join('')}
           </div>
-          <div class="doll-column">
-            ${rightSlots.map(s => renderSlot(s)).join('')}
-          </div>
-        </div>
-        <div class="doll-row-bottom">
-          ${bottomSlots.map(s => renderSlot(s)).join('')}
         </div>
       `;
     },
+
 
     renderTPTrees(containerId, groups, tpState, charClass) {
       const container = document.getElementById(containerId);
