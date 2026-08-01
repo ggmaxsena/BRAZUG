@@ -25,15 +25,29 @@ app.use(express.json({ limit: "10mb" }));
 /* =========================================
    STATIC FILES & ICON PROXY
 ========================================= */
-const candidateUploadDirs = [
-  process.env.UPLOAD_DIR,
-  path.resolve(__dirname, "uploads"),
-  path.resolve(__dirname, "..", "uploads"),
-  path.resolve(__dirname, "..", "..", "uploads"),
-  "/uploads"
-].filter(Boolean);
+function getCandidateUploadDirs() {
+  const dirs = [];
+  if (process.env.UPLOAD_DIR) dirs.push(process.env.UPLOAD_DIR);
 
-const uploadDirs = [...new Set(candidateUploadDirs)];
+  // Hostinger domain root detection (e.g. /home/u681328529/domains/brazug.com)
+  const domainMatch = __dirname.match(/(.*\/domains\/[^\/]+)/);
+  if (domainMatch) {
+    const domainRoot = domainMatch[1];
+    dirs.push(path.join(domainRoot, "public_html", "uploads"));
+    dirs.push(path.join(domainRoot, "uploads"));
+  }
+
+  dirs.push(path.resolve(__dirname, "uploads"));
+  dirs.push(path.resolve(__dirname, "..", "uploads"));
+  dirs.push(path.resolve(__dirname, "..", "..", "uploads"));
+  dirs.push(path.resolve(__dirname, "..", "..", "..", "uploads"));
+  dirs.push(path.resolve(__dirname, "..", "..", "..", "..", "uploads"));
+  dirs.push("/uploads");
+
+  return [...new Set(dirs.filter(Boolean))];
+}
+
+const uploadDirs = getCandidateUploadDirs();
 
 uploadDirs.forEach(dir => {
   if (!fs.existsSync(dir)) {
