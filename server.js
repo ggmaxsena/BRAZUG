@@ -59,6 +59,17 @@ uploadDirs.forEach(dir => {
   }
 });
 
+app.get("/uploads/*", (req, res) => {
+  const subPath = req.params[0];
+  for (const dir of uploadDirs) {
+    const fullPath = path.join(dir, subPath);
+    if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+      return res.sendFile(fullPath);
+    }
+  }
+  res.status(404).send("Upload file not found");
+});
+
 const iconDir = path.resolve(__dirname, "assets", "icons");
 console.log(`[BRAZUG] Static serving: Icons from ${iconDir}`);
 
