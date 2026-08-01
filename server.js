@@ -25,13 +25,29 @@ app.use(express.json({ limit: "10mb" }));
 /* =========================================
    STATIC FILES & ICON PROXY
 ========================================= */
-const externalUploads = process.env.UPLOAD_DIR || path.resolve(__dirname, "..", "uploads");
+const candidateUploadDirs = [
+  process.env.UPLOAD_DIR,
+  path.resolve(__dirname, "uploads"),
+  path.resolve(__dirname, "..", "uploads"),
+  path.resolve(__dirname, "..", "..", "uploads"),
+  "/uploads"
+].filter(Boolean);
 
-console.log(`[BRAZUG] Static serving: Uploads from ${externalUploads}`);
+const uploadDirs = [...new Set(candidateUploadDirs)];
+
+uploadDirs.forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    try { fs.mkdirSync(dir, { recursive: true }); } catch (e) {}
+  }
+  if (fs.existsSync(dir)) {
+    console.log(`[BRAZUG] Static serving: Uploads from ${dir}`);
+    app.use("/uploads", express.static(dir));
+  }
+});
+
 const iconDir = path.resolve(__dirname, "assets", "icons");
 console.log(`[BRAZUG] Static serving: Icons from ${iconDir}`);
 
-if (!fs.existsSync(externalUploads)) fs.mkdirSync(externalUploads, { recursive: true });
 if (!fs.existsSync(iconDir)) fs.mkdirSync(iconDir, { recursive: true });
 
 app.get("/assets/icons/:filename", async (req, res) => {
@@ -219,11 +235,11 @@ app.get("/api/health", async (req, res) => {
     if (aRes && [200, 400, 404].includes(aRes.status)) armory.ok = true;
   } catch (e) {}
 
-  // Check file system
+  const primaryUploadDir = uploadDirs[0] || path.resolve(__dirname, "uploads");
   const fsStatus = {
     uploads: {
-      path: externalUploads,
-      exists: fs.existsSync(externalUploads),
+      path: primaryUploadDir,
+      exists: fs.existsSync(primaryUploadDir),
       writable: false
     },
     icons: {
@@ -238,7 +254,7 @@ app.get("/api/health", async (req, res) => {
   };
 
   try {
-    const testFile = path.join(externalUploads, ".write-test");
+    const testFile = path.join(primaryUploadDir, ".write-test");
     fs.writeFileSync(testFile, "test");
     fs.unlinkSync(testFile);
     fsStatus.uploads.writable = true;
