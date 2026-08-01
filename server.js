@@ -70,7 +70,6 @@ app.get("/assets/icons/:filename", async (req, res) => {
   }
 });
 
-app.use("/uploads", express.static(externalUploads));
 app.use("/css", express.static(path.resolve(__dirname, "css")));
 app.use("/js", express.static(path.resolve(__dirname, "js")));
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
@@ -291,10 +290,16 @@ app.use("/api/spotify", spotifyRoutes.createSpotifyRouter());
 app.use("/api", characterRoutes.createCharacterRouter());
 
 async function start() {
-  await db.init();
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`[STABLE] Website Online: http://localhost:${PORT}`);
   });
+
+  try {
+    await db.init();
+    console.log(`[STABLE] Database initialized successfully.`);
+  } catch (err) {
+    console.error(`[STABLE] Warning: Database initialization failed on startup: ${err.message}`);
+  }
 }
 
 function loadEnv() {
