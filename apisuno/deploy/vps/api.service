@@ -4,10 +4,10 @@ After=network.target
 
 [Service]
 User=root
-WorkingDirectory=/root/apisuno
-Environment=PATH=/root/apisuno/.venv/bin:/usr/bin:/bin
+WorkingDirectory=/root/BRAZUG/apisuno
+Environment=PATH=/root/BRAZUG/apisuno/.venv/bin:/usr/bin:/bin
 Environment=PORT=8000
-ExecStart=/root/apisuno/.venv/bin/python -m uvicorn src.main:app --host 127.0.0.1 --port 8000
+ExecStart=/root/BRAZUG/apisuno/.venv/bin/python -m uvicorn src.main:app --host 127.0.0.1 --port 8000
 Restart=always
 RestartSec=3
 

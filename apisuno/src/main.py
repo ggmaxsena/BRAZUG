@@ -20,6 +20,7 @@ app.include_router(ui_router)
 
 init_dirs()
 static_dir = Path(__file__).resolve().parent / "app" / "static"
+static_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 app.mount("/music", StaticFiles(directory=MUSIC_FOLDER), name="music")
 
