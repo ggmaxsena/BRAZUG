@@ -1,0 +1,15 @@
+[Unit]
+Description=FastAPI Brazug API
+After=network.target
+
+[Service]
+User=your-user
+WorkingDirectory=/home/your-user/apisuno
+Environment=PATH=/home/your-user/apisuno/.venv/bin:/usr/bin:/bin
+Environment=PORT=8000
+ExecStart=/home/your-user/apisuno/.venv/bin/python -m uvicorn src.main:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
