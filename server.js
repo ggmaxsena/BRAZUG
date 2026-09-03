@@ -18,7 +18,6 @@ const spotifyRoutes = require("./lib/spotify-routes.cjs");
 const app = express();
 app.set('trust proxy', 1); // Trust the first hop (proxy)
 const PORT = process.env.PORT || 3000;
-const ARMORY_URL = process.env.ARMORY_URL || "http://2.24.124.162:3001";
 
 app.use(express.json({ limit: "10mb" }));
 
@@ -100,100 +99,6 @@ app.use("/js", express.static(path.resolve(__dirname, "js")));
 app.use("/assets", express.static(path.resolve(__dirname, "assets")));
 
 /* =========================================
-   ARMORY SYSTEM (INTEGRATION)
-========================================= */
-
-app.get("/api/armory/full/:realm/:name", async (req, res) => {
-  try {
-    const { realm, name } = req.params;
-    let char = await db.getFullArmoryCharacter(name, realm);
-
-    if (!char) {
-      console.log(`[Armory] Character ${name}-${realm} not found. Attempting quick sync...`);
-
-      const realLocal = "http://localhost:3001";
-      const remoteUrl = "http://2.24.124.162:3001";
-      let syncRes = null;
-
-      async function performSync(url) {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 30000); // 30s for Blizzard syncs
-        try {
-          const res = await fetch(`${url}/api/character/sync`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, realm, region: 'us' }),
-            signal: controller.signal
-          });
-          
-          if (!res.ok && res.status !== 404) {
-             let errorMsg = `HTTP ${res.status}`;
-             try {
-               const errData = await res.json();
-               errorMsg += ` - ${errData.error || errData.message || JSON.stringify(errData)}`;
-             } catch (e) {}
-             throw new Error(errorMsg);
-          }
-          return res;
-        } finally {
-          clearTimeout(timeout);
-        }
-      }
-
-      const urlsToTry = [...new Set([realLocal, ARMORY_URL, remoteUrl])];
-      let lastError = null;
-
-      for (const url of urlsToTry) {
-        try {
-          console.log(`[Armory] Trying sync at ${url}...`);
-          syncRes = await performSync(url);
-          // Se for 404 (Não encontrado na Blizzard), não adianta tentar outros servers
-          if (syncRes.status === 404) break;
-          // Se for OK, conseguimos sincronizar
-          if (syncRes.ok) break;
-        } catch (e) {
-          lastError = e;
-          console.warn(`[Armory] Sync failed at ${url}: ${e.message}`);
-        }
-      }
-
-      if (!syncRes || (!syncRes.ok && syncRes.status !== 404)) {
-        console.error(`[Armory] All sync attempts failed for ${name}-${realm}`);
-        return res.status(503).json({ 
-          error: "O servidor de sincronização está indisponível.", 
-          details: lastError?.message || "Erro desconhecido" 
-        });
-      }
-
-      if (syncRes.status === 404) {
-        return res.status(404).json({ error: "Personagem não encontrado na Blizzard." });
-      }
-
-      char = await db.getFullArmoryCharacter(name, realm);
-    }
-
-    if (!char) return res.status(503).json({ error: "Sincronizando personagem... os dados estarão prontos em instantes." });
-    res.json(char);
-  } catch (err) {
-    console.error("[Armory Route Error]", err);
-    res.status(500).json({ error: "Erro interno ao processar dados do Armory" });
-  }
-});
-
-// Serve o template visual do Armory (Stable)
-app.get("/armory/:realm/:name", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "armory-ficha.html"));
-});
-
-app.get("/armory/:region/:realm/:name", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "armory-ficha.html"));
-});
-
-app.get("/armory*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "armory-ficha.html"));
-});
-
-/* =========================================
    PAGES (PROTECTED & PUBLIC)
 ========================================= */
 const protectPage = (allowedRoles) => {
@@ -253,11 +158,7 @@ app.get("/api/live-streams", async (req, res) => {
 
 app.get("/api/health", async (req, res) => {
   const pg = await db.pingPostgres();
-  let armory = { ok: false };
-  try {
-    const aRes = await fetch(`${ARMORY_URL}/api/character/fetch/unknown/unknown`).catch(() => null);
-    if (aRes && [200, 400, 404].includes(aRes.status)) armory.ok = true;
-  } catch (e) {}
+  let armory = { ok: true }; // Armory API removed, pretend it's ok or just ignore it.
 
   const primaryUploadDir = uploadDirs[0] || path.resolve(__dirname, "uploads");
   const fsStatus = {
@@ -302,7 +203,6 @@ app.get("/api/health", async (req, res) => {
 
 app.get("/api/debug-env", (req, res) => {
   res.json({
-    ARMORY_URL: process.env.ARMORY_URL,
     NODE_ENV: process.env.NODE_ENV,
     PORT: process.env.PORT
   });

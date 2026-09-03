@@ -42,7 +42,6 @@
               <h4>Navegação</h4>
               <ul class="footer-links">
                 <li><a href="/index.html">Mural de Aventuras</a></li>
-                <li><a href="/armory">Armory & Rankings</a></li>
                 <li><a href="/vendas.html">Casa de Leilões</a></li>
                 <li><a href="/login.html">Painel do Herói</a></li>
               </ul>

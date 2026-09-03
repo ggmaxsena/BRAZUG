@@ -117,7 +117,6 @@
                         
                         <div style="display: flex; gap: 15px; margin-top: 30px; flex-wrap: wrap;">
                             ${!char.is_dead ? `<a href="https://classic-armory.org/character/us/classic-hardcore/doomhowl/${char.name.toLowerCase()}" target="_blank" class="discord-btn" style="background: #333; color: #fff; border: 1px solid #555;">Classic Armory</a>` : ''}
-                            <a href="/armory/${char.region || 'us'}/${char.realm || 'doomhowl'}/${char.name.toLowerCase()}" class="discord-btn" style="background: var(--gold); color: #000; border: none; font-weight: bold;">Brazug Armory</a>
                             ${(function() {
                                 const username = localStorage.getItem("brazug_admin_user");
                                 const role = localStorage.getItem("brazug_admin_role");
