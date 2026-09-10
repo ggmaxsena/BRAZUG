@@ -12,6 +12,7 @@ const authRoutes = require("./lib/auth-routes.cjs");
 const adminRoutes = require("./lib/admin-routes.cjs");
 const characterRoutes = require("./lib/character-routes.cjs");
 const salesRoutes = require("./lib/sales-routes.cjs");
+const sucessoRoutes = require("./lib/sucesso-routes.cjs");
 const twitch = require("./lib/twitch.cjs");
 const spotifyRoutes = require("./lib/spotify-routes.cjs");
 
@@ -130,6 +131,8 @@ app.get("/forgot-password.html", (req, res) => res.sendFile(path.resolve(__dirna
 app.get("/reset-password.html", (req, res) => res.sendFile(path.resolve(__dirname, "reset-password.html")));
 app.get("/ficha.html", (req, res) => res.sendFile(path.resolve(__dirname, "ficha.html")));
 app.get("/vendas.html", (req, res) => res.sendFile(path.resolve(__dirname, "vendas.html")));
+app.get("/sucesso.html", (req, res) => res.sendFile(path.resolve(__dirname, "sucesso.html")));
+app.get("/sucesso", (req, res) => res.sendFile(path.resolve(__dirname, "sucesso.html")));
 
 /* =========================================
    API
@@ -211,6 +214,7 @@ app.get("/api/debug-env", (req, res) => {
 app.use("/api/auth", authRoutes.createAuthRouter());
 app.use("/api/admin", adminRoutes.createAdminRouter());
 app.use("/api/sales", salesRoutes.createSalesRouter());
+app.use("/api/sucesso", sucessoRoutes.createSucessoRouter());
 app.use("/api/spotify", spotifyRoutes.createSpotifyRouter());
 app.use("/api", characterRoutes.createCharacterRouter());
 

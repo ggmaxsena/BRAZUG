@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Mural de Sucessos — BRAZUG</title>
+    <meta name="description" content="Conquistas e Sucessos da guilda BRAZUG.">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/modern-ux.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sucesso-header {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .sucesso-header h1 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .sucesso-header p {
+            color: var(--text-muted);
+        }
+        .sucesso-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            max-width: 1100px;
+            margin: 0 auto 20px auto;
+        }
+        .btn-add-sucesso {
+            background: linear-gradient(135deg, #8f0f0f, #c41e3a);
+            color: #fff;
+            border: 1px solid var(--gold);
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: none; /* Hidden by default, shown via JS if admin/officer */
+        }
+        .btn-add-sucesso:hover {
+            box-shadow: 0 0 15px var(--horde-red-glow);
+            transform: translateY(-2px);
+        }
+        .sucesso-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1100px;
+            margin: 0 auto 60px auto;
+        }
+        .sucesso-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: 0.3s;
+            position: relative;
+        }
+        .sucesso-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+        .sucesso-card-add {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(196, 30, 58, 0.05);
+            border: 2px dashed rgba(196, 30, 58, 0.5);
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-align: center;
+            padding: 40px 20px;
+            min-height: 300px;
+        }
+        .sucesso-card-add i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--horde-red);
+            transition: 0.3s;
+        }
+        .sucesso-card-add:hover {
+            background: rgba(196, 30, 58, 0.1);
+            border-color: var(--gold);
+        }
+        .sucesso-card-add:hover i {
+            transform: scale(1.1);
+            color: var(--gold);
+        }
+        .sucesso-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border);
+        }
+        .sucesso-content {
+            padding: 20px;
+        }
+        .sucesso-title {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .sucesso-desc {
+            color: var(--text);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+        .sucesso-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 10px;
+        }
+        .btn-delete-sucesso {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: none; /* Hidden by default */
+        }
+        .btn-delete-sucesso:hover {
+            background: #ff4d4d;
+            color: #fff;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            position: relative;
+        }
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 4px;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--gold);
+            outline: none;
+        }
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .modal-close:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+
+    <main class="container">
+        <div class="sucesso-header">
+            <h1>Mural de Sucessos</h1>
+            <p>Celebre as grandes conquistas e marcos históricos da guilda BRAZUG.</p>
+        </div>
+
+
+        <div class="sucesso-grid" id="sucesso-grid">
+            <!-- Cards will be injected here via JS -->
+            <div style="text-align:center; grid-column: 1/-1; color: var(--text-muted);">Carregando sucessos...</div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <!-- Modal Adicionar Sucesso -->
+    <div class="modal" id="modal-sucesso">
+        <div class="modal-content">
+            <span class="modal-close" id="btn-close-modal">&times;</span>
+            <h2 class="modal-title">Registrar Novo Sucesso</h2>
+            <form id="form-sucesso">
+                <div class="form-group">
+                    <label for="suc-title">Título *</label>
+                    <input type="text" id="suc-title" required placeholder="Ex: First Down Ragnaros">
+                </div>
+                <div class="form-group">
+                    <label for="suc-desc">Descrição</label>
+                    <textarea id="suc-desc" rows="4" placeholder="Detalhes da conquista..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="suc-image">URL da Imagem (Opcional)</label>
+                    <input type="url" id="suc-image" placeholder="https://exemplo.com/imagem.jpg">
+                </div>
+                <div class="form-group">
+                    <label for="suc-video">URL do Clipe Twitch / YouTube (Opcional)</label>
+                    <input type="url" id="suc-video" placeholder="https://clips.twitch.tv/...">
+                </div>
+                <button type="submit" class="btn-add-sucesso" style="display:block; width:100%; margin-top:20px;">Salvar Sucesso</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Carrega Navbar e Footer (baseado no main.js/comum do site)
+        fetch('/index.html')
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const nav = doc.querySelector('nav');
+                if(nav) document.getElementById('nav-placeholder').appendChild(nav);
+            });
+    </script>
+    <script src="/js/footer.js"></script>
+    <script src="/js/sucesso.js"></script>
+</body>
+</html>
