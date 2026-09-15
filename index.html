@@ -1,95 +1,125 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="BRAZUG — Guilda Hardcore RP no servidor Doomhowl." />
-    <title>BRAZUG — Classic WoW Hardcore</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/footer.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
-  </head>
-  <body>
-    <header class="site-header" id="universal-header"></header>
 
-    <main class="container">
-      <!-- STREAMS (PRIMEIRO ITEM) -->
-      <section id="lives">
-          <p class="eyebrow">Ao vivo</p>
-          <h2>Streams da Guilda</h2>
-          <div id="streams-status" class="streams-status">Buscando aventureiros ao vivo…</div>
-          <ul id="streams-list" class="grid-layout" hidden></ul>
-      </section>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="BRAZUG — Guilda Hardcore RP no servidor Doomhowl." />
+  <title>BRAZUG — Classic WoW Hardcore</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/footer.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
+</head>
 
-      <!-- INTRO & AGENDA -->
-      <section id="intro">
-          <h1 class="section-title">BRAZUG</h1>
-          <p class="subtitle">A voz da Horda ecoa pelo servidor Doomhowl.</p>
-          <p class="lead">Somos uma guilda de <b>World of Warcraft Classic Hardcore</b> focada em imersão e Roleplay (RP). Honramos a Horda em sua forma mais brutal e verdadeira. O caminho do Hardcore é perigoso, mas a glória de ser uma lenda é eterna. Venha escrever seu nome entre nós.</p>
+<body>
+  <header class="site-header" id="universal-header"></header>
 
-          <!-- AGENDA DA SEMANA -->
-          <div id="agenda-container" style="margin-top: 60px; display: none; text-align: center;">
-              <h2 class="section-title" style="font-size: 32px; border-left: none; padding-left: 0; text-align: center; margin-bottom: 30px;">Agenda da Semana</h2>
-              <img id="agenda-img" src="" alt="Agenda da Semana" style="width: 100%; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);" />
-              <div id="agenda-admin-actions" style="margin-top: 20px; display: none;">
-                  <button id="btn-update-agenda" class="btn-primary" style="font-size: 12px; padding: 10px 20px;">⚔ Atualizar Agenda</button>
-              </div>
-          </div>
-      </section>
+  <main class="container">
+    <!-- STREAMS (PRIMEIRO ITEM) -->
+    <section id="lives">
+      <p class="eyebrow">Ao vivo</p>
+      <h2>Streams da Guilda</h2>
+      <div id="streams-status" class="streams-status">Buscando aventureiros ao vivo…</div>
+      <ul id="streams-list" class="grid-layout" hidden></ul>
+    </section>
 
-      <!-- MURAL -->
-      <section id="mural">
-          <p class="eyebrow">Crônicas</p>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>Mural das <span class="highlight-gold" style="position: relative;">Aventuras <span class="js-long-press" style="position: absolute; inset:0;"></span></span></h2>
-            <a href="/cadastro-aventura.html" id="btn-nova-aventura" class="discord-btn" style="display:none; text-decoration: none;">Nova Aventura</a>
-          </div>
-          <p class="lead" style="margin-bottom: 2rem;">Mortes heroicas, conquistas lendárias e histórias eternizadas.</p>
-          <div id="mural-status">Carregando mural…</div>
-          <div id="mural-grid" class="grid-layout" hidden></div>
-      </section>
+    <!-- VOD EM DESTAQUE -->
+    <section id="vod-destaque">
 
-      <!-- HEROES -->
-      <section id="herois">
-          <p class="eyebrow">Legado</p>
-          <h2>Mural dos Heróis</h2>
-          <h3 class="section-title" style="font-size: 24px;">Personagens Ativos</h3>
-          <div id="heroes-alive-grid" class="grid-layout"></div>
-          
-          <h3 class="section-title fallen" style="font-size: 24px; margin-top: 40px;">Cemitério / Hall da Fama</h3>
-          <div id="heroes-dead-grid" class="grid-layout"></div>
-      </section>
-    </main>
+      <div class="vod-wrapper">
+        <iframe id="twitch-vod-player" src="https://player.twitch.tv/?video=2874095467&parent=localhost&autoplay=false"
+          allowfullscreen frameborder="0"></iframe>
+      </div>
+    </section>
 
-    <!-- MODAL -->
-    <div id="mural-modal" class="mural-modal" hidden>
-      <div class="mural-modal-backdrop" data-action="close"></div>
-      <div class="mural-modal-panel">
-        <button type="button" class="mural-modal-close" data-action="close">×</button>
-        <img id="mural-modal-img" class="mural-modal-img" src="" alt="" />
-        <div class="mural-modal-copy">
-          <p id="mural-modal-date"></p>
-          <h2 id="mural-modal-title"></h2>
-          <div id="mural-modal-body" class="mural-modal-body"></div>
-          <p id="mural-modal-author" style="font-weight: bold; color: var(--gold);"></p>
+    <!-- INTRO & AGENDA -->
+    <section id="intro">
+      <h1 class="section-title">BRAZUG</h1>
+      <p class="subtitle">A voz da Horda ecoa pelo servidor Doomhowl.</p>
+      <p class="lead">Somos uma guilda de <b>World of Warcraft Classic Hardcore</b> focada em imersão e Roleplay (RP).
+        Honramos a Horda em sua forma mais brutal e verdadeira. O caminho do Hardcore é perigoso, mas a glória de ser
+        uma lenda é eterna. Venha escrever seu nome entre nós.</p>
+
+      <!-- AGENDA DA SEMANA -->
+      <div id="agenda-container" style="margin-top: 60px; display: none; text-align: center;">
+        <h2 class="section-title"
+          style="font-size: 32px; border-left: none; padding-left: 0; text-align: center; margin-bottom: 30px;">Agenda
+          da Semana</h2>
+        <img id="agenda-img" src="" alt="Agenda da Semana"
+          style="width: 100%; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);" />
+        <div id="agenda-admin-actions" style="margin-top: 20px; display: none;">
+          <button id="btn-update-agenda" class="btn-primary" style="font-size: 12px; padding: 10px 20px;">⚔ Atualizar
+            Agenda</button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- SCRIPTS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
-    <script src="/js/header.js"></script>
-    <script src="/js/models/AdventureModel.js"></script>
-    <script src="/js/views/AdventureView.js"></script>
-    <script src="/js/controllers/AdventureController.js"></script>
-    <script src="/js/models/StreamsModel.js"></script>
-    <script src="/js/views/StreamsView.js"></script>
-    <script src="/js/controllers/StreamsController.js"></script>
-    <script src="/js/models/HeroModel.js"></script>
-    <script src="/js/views/HeroView.js"></script>
-    <script src="/js/controllers/HeroController.js"></script>
-    <script src="/js/footer.js"></script>
-    <script src="/js/controllers/HomeController.js"></script>
-  </body>
+    <!-- MURAL -->
+    <section id="mural">
+      <p class="eyebrow">Crônicas</p>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>Mural das <span class="highlight-gold" style="position: relative;">Aventuras <span class="js-long-press"
+              style="position: absolute; inset:0;"></span></span></h2>
+        <a href="/cadastro-aventura.html" id="btn-nova-aventura" class="discord-btn"
+          style="display:none; text-decoration: none;">Nova Aventura</a>
+      </div>
+      <p class="lead" style="margin-bottom: 2rem;">Mortes heroicas, conquistas lendárias e histórias eternizadas.</p>
+      <div id="mural-status">Carregando mural…</div>
+      <div id="mural-grid" class="grid-layout" hidden></div>
+    </section>
+
+    <!-- HEROES -->
+    <section id="herois">
+      <p class="eyebrow">Legado</p>
+      <h2>Mural dos Heróis</h2>
+      <h3 class="section-title" style="font-size: 24px;">Personagens Ativos</h3>
+      <div id="heroes-alive-grid" class="grid-layout"></div>
+
+      <h3 class="section-title fallen" style="font-size: 24px; margin-top: 40px;">Cemitério / Hall da Fama</h3>
+      <div id="heroes-dead-grid" class="grid-layout"></div>
+    </section>
+  </main>
+
+  <!-- MODAL -->
+  <div id="mural-modal" class="mural-modal" hidden>
+    <div class="mural-modal-backdrop" data-action="close"></div>
+    <div class="mural-modal-panel">
+      <button type="button" class="mural-modal-close" data-action="close">×</button>
+      <img id="mural-modal-img" class="mural-modal-img" src="" alt="" />
+      <div class="mural-modal-copy">
+        <p id="mural-modal-date"></p>
+        <h2 id="mural-modal-title"></h2>
+        <div id="mural-modal-body" class="mural-modal-body"></div>
+        <p id="mural-modal-author" style="font-weight: bold; color: var(--gold);"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+  <script src="/js/header.js"></script>
+  <script src="/js/models/AdventureModel.js"></script>
+  <script src="/js/views/AdventureView.js"></script>
+  <script src="/js/controllers/AdventureController.js"></script>
+  <script src="/js/models/StreamsModel.js"></script>
+  <script src="/js/views/StreamsView.js"></script>
+  <script src="/js/controllers/StreamsController.js"></script>
+  <script src="/js/models/HeroModel.js"></script>
+  <script src="/js/views/HeroView.js"></script>
+  <script src="/js/controllers/HeroController.js"></script>
+  <script src="/js/footer.js"></script>
+  <script src="/js/controllers/HomeController.js"></script>
+  <script>
+    // Corrige o parâmetro ?parent= do player Twitch com o hostname real
+    (function () {
+      var host = window.location.hostname || 'localhost';
+      var player = document.getElementById('twitch-vod-player');
+      if (player) {
+        player.src = 'https://player.twitch.tv/?video=2874095467&parent=' + host + '&autoplay=false';
+      }
+    })();
+  </script>
+</body>
+
 </html>

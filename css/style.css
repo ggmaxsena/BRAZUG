@@ -738,3 +738,38 @@ select option {
   gap: 1rem;
   flex-wrap: wrap;
 }
+
+/* ===================================== */
+/* VOD EM DESTAQUE                       */
+/* ===================================== */
+#vod-destaque {
+  margin-bottom: 60px;
+}
+
+#vod-destaque h2 {
+  margin-bottom: 1.5rem;
+}
+
+.vod-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 40px rgba(196, 30, 58, 0.15), 0 0 0 1px rgba(247, 193, 77, 0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.vod-wrapper:hover {
+  box-shadow: 0 8px 60px rgba(196, 30, 58, 0.25), 0 0 0 1px rgba(247, 193, 77, 0.2);
+}
+
+.vod-wrapper iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
