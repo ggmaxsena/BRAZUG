@@ -702,6 +702,7 @@
         <button class="tab-btn active" data-tab="deaths">☠ Mortes</button>
         <button class="tab-btn" data-tab="streaks">🔥 Streaks</button>
         <button class="tab-btn" data-tab="digest">📊 Resumo</button>
+        <button class="tab-btn" data-tab="guild-stats">📈 Estatísticas</button>
       </div>
 
       <!-- TAB: DEATHS -->
@@ -748,6 +749,46 @@
         </div>
       </div>
 
+      <!-- TAB: ESTATÍSTICAS DA GUILDA -->
+      <div class="tab-pane" id="guild-stats">
+        <div class="panel-body">
+          
+          <!-- O TEMPO ROUBADO -->
+          <div class="stat-section" style="margin-bottom: 30px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid var(--border-soft); padding: 20px; border-radius: var(--radius);">
+            <h3 style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;">⏳ O Tempo Roubado</h3>
+            <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 12px;">Horas de vida (played time) perdidas nos níveis 10+ recentemente.</p>
+            <div id="stat-time-lost" style="font-family: 'Cinzel', serif; font-size: 32px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2);">Calculando...</div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- CORREDOR DA MORTE: CLASSES -->
+            <div class="stat-section">
+              <h3 style="color: var(--blood-bright); font-size: 14px; font-family: 'Cinzel', serif; margin-bottom: 16px; border-bottom: 1px solid var(--border-soft); padding-bottom: 8px;">🛡️ Mortalidade por Classe</h3>
+              <div id="stat-class-breakdown">
+                <div class="state-loading" style="padding: 10px;"><div class="skull-spin" style="font-size:16px;">☠</div></div>
+              </div>
+            </div>
+
+            <!-- O CARNICEIRO -->
+            <div class="stat-section">
+              <h3 style="color: var(--blood-bright); font-size: 14px; font-family: 'Cinzel', serif; margin-bottom: 16px; border-bottom: 1px solid var(--border-soft); padding-bottom: 8px;">👹 O Carniceiro (Inimigos Mortais)</h3>
+              <div id="stat-butcher">
+                <div class="state-loading" style="padding: 10px;"><div class="skull-spin" style="font-size:16px;">☠</div></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- CORREDOR DA MORTE: RAÇAS -->
+          <div class="stat-section" style="margin-top: 20px;">
+            <h3 style="color: var(--blood-bright); font-size: 14px; font-family: 'Cinzel', serif; margin-bottom: 16px; border-bottom: 1px solid var(--border-soft); padding-bottom: 8px;">💀 Mortalidade por Raça</h3>
+            <div id="stat-race-breakdown">
+              <div class="state-loading" style="padding: 10px;"><div class="skull-spin" style="font-size:16px;">☠</div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -755,7 +796,7 @@
   <aside class="sidebar-right">
     <div class="panel panel--blood">
       <div class="panel-head">
-        <span class="panel-head-title">🏆 Streaks Top 3</span>
+        <span class="panel-head-title">🔥 Atividade & Tempo</span>
       </div>
       <div id="streaks-body-side">
         <div class="state-loading" style="padding: 24px;">
@@ -767,7 +808,7 @@
 
     <div class="panel panel--blood">
       <div class="panel-head">
-        <span class="panel-head-title">📊 Resumo Rápido</span>
+        <span class="panel-head-title">📊 Resumo do Período</span>
       </div>
       <div class="panel-body">
         <div id="digest-body-side">
@@ -782,53 +823,5 @@
 </div>
 
 <script src="/js/deathlog.js"></script>
-
-<!-- Espelhar streaks/digest nos painéis laterais direitos após o carregamento principal -->
-<script>
-  // Sincroniza sidebar direita com os dados principais após render
-  const _origRenderStreaks = DeathlogView.renderStreaks.bind(DeathlogView);
-  DeathlogView.renderStreaks = function(data) {
-    _origRenderStreaks(data);
-    // Espelha top 3 na sidebar direita
-    const el = document.getElementById("streaks-body-side");
-    if (!el) return;
-    const list = (data?.streaks || data?.data || []).slice(0, 3);
-    if (!list.length) { el.innerHTML = '<p class="no-data">Sem dados</p>'; return; }
-    el.innerHTML = list.map((s, i) => {
-      const medal = ["🥇","🥈","🥉"][i] || `${i+1}.`;
-      const cls = DeathlogView.getClass(s.classId || s.class_id);
-      return `<div class="streak-row"><span class="streak-pos">${medal}</span><span class="streak-icon" style="color:${cls.color}">${cls.icon}</span><span class="streak-name" style="color:${cls.color}">${s.name||"?"}</span><span class="streak-count">${s.streak||s.count||0}<small> dias</small></span></div>`;
-    }).join("");
-  };
-
-  const _origRenderDigest = DeathlogView.renderDigest.bind(DeathlogView);
-  DeathlogView.renderDigest = function(data) {
-    _origRenderDigest(data);
-    // Espelha digest na sidebar direita
-    const el = document.getElementById("digest-body-side");
-    if (!el) return;
-    const d = data?.digest || data?.data || data || {};
-    el.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-soft)">
-          <span style="font-size:12px;color:var(--text-muted)">Mortes</span>
-          <span style="font-family:'Orbitron',monospace;color:var(--blood-bright);font-weight:700">${d.totalDeaths||d.total_deaths||0}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-soft)">
-          <span style="font-size:12px;color:var(--text-muted)">Personagens</span>
-          <span style="font-family:'Orbitron',monospace;font-weight:700">${d.uniqueCharacters||d.unique_characters||0}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-soft)">
-          <span style="font-size:12px;color:var(--text-muted)">Zona mais letal</span>
-          <span style="font-size:12px;color:var(--gold);text-align:right;max-width:140px">${d.deadliestZone||d.deadliest_zone||"—"}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
-          <span style="font-size:12px;color:var(--text-muted)">Assassino mais comum</span>
-          <span style="font-size:12px;color:var(--blood-bright);text-align:right;max-width:130px">${d.mostCommonKiller||d.most_common_killer||"—"}</span>
-        </div>
-      </div>
-    `;
-  };
-</script>
 </body>
 </html>

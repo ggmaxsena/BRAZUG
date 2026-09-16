@@ -49,6 +49,26 @@
       } catch (e) {
         console.error("Erro ao carregar agenda:", e);
       }
+
+      // Carregar Termômetro Global
+      try {
+        const statsRes = await fetch("/api/brazug/global-stats");
+        if (statsRes.ok) {
+            const stats = await statsRes.json();
+            const vanillaStats = stats?.data?.vanilla;
+            if (vanillaStats) {
+                const el24h = document.getElementById("gs-24h");
+                const el7d = document.getElementById("gs-7d");
+                const elTotal = document.getElementById("gs-total");
+                
+                if (el24h) el24h.textContent = vanillaStats.deaths24h.toLocaleString('pt-BR');
+                if (el7d) el7d.textContent = vanillaStats.deaths7d.toLocaleString('pt-BR');
+                if (elTotal) elTotal.textContent = vanillaStats.total.toLocaleString('pt-BR');
+            }
+        }
+      } catch (e) {
+        console.error("Erro ao carregar global stats:", e);
+      }
     },
 
     async updateAgenda(token) {

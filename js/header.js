@@ -32,11 +32,14 @@
             const guild = guildRes.status === 'fulfilled' && guildRes.value.ok
                 ? await guildRes.value.json() : null;
 
-            const totalDeaths = guild?.totalDeaths ?? guild?.total_deaths ?? '—';
-            const avgLevel   = guild?.avgLevel   ?? guild?.avg_level   ?? null;
+            const summary = guild?.data?.summary ?? guild?.summary ?? {};
+            const totalDeaths = summary.deaths ?? guild?.totalDeaths ?? guild?.total_deaths ?? '—';
+            const avgLevelRaw = summary.avgLevel ?? guild?.avgLevel ?? guild?.avg_level ?? null;
+            const avgLevel = avgLevelRaw ? avgLevelRaw.toFixed(1) : null;
 
-            // Última morte para o badge
-            const lastDeathArr = deaths?.deaths ?? deaths?.data ?? [];
+            // Última morte para o badge — vem de recentDeaths da guilda
+            const recentDeaths = guild?.data?.recentDeaths ?? guild?.recentDeaths ?? [];
+            const lastDeathArr = recentDeaths.length > 0 ? recentDeaths : (deaths?.deaths ?? deaths?.data ?? []);
             const last = lastDeathArr[0] ?? null;
             const lastName  = last?.name ?? last?.characterName ?? last?.character_name ?? null;
             const lastLevel = last?.level ?? last?.characterLevel ?? null;
