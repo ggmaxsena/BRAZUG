@@ -174,7 +174,10 @@
                 </div>
                 <!-- / DEATH BADGE -->
 
-                <a class="discord-btn" href="${discordUrl}" target="_blank" rel="noopener noreferrer">Discord</a>
+                <a class="discord-btn" id="discord-nav-btn" href="${discordUrl}" target="_blank" rel="noopener noreferrer">
+                    <span class="discord-btn-online" id="discord-online-count"></span>
+                    Discord
+                </a>
             </div>
         `;
 
@@ -210,6 +213,24 @@
 
         // Hidrata com dados reais assincronamente
         hydrateDeathBadge();
+        hydrateDiscordBtn();
+    }
+
+    /** Busca membros online via API pública do Discord */
+    async function hydrateDiscordBtn() {
+        try {
+            const res = await fetch('https://discord.com/api/guilds/1466121307036061899/widget.json');
+            if (!res.ok) return;
+            const data = await res.json();
+            const online = data?.presence_count ?? null;
+            const el = document.getElementById('discord-online-count');
+            if (el && online !== null) {
+                el.textContent = online;
+                el.classList.add('visible');
+            }
+        } catch {
+            // silently fail — botão continua funcionando sem o count
+        }
     }
 
     renderHeader();
