@@ -57,9 +57,9 @@
         const popAvg      = document.getElementById('death-pop-avg');
         const popList     = document.getElementById('death-pop-list');
 
-        if (badgeCount)  badgeCount.textContent  = data.totalDeaths;
+        if (badgeCount)  badgeCount.textContent  = `${data.totalDeaths} MORTES`;
         if (badgeLast && data.lastName) {
-            badgeLast.textContent = `${data.lastName}${data.lastLevel ? ` (Lv ${data.lastLevel})` : ''}`;
+            badgeLast.innerHTML = `${data.lastName} <span class="death-badge-last-lvl">(Nv ${data.lastLevel || '?'})</span>`;
             badgeLast.parentElement.hidden = false;
         }
         if (popTotal)   popTotal.textContent  = data.totalDeaths;
@@ -75,16 +75,17 @@
                     5: "#FFFFFF", 6: "#C41F3B", 7: "#0070DE", 8: "#40C7EB", 
                     9: "#8787ED", 11: "#FF7D0A"
                 };
-                const color = classColors[d.classId || d.class_id] || '#aaa';
+                const color = classColors[d.classId || d.class_id] || '#F7C14D';
                 
                 return `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 11px;">
-                        <div>
-                            <strong style="color: ${color}">${name}</strong> <span style="color:#666">(Lv ${lvl})</span>
+                    <div class="death-pop-list-item">
+                        <div class="death-pop-list-char">
+                            <strong style="color: ${color}">${name}</strong>
+                            <span class="death-pop-list-lvl">(Nv ${lvl})</span>
                         </div>
-                        <div style="color: #e8a0a0; text-align:right; font-size: 10px; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${killer}">
+                        <span class="death-pop-list-killer" title="${killer}">
                             ⚔ ${killer}
-                        </div>
+                        </span>
                     </div>
                 `;
             }).join('');
@@ -112,10 +113,7 @@
             <div class="header-left">
                 <nav id="header-nav">
                     <a href="/" class="nav-link">Home</a>
-                    <a href="/#mural" class="nav-link">Mural</a>
-                    <a href="/talents/" class="nav-link">Talentos</a>
-                    <a href="/#lives" class="nav-link">Streams ao vivo</a>
-                    ${authItems}
+                    <a href="/#lives" class="nav-link">Streams ao Vivo</a>
                 </nav>
             </div>
 
@@ -133,37 +131,45 @@
                 <!-- ☠ DEATH BADGE -->
                 <div class="death-badge-wrap" id="death-badge-wrap">
                     <button class="death-badge-btn" id="death-badge-btn" aria-haspopup="true" aria-expanded="false">
-                        <span class="death-badge-skull">☠</span>
-                        <span class="death-badge-count" id="death-badge-count">…</span>
-                        <span class="death-badge-sep">|</span>
-                        <span class="death-badge-last-wrap" hidden>
-                            Última: <strong class="death-badge-last" id="death-badge-last"></strong>
-                        </span>
-                        <span class="death-badge-caret">▾</span>
+                        <span class="death-badge-skull">☠️</span>
+                        
+                        <div class="death-badge-inner">
+                            <span class="death-badge-count" id="death-badge-count">…</span>
+                            <span class="death-badge-sep">|</span>
+                            <span class="death-badge-last-wrap" hidden>
+                                Última: <strong class="death-badge-last" id="death-badge-last"></strong>
+                            </span>
+                        </div>
+
+                        <span class="death-badge-caret">▼</span>
                     </button>
 
                     <div class="death-popover" id="death-popover" role="dialog" aria-label="Mortes Hardcore">
                         <div class="death-pop-header">
-                            <span class="death-pop-title">MORTES HARDCORE</span>
-                            <span class="death-pop-realm">Doomhowl</span>
+                            <div class="death-pop-title-wrap">
+                                <span class="death-pop-skull-icon">☠</span>
+                                <span class="death-pop-title">Mural de Baixas</span>
+                            </div>
+                            <span class="death-pop-realm">DOOMHOWL</span>
                         </div>
 
                         <div class="death-pop-stats">
-                            <div class="death-pop-stat">
-                                <p class="death-pop-stat-label">TOTAL DE MORTES</p>
+                            <div class="death-pop-stat death-pop-stat--red">
+                                <p class="death-pop-stat-label">Total de Mortes</p>
                                 <p class="death-pop-stat-val death-pop-stat-val--gold" id="death-pop-total">…</p>
                             </div>
-                            <div class="death-pop-stat">
-                                <p class="death-pop-stat-label">MÉDIA DE NÍVEL</p>
-                                <p class="death-pop-stat-val" id="death-pop-avg">…</p>
+                            <div class="death-pop-stat death-pop-stat--dark">
+                                <p class="death-pop-stat-label">Média de Nível</p>
+                                <p class="death-pop-stat-val death-pop-stat-val--white" id="death-pop-avg">…</p>
                             </div>
                         </div>
 
-                        <div class="death-pop-list" id="death-pop-list" style="margin-bottom: 12px; background: rgba(255,255,255,0.02); border-radius: 6px; padding: 4px 10px;">
+                        <p class="death-pop-list-title">Últimos Heróis Caídos</p>
+                        <div class="death-pop-list" id="death-pop-list">
                             <p style="color:#666; font-size:10px; text-align:center; padding: 10px 0;">Sem mortes recentes.</p>
                         </div>
 
-                        <a href="/deathlog" class="death-pop-cta">VER MURAL DA MORTE</a>
+                        <a href="/deathlog" class="death-pop-cta">Ver Estatísticas Completas →</a>
                     </div>
                 </div>
                 <!-- / DEATH BADGE -->

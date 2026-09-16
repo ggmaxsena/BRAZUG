@@ -26,7 +26,6 @@
 
     <!-- VOD EM DESTAQUE -->
     <section id="vod-destaque">
-
       <div class="vod-wrapper">
         <iframe id="twitch-vod-player" src="https://player.twitch.tv/?video=2874095467&parent=localhost&autoplay=false"
           allowfullscreen frameborder="0"></iframe>
@@ -35,11 +34,62 @@
 
     <!-- INTRO & AGENDA -->
     <section id="intro">
-      <h1 class="section-title">BRAZUG</h1>
+      <p class="eyebrow">📢 Comunicado Oficial</p>
+      <h1 class="section-title">O Futuro da BRAZUG</h1>
       <p class="subtitle">A voz da Horda ecoa pelo servidor Doomhowl.</p>
-      <p class="lead">Somos uma guilda de <b>World of Warcraft Classic Hardcore</b> focada em imersão e Roleplay (RP).
-        Honramos a Horda em sua forma mais brutal e verdadeira. O caminho do Hardcore é perigoso, mas a glória de ser
-        uma lenda é eterna. Venha escrever seu nome entre nós.</p>
+
+      <div class="brazug-timeline">
+
+        <div class="brazug-timeline-item">
+          <div class="brazug-timeline-icon">⚔️</div>
+          <div class="brazug-timeline-body">
+            <p class="brazug-timeline-date">Até 04/11/2026</p>
+            <h3 class="brazug-timeline-title">WoW Classic Hardcore — Doomhowl</h3>
+            <p class="brazug-timeline-text">Continuaremos firmes no WoW Classic Hardcore, no servidor Doomhowl, até o lançamento oficial do WoW Forever. Nosso lar continua sendo Doomhowl e ainda temos história para escrever por lá.</p>
+          </div>
+        </div>
+
+        <div class="brazug-timeline-item">
+          <div class="brazug-timeline-icon">🧪</div>
+          <div class="brazug-timeline-body">
+            <p class="brazug-timeline-date">17/09/2026 — Quinta-feira</p>
+            <h3 class="brazug-timeline-title">Beta do WoW Forever</h3>
+            <p class="brazug-timeline-text">Estaremos acompanhando e testando o Beta do WoW Forever. Quem não possui acesso poderá acompanhar tudo pelas lives da BRAZUG. Será nosso primeiro contato sério com o que nos espera em novembro!</p>
+          </div>
+        </div>
+
+        <div class="brazug-timeline-item brazug-timeline-item--highlight">
+          <div class="brazug-timeline-icon">🔥</div>
+          <div class="brazug-timeline-body">
+            <p class="brazug-timeline-date">04/11/2026</p>
+            <h3 class="brazug-timeline-title">Lançamento do WoW Forever</h3>
+            <p class="brazug-timeline-text">O WoW Forever passará a ser o principal foco das atividades da BRAZUG. Nossa atividade no Doomhowl diminuirá, mas deixemos claro:</p>
+            <p class="brazug-timeline-emphasis">NÃO ESTAMOS ABANDONANDO DOOMHOWL.</p>
+            <p class="brazug-timeline-text">Doomhowl é nosso lar. Foi onde construímos nossa história no Hardcore e continuará sendo nosso porto seguro.</p>
+          </div>
+        </div>
+
+        <div class="brazug-timeline-item">
+          <div class="brazug-timeline-icon">☠️</div>
+          <div class="brazug-timeline-body">
+            <p class="brazug-timeline-date">Início de 2027</p>
+            <h3 class="brazug-timeline-title">WoW Forever Hardcore</h3>
+            <p class="brazug-timeline-text">O coração da BRAZUG está no Hardcore. Quando o WoW Forever Hardcore estiver disponível, a BRAZUG estará presente. Estaremos esperando pelo momento de voltar a colocar tudo em risco por causa de um pull duvidoso. ☠️</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="brazug-community-banner">
+        <span class="brazug-community-icon">❤️</span>
+        <div>
+          <h3 class="brazug-community-title">Uma Comunidade, Independentemente do Servidor</h3>
+          <p class="brazug-community-text">Seja no WoW Forever, no WoW Classic Hardcore — Doomhowl ou no WoW Forever Hardcore: <strong>você sempre será bem-vindo à comunidade BRAZUG.</strong></p>
+          <p class="brazug-community-text" style="margin-top: 8px; color: #aaa;">O servidor pode mudar. O modo de jogo pode mudar. Os personagens podem morrer.<br><strong style="color: var(--gold);">A BRAZUG continua.</strong></p>
+        </div>
+      </div>
+
+      <p class="brazug-salute">HONRA E GLÓRIA ETERNOS!</p>
 
       <!-- AGENDA DA SEMANA -->
       <div id="agenda-container" style="margin-top: 60px; display: none; text-align: center;">
@@ -55,63 +105,15 @@
       </div>
     </section>
 
-    <!-- MURAL -->
-    <section id="mural">
-      <p class="eyebrow">Crônicas</p>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>Mural das <span class="highlight-gold" style="position: relative;">Aventuras <span class="js-long-press"
-              style="position: absolute; inset:0;"></span></span></h2>
-        <a href="/cadastro-aventura.html" id="btn-nova-aventura" class="discord-btn"
-          style="display:none; text-decoration: none;">Nova Aventura</a>
-      </div>
-      <p class="lead" style="margin-bottom: 2rem;">Mortes heroicas, conquistas lendárias e histórias eternizadas.</p>
-      <div id="mural-status">Carregando mural…</div>
-      <div id="mural-grid" class="grid-layout" hidden></div>
-    </section>
-
-    <!-- HEROES -->
-    <section id="herois">
-      <p class="eyebrow">Legado</p>
-      <h2>Mural dos Heróis</h2>
-      <h3 class="section-title" style="font-size: 24px;">Personagens Ativos</h3>
-      <div id="heroes-alive-grid" class="grid-layout"></div>
-
-      <h3 class="section-title fallen" style="font-size: 24px; margin-top: 40px;">Cemitério / Hall da Fama</h3>
-      <div id="heroes-dead-grid" class="grid-layout"></div>
-    </section>
   </main>
-
-  <!-- MODAL -->
-  <div id="mural-modal" class="mural-modal" hidden>
-    <div class="mural-modal-backdrop" data-action="close"></div>
-    <div class="mural-modal-panel">
-      <button type="button" class="mural-modal-close" data-action="close">×</button>
-      <img id="mural-modal-img" class="mural-modal-img" src="" alt="" />
-      <div class="mural-modal-copy">
-        <p id="mural-modal-date"></p>
-        <h2 id="mural-modal-title"></h2>
-        <div id="mural-modal-body" class="mural-modal-body"></div>
-        <p id="mural-modal-author" style="font-weight: bold; color: var(--gold);"></p>
-      </div>
-    </div>
-  </div>
 
   <!-- SCRIPTS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
   <script src="/js/header.js"></script>
-  <script src="/js/models/AdventureModel.js"></script>
-  <script src="/js/views/AdventureView.js"></script>
-  <script src="/js/controllers/AdventureController.js"></script>
   <script src="/js/models/StreamsModel.js"></script>
   <script src="/js/views/StreamsView.js"></script>
   <script src="/js/controllers/StreamsController.js"></script>
-  <script src="/js/models/HeroModel.js"></script>
-  <script src="/js/views/HeroView.js"></script>
-  <script src="/js/controllers/HeroController.js"></script>
-  <script src="/js/footer.js"></script>
-  <script src="/js/controllers/HomeController.js"></script>
   <script>
-    // Corrige o parâmetro ?parent= do player Twitch com o hostname real
     (function () {
       var host = window.location.hostname || 'localhost';
       var player = document.getElementById('twitch-vod-player');
@@ -120,6 +122,8 @@
       }
     })();
   </script>
+  <script src="/js/footer.js"></script>
+  <script src="/js/controllers/HomeController.js"></script>
 </body>
 
 </html>
