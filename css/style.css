@@ -165,6 +165,197 @@ nav a:hover, nav a.active { color: var(--gold); text-shadow: 0 0 10px var(--gold
 .discord-btn:hover { background: var(--horde-red); transform: translateY(-2px); box-shadow: 0 0 20px var(--horde-red-glow); }
 
 /* ===================================== */
+/* DEATH BADGE (Navbar Widget)           */
+/* ===================================== */
+.death-badge-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.death-badge-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(196, 30, 58, 0.35);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #e8e0d4;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+    line-height: 1;
+}
+.death-badge-btn:hover,
+.death-badge-btn[aria-expanded="true"] {
+    background: rgba(196, 30, 58, 0.12);
+    border-color: rgba(196, 30, 58, 0.7);
+    box-shadow: 0 0 12px rgba(196, 30, 58, 0.2);
+}
+
+.death-badge-skull {
+    font-size: 14px;
+    color: var(--horde-red);
+    filter: drop-shadow(0 0 4px rgba(196, 30, 58, 0.6));
+    animation: death-skull-beat 3s ease-in-out infinite;
+}
+@keyframes death-skull-beat {
+    0%,100% { transform: scale(1); filter: drop-shadow(0 0 3px rgba(196,30,58,0.5)); }
+    50%      { transform: scale(1.12); filter: drop-shadow(0 0 8px rgba(196,30,58,0.9)); }
+}
+
+.death-badge-count {
+    font-weight: 800;
+    color: var(--horde-red);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+}
+.death-badge-sep  { color: #4a3a3a; }
+.death-badge-last-wrap { color: #aaa; font-size: 11px; }
+.death-badge-last { color: var(--gold); }
+.death-badge-caret { color: #666; font-size: 10px; margin-left: 2px; transition: transform 0.2s; }
+.death-badge-btn[aria-expanded="true"] .death-badge-caret { transform: rotate(180deg); }
+
+/* Popover */
+.death-popover {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    width: 288px;
+    background: #0d0a0a;
+    border: 1px solid rgba(196, 30, 58, 0.45);
+    border-radius: 8px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.8), 0 0 0 1px rgba(196,30,58,0.08);
+    padding: 16px;
+    font-size: 12px;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+    pointer-events: none;
+}
+/* Hover no desktop */
+.death-badge-wrap:hover .death-popover,
+/* Click / mobile via JS */
+.death-popover.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Small triangle arrow */
+.death-popover::before {
+    content: '';
+    position: absolute;
+    top: -6px; right: 18px;
+    width: 10px; height: 10px;
+    background: #0d0a0a;
+    border-left: 1px solid rgba(196, 30, 58, 0.4);
+    border-top: 1px solid rgba(196, 30, 58, 0.4);
+    transform: rotate(45deg);
+}
+
+.death-pop-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.death-pop-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--horde-red);
+    font-size: 11px;
+}
+.death-pop-realm {
+    font-size: 10px;
+    background: rgba(196, 30, 58, 0.15);
+    color: #e8a0a0;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid rgba(196, 30, 58, 0.4);
+    letter-spacing: 0.5px;
+}
+
+.death-pop-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.death-pop-stat-label {
+    color: #6a5a5a;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+.death-pop-stat-val {
+    font-size: 20px;
+    font-weight: 800;
+    font-family: 'Cinzel', serif;
+    color: #e8e0d4;
+    line-height: 1;
+}
+.death-pop-stat-val--gold { color: var(--gold); }
+
+.death-pop-quote-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+}
+.death-pop-quote-label {
+    font-size: 10px;
+    color: #5a4a4a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+.death-pop-quote {
+    font-style: italic;
+    color: rgba(247, 193, 77, 0.85);
+    font-size: 12px;
+    line-height: 1.4;
+}
+.death-pop-author {
+    font-size: 10px;
+    color: #6a6060;
+    text-align: right;
+    margin-top: 6px;
+}
+
+.death-pop-cta {
+    display: block;
+    text-align: center;
+    background: rgba(196, 30, 58, 0.15);
+    border: 1px solid rgba(196, 30, 58, 0.4);
+    color: #e8a0a0;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 8px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+.death-pop-cta:hover {
+    background: var(--horde-red);
+    color: #fff;
+}
+
+
+/* ===================================== */
 /* LAYOUT & SEÇÕES */
 /* ===================================== */
 .container {

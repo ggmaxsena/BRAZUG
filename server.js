@@ -15,6 +15,7 @@ const salesRoutes = require("./lib/sales-routes.cjs");
 const sucessoRoutes = require("./lib/sucesso-routes.cjs");
 const twitch = require("./lib/twitch.cjs");
 const spotifyRoutes = require("./lib/spotify-routes.cjs");
+const deathmapRoutes = require("./lib/deathmap-routes.cjs");
 
 const app = express();
 app.set('trust proxy', 1); // Trust the first hop (proxy)
@@ -133,6 +134,8 @@ app.get("/ficha.html", (req, res) => res.sendFile(path.resolve(__dirname, "ficha
 app.get("/vendas.html", (req, res) => res.sendFile(path.resolve(__dirname, "vendas.html")));
 app.get("/sucesso.html", (req, res) => res.sendFile(path.resolve(__dirname, "sucesso.html")));
 app.get("/sucesso", (req, res) => res.sendFile(path.resolve(__dirname, "sucesso.html")));
+app.get("/deathlog.html", (req, res) => res.sendFile(path.resolve(__dirname, "deathlog.html")));
+app.get("/deathlog", (req, res) => res.sendFile(path.resolve(__dirname, "deathlog.html")));
 
 /* =========================================
    API
@@ -216,6 +219,7 @@ app.use("/api/admin", adminRoutes.createAdminRouter());
 app.use("/api/sales", salesRoutes.createSalesRouter());
 app.use("/api/sucesso", sucessoRoutes.createSucessoRouter());
 app.use("/api/spotify", spotifyRoutes.createSpotifyRouter());
+app.use("/api/brazug", deathmapRoutes.createDeathmapRouter());
 app.use("/api", characterRoutes.createCharacterRouter());
 
 async function start() {

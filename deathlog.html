@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeathLog — BRAZUG | Doomhowl</title>
+  <meta name="description" content="Registro de mortes dos heróis da guilda BRAZUG no servidor Doomhowl (WoW Classic Vanilla). Veja quem morreu, como, onde e por quê." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ══════════════════════════════════════════
+       TOKENS & RESET
+    ══════════════════════════════════════════ */
+    :root {
+      --bg:           #0a0a0f;
+      --bg-panel:     #10101a;
+      --bg-card:      #141422;
+      --bg-hover:     #1a1a2e;
+      --border:       rgba(180, 30, 30, 0.18);
+      --border-soft:  rgba(255,255,255,0.06);
+      --blood:        #c0392b;
+      --blood-bright: #e74c3c;
+      --blood-glow:   rgba(192, 57, 43, 0.25);
+      --gold:         #d4a847;
+      --gold-bright:  #f0c060;
+      --text-primary: #e8e0d4;
+      --text-muted:   #7a7a9a;
+      --text-dim:     #4a4a6a;
+      --accent-blue:  #4a90d9;
+      --radius:       10px;
+      --radius-sm:    6px;
+      --shadow-panel: 0 4px 32px rgba(0,0,0,0.6);
+      --shadow-blood: 0 0 24px rgba(192,57,43,0.3);
+      --transition:   0.22s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ══════════════════════════════════════════
+       BACKGROUND FX
+    ══════════════════════════════════════════ */
+    .bg-fx {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .bg-fx::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 20%, rgba(192,57,43,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 85% 80%, rgba(74,27,15,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 50% 50%, rgba(20,20,34,0.5) 0%, transparent 100%);
+    }
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(180,30,30,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(180,30,30,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .bg-vignette {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%);
+    }
+
+    /* ══════════════════════════════════════════
+       HEADER / NAVBAR
+    ══════════════════════════════════════════ */
+    .site-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 24px rgba(0,0,0,0.5);
+    }
+    .nav-inner {
+      max-width: 1400px; margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex; align-items: center; gap: 20px;
+    }
+    .nav-back {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-muted); text-decoration: none;
+      font-size: 13px; font-weight: 500;
+      transition: color var(--transition);
+    }
+    .nav-back:hover { color: var(--text-primary); }
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px;
+      flex: 1;
+    }
+    .nav-logo-skull {
+      font-size: 28px;
+      filter: drop-shadow(0 0 8px var(--blood-bright));
+      animation: skull-pulse 3s ease-in-out infinite;
+    }
+    @keyframes skull-pulse {
+      0%,100% { filter: drop-shadow(0 0 6px var(--blood-bright)); transform: scale(1); }
+      50% { filter: drop-shadow(0 0 16px var(--blood-bright)); transform: scale(1.06); }
+    }
+    .nav-title {
+      font-family: 'Cinzel', serif;
+      font-size: 20px; font-weight: 900; letter-spacing: 3px;
+      color: var(--blood-bright);
+      text-shadow: 0 0 20px var(--blood);
+    }
+    .nav-subtitle {
+      font-size: 11px; color: var(--text-muted); letter-spacing: 1px;
+      margin-top: 2px;
+    }
+    .nav-actions {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-nav {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: var(--radius-sm);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text-muted); transition: all var(--transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-nav:hover { border-color: var(--blood); color: var(--blood-bright); background: var(--blood-glow); }
+    .btn-nav.active { border-color: var(--blood-bright); color: var(--blood-bright); background: rgba(192,57,43,0.15); }
+    .btn-nav-icon { font-size: 14px; }
+
+    /* ══════════════════════════════════════════
+       PAGE HEADER / GUILD BANNER
+    ══════════════════════════════════════════ */
+    .page-hero {
+      position: relative; z-index: 1;
+      padding: 48px 24px 32px;
+      max-width: 1400px; margin: 0 auto;
+    }
+    .hero-title-block {
+      display: flex; align-items: flex-end; gap: 24px;
+      margin-bottom: 28px;
+    }
+    .hero-skull-bg {
+      font-size: 72px; line-height: 1;
+      opacity: 0.15;
+      filter: blur(2px);
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .hero-text h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 900; letter-spacing: 4px;
+      color: var(--blood-bright);
+      text-shadow: 0 0 40px rgba(192,57,43,0.6), 0 2px 0 rgba(0,0,0,0.8);
+      line-height: 1.1;
+    }
+    .hero-text h1 span { color: var(--gold); }
+    .hero-meta {
+      display: flex; align-items: center; gap: 12px;
+      margin-top: 8px; font-size: 13px; color: var(--text-muted);
+    }
+    .hero-badge {
+      padding: 3px 10px; border-radius: 20px;
+      background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.3);
+      color: var(--blood-bright); font-size: 11px; font-weight: 600; letter-spacing: 1px;
+    }
+    .hero-badge--realm {
+      background: rgba(212,168,71,0.12); border-color: rgba(212,168,71,0.3);
+      color: var(--gold);
+    }
+
+    /* Guild stats bar */
+    .guild-stats-bar {
+      display: flex; align-items: center; gap: 0;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 24px;
+      box-shadow: var(--shadow-panel);
+      overflow-x: auto;
+    }
+    #guild-header { display: flex; align-items: center; gap: 0; flex: 1; }
+    .guild-stat { text-align: center; padding: 0 28px; }
+    .guild-stat-value {
+      display: block;
+      font-family: 'Orbitron', monospace; font-size: 26px; font-weight: 700;
+      color: var(--text-primary);
+    }
+    .guild-stat-value.text-blood { color: var(--blood-bright); }
+    .guild-stat-label {
+      display: block; font-size: 11px; color: var(--text-muted);
+      letter-spacing: 1px; margin-top: 2px; text-transform: uppercase;
+    }
+    .guild-stat-divider {
+      width: 1px; height: 40px; background: var(--border-soft); flex-shrink: 0;
+    }
+    .stat-badge-block {
+      display: flex; align-items: center; gap: 16px;
+      padding-left: 24px; border-left: 1px solid var(--border-soft);
+      margin-left: auto;
+    }
+    .stat-badge {
+      text-align: center;
+      background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.25);
+      border-radius: var(--radius-sm); padding: 8px 16px;
+    }
+    .stat-badge-val {
+      display: block;
+      font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 700;
+      color: var(--blood-bright);
+    }
+    .stat-badge-lbl { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
+
+    /* ══════════════════════════════════════════
+       MAIN LAYOUT
+    ══════════════════════════════════════════ */
+    .main-layout {
+      position: relative; z-index: 1;
+      max-width: 1400px; margin: 0 auto;
+      padding: 0 24px 80px;
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 1100px) {
+      .main-layout { grid-template-columns: 240px 1fr; }
+      .sidebar-right { display: none; }
+    }
+    @media (max-width: 768px) {
+      .main-layout { grid-template-columns: 1fr; }
+      .sidebar-left { display: none; }
+    }
+
+    /* ══════════════════════════════════════════
+       PANELS
+    ══════════════════════════════════════════ */
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-panel);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .panel--blood { border-color: var(--border); }
+    .panel-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      background: rgba(0,0,0,0.2);
+    }
+    .panel-head-title {
+      font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+      color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase;
+    }
+    .panel-head-badge {
+      font-size: 10px; padding: 2px 8px;
+      background: rgba(192,57,43,0.15); color: var(--blood-bright);
+      border: 1px solid rgba(192,57,43,0.3); border-radius: 10px;
+      font-family: 'Orbitron', monospace;
+    }
+    .panel-body { padding: 16px; }
+
+    /* ══════════════════════════════════════════
+       SIDEBAR LEFT — FILTERS
+    ══════════════════════════════════════════ */
+    .filter-group { margin-bottom: 14px; }
+    .filter-label {
+      display: block; font-size: 11px; color: var(--text-muted);
+      letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .filter-input, .filter-select {
+      width: 100%; padding: 8px 12px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary); font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      transition: border-color var(--transition);
+    }
+    .filter-input:focus, .filter-select:focus {
+      outline: none; border-color: var(--blood);
+    }
+    .filter-select option { background: #141422; }
+    .filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .filter-actions { display: flex; gap: 8px; margin-top: 4px; }
+    .btn-filter {
+      flex: 1; padding: 9px 12px;
+      border-radius: var(--radius-sm); font-size: 12px; font-weight: 600;
+      cursor: pointer; border: none; transition: all var(--transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-filter--apply {
+      background: linear-gradient(135deg, var(--blood), #8b1a1a);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(192,57,43,0.3);
+    }
+    .btn-filter--apply:hover {
+      background: linear-gradient(135deg, var(--blood-bright), var(--blood));
+      box-shadow: 0 0 20px rgba(192,57,43,0.5);
+      transform: translateY(-1px);
+    }
+    .btn-filter--reset {
+      background: transparent; color: var(--text-muted);
+      border: 1px solid var(--border-soft);
+    }
+    .btn-filter--reset:hover { border-color: var(--blood); color: var(--blood-bright); }
+
+    /* ══════════════════════════════════════════
+       TABS
+    ══════════════════════════════════════════ */
+    .tabs-bar {
+      display: flex; gap: 4px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      background: rgba(0,0,0,0.2);
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 7px 16px; border-radius: var(--radius-sm);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      border: 1px solid transparent; background: transparent;
+      color: var(--text-muted); white-space: nowrap;
+      font-family: 'Inter', sans-serif;
+      transition: all var(--transition);
+    }
+    .tab-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+    .tab-btn.active {
+      color: var(--blood-bright); background: rgba(192,57,43,0.12);
+      border-color: rgba(192,57,43,0.35);
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* ══════════════════════════════════════════
+       DEATHS FEED
+    ══════════════════════════════════════════ */
+    #deaths-container {
+      min-height: 200px;
+      max-height: 70vh; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: var(--border-soft) transparent;
+    }
+    .death-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      transition: background var(--transition);
+      opacity: 0; transform: translateX(-10px);
+      animation: none;
+    }
+    .death-row.visible {
+      animation: row-appear 0.4s ease forwards;
+      animation-delay: var(--row-delay, 0ms);
+    }
+    @keyframes row-appear {
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .death-row:hover { background: rgba(192,57,43,0.04); }
+    .death-row:last-child { border-bottom: none; }
+    .death-row-skull {
+      font-size: 16px; opacity: 0.4; flex-shrink: 0;
+      transition: opacity var(--transition);
+    }
+    .death-row:hover .death-row-skull { opacity: 0.8; }
+    .death-row-avatar {
+      font-size: 22px; flex-shrink: 0; width: 36px;
+      text-align: center;
+    }
+    .death-row-info { flex: 1; min-width: 0; }
+    .death-row-name-line {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .death-row-name {
+      font-family: 'Cinzel', serif; font-size: 14px; font-weight: 600;
+    }
+    .death-row-level {
+      font-size: 11px; color: var(--text-muted);
+      background: rgba(255,255,255,0.06); border-radius: 4px;
+      padding: 1px 6px;
+    }
+    .death-row-class { font-size: 11px; color: var(--text-dim); }
+    .death-row-meta {
+      display: flex; align-items: center; gap: 6px;
+      flex-wrap: wrap; margin-top: 4px;
+    }
+    .cause-tag, .zone-tag, .alive-tag {
+      font-size: 11px; padding: 2px 8px; border-radius: 4px;
+    }
+    .cause-tag--killer {
+      background: rgba(192,57,43,0.15); color: var(--blood-bright);
+      border: 1px solid rgba(192,57,43,0.25);
+    }
+    .cause-tag--env {
+      background: rgba(74,144,217,0.1); color: #7ab8e8;
+      border: 1px solid rgba(74,144,217,0.2);
+    }
+    .zone-tag {
+      background: rgba(255,255,255,0.05); color: var(--text-muted);
+      border: 1px solid var(--border-soft);
+    }
+    .alive-tag {
+      background: rgba(212,168,71,0.08); color: var(--gold);
+      border: 1px solid rgba(212,168,71,0.2);
+    }
+    .death-row-time {
+      font-size: 11px; color: var(--text-dim); white-space: nowrap;
+      font-family: 'Orbitron', monospace; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Load more button */
+    .load-more-wrap {
+      display: flex; justify-content: center; padding: 16px;
+      border-top: 1px solid var(--border-soft);
+    }
+    #btn-load-more {
+      display: none; /* JS mostra se houver mais */
+      align-items: center; gap: 8px;
+      padding: 10px 24px; border-radius: var(--radius);
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: all var(--transition);
+    }
+    #btn-load-more:hover {
+      border-color: var(--blood); color: var(--blood-bright);
+      background: var(--blood-glow);
+    }
+
+    /* ══════════════════════════════════════════
+       STREAKS
+    ══════════════════════════════════════════ */
+    #streaks-body { padding: 8px 0; }
+    .streak-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      transition: background var(--transition);
+    }
+    .streak-row:hover { background: rgba(255,255,255,0.02); }
+    .streak-row:last-child { border-bottom: none; }
+    .streak-pos { font-size: 16px; width: 28px; text-align: center; flex-shrink: 0; }
+    .streak-icon { font-size: 20px; flex-shrink: 0; }
+    .streak-name { flex: 1; font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600; }
+    .streak-count {
+      font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700;
+      color: var(--gold);
+    }
+    .streak-count small { font-family: 'Inter', sans-serif; font-size: 10px; color: var(--text-muted); }
+
+    /* ══════════════════════════════════════════
+       DIGEST
+    ══════════════════════════════════════════ */
+    .digest-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .digest-item {
+      background: rgba(0,0,0,0.2); border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm); padding: 14px;
+      text-align: center;
+    }
+    .digest-val {
+      display: block;
+      font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 700;
+      color: var(--text-primary); word-break: break-word;
+    }
+    .digest-val.text-blood { color: var(--blood-bright); }
+    .digest-lbl {
+      display: block; font-size: 10px; color: var(--text-muted);
+      letter-spacing: 1px; text-transform: uppercase; margin-top: 4px;
+    }
+
+    /* Window selector */
+    .window-select-wrap {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      background: rgba(0,0,0,0.2);
+    }
+    .window-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; display: block; letter-spacing: 1px; }
+
+    /* ══════════════════════════════════════════
+       MEMORIAL CARD
+    ══════════════════════════════════════════ */
+    .card-link {
+      display: block; position: relative;
+      border-radius: var(--radius-sm); overflow: hidden;
+      text-decoration: none;
+    }
+    .card-img {
+      width: 100%; height: auto; display: block;
+      transition: transform var(--transition), filter var(--transition);
+    }
+    .card-link:hover .card-img { transform: scale(1.02); filter: brightness(0.85); }
+    .card-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.6); color: #fff; font-size: 13px; font-weight: 600;
+      opacity: 0; transition: opacity var(--transition);
+    }
+    .card-link:hover .card-overlay { opacity: 1; }
+
+    /* ══════════════════════════════════════════
+       SIDEBAR RIGHT
+    ══════════════════════════════════════════ */
+    .sidebar-right { position: sticky; top: 80px; }
+
+    /* ══════════════════════════════════════════
+       STATE COMPONENTS
+    ══════════════════════════════════════════ */
+    .state-loading, .state-empty, .state-error {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; padding: 48px 24px;
+      text-align: center;
+    }
+    .skull-spin {
+      font-size: 40px;
+      animation: spin-wobble 1.5s ease-in-out infinite;
+    }
+    @keyframes spin-wobble {
+      0%,100% { transform: rotate(-10deg) scale(1); }
+      50% { transform: rotate(10deg) scale(1.1); }
+    }
+    .state-loading p, .state-empty p, .state-error p {
+      color: var(--text-muted); font-size: 14px;
+    }
+    .state-empty-skull { font-size: 52px; opacity: 0.2; }
+    .state-empty-title { color: var(--text-primary); font-size: 16px; font-family: 'Cinzel', serif; }
+    .state-empty-sub { font-size: 13px; color: var(--text-dim); }
+    .state-error { color: var(--blood-bright); }
+    .state-error-icon { font-size: 32px; }
+    .no-data { color: var(--text-dim); font-size: 13px; text-align: center; padding: 24px; }
+
+    /* ══════════════════════════════════════════
+       POP ANIMATION (stat badges)
+    ══════════════════════════════════════════ */
+    @keyframes pop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.15); color: var(--blood-bright); }
+      100% { transform: scale(1); }
+    }
+    .pop { animation: pop 0.4s ease; }
+
+    /* ══════════════════════════════════════════
+       SCROLLBARS
+    ══════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(192,57,43,0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--blood); }
+
+    /* ══════════════════════════════════════════
+       DECORATIVE SEPARATOR
+    ══════════════════════════════════════════ */
+    .section-sep {
+      display: flex; align-items: center; gap: 12px;
+      padding: 0 16px 12px;
+      font-size: 10px; letter-spacing: 2px; color: var(--text-dim);
+      text-transform: uppercase;
+    }
+    .section-sep::before, .section-sep::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border-soft);
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-fx">
+  <div class="bg-grid"></div>
+  <div class="bg-vignette"></div>
+</div>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-back">← Início</a>
+    <div class="nav-logo">
+      <div class="nav-logo-skull">☠</div>
+      <div>
+        <div class="nav-title">DEATHLOG</div>
+        <div class="nav-subtitle">BRAZUG • DOOMHOWL • VANILLA</div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-nav" id="btn-auto-refresh">
+        <span class="btn-nav-icon">🔄</span> Auto Refresh
+      </button>
+      <button class="btn-nav" id="btn-reload">
+        <span class="btn-nav-icon">↻</span> Recarregar
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<div class="page-hero">
+  <div class="hero-title-block">
+    <div class="hero-skull-bg">☠</div>
+    <div class="hero-text">
+      <h1>Death<span>Log</span></h1>
+      <div class="hero-meta">
+        <span class="hero-badge">VANILLA</span>
+        <span class="hero-badge hero-badge--realm">Doomhowl</span>
+        <span>Guilda <strong>BRAZUG</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guild stats bar -->
+  <div class="guild-stats-bar">
+    <div id="guild-header">
+      <div class="state-loading" style="padding: 8px 24px; flex-direction: row; gap: 10px;">
+        <div class="skull-spin" style="font-size: 18px">☠</div>
+        <span style="color: var(--text-muted); font-size: 13px">Carregando dados da guilda…</span>
+      </div>
+    </div>
+    <div class="stat-badge-block">
+      <div class="stat-badge">
+        <span class="stat-badge-val" id="stat-total-deaths">—</span>
+        <span class="stat-badge-lbl">Exibidas</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MAIN LAYOUT ═══════════════════ -->
+<div class="main-layout">
+
+  <!-- SIDEBAR ESQUERDA — FILTROS -->
+  <aside class="sidebar-left">
+    <div class="panel panel--blood">
+      <div class="panel-head">
+        <span class="panel-head-title">Filtros</span>
+      </div>
+      <div class="panel-body">
+        <div class="filter-group">
+          <label class="filter-label">Nível do Personagem</label>
+          <div class="filter-row">
+            <input type="number" id="filter-min-level" class="filter-input" placeholder="Min" min="1" max="60" />
+            <input type="number" id="filter-max-level" class="filter-input" placeholder="Max" min="1" max="60" />
+          </div>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Classe</label>
+          <select id="filter-class" class="filter-select">
+            <option value="">Todas as Classes</option>
+            <option value="1">⚔️ Warrior</option>
+            <option value="2">🛡️ Paladin</option>
+            <option value="3">🏹 Hunter</option>
+            <option value="4">🗡️ Rogue</option>
+            <option value="5">✨ Priest</option>
+            <option value="7">⚡ Shaman</option>
+            <option value="8">🔮 Mage</option>
+            <option value="9">👁️ Warlock</option>
+            <option value="11">🌿 Druid</option>
+          </select>
+        </div>
+        <div class="filter-actions">
+          <button class="btn-filter btn-filter--apply" id="btn-apply-filters">Filtrar</button>
+          <button class="btn-filter btn-filter--reset" id="btn-reset-filters">Limpar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card memorial -->
+    <div class="panel panel--blood">
+      <div class="panel-head">
+        <span class="panel-head-title">Cartão Memorial</span>
+      </div>
+      <div class="panel-body" style="padding: 12px;">
+        <div id="memorial-card">
+          <div class="state-loading" style="padding: 20px;">
+            <div class="skull-spin" style="font-size:20px">☠</div>
+            <p style="font-size:12px">Carregando…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO CENTRAL -->
+  <section class="center-col">
+    <div class="panel panel--blood">
+      <div class="tabs-bar">
+        <button class="tab-btn active" data-tab="deaths">☠ Mortes</button>
+        <button class="tab-btn" data-tab="streaks">🔥 Streaks</button>
+        <button class="tab-btn" data-tab="digest">📊 Resumo</button>
+      </div>
+
+      <!-- TAB: DEATHS -->
+      <div class="tab-pane active" id="deaths">
+        <div id="deaths-container">
+          <div class="state-loading">
+            <div class="skull-spin">☠</div>
+            <p>Buscando mortes…</p>
+          </div>
+        </div>
+        <div class="load-more-wrap">
+          <button id="btn-load-more">☠ Carregar mais</button>
+        </div>
+      </div>
+
+      <!-- TAB: STREAKS -->
+      <div class="tab-pane" id="streaks">
+        <div id="streaks-body">
+          <div class="state-loading">
+            <div class="skull-spin">☠</div>
+            <p>Buscando streaks…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: DIGEST -->
+      <div class="tab-pane" id="digest">
+        <div class="window-select-wrap">
+          <label class="window-label">Período de análise</label>
+          <select id="filter-window" class="filter-select">
+            <option value="1d">Último dia</option>
+            <option value="7d" selected>Últimos 7 dias</option>
+            <option value="30d">Últimos 30 dias</option>
+            <option value="all">Todo o tempo</option>
+          </select>
+        </div>
+        <div class="panel-body">
+          <div id="digest-body">
+            <div class="state-loading">
+              <div class="skull-spin">☠</div>
+              <p>Calculando resumo…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SIDEBAR DIREITA -->
+  <aside class="sidebar-right">
+    <div class="panel panel--blood">
+      <div class="panel-head">
+        <span class="panel-head-title">🏆 Streaks Top 3</span>
+      </div>
+      <div id="streaks-body-side">
+        <div class="state-loading" style="padding: 24px;">
+          <div class="skull-spin" style="font-size: 18px">☠</div>
+          <p style="font-size: 12px">Carregando…</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel--blood">
+      <div class="panel-head">
+        <span class="panel-head-title">📊 Resumo Rápido</span>
+      </div>
+      <div class="panel-body">
+        <div id="digest-body-side">
+          <div class="state-loading" style="padding: 16px;">
+            <div class="skull-spin" style="font-size: 16px">☠</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script src="/js/deathlog.js"></script>
+
+<!-- Espelhar streaks/digest nos painéis laterais direitos após o carregamento principal -->
+<script>
+  // Sincroniza sidebar direita com os dados principais após render
+  const _origRenderStreaks = DeathlogView.renderStreaks.bind(DeathlogView);
+  DeathlogView.renderStreaks = function(data) {
+    _origRenderStreaks(data);
+    // Espelha top 3 na sidebar direita
+    const el = document.getElementById("streaks-body-side");
+    if (!el) return;
+    const list = (data?.streaks || data?.data || []).slice(0, 3);
+    if (!list.length) { el.innerHTML = '<p class="no-data">Sem dados</p>'; return; }
+    el.innerHTML = list.map((s, i) => {
+      const medal = ["🥇","🥈","🥉"][i] || `${i+1}.`;
+      const cls = DeathlogView.getClass(s.classId || s.class_id);
+      return `<div class="streak-row"><span class="streak-pos">${medal}</span><span class="streak-icon" style="color:${cls.color}">${cls.icon}</span><span class="streak-name" style="color:${cls.color}">${s.name||"?"}</span><span class="streak-count">${s.streak||s.count||0}<small> dias</small></span></div>`;
+    }).join("");
+  };
+
+  const _origRenderDigest = DeathlogView.renderDigest.bind(DeathlogView);
+  DeathlogView.renderDigest = function(data) {
+    _origRenderDigest(data);
+    // Espelha digest na sidebar direita
+    const el = document.getElementById("digest-body-side");
+    if (!el) return;
+    const d = data?.digest || data?.data || data || {};
+    el.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-soft)">
+          <span style="font-size:12px;color:var(--text-muted)">Mortes</span>
+          <span style="font-family:'Orbitron',monospace;color:var(--blood-bright);font-weight:700">${d.totalDeaths||d.total_deaths||0}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-soft)">
+          <span style="font-size:12px;color:var(--text-muted)">Personagens</span>
+          <span style="font-family:'Orbitron',monospace;font-weight:700">${d.uniqueCharacters||d.unique_characters||0}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-soft)">
+          <span style="font-size:12px;color:var(--text-muted)">Zona mais letal</span>
+          <span style="font-size:12px;color:var(--gold);text-align:right;max-width:140px">${d.deadliestZone||d.deadliest_zone||"—"}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+          <span style="font-size:12px;color:var(--text-muted)">Assassino mais comum</span>
+          <span style="font-size:12px;color:var(--blood-bright);text-align:right;max-width:130px">${d.mostCommonKiller||d.most_common_killer||"—"}</span>
+        </div>
+      </div>
+    `;
+  };
+</script>
+</body>
+</html>
