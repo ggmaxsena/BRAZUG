@@ -25,8 +25,11 @@
                 </span>
             </div>
             <div class="mural-card-body">
-                <h3 class="mural-card-title">${this.escape(s.displayName)}</h3>
-                <p class="mural-card-text" style="font-size: 14px; color: #ccc;">${this.escape(s.title)}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 8px;">
+                    <h3 class="mural-card-title" style="margin-bottom: 0;">${this.escape(s.displayName)}</h3>
+                    ${s.gameName ? `<span style="font-size: 11px; background: rgba(212,168,71,0.15); border: 1px solid rgba(212,168,71,0.3); color: var(--gold, #d4a847); padding: 2px 6px; border-radius: 4px; font-weight: 600; white-space: nowrap;">${this.escape(s.gameName)}</span>` : ''}
+                </div>
+                <p class="mural-card-text" style="font-size: 13px; color: #ccc;">${this.escape(s.title)}</p>
             </div>
           </a>
         </div>

@@ -81,9 +81,12 @@
 
         <div class="stream-body">
 
-          <p class="stream-channel">
-            ${escapeHtml(stream.displayName || stream.login)}
-          </p>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 8px;">
+            <p class="stream-channel" style="margin: 0;">
+              ${escapeHtml(stream.displayName || stream.login)}
+            </p>
+            ${stream.gameName ? `<span style="font-size: 11px; background: rgba(212,168,71,0.15); border: 1px solid rgba(212,168,71,0.3); color: var(--gold, #d4a847); padding: 2px 6px; border-radius: 4px; font-weight: 600; white-space: nowrap;">${escapeHtml(stream.gameName)}</span>` : ''}
+          </div>
 
           <p class="stream-title">
             ${escapeHtml(stream.title)}
