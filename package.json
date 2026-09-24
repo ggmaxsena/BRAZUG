@@ -21,7 +21,7 @@
     "express-rate-limit": "^8.5.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
-    "nodemailer": "^9.0.3",
+    "nodemailer": "^9.1.0",
     "pg": "^8.16.0",
     "sharp": "^0.35.3",
     "wow-classic-items": "^2.0.1"
