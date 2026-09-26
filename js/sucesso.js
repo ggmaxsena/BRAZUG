@@ -70,6 +70,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (item.video_platform && item.video_id) {
                     if (item.video_platform === 'twitch_clip') {
                         mediaHtml += `<iframe src="https://clips.twitch.tv/embed?clip=${item.video_id}&parent=${window.location.hostname}" frameborder="0" allowfullscreen="true" scrolling="no" class="sucesso-img" style="margin-top: -1px;"></iframe>`;
+                    } else if (item.video_platform === 'twitch') {
+                        mediaHtml += `<iframe src="https://player.twitch.tv/?video=${item.video_id}&parent=${window.location.hostname}&autoplay=false" frameborder="0" allowfullscreen="true" scrolling="no" class="sucesso-img" style="margin-top: -1px;"></iframe>`;
                     } else if (item.video_platform === 'youtube') {
                         mediaHtml += `<iframe src="https://www.youtube.com/embed/${item.video_id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="sucesso-img" style="margin-top: -1px;"></iframe>`;
                     }
