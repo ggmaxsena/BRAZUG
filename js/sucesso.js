@@ -59,7 +59,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const dateStr = dateObj.toLocaleDateString("pt-BR");
 
                 let deleteBtnHtml = '';
+                let editBtnHtml = '';
                 if (isStaff) {
+                    editBtnHtml = `<button class="btn-edit-sucesso" data-id="${item.id}" style="display:block;" title="Editar"><i class="fas fa-edit"></i></button>`;
                     deleteBtnHtml = `<button class="btn-delete-sucesso" data-id="${item.id}" style="display:block;" title="Excluir"><i class="fas fa-trash"></i></button>`;
                 }
 
@@ -78,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 card.innerHTML = `
+                    ${editBtnHtml}
                     ${deleteBtnHtml}
                     ${mediaHtml}
                     <div class="sucesso-content">
@@ -92,13 +95,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 grid.appendChild(card);
             });
 
-            // Adicionar eventos de exclusão
+            // Adicionar eventos de exclusão e edição
             if (isStaff) {
                 document.querySelectorAll('.btn-delete-sucesso').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         const id = e.currentTarget.getAttribute('data-id');
                         if (confirm("Tem certeza que deseja excluir este sucesso?")) {
                             await deleteSuccess(id);
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.btn-edit-sucesso').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.currentTarget.getAttribute('data-id');
+                        const item = data.find(i => i.id === id);
+                        if (item) {
+                            openEditModal(item);
                         }
                     });
                 });
@@ -127,8 +140,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Modal
-    btnCloseModal.addEventListener("click", () => modal.style.display = "none");
-    window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
+    let currentEditId = null;
+
+    function openEditModal(item) {
+        currentEditId = item.id;
+        document.querySelector(".modal-title").textContent = "Editar Sucesso";
+        document.getElementById("suc-title").value = item.title;
+        document.getElementById("suc-desc").value = item.description || "";
+        document.getElementById("suc-image").value = item.image_url || "";
+        document.getElementById("suc-video").value = item.video_url || "";
+        modal.style.display = "flex";
+    }
+
+    document.getElementById("card-add-sucesso")?.addEventListener("click", () => {
+        currentEditId = null;
+        document.querySelector(".modal-title").textContent = "Registrar Novo Sucesso";
+        form.reset();
+        modal.style.display = "flex";
+    });
+
+    btnCloseModal.addEventListener("click", () => { modal.style.display = "none"; form.reset(); currentEditId = null; });
+    window.addEventListener("click", (e) => { if (e.target === modal) { modal.style.display = "none"; form.reset(); currentEditId = null; } });
 
     // Submit form
     form.addEventListener("submit", async (e) => {
@@ -139,8 +171,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const video_url = document.getElementById("suc-video").value;
 
         try {
-            const res = await fetch("/api/sucesso", {
-                method: "POST",
+            const url = currentEditId ? `/api/sucesso/${currentEditId}` : "/api/sucesso";
+            const method = currentEditId ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+                method: method,
                 headers: { 
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
