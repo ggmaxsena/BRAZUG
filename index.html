@@ -144,6 +144,15 @@
       </div>
     </section>
 
+    <!-- ESTATÍSTICAS DA GUILDA -->
+    <section id="guild-stats" style="text-align: center; padding: 40px 20px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); margin-top: 40px; border-radius: 8px;">
+      <h2 class="section-title" style="border-left: none; padding-left: 0;">A Nossa Força</h2>
+      <p style="font-size: 28px; color: var(--gold); font-family: 'Cinzel', serif; margin-top: 15px;">
+        <i class="fas fa-users" style="margin-right: 10px;"></i>
+        <span id="guild-member-count">Carregando...</span> Guerreiros Ativos
+      </p>
+    </section>
+
   </main>
 
   <!-- SCRIPTS -->
@@ -163,6 +172,36 @@
   </script>
   <script src="/js/footer.js"></script>
   <script src="/js/controllers/HomeController.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      fetch('/api/guild/stats')
+        .then(res => res.json())
+        .then(data => {
+          const el = document.getElementById('guild-member-count');
+          if (el && data.total_members) {
+            // Animação de contagem
+            let start = 0;
+            const end = data.total_members;
+            const duration = 1500;
+            const stepTime = Math.abs(Math.floor(duration / end));
+            
+            const timer = setInterval(() => {
+              start += Math.ceil(end / 50);
+              if (start >= end) {
+                start = end;
+                clearInterval(timer);
+              }
+              el.textContent = start;
+            }, stepTime);
+          }
+        })
+        .catch(err => {
+          console.error('Erro ao carregar stats da guilda:', err);
+          const el = document.getElementById('guild-member-count');
+          if(el) el.textContent = "Indisponível";
+        });
+    });
+  </script>
 </body>
 
 </html>

@@ -5,7 +5,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-const REALM = 'doomhowl';
+const REALMS = ['doomhowl', 'wow-forever-pvp'];
 const GUILD = 'BRAZUG';
 const REGION = 'us';
 const LOCALE = 'pt_BR';
@@ -43,7 +43,7 @@ async function getBlizzardToken() {
   }
 }
 
-async function getGuildRoster(token) {
+async function getGuildRoster(token, realm) {
   const namespaces = [
     'profile-classic1x-us',
     'profile-classic-us',
@@ -51,7 +51,7 @@ async function getGuildRoster(token) {
   ];
 
   const urls = [
-    `https://${REGION}.api.blizzard.com/data/wow/guild/${REALM}/${GUILD.toLowerCase()}/roster`
+    `https://${REGION}.api.blizzard.com/data/wow/guild/${realm}/${GUILD.toLowerCase()}/roster`
   ];
   
   for (const url of urls) {
@@ -71,14 +71,14 @@ async function getGuildRoster(token) {
   throw new Error('Could not find guild roster in any tried URL/namespace');
 }
 
-async function syncCharacter(prisma, token, name) {
+async function syncCharacter(prisma, token, name, realm) {
   const namespaces = [
     'profile-classic1x-us',
     'profile-classic-us',
     'profile-us'
   ];
 
-  const url = `https://${REGION}.api.blizzard.com/profile/wow/character/${REALM}/${name.toLowerCase()}`;
+  const url = `https://${REGION}.api.blizzard.com/profile/wow/character/${realm}/${name.toLowerCase()}`;
   
   let profile = null;
   for (const ns of namespaces) {
@@ -135,34 +135,49 @@ async function runDailySync() {
   const prisma = new PrismaClient({ adapter });
 
   try {
-    console.log(`[SYNC] Starting sync for ${GUILD}-${REALM}...`);
     const token = await getBlizzardToken();
     
-    const members = await getGuildRoster(token);
-    
-    console.log(`[SYNC] Found ${members.length} members. Starting full sync...`);
-    
-    let success = 0;
-    let failed = 0;
+    let totalSuccess = 0;
+    let totalFailed = 0;
 
-    for (const member of members) {
-      const name = member.character.name;
+    for (const realm of REALMS) {
+      console.log(`\n[SYNC] Starting sync for ${GUILD}-${realm}...`);
+      
+      let members = [];
       try {
-        const ok = await syncCharacter(prisma, token, name);
-        if (ok) {
-          console.log(`[SYNC] Synced ${name}`);
-          success++;
-        } else {
-          console.warn(`[SYNC] Could not find profile for ${name}`);
-          failed++;
-        }
-      } catch (e) {
-        console.error(`[SYNC] Failed to sync ${name}:`, e.message);
-        failed++;
+        members = await getGuildRoster(token, realm);
+        console.log(`[SYNC] Found ${members.length} members in ${realm}. Starting sync...`);
+      } catch(e) {
+        console.error(`[SYNC] Failed to get roster for ${realm}:`, e.message);
+        continue;
       }
+      
+      let success = 0;
+      let failed = 0;
+
+      for (const member of members) {
+        const name = member.character.name;
+        try {
+          const ok = await syncCharacter(prisma, token, name, realm);
+          if (ok) {
+            console.log(`[SYNC] Synced ${name} (${realm})`);
+            success++;
+            totalSuccess++;
+          } else {
+            console.warn(`[SYNC] Could not find profile for ${name} (${realm})`);
+            failed++;
+            totalFailed++;
+          }
+        } catch (e) {
+          console.error(`[SYNC] Failed to sync ${name} (${realm}):`, e.message);
+          failed++;
+          totalFailed++;
+        }
+      }
+      console.log(`[SYNC] ${realm} completed. Success: ${success}, Failed: ${failed}`);
     }
 
-    console.log(`[SYNC] Completed. Success: ${success}, Failed: ${failed}`);
+    console.log(`\n[SYNC] All realms completed. Total Success: ${totalSuccess}, Total Failed: ${totalFailed}`);
   } catch (e) {
     console.error('[SYNC] Critical failure:', e.message);
   } finally {
