@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>COREs da BRAZUG | WoW Classic Hardcore</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    /* ============================================================
+       BRAZUG CORE FACTORY — Página dinâmica
+       ============================================================ */
+    :root {
+      --core-bg: #050505;
+      --core-panel: rgba(12, 8, 8, 0.95);
+      --core-border: var(--border);
+      --core-text: var(--text);
+      --core-muted: var(--text-muted);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--core-bg);
+      color: var(--core-text);
+      font-family: 'Inter', sans-serif;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .core-header {
+      max-width: 1000px;
+      margin: 0 auto 50px;
+      text-align: center;
+      padding: 40px 0;
+      border-bottom: 2px solid var(--horde-red);
+    }
+
+    .core-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(196, 30, 58, 0.15);
+      border: 1px solid rgba(196, 30, 58, 0.4);
+      border-radius: 4px;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .core-title {
+      font-family: 'Cinzel', serif;
+      font-size: 48px;
+      color: var(--gold);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px var(--gold-glow), 0 0 30px rgba(196, 30, 58, 0.3);
+      margin-bottom: 8px;
+    }
+
+    .core-sub {
+      font-size: 18px;
+      color: var(--core-muted);
+      font-style: italic;
+      margin-bottom: 0;
+    }
+
+    /* ── CARDS GRID (Hub) ── */
+    .core-cards {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .core-card {
+      background: var(--core-panel);
+      border: 1px solid var(--core-border);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s, border-color 0.3s;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .core-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--gold);
+    }
+
+    .core-card.active {
+      border-color: var(--gold);
+      box-shadow: 0 0 30px var(--gold-glow);
+    }
+
+    .core-card.accent-red { border-color: #c41e3a; }
+    .core-card.accent-blue { border-color: #4f6b8a; }
+    .core-card.accent-purple { border-color: #8787ed; }
+    .core-card.accent-orange { border-color: #ff7d0a; }
+
+    .core-card-header {
+      padding: 24px;
+      text-align: center;
+      position: relative;
+    }
+
+    .core-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 4px;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .core-card-badge.active {
+      background: rgba(196, 30, 58, 0.2);
+      border: 1px solid #c41e3a;
+    }
+
+    .core-card-badge.soon {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #888;
+      animation: pulse-soon 2s ease-in-out infinite;
+    }
+
+    .core-card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 28px;
+      color: var(--gold);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      text-shadow: 0 0 20px var(--horde-red-glow);
+    }
+
+    .core-card-title.soon { color: #888; text-shadow: none; }
+
+    .core-card-sub {
+      font-size: 14px;
+      color: var(--core-muted);
+      font-style: italic;
+    }
+
+    .core-card-body {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .core-card-text {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--core-muted);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .core-card-text strong { color: var(--core-text); }
+
+    .core-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .core-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 6px;
+      border-left: 3px solid var(--horde-red);
+      font-size: 13px;
+      color: var(--core-muted);
+    }
+
+    .core-list li i {
+      color: var(--gold);
+      font-size: 15px;
+      margin-top: 2px;
+      min-width: 20px;
+    }
+
+    .core-list li strong { color: var(--core-text); font-weight: 600; }
+
+    .core-list.soon li { border-left-color: #666; color: #666; }
+    .core-list.soon li i { color: #666; }
+
+    /* ── SOON BADGE ── */
+    .soon-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      color: #888;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      animation: pulse-soon 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-soon {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 0.9; }
+    }
+
+    /* ── CTA BUTTON ── */
+    .core-cta {
+      margin-top: auto;
+      display: block;
+      width: 100%;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #8f0f0f, #c41e3a);
+      border: 1px solid var(--gold);
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 0 0 10px 10px;
+      transition: all 0.2s;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .core-cta:hover {
+      background: linear-gradient(135deg, #a31212, #d62242);
+      box-shadow: 0 0 20px rgba(196, 30, 58, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .core-cta.soon {
+      background: #333;
+      border-color: #555;
+      color: #888;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .core-cta.soon:hover { background: #333; box-shadow: none; transform: none; }
+
+    /* ── DETAIL VIEW ── */
+    .core-detail {
+      max-width: 800px;
+      margin: 0 auto;
+      display: none;
+    }
+
+    .core-detail.active { display: block; }
+
+    .core-detail-header {
+      background: var(--core-panel);
+      border: 1px solid var(--core-border);
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      margin-bottom: 30px;
+    }
+
+    .core-detail-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 4px;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .core-detail-badge.active {
+      background: rgba(196, 30, 58, 0.2);
+      border: 1px solid #c41e3a;
+    }
+
+    .core-detail-badge.soon {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #888;
+    }
+
+    .core-detail-title {
+      font-family: 'Cinzel', serif;
+      font-size: 48px;
+      color: var(--gold);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .core-detail-sub {
+      font-size: 18px;
+      color: var(--core-muted);
+      font-style: italic;
+    }
+
+    .core-detail-body {
+      background: var(--core-panel);
+      border: 1px solid var(--core-border);
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      margin-bottom: 30px;
+    }
+
+    .core-detail-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--core-muted);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .core-detail-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .core-detail-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 6px;
+      border-left: 3px solid var(--horde-red);
+      font-size: 14px;
+      color: var(--core-muted);
+    }
+
+    .core-detail-list li i {
+      color: var(--gold);
+      font-size: 16px;
+      margin-top: 2px;
+      min-width: 20px;
+    }
+
+    .core-detail-list li strong { color: var(--core-text); font-weight: 600; }
+
+    /* ── FORM ── */
+    .core-form-wrap {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--core-border);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+
+    .core-form-title {
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      color: var(--gold);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--core-border);
+      padding-bottom: 16px;
+    }
+
+    .core-form iframe {
+      width: 100%;
+      height: 900px;
+      border: none;
+      border-radius: 4px;
+      background: #000;
+    }
+
+    .core-btn {
+      display: inline-block;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #8f0f0f, #c41e3a);
+      border: 1px solid var(--gold);
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .core-btn:hover {
+      background: linear-gradient(135deg, #a31212, #d62242);
+      box-shadow: 0 0 20px rgba(196, 30, 58, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .core-btn.soon {
+      background: #333;
+      border-color: #555;
+      color: #888;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .core-btn-soon:hover { background: #333; box-shadow: none; transform: none; }
+
+    .core-back {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 28px;
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: all 0.2s;
+    }
+
+    .core-back:hover { background: var(--gold); color: #000; }
+
+    /* ── FORM QUESTIONS ── */
+    .core-form-questions {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--core-border);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+
+    .core-form-questions-title {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      color: var(--gold);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      border-left: 3px solid var(--horde-red);
+      padding-left: 12px;
+    }
+
+    .core-form-question {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: var(--core-muted);
+    }
+
+    .core-form-question strong {
+      color: var(--core-text);
+    }
+
+    .core-form-question .req {
+      color: #ff6b6b;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    .core-form-options {
+      margin-top: 8px;
+      padding-left: 20px;
+      font-size: 13px;
+      color: #b9a99b;
+    }
+
+    .core-form-options li {
+      margin-bottom: 4px;
+    }
+
+    /* ── NOTE ── */
+    .core-note {
+      max-width: 800px;
+      margin: 40px auto 0;
+      text-align: center;
+      font-size: 13px;
+      color: var(--core-muted);
+      font-family: 'Cinzel', serif;
+      line-height: 1.8;
+      border-left: 3px solid var(--horde-red);
+      padding-left: 16px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .core-title { font-size: 32px; }
+      .core-detail-title { font-size: 32px; }
+      .core-form iframe { height: 700px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header" id="universal-header"></header>
+
+  <!-- ── HUB VIEW (todos os COREs) ── -->
+  <div id="hub-view" class="core-detail active">
+    <div class="core-header">
+      <span class="core-badge">🏰 Recrutamento Aberto — Classic HC</span>
+      <h1 class="core-title">COREs da BRAZUG</h1>
+      <p class="core-sub">Escolha o grupo para se candidatar — WoW Classic Hardcore • Servidor Doomhowl</p>
+    </div>
+
+    <div class="core-cards" id="core-cards-grid">
+      <!-- Cards gerados dinamicamente via JS -->
+    </div>
+
+    <div class="core-note">
+      <strong>Importante:</strong> Preencher o formulário não garante entrada automática no CORE. A liderança da BRAZUG analisará cada inscrição e entrará em contato via Discord. <br><br>
+      <strong>WoW Forever:</strong> Quando o WoW Forever lançar (04/11/2026), os COREs serão a base da nossa organização naquele servidor também.
+    </div>
+  </div>
+
+  <!-- ── DETAIL VIEW (um CORE específico) ── -->
+  <div id="detail-view" class="core-detail">
+    <div style="text-align: center; margin-bottom: 20px;">
+      <a href="/core.html" class="core-back">← Voltar aos COREs</a>
+    </div>
+    <div class="core-detail-header" id="detail-header">
+      <!-- Conteúdo gerado via JS -->
+    </div>
+    <div class="core-detail-body" id="detail-body">
+      <!-- Conteúdo gerado via JS -->
+    </div>
+    <div id="detail-form-wrap">
+      <!-- Form ou botão em breve gerado via JS -->
+    </div>
+  </div>
+
+  <script src="/js/header.js"></script>
+  <script src="/js/core-data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hubView = document.getElementById('hub-view');
+      const detailView = document.getElementById('detail-view');
+      const coreCardsGrid = document.getElementById('core-cards-grid');
+      const detailHeader = document.getElementById('detail-header');
+      const detailBody = document.getElementById('detail-body');
+      const detailFormWrap = document.getElementById('detail-form-wrap');
+
+      // Obter parâmetro ?id= da URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const coreId = urlParams.get('id');
+
+      // Encontrar CORE pelo ID
+      const findCore = (id) => {
+        if (typeof BRAZUG_CORES === 'undefined') return null;
+        return BRAZUG_CORES.find(c => c.id === id) || null;
+      };
+
+      // Gerar classes de acento baseadas na cor
+      const getAccentClass = (accent) => {
+        if (accent === '#c41e3a') return 'accent-red';
+        if (accent === '#4f6b8a') return 'accent-blue';
+        if (accent === '#8787ed') return 'accent-purple';
+        if (accent === '#ff7d0a') return 'accent-orange';
+        return 'accent-red';
+      };
+
+      // ── Renderizar Hub (todos os COREs) ──
+      function renderHub() {
+        if (!BRAZUG_CORES) {
+          coreCardsGrid.innerHTML = '<p style="color: #ff6b6b; text-align: center; padding: 50px;">Erro: dados dos COREs não carregaram.</p>';
+          return;
+        }
+        coreCardsGrid.innerHTML = BRAZUG_CORES.map(core => `
+          <div class="core-card ${getAccentClass(core.accent)} ${core.status === 'active' ? 'active' : ''}" onclick="openCore('${core.id}')">
+            <div class="core-card-header">
+              <span class="core-card-badge ${core.status}">
+                ${core.badge}
+              </span>
+              <h2 class="core-card-title ${core.status}">${core.name}</h2>
+              <p class="core-card-sub">${core.subtitle}</p>
+            </div>
+            <div class="core-card-body">
+              <p class="core-card-text">${core.description}</p>
+              <ul class="core-list ${core.status}">
+                ${core.features.map(f => `
+                  <li><i class="fas ${f.icon}"></i> <strong>${f.label}:</strong> ${f.text}</li>
+                `).join('')}
+              </ul>
+            </div>
+            <button class="core-cta ${core.status === 'soon' ? 'soon' : ''}">
+              ${core.status === 'active' ? 'Inscrever-se' : 'Em Breve'}
+            </button>
+          </div>
+        `).join('');
+      }
+
+      // ── Renderizar Detail (um CORE específico) ──
+      function renderDetail(core) {
+        if (!core) {
+          detailView.style.display = 'none';
+          hubView.style.display = 'block';
+          return;
+        }
+
+        const isActive = core.status === 'active';
+
+        // Header
+        detailHeader.innerHTML = `
+          <span class="core-detail-badge ${core.status}">
+            ${core.badge}
+          </span>
+          <h1 class="core-detail-title">${core.name}</h1>
+          <p class="core-detail-sub">${core.subtitle}</p>
+        `;
+
+        // Body
+        detailBody.innerHTML = `
+          <p class="core-detail-text">${core.description}</p>
+          <ul class="core-detail-list">
+            ${core.features.map(f => `
+              <li><i class="fas ${f.icon}"></i> <strong>${f.label}:</strong> ${f.text}</li>
+            `).join('')}
+            ${core.requirement ? `
+              <li><i class="fas fa-info-circle"></i> <strong>Requisito:</strong> ${core.requirement}</li>
+            ` : ''}
+          </ul>
+        `;
+
+        // Perguntas do formulário (apenas para CORE do Velho)
+        if (core.id === 'velho') {
+          detailBody.innerHTML += `
+            <div class="core-form-questions">
+              <div class="core-form-questions-title">Perguntas do Formulário de Inscrição</div>
+              <div class="core-form-question">
+                <strong>Qual teu nick no WoW?</strong> <span class="req">*</span>
+                <span>Discord precisa estar o mesmo nick.</span>
+              </div>
+              <div class="core-form-question">
+                <strong>Pretende jogar o HC ou apenas o PVP?</strong> <span class="req">*</span>
+                <ul class="core-form-options">
+                  <li>Sim, vou jogar o HC</li>
+                  <li>Não, apenas o PVP</li>
+                </ul>
+              </div>
+              <div class="core-form-question">
+                <strong>Qual são seus dias da semana disponíveis para raidar?</strong> <span class="req">*</span>
+                <span style="font-size: 12px; font-style: italic;">lembrando, reservar 2hs</span>
+                <ul class="core-form-options">
+                  <li>Segunda</li>
+                  <li>Terça</li>
+                  <li>Quarta</li>
+                  <li>Quinta</li>
+                  <li>Sexta</li>
+                  <li>Sabado</li>
+                  <li>Domingo</li>
+                </ul>
+              </div>
+              <div class="core-form-question">
+                <strong>Quais os melhores horários para raid?</strong> <span class="req">*</span>
+                <ul class="core-form-options">
+                  <li>20:00h - 22:00h</li>
+                  <li>21:00h - 23:00h</li>
+                  <li>22:00h - 00:00h</li>
+                </ul>
+              </div>
+              <div class="core-form-question">
+                <strong>Qual função pretende exercer?</strong> <span class="req">*</span>
+                <ul class="core-form-options">
+                  <li>Tank</li>
+                  <li>Healer</li>
+                  <li>DPS</li>
+                </ul>
+              </div>
+              <div class="core-form-question">
+                <strong>Qual classe pretende criar?</strong> <span class="req">*</span>
+              </div>
+              <div class="core-form-question">
+                <strong>Tem interesse em ser raid leader de core 10-man?</strong> <span class="req">*</span>
+                <ul class="core-form-options">
+                  <li>Sim</li>
+                  <li>Não</li>
+                </ul>
+              </div>
+            </div>
+          `;
+        }
+
+        // Form ou botão em breve
+        if (isActive && core.formUrl) {
+          detailFormWrap.innerHTML = `
+            <div class="core-form-wrap">
+              <div class="core-form-title">Inscreva-se para o ${core.name}</div>
+              <div class="core-form-iframe">
+                <iframe
+                  src="${core.formUrl}?embedded=true"
+                  width="100%"
+                  height="900"
+                  frameborder="0"
+                  marginheight="0"
+                  marginwidth="0">
+                  Carregando formulário…
+                </iframe>
+              </div>
+            </div>
+            <div class="core-btn-wrap" style="text-align: center; margin-top: 20px;">
+              <a href="${core.formUrl}" class="core-btn" target="_blank" rel="noopener noreferrer">
+                <i class="fas fa-external-link-alt"></i> Abrir formulário em nova janela
+              </a>
+            </div>
+          `;
+        } else {
+          detailFormWrap.innerHTML = `
+            <div style="text-align: center; margin-top: 40px;">
+              <button class="core-btn-soon">Em Breve</button>
+            </div>
+            <div class="soon-note" style="max-width: 800px; margin: 30px auto; text-align: center; font-size: 13px; color: #666; font-family: 'Cinzel', serif; line-height: 1.8; border-left: 3px solid #666; padding-left: 16px;">
+              <strong>Em Breve:</strong> O ${core.name} ainda não está aceitando inscrições. Quando lançado, você poderá se candidatar aqui. <br><br>
+              <strong>WoW Forever:</strong> Quando o WoW Forever lançar (04/11/2026), este CORE continuando como divisão da BRAZUG.
+            </div>
+          `;
+        }
+
+        // Mudar para view de detalhe
+        hubView.style.display = 'none';
+        detailView.style.display = 'block';
+        window.scrollTo(0, 0);
+      }
+
+      // ── Abrir CORE específico ──
+      window.openCore = (id) => {
+        const core = findCore(id);
+        renderDetail(core);
+        window.history.pushState({}, '', `core.html?id=${id}`);
+      };
+
+      // ── Voltar ao hub ──
+      window.backToHub = () => {
+        hubView.style.display = 'block';
+        detailView.style.display = 'none';
+        window.history.pushState({}, '', 'core.html');
+      };
+
+      // ── Inicializar ──
+      if (coreId) {
+        const core = findCore(coreId);
+        if (core) {
+          renderDetail(core);
+        } else {
+          renderHub();
+        }
+      } else {
+        renderHub();
+      }
+
+      // Adicionar listener para o botão de voltar
+      const backBtns = document.querySelectorAll('.core-back');
+      backBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          backToHub();
+        });
+      });
+    });
+  </script>
+</body>
+</html>

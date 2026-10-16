@@ -117,6 +117,7 @@
                 <nav id="header-nav">
                     <a href="/" class="nav-link">Home</a>
                     <a href="/#lives" class="nav-link">Streams ao Vivo</a>
+                    <a href="/core.html" class="nav-link">COREs</a>
                 </nav>
             </div>
 

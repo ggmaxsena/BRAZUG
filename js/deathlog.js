@@ -11,44 +11,69 @@
 
 const API_BASE = "/api/brazug"; // Ajuste se o seu backend responder diretamente em /api
 
+function ss(n) { return String(n).padStart(2, "0"); }
+
 /* ═══════════════════════════════════════════════
    MODEL
 ═══════════════════════════════════════════════ */
 const DeathlogModel = {
   async fetchGuild(params = {}) {
-    const qs = new URLSearchParams(params).toString();
-    const r = await fetch(`${API_BASE}/summary${qs ? "?" + qs : ""}`);
+    const forceRefresh = params.forceRefresh;
+    const cleanParams = { ...params };
+    delete cleanParams.forceRefresh;
+    const qs = new URLSearchParams(cleanParams).toString();
+    const r = await fetch(`${API_BASE}/summary${qs ? "?" + qs : ""}`, {
+      headers: forceRefresh ? { 'Cache-Control': 'no-cache' } : {}
+    });
     if (!r.ok) throw new Error(`Guild API HTTP ${r.status}`);
     return r.json();
   },
 
   async fetchDeaths(params = {}) {
+    const forceRefresh = params.forceRefresh;
     const cleanParams = Object.fromEntries(
-      Object.entries(params).filter(([, v]) => v !== undefined && v !== "" && v !== null)
+      Object.entries(params).filter(([, v]) => v !== undefined && v !== "" && v !== null && v !== true)
     );
     const qs = new URLSearchParams(cleanParams).toString();
-    const r = await fetch(`${API_BASE}/deaths${qs ? "?" + qs : ""}`);
+    const r = await fetch(`${API_BASE}/deaths${qs ? "?" + qs : ""}`, {
+      headers: forceRefresh ? { 'Cache-Control': 'no-cache' } : {}
+    });
     if (!r.ok) throw new Error(`Deaths API HTTP ${r.status}`);
     return r.json();
   },
 
   async fetchStreaks(params = {}) {
-    const qs = new URLSearchParams(params).toString();
-    const r = await fetch(`${API_BASE}/streaks${qs ? "?" + qs : ""}`);
+    const forceRefresh = params.forceRefresh;
+    const cleanParams = { ...params };
+    delete cleanParams.forceRefresh;
+    const qs = new URLSearchParams(cleanParams).toString();
+    const r = await fetch(`${API_BASE}/streaks${qs ? "?" + qs : ""}`, {
+      headers: forceRefresh ? { 'Cache-Control': 'no-cache' } : {}
+    });
     if (!r.ok) throw new Error(`Streaks API HTTP ${r.status}`);
     return r.json();
   },
 
   async fetchDigest(params = {}) {
-    const qs = new URLSearchParams(params).toString();
-    const r = await fetch(`${API_BASE}/digest${qs ? "?" + qs : ""}`);
+    const forceRefresh = params.forceRefresh;
+    const cleanParams = { ...params };
+    delete cleanParams.forceRefresh;
+    const qs = new URLSearchParams(cleanParams).toString();
+    const r = await fetch(`${API_BASE}/digest${qs ? "?" + qs : ""}`, {
+      headers: forceRefresh ? { 'Cache-Control': 'no-cache' } : {}
+    });
     if (!r.ok) throw new Error(`Digest API HTTP ${r.status}`);
     return r.json();
   },
 
   async fetchCardUrl(params = {}) {
-    const qs = new URLSearchParams(params).toString();
-    const r = await fetch(`${API_BASE}/card-url${qs ? "?" + qs : ""}`);
+    const forceRefresh = params.forceRefresh;
+    const cleanParams = { ...params };
+    delete cleanParams.forceRefresh;
+    const qs = new URLSearchParams(cleanParams).toString();
+    const r = await fetch(`${API_BASE}/card-url${qs ? "?" + qs : ""}`, {
+      headers: forceRefresh ? { 'Cache-Control': 'no-cache' } : {}
+    });
     if (!r.ok) throw new Error(`Card URL API HTTP ${r.status}`);
     return r.json();
   }
@@ -219,7 +244,7 @@ const DeathlogView = {
             <span class="zone-tag">📍 ${zone}</span>
             ${alivePill}
           </div>
-          ${lastWords ? `<div class="death-row-words text-amber-200/80 italic text-xs mt-1">💬 ${lastWords}</div>` : ""}
+          ${lastWords ? `<div class="death-row-words" style="font-size:11px;color:var(--gold);font-style:italic;margin-top:4px;">💬 "${lastWords}"</div>` : ""}
         </div>
         <div class="death-row-time">${time}</div>
       </div>
@@ -256,7 +281,19 @@ const DeathlogView = {
     const last = d.lastDeath ?? {};
     const cls = this.getClass(last.classId);
     const secsSince = d.secondsSinceLastDeath ?? null;
-    const timeSince = secsSince != null ? this.formatAlive(secsSince) : null;
+
+    // Sanidade: se há mortes hoje, o tempo sem baixas não pode exceder 24h
+    let timeSince = null;
+    if (secsSince != null) {
+      const deathsToday = d.deathsToday ?? 0;
+      const maxSeconds = deathsToday > 0 ? 86400 : Infinity; // 24h se há mortes hoje
+      const cappedSeconds = Math.min(secsSince, maxSeconds);
+      timeSince = this.formatAlive(cappedSeconds);
+      // Se houve corte, mostra aviso sutil
+      if (secsSince > maxSeconds && deathsToday > 0) {
+        // Valor inconsistente — vamos mostrar com cor de alerta
+      }
+    }
     const lastZone = this.getZone(last);
 
     if (el) {
@@ -347,21 +384,36 @@ const DeathlogView = {
     const el = document.getElementById("digest-body");
     const elSide = document.getElementById("digest-body-side");
 
-    const d = data?.digest || data?.data || data || {};
-    const zoneObj = d.deadliestZone;
-    const zoneName = zoneObj?.zone || zoneObj?.name || (typeof zoneObj === 'string' ? zoneObj : "—");
-    const zoneDeaths = zoneObj?.deaths != null ? `${zoneObj.deaths} mortes` : "";
+    // Tenta múltiplos caminhos para encontrar os dados do digest
+    let d = data?.digest || data?.data || data || {};
+    if (!d || typeof d !== 'object') d = {};
 
-    const killerObj = d.deadliestKiller;
-    const killerName = killerObj?.sourceName || killerObj?.name || (typeof killerObj === 'string' ? killerObj : (d.mostCommonKiller || d.most_common_killer || "—"));
-    const killerKills = killerObj?.kills != null ? `${killerObj.kills} baixas` : "";
+    // Zona mais letal - tenta vários caminhos
+    let zoneObj = d.deadliestZone || d.deadliest_zone || d.mostDeadlyZone || d.topZone;
+    if (!zoneObj && d.zones && Array.isArray(d.zones) && d.zones.length > 0) {
+      zoneObj = d.zones[0];
+    }
+    const zoneName = zoneObj?.zone || zoneObj?.name || zoneObj?.zone_name || (typeof zoneObj === 'string' ? zoneObj : "—");
+    const zoneDeaths = zoneObj?.deaths != null ? `${zoneObj.deaths} mortes` : (zoneObj?.total != null ? `${zoneObj.total} mortes` : "");
 
-    const highest = d.highestDeath;
-    const highestCls = highest ? this.getClass(highest.classId) : null;
-    const words = d.notableLastWords;
+    // Assassino favorito - tenta vários caminhos
+    let killerObj = d.deadliestKiller || d.deadliest_killer || d.topKiller || d.mostCommonKiller || d.most_common_killer || d.favoriteKiller;
+    if (!killerObj && d.killers && Array.isArray(d.killers) && d.killers.length > 0) {
+      killerObj = d.killers[0];
+    }
+    const killerName = killerObj?.sourceName || killerObj?.name || killerObj?.killer || killerObj?.killed_by || (typeof killerObj === 'string' ? killerObj : "—");
+    const killerKills = killerObj?.kills != null ? `${killerObj.kills} baixas` : (killerObj?.total != null ? `${killerObj.total} baixas` : "");
 
-    const deaths = d.deaths ?? d.totalDeaths ?? d.total_deaths ?? 0;
-    const prevDeaths = d.previousWindowDeaths ?? null;
+    // Maior perda - tenta vários caminhos
+    let highest = d.highestDeath || d.highest_death || d.topDeath || d.maxLevelDeath;
+    if (!highest && d.deaths && Array.isArray(d.deaths) && d.deaths.length > 0) {
+      highest = d.deaths[0];
+    }
+    const highestCls = highest ? this.getClass(highest.classId || highest.class_id || highest.class) : null;
+    const words = d.notableLastWords || d.lastWords || d.notable_words;
+
+    const deaths = d.deaths ?? d.totalDeaths ?? d.total_deaths ?? d.count ?? 0;
+    const prevDeaths = d.previousWindowDeaths ?? d.previous_window_deaths ?? d.prevDeaths ?? null;
 
     let diffText = "";
     if (prevDeaths !== null) {
@@ -451,9 +503,30 @@ const DeathlogView = {
   renderCard(cardUrl) {
     const el = document.getElementById("memorial-card");
     if (!el || !cardUrl) return;
+
+    // Se cardUrl contém HTML (não é uma URL válida), não renderiza
+    if (typeof cardUrl !== 'string' || cardUrl.includes('<') || cardUrl.includes('>')) {
+      el.innerHTML = '<div class="state-empty"><div class="state-empty-skull">☠</div><p class="state-empty-sub">Cartão memorial indisponível</p></div>';
+      return;
+    }
+
+    // Garante que é uma URL válida
+    let cleanUrl = cardUrl;
+    try {
+      new URL(cardUrl);
+    } catch {
+      // Se não for URL absoluta, tenta como caminho relativo
+      if (cardUrl.startsWith('/')) {
+        cleanUrl = cardUrl;
+      } else {
+        el.innerHTML = '<div class="state-empty"><div class="state-empty-skull">☠</div><p class="state-empty-sub">Cartão memorial indisponível</p></div>';
+        return;
+      }
+    }
+
     el.innerHTML = `
-      <a href="${cardUrl}" target="_blank" rel="noopener" class="card-link">
-        <img src="${cardUrl}" alt="Cartão Memorial BRAZUG" class="card-img" loading="lazy" />
+      <a href="${cleanUrl}" target="_blank" rel="noopener" class="card-link">
+        <img src="${cleanUrl}" alt="Cartão Memorial BRAZUG" class="card-img" loading="lazy" />
         <div class="card-overlay">🔗 Ver em tamanho completo</div>
       </a>
     `;
@@ -625,6 +698,9 @@ const DeathlogController = {
       this.loadCard()
     ]);
     DeathlogView.setTabActive("deaths");
+    const now = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    const el = document.getElementById("last-updated");
+    if (el) el.textContent = `Última atualização: ${now}`;
   },
 
   bindEvents() {
@@ -699,6 +775,8 @@ const DeathlogController = {
   },
 
   _autoRefreshInterval: null,
+  _autoRefreshMs: 30 * 1000, // 30 segundos
+  _autoRefreshRemaining: 0,
 
   toggleAutoRefresh(btn) {
     if (this._autoRefreshInterval) {
@@ -706,15 +784,56 @@ const DeathlogController = {
       this._autoRefreshInterval = null;
       btn.classList.remove("active");
       btn.innerHTML = `<span class="btn-icon">🔄</span> Auto Refresh`;
+      this._updateAutoRefreshLabel(btn);
     } else {
       this._autoRefreshInterval = setInterval(() => {
-        this.state.filters.forceRefresh = true;
-        this.state.cursor = null;
-        this.state.deaths = [];
-        this.loadDeaths(true);
-      }, 30000);
+        this._performAutoRefresh();
+      }, this._autoRefreshMs);
+      this._autoRefreshRemaining = this._autoRefreshMs;
       btn.classList.add("active");
       btn.innerHTML = `<span class="btn-icon">⏹</span> Parar Refresh`;
+      this._startCountdown(btn);
+      this._performAutoRefresh();
+    }
+  },
+
+  _startCountdown(btn) {
+    clearInterval(this._countdownInterval);
+    this._countdownInterval = setInterval(() => {
+      this._autoRefreshRemaining -= 1000;
+      if (this._autoRefreshRemaining <= 0) {
+        this._autoRefreshRemaining = this._autoRefreshMs;
+      }
+      this._updateAutoRefreshLabel(btn);
+    }, 1000);
+  },
+
+  _updateAutoRefreshLabel(btn) {
+    if (!btn) return;
+    const mins = Math.floor(this._autoRefreshRemaining / 60000);
+    const secs = Math.floor((this._autoRefreshRemaining % 60000) / 1000);
+    const label = this._autoRefreshInterval
+      ? `<span class="btn-icon">⏱</span> Auto Refresh (${mins}m ${ss(secs)}s)`
+      : `<span class="btn-icon">🔄</span> Auto Refresh`;
+    btn.innerHTML = label;
+  },
+
+  async _performAutoRefresh() {
+    try {
+      const isAdmin = localStorage.getItem("brazug_admin_role") === "admin";
+      await Promise.allSettled([
+        this.loadGuild({ forceRefresh: true }),
+        this.loadDeaths(true),
+        this.loadStreaks(true),
+        this.loadDigest(true),
+        this.loadCard(true)
+      ]);
+      const now = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      const el = document.getElementById("last-updated");
+      if (el) el.textContent = `Última atualização: ${now}`;
+      console.log(`[Deathlog] Auto-refresh concluído às ${now}`);
+    } catch (e) {
+      console.error("[Deathlog] Auto-refresh error:", e);
     }
   },
 
@@ -769,30 +888,30 @@ const DeathlogController = {
     }
   },
 
-  async loadStreaks() {
+  async loadStreaks(forceRefresh = false) {
     DeathlogView.showLoading("streaks-body");
     try {
-      const data = await DeathlogModel.fetchStreaks();
+      const data = await DeathlogModel.fetchStreaks({ forceRefresh });
       DeathlogView.renderStreaks(data);
     } catch (e) {
       DeathlogView.showError("streaks-body", `Falha ao carregar streaks: ${e.message}`);
     }
   },
 
-  async loadDigest() {
+  async loadDigest(forceRefresh = false) {
     DeathlogView.showLoading("digest-body");
     try {
       const win = document.getElementById("filter-window")?.value || "7d";
-      const data = await DeathlogModel.fetchDigest({ window: win });
+      const data = await DeathlogModel.fetchDigest({ window: win, forceRefresh });
       DeathlogView.renderDigest(data);
     } catch (e) {
       DeathlogView.showError("digest-body", `Falha ao carregar resumo: ${e.message}`);
     }
   },
 
-  async loadCard() {
+  async loadCard(forceRefresh = false) {
     try {
-      const res = await DeathlogModel.fetchCardUrl({ theme: "blood" });
+      const res = await DeathlogModel.fetchCardUrl({ theme: "blood", forceRefresh });
       if (res && res.cardUrl) {
         DeathlogView.renderCard(res.cardUrl);
       }

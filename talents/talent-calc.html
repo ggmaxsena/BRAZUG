@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Talentos — WoW Forever | BRAZUG</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    /* ============================================================
+       BRAZUG TALENT CALCULATOR — WoW Forever
+       ============================================================ */
+    :root {
+      --tc-bg: #050505;
+      --tc-panel: rgba(12, 8, 8, 0.95);
+      --tc-border: var(--border);
+      --tc-gold: var(--gold);
+      --tc-red: var(--horde-red);
+      --tc-text: var(--text);
+      --tc-muted: var(--text-muted);
+      --tc-node: 44px;
+      --tc-cg: 16px;
+      --tc-rg: 28px;
+      --tc-pad: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--tc-bg);
+      color: var(--tc-text);
+      font-family: 'Inter', sans-serif;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .tc-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 0;
+      border-bottom: 2px solid var(--horde-red);
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .tc-class-icon {
+      width: 64px;
+      height: 64px;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 15px var(--gold-glow));
+    }
+
+    .tc-title-group h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 32px;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+      text-shadow: 0 0 15px var(--gold-glow);
+    }
+
+    .tc-title-group p {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: 'Cinzel', serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tc-controls {
+      margin-left: auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .tc-points {
+      font-family: 'Cinzel', serif;
+      text-align: right;
+    }
+
+    .tc-points-total {
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .tc-points-total span {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+
+    .tc-points-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .tc-points-bar-wrap {
+      height: 6px;
+      width: 200px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--horde-red);
+      margin-top: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .tc-points-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--horde-red), var(--gold));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .tc-btn-reset {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+      padding: 8px 18px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--horde-red);
+      color: var(--gold);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .tc-btn-reset:hover {
+      background: var(--horde-red);
+      color: #fff;
+      box-shadow: 0 0 15px var(--horde-red-glow);
+    }
+
+    /* ── CLASS SELECTOR (hardcoded) ── */
+    .tc-class-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .tc-class-card {
+      background: var(--tc-panel);
+      border: 1px solid var(--tc-border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tc-class-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-4px);
+      box-shadow: 0 0 20px var(--gold-glow);
+    }
+
+    .tc-class-card.active {
+      border-color: var(--gold);
+      background: rgba(247, 193, 77, 0.08);
+    }
+
+    .tc-class-card img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid var(--horde-red);
+    }
+
+    .tc-class-card span {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── TREES CONTAINER ── */
+    .tc-trees {
+      display: flex;
+      gap: 30px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ── TREE PANEL ── */
+    .tc-tree {
+      background: var(--tc-panel);
+      border: 1px solid var(--tc-border);
+      border-radius: 8px;
+      width: 340px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tc-tree-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--tc-border);
+      background: rgba(0,0,0,0.3);
+    }
+
+    .tc-tree-name {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .tc-tree-pts {
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--tc-muted);
+    }
+
+    .tc-tree-pts.has {
+      color: var(--tc-gold);
+    }
+
+    /* tier unlock pips */
+    .tc-pips {
+      display: flex;
+      gap: 4px;
+      padding: 6px 16px;
+      border-bottom: 1px solid var(--tc-border);
+    }
+
+    .tc-pip {
+      width: 14px;
+      height: 3px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+    .tc-pip.on { background: var(--tc-gold); }
+    .tc-pip.maxed { background: var(--tc-muted); }
+
+    /* ── CANVAS ── */
+    .tc-canvas {
+      position: relative;
+      padding: var(--tc-pad);
+      overflow: hidden;
+      flex: 1;
+      min-height: 520px;
+    }
+
+    .tc-bg-art {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+      image-rendering: pixelated;
+    }
+
+    .tc-tier-div {
+      position: absolute;
+      left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--horde-red) 30%, var(--horde-red) 70%, transparent);
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .tc-tier-div.unlocked {
+      background: linear-gradient(90deg, transparent, rgba(247,193,77,0.4) 30%, rgba(247,193,77,0.4) 70%, transparent);
+      opacity: 0.6;
+    }
+
+    .tc-tier-req {
+      position: absolute;
+      right: 4px;
+      font-size: 10px;
+      color: var(--tc-muted);
+      font-family: 'Cinzel', serif;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ── SVG ARROWS ── */
+    .tc-svg {
+      position: absolute;
+      top: var(--tc-pad);
+      left: var(--tc-pad);
+      pointer-events: none;
+      z-index: 2;
+      overflow: visible;
+    }
+    .tc-arrow {
+      fill: none;
+      stroke-width: 1.5;
+      stroke: rgba(196, 30, 58, 0.3);
+      transition: stroke 0.2s;
+    }
+    .tc-arrow.met { stroke: var(--gold); }
+
+    /* ── TALENT NODE ── */
+    .tc-node {
+      position: absolute;
+      width: var(--tc-node);
+      height: var(--tc-node);
+      z-index: 3;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+    .tc-node:hover { transform: scale(1.1); z-index: 30; }
+
+    .tc-node-frame {
+      position: absolute;
+      inset: 0;
+      border: 2px solid var(--tc-border);
+      background: #0a0707;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .tc-node img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+      filter: grayscale(100%) brightness(0.5);
+      transition: filter 0.2s;
+    }
+
+    .tc-node-rank {
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      font-size: 9px;
+      font-weight: 700;
+      font-family: sans-serif;
+      background: rgba(0,0,0,0.9);
+      color: var(--tc-muted);
+      padding: 1px 4px;
+      line-height: 12px;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* ── STATES ── */
+    .tc-node.locked { cursor: not-allowed; opacity: 0.18; }
+    .tc-node.locked:hover { transform: none; }
+
+    .tc-node.available .tc-node-frame { border-color: rgba(196, 30, 58, 0.4); }
+    .tc-node.available img { filter: grayscale(60%) brightness(0.7); }
+
+    .tc-node.partial .tc-node-frame {
+      border-color: var(--gold);
+      box-shadow: inset 0 0 10px rgba(247,193,77,0.2);
+    }
+    .tc-node.partial img { filter: grayscale(20%) brightness(0.9); }
+    .tc-node.partial .tc-node-rank { color: var(--gold); }
+
+    .tc-node.maxed .tc-node-frame {
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(247,193,77,0.4), inset 0 0 10px rgba(247,193,77,0.15);
+    }
+    .tc-node.maxed img { filter: grayscale(0%) brightness(1.1) saturate(1.2); }
+    .tc-node.maxed .tc-node-rank { color: var(--gold); background: rgba(0,0,0,0.95); }
+
+    .tc-node.spec-talent .tc-node-frame {
+      border-color: var(--gold);
+      box-shadow: 0 0 16px rgba(247,193,77,0.6), inset 0 0 12px rgba(247,193,77,0.25);
+    }
+    .tc-node.spec-talent.maxed .tc-node-frame {
+      animation: tc-glow 2.5s ease-in-out infinite;
+    }
+
+    .tc-node.prereq-blocked .tc-node-frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid #8b1a1a;
+    }
+
+    @keyframes tc-glow {
+      0%, 100% { box-shadow: 0 0 16px rgba(247,193,77,0.6), inset 0 0 12px rgba(247,193,77,0.25); }
+      50% { box-shadow: 0 0 24px rgba(247,193,77,0.9), inset 0 0 16px rgba(247,193,77,0.4); }
+    }
+
+    /* ── TOOLTIP ── */
+    .tc-tooltip {
+      position: fixed;
+      background: linear-gradient(180deg, #1e1a0e 0%, #13110a 100%);
+      border: 1px solid var(--horde-red);
+      padding: 12px 16px;
+      max-width: 280px;
+      pointer-events: none;
+      z-index: 9999;
+      display: none;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.9);
+      border-radius: 6px;
+      font-family: sans-serif;
+    }
+    .tc-tooltip::before {
+      content: ''; position: absolute; top: -1px; left: -1px;
+      width: 8px; height: 8px;
+      border-top: 2px solid var(--horde-red);
+      border-left: 2px solid var(--horde-red);
+    }
+    .tc-tooltip::after {
+      content: ''; position: absolute; bottom: -1px; right: -1px;
+      width: 8px; height: 8px;
+      border-bottom: 2px solid var(--horde-red);
+      border-right: 2px solid var(--horde-red);
+    }
+    .tc-tt-name {
+      font-weight: 700;
+      color: var(--gold);
+      font-size: 15px;
+      margin-bottom: 4px;
+      font-family: 'Cinzel', serif;
+    }
+    .tc-tt-rank {
+      font-size: 11px;
+      color: var(--tc-muted);
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+    .tc-tt-desc {
+      font-size: 12px;
+      color: var(--tc-text);
+      line-height: 1.6;
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+    .tc-tt-hint {
+      font-size: 11px;
+      color: var(--tc-muted);
+      border-top: 1px solid rgba(196,30,58,0.3);
+      padding-top: 6px;
+    }
+
+    /* ── FOOTER ── */
+    .tc-footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--tc-border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .tc-legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tc-leg-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--tc-muted);
+      font-family: 'Cinzel', serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .tc-leg-dot {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--tc-border);
+      background: #0a0707;
+      flex-shrink: 0;
+    }
+    .tc-leg-dot.available { border-color: rgba(196, 30, 58, 0.4); }
+    .tc-leg-dot.partial { border-color: var(--gold); background: var(--tc-panel); }
+    .tc-leg-dot.maxed { border-color: var(--gold); box-shadow: 0 0 6px rgba(247,193,77,0.5); }
+    .tc-leg-dot.spec { border-color: var(--gold); box-shadow: 0 0 10px rgba(247,193,77,0.7); }
+    .tc-leg-dot.locked { opacity: 0.22; }
+
+    .tc-note {
+      font-size: 11px;
+      color: var(--tc-muted);
+      max-width: 700px;
+      line-height: 1.8;
+      border-left: 3px solid var(--horde-red);
+      padding-left: 14px;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* ── EMPTY STATE ── */
+    .tc-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--tc-muted);
+      font-family: 'Cinzel', serif;
+    }
+    .tc-empty i { font-size: 48px; color: var(--horde-red); margin-bottom: 16px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .tc-trees { flex-direction: column; align-items: center; }
+      .tc-tree { width: 100%; max-width: 340px; }
+      .tc-header { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .tc-controls { margin-left: 0; width: 100%; justify-content: space-between; }
+      .tc-points-bar-wrap { width: 160px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header" id="universal-header"></header>
+
+  <!-- ── HEADER CALCULADORA ── -->
+  <div class="tc-header">
+    <img class="tc-class-icon" id="tc-class-icon" src="" alt="Classe">
+    <div class="tc-title-group">
+      <h1 id="tc-class-name">Selecione uma classe</h1>
+      <p id="tc-class-sub">Calculadora de talentos — WoW Forever</p>
+    </div>
+    <div class="tc-points">
+      <div class="tc-points-total"><span id="tc-pts-spent">0</span><span> / 51</span></div>
+      <div class="tc-points-label">Pontos Gastos</div>
+      <div class="tc-points-bar-wrap"><div class="tc-points-bar" id="tc-pts-bar" style="width:0%"></div></div>
+    </div>
+    <div class="tc-controls">
+      <button class="tc-btn-reset" onclick="TC.reset()">↺ Resetar Build</button>
+    </div>
+  </div>
+
+  <!-- ── CLASS SELECTOR (hardcoded para garantir renderização) ── -->
+  <div class="tc-class-selector" id="tc-class-selector">
+    <div class="tc-class-card" data-class="warrior" onclick="TC.selectClass('warrior')">
+      <img src="https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg" alt="Guerreiro" onerror="this.style.display='none'">
+      <span>Guerreiro</span>
+    </div>
+    <div class="tc-class-card" data-class="paladin" onclick="TC.selectClass('paladin')">
+      <img src="https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg" alt="Paladino" onerror="this.style.display='none'">
+      <span>Paladino</span>
+    </div>
+    <div class="tc-class-card" data-class="hunter" onclick="TC.selectClass('hunter')">
+      <img src="https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg" alt="Caçador" onerror="this.style.display='none'">
+      <span>Caçador</span>
+    </div>
+    <div class="tc-class-card" data-class="rogue" onclick="TC.selectClass('rogue')">
+      <img src="https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg" alt="Ladino" onerror="this.style.display='none'">
+      <span>Ladino</span>
+    </div>
+    <div class="tc-class-card" data-class="priest" onclick="TC.selectClass('priest')">
+      <img src="https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg" alt="Sacerdote" onerror="this.style.display='none'">
+      <span>Sacerdote</span>
+    </div>
+    <div class="tc-class-card" data-class="shaman" onclick="TC.selectClass('shaman')">
+      <img src="https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg" alt="Xamã" onerror="this.style.display='none'">
+      <span>Xamã</span>
+    </div>
+    <div class="tc-class-card" data-class="mage" onclick="TC.selectClass('mage')">
+      <img src="https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg" alt="Mago" onerror="this.style.display='none'">
+      <span>Mago</span>
+    </div>
+    <div class="tc-class-card" data-class="warlock" onclick="TC.selectClass('warlock')">
+      <img src="https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg" alt="Bruxo" onerror="this.style.display='none'">
+      <span>Bruxo</span>
+    </div>
+    <div class="tc-class-card" data-class="druid" onclick="TC.selectClass('druid')">
+      <img src="https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg" alt="Druida" onerror="this.style.display='none'">
+      <span>Druida</span>
+    </div>
+  </div>
+
+  <!-- ── TREES ── -->
+  <div class="tc-trees" id="tc-trees">
+    <div class="tc-empty">
+      <i class="fas fa-star"></i>
+      <p>Escolha uma classe acima para abrir a calculadora de talentos.</p>
+    </div>
+  </div>
+
+  <!-- ── TOOLTIP ── -->
+  <div class="tc-tooltip" id="tc-tooltip">
+    <div class="tc-tt-name" id="tc-tt-name"></div>
+    <div class="tc-tt-rank" id="tc-tt-rank"></div>
+    <div class="tc-tt-desc" id="tc-tt-desc"></div>
+    <div class="tc-tt-hint" id="tc-tt-hint"></div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="tc-footer">
+    <div class="tc-legend">
+      <div class="tc-leg-item"><div class="tc-leg-dot locked"></div>Bloqueado</div>
+      <div class="tc-leg-item"><div class="tc-leg-dot available"></div>Disponível</div>
+      <div class="tc-leg-item"><div class="tc-leg-dot partial"></div>Parcial</div>
+      <div class="tc-leg-item"><div class="tc-leg-dot maxed"></div>Máximo</div>
+      <div class="tc-leg-item"><div class="tc-leg-dot spec"></div>Talento Final</div>
+    </div>
+    <div class="tc-note">
+      <strong>WoW Forever — Talentos:</strong> 51 pontos no nível 60. Cada linha desbloqueia a cada 5 pontos investidos na árvore.<br>
+      <strong>Dados:</strong> talentos, hierarquia e tooltips do <a href="https://talentsforever.com" target="_blank" rel="noopener noreferrer" style="color: var(--gold);">talentsforever.com</a> (beta client do WoW Forever, CC BY 4.0). Ícones e nomes são da Blizzard Entertainment.
+    </div>
+  </div>
+
+  <script src="/js/header.js"></script>
+
+  <!-- ── DATA ── -->
+  <script src="/talents/talent-data.js"></script>
+
+  <!-- ── ENGINE ── -->
+  <script>
+    /* ============================================================
+       BRAZUG TALENT CALC ENGINE — WoW Forever
+       ============================================================ */
+    (function() {
+      'use strict';
+
+      // Verifica se TREES_DATA carregou
+      if (typeof TREES_DATA === 'undefined') {
+        console.error('[BRAZUG TalentCalc] TREES_DATA não definido. Verifique se talent-data.js carregou.');
+        document.getElementById('tc-trees').innerHTML = '<div class="tc-empty"><p style="color:#ff6b6b;">Erro: dados de talentos não carregaram. Recarregue a página.</p></div>';
+        return;
+      }
+
+      const MAX_PTS      = FOREVER_MAX_PTS;
+      const PTS_PER_TIER = FOREVER_PTS_PER_TIER;
+      const CDN          = 'https://wow.zamimg.com/images/wow/icons/medium';
+
+      // DOM
+      const $ = sel => document.querySelector(sel);
+      const $classSelector = $('#tc-class-selector');
+      const $treesContainer = $('#tc-trees');
+      const $className = $('#tc-class-name');
+      const $classSub = $('#tc-class-sub');
+      const $classIcon = $('#tc-class-icon');
+      const $ptsSpent = $('#tc-pts-spent');
+      const $ptsBar = $('#tc-pts-bar');
+      const $empty = $treesContainer.querySelector('.tc-empty');
+
+      let currentClass = null;
+
+      // ── Helpers ──
+      function getTalent(treeKey, row, col) {
+        const tree = TREES_DATA[currentClass].trees[treeKey];
+        return tree.talents.find(t => t.row === row && t.col === col) || null;
+      }
+      function treePoints(treeKey) {
+        return TREES_DATA[currentClass].trees[treeKey].talents.reduce((s, t) => s + t.rank, 0);
+      }
+      function totalPoints() {
+        return Object.keys(TREES_DATA[currentClass].trees).reduce((s, k) => s + treePoints(k), 0);
+      }
+      function tierUnlocked(treeKey, row) {
+        return treePoints(treeKey) >= row * PTS_PER_TIER;
+      }
+      function prereqMet(treeKey, talent) {
+        if (!talent.prereq) return true;
+        const p = getTalent(treeKey, talent.prereq.row, talent.prereq.col);
+        return p && p.rank === p.maxRank;
+      }
+
+      // ── Rules ──
+      function canAdd(treeKey, talent) {
+        if (totalPoints() >= MAX_PTS) return false;
+        if (talent.rank >= talent.maxRank) return false;
+        if (!tierUnlocked(treeKey, talent.row)) return false;
+        if (!prereqMet(treeKey, talent)) return false;
+        return true;
+      }
+
+      function canRemove(treeKey, talent) {
+        if (talent.rank <= 0) return false;
+        const deps = TREES_DATA[currentClass].trees[treeKey].talents.filter(t =>
+          t.prereq && t.prereq.row === talent.row && t.prereq.col === talent.col && t.rank > 0
+        );
+        if (deps.length && talent.rank - 1 < talent.maxRank) return false;
+        const newPts = treePoints(treeKey) - 1;
+        const maxLockedRow = Math.floor(newPts / PTS_PER_TIER);
+        const higherInvested = TREES_DATA[currentClass].trees[treeKey].talents.some(t =>
+          t.row > maxLockedRow && t.rank > 0 && !(t.row === talent.row && t.col === talent.col)
+        );
+        if (higherInvested) return false;
+        return true;
+      }
+
+      function addPoint(treeKey, talent) {
+        console.log('[ADDPOINT] tree:', treeKey, 'talent:', talent.name, 'canAdd:', canAdd(treeKey, talent));
+        if (!canAdd(treeKey, talent)) {
+          console.log('[ADDPOINT] BLOQUEADO — canAdd retornou false');
+          return false;
+        }
+        talent.rank++;
+        renderAll();
+        return true;
+      }
+
+      function removePoint(treeKey, talent) {
+        if (!canRemove(treeKey, talent)) return false;
+        talent.rank--;
+        renderAll();
+        return true;
+      }
+
+      // ── Node state ──
+      function nodeClass(treeKey, talent) {
+        if (!tierUnlocked(treeKey, talent.row)) return 'locked';
+        if (!prereqMet(treeKey, talent) && talent.rank === 0) return 'prereq-blocked';
+        let s;
+        if (talent.rank === 0) s = 'available';
+        else if (talent.rank === talent.maxRank) s = 'maxed';
+        else s = 'partial';
+        if (talent.spec) s = talent.rank === talent.maxRank ? 'spec-talent maxed' : 'spec-talent ' + (talent.rank > 0 ? 'partial' : 'available');
+        return s;
+      }
+
+      // ── Tooltip ──
+      const tip = $('#tc-tooltip');
+      const tipName = $('#tc-tt-name');
+      const tipRank = $('#tc-tt-rank');
+      const tipDesc = $('#tc-tt-desc');
+      const tipHint = $('#tc-tt-hint');
+
+      function moveTip(e) {
+        const margin = 14;
+        let x = e.clientX + margin, y = e.clientY + margin;
+        const tw = tip.offsetWidth || 280, th = tip.offsetHeight || 160;
+        if (x + tw > window.innerWidth - 8) x = e.clientX - tw - margin;
+        if (y + th > window.innerHeight - 8) y = e.clientY - th - margin;
+        tip.style.left = x + 'px';
+        tip.style.top = y + 'px';
+      }
+
+      function showTip(e, treeKey, talent) {
+        tipName.textContent = talent.name;
+        tipRank.textContent = `Rank ${talent.rank} / ${talent.maxRank}`;
+        tipDesc.textContent = talent.desc || '';
+        const hints = [];
+        if (canAdd(treeKey, talent)) hints.push('Clique para adicionar ponto');
+        else if (talent.rank === talent.maxRank) hints.push('Talento no máximo');
+        else if (!tierUnlocked(treeKey, talent.row)) hints.push(`Requer ${talent.row * PTS_PER_TIER} pontos em ${TREES_DATA[currentClass].trees[treeKey].label}`);
+        else if (!prereqMet(treeKey, talent)) {
+          const p = getTalent(treeKey, talent.prereq.row, talent.prereq.col);
+          hints.push(`Requer ${p ? p.name : 'pré-requisito'} no máximo`);
+        } else if (totalPoints() >= MAX_PTS) hints.push('Sem pontos restantes');
+        if (canRemove(treeKey, talent)) hints.push('Clique-direito para remover');
+        tipHint.textContent = hints.join(' · ');
+        moveTip(e);
+        tip.style.display = 'block';
+      }
+
+      document.addEventListener('mousemove', e => {
+        if (tip.style.display === 'block') moveTip(e);
+      });
+
+      // ── Render ──
+      function renderAll() {
+        const total = totalPoints();
+        $ptsSpent.textContent = total;
+        $ptsBar.style.width = (total / MAX_PTS * 100) + '%';
+        Object.keys(TREES_DATA[currentClass].trees).forEach(tk => renderTree(tk));
+      }
+
+      function renderTree(treeKey) {
+        const tree = TREES_DATA[currentClass].trees[treeKey];
+        const container = $(`#tc-tree-${treeKey}`);
+        if (!container) return;
+
+        const ptsEl = container.querySelector('.tc-tree-pts');
+        const pts = treePoints(treeKey);
+        ptsEl.textContent = pts;
+        ptsEl.className = 'tc-tree-pts' + (pts > 0 ? ' has' : '');
+
+        const pipRow = container.querySelector('.tc-pips');
+        pipRow.innerHTML = '';
+        for (let t = 0; t <= 8; t++) {
+          const needed = t * PTS_PER_TIER;
+          const pip = document.createElement('div');
+          pip.className = 'tc-pip';
+          if (pts >= needed + PTS_PER_TIER) pip.className = 'tc-pip maxed';
+          else if (pts >= needed) pip.className = 'tc-pip on';
+          pipRow.appendChild(pip);
+        }
+
+        container.querySelectorAll('.tc-tier-div').forEach(div => {
+          const row = parseInt(div.dataset.row, 10);
+          const needed = row * PTS_PER_TIER;
+          if (treePoints(treeKey) >= needed) div.classList.add('unlocked');
+          else div.classList.remove('unlocked');
+        });
+
+        tree.talents.forEach(talent => {
+          const node = $(`#tc-node-${treeKey}-${talent.row}-${talent.col}`);
+          if (!node) return;
+          node.className = 'tc-node ' + nodeClass(treeKey, talent);
+          const rankEl = node.querySelector('.tc-node-rank');
+          if (rankEl) rankEl.textContent = `${talent.rank}/${talent.maxRank}`;
+        });
+
+        const svg = container.querySelector('.tc-svg');
+        if (svg) {
+          svg.querySelectorAll('.tc-arrow').forEach(path => {
+            const tk = path.dataset.tree;
+            const row = parseInt(path.dataset.row, 10);
+            const col = parseInt(path.dataset.col, 10);
+            const talent = getTalent(tk, row, col);
+            if (talent && talent.prereq) {
+              const p = getTalent(tk, talent.prereq.row, talent.prereq.col);
+              path.setAttribute('class', 'tc-arrow' + (p && p.rank === p.maxRank ? ' met' : ''));
+            }
+          });
+        }
+      }
+
+      // ── Build ──
+      function buildTrees() {
+        console.log('[BRAZUG TalentCalc] buildTrees() chamado para:', currentClass);
+        $treesContainer.innerHTML = '';
+        const trees = TREES_DATA[currentClass].trees;
+
+        Object.keys(trees).forEach(treeKey => {
+          const tree = trees[treeKey];
+
+          const panel = document.createElement('div');
+          panel.className = 'tc-tree';
+          panel.id = `tc-tree-${treeKey}`;
+
+          const header = document.createElement('div');
+          header.className = 'tc-tree-header';
+          header.innerHTML = `
+            <div class="tc-tree-name" style="color:${tree.accent}">${tree.label}</div>
+            <div class="tc-tree-pts">0</div>
+          `;
+          panel.appendChild(header);
+
+          const pips = document.createElement('div');
+          pips.className = 'tc-pips';
+          panel.appendChild(pips);
+
+          const canvas = document.createElement('div');
+          canvas.className = 'tc-canvas';
+          canvas.style.position = 'relative';
+
+          const bg = document.createElement('img');
+          bg.className = 'tc-bg-art';
+          bg.src = `${CDN}/${tree.bgIcon}.jpg`;
+          bg.alt = '';
+          bg.onerror = () => { bg.style.display = 'none'; };
+          canvas.appendChild(bg);
+
+          for (let r = 1; r <= 8; r++) {
+            const needed = r * PTS_PER_TIER;
+            const div = document.createElement('div');
+            div.className = 'tc-tier-div';
+            div.dataset.row = r;
+            div.style.top = (14 + r * 72 - 14) + 'px';
+            canvas.appendChild(div);
+
+            const req = document.createElement('div');
+            req.className = 'tc-tier-req';
+            req.dataset.row = r;
+            req.style.top = (14 + r * 72 - 24) + 'px';
+            req.style.right = '4px';
+            req.textContent = `${needed} pts`;
+            canvas.appendChild(req);
+          }
+
+          const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('class', 'tc-svg');
+          svg.style.width = '100%';
+          svg.style.height = '100%';
+          canvas.appendChild(svg);
+
+          const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+          const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+          marker.setAttribute('id', 'arrowHead');
+          marker.setAttribute('markerWidth', '7');
+          marker.setAttribute('markerHeight', '5');
+          marker.setAttribute('refX', '6');
+          marker.setAttribute('refY', '2.5');
+          marker.setAttribute('orient', 'auto');
+          const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+          poly.setAttribute('points', '0 0, 7 2.5, 0 5');
+          poly.setAttribute('fill', 'var(--horde-red)');
+          marker.appendChild(poly);
+          defs.appendChild(marker);
+          svg.insertBefore(defs, svg.firstChild);
+
+          tree.talents.forEach(talent => {
+            if (!talent.prereq) return;
+            const pr = talent.prereq;
+            const x1 = 14 + pr.col * 60 + 22;
+            const y1 = 14 + pr.row * 72 + 44;
+            const x2 = 14 + talent.col * 60 + 22;
+            const y2 = 14 + talent.row * 72;
+
+            let d;
+            if (pr.col === talent.col) {
+              d = `M ${x1} ${y1} L ${x2} ${y2}`;
+            } else {
+              const midY = (y1 + y2) / 2;
+              d = `M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`;
+            }
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', d);
+            path.setAttribute('class', 'tc-arrow');
+            path.setAttribute('data-tree', treeKey);
+            path.setAttribute('data-row', talent.row);
+            path.setAttribute('data-col', talent.col);
+            path.setAttribute('marker-end', 'url(#arrowHead)');
+            svg.appendChild(path);
+          });
+
+          tree.talents.forEach(talent => {
+            const node = document.createElement('div');
+            node.id = `tc-node-${treeKey}-${talent.row}-${talent.col}`;
+            node.className = 'tc-node available';
+            node.style.left = (14 + talent.col * 60) + 'px';
+            node.style.top = (14 + talent.row * 72) + 'px';
+
+            const frame = document.createElement('div');
+            frame.className = 'tc-node-frame';
+
+            const img = document.createElement('img');
+            img.src = `${CDN}/${talent.icon}.jpg`;
+            img.alt = talent.name;
+            img.onerror = function() { this.src = `${CDN}/inv_misc_questionmark.jpg`; };
+
+            frame.appendChild(img);
+
+            const rankBadge = document.createElement('span');
+            rankBadge.className = 'tc-node-rank';
+            rankBadge.textContent = `0/${talent.maxRank}`;
+
+            node.appendChild(frame);
+            node.appendChild(rankBadge);
+
+            node.addEventListener('click', e => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('[TALENT CLICK]', treeKey, talent.name, 'row', talent.row, 'col', talent.col, 'rank', talent.rank, '/', talent.maxRank);
+              console.log('[TALENT CHECKS] totalPts:', totalPoints(), 'tierUnlocked:', tierUnlocked(treeKey, talent.row), 'prereqMet:', prereqMet(treeKey, talent), 'canAdd:', canAdd(treeKey, talent));
+              addPoint(treeKey, talent);
+              if (tip.style.display === 'block') showTip(e, treeKey, talent);
+            });
+            node.addEventListener('contextmenu', e => {
+              e.preventDefault();
+              e.stopPropagation();
+              removePoint(treeKey, talent);
+              if (tip.style.display === 'block') showTip(e, treeKey, talent);
+            });
+            node.addEventListener('mouseenter', e => showTip(e, treeKey, talent));
+            node.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+            node.addEventListener('mousemove', e => moveTip(e));
+
+            canvas.appendChild(node);
+          });
+
+          panel.appendChild(canvas);
+          $treesContainer.appendChild(panel);
+        });
+
+        if ($empty) $empty.style.display = 'none';
+        renderAll();
+        console.log('[BRAZUG TalentCalc] Árvores construídas com sucesso.');
+      }
+
+      // ── Class selector ──
+      function selectClass(cls) {
+        console.log('[BRAZUG TalentCalc] selectClass:', cls);
+        if (!TREES_DATA[cls]) {
+          console.error('Classe não encontrada:', cls);
+          return;
+        }
+        currentClass = cls;
+        const info = TREES_DATA[cls];
+
+        // Inicializar rank: 0 em todos os talentos (o data.json não tem essa propriedade)
+        Object.keys(info.trees).forEach(treeKey => {
+          info.trees[treeKey].talents.forEach(talent => {
+            if (talent.rank === undefined) talent.rank = 0;
+          });
+        });
+
+        $classSelector.querySelectorAll('.tc-class-card').forEach(c => c.classList.remove('active'));
+        const activeCard = $classSelector.querySelector(`[data-class="${cls}"]`);
+        if (activeCard) activeCard.classList.add('active');
+
+        $className.textContent = info.label;
+        $classSub.textContent = 'WoW Forever · ' + Object.keys(info.trees).length + ' árvores · 51 pontos';
+        $classIcon.src = `https://wow.zamimg.com/images/wow/icons/large/class_${cls}.jpg`;
+        $classIcon.onerror = () => { $classIcon.style.display = 'none'; };
+
+        buildTrees();
+      }
+
+      // ── API ──
+      window.TC = {
+        selectClass,
+        reset() {
+          if (!currentClass) return;
+          Object.keys(TREES_DATA[currentClass].trees).forEach(tk =>
+            TREES_DATA[currentClass].trees[tk].talents.forEach(t => { t.rank = 0; })
+          );
+          renderAll();
+        },
+        load(data) {
+          if (!data || !data.class) return;
+          selectClass(data.class);
+          if (data.trees) {
+            Object.keys(data.trees).forEach(tk => {
+              if (!TREES_DATA[data.class].trees[tk]) return;
+              data.trees[tk].forEach((rowArr, ri) => {
+                if (!rowArr) return;
+                rowArr.forEach((rank, ci) => {
+                  if (rank == null) return;
+                  const t = getTalent(tk, ri, ci);
+                  if (t) t.rank = Math.min(rank, t.maxRank);
+                });
+              });
+            });
+          }
+          renderAll();
+        }
+      };
+
+    })();
+  </script>
+</body>
+</html>

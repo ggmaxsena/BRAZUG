@@ -136,6 +136,23 @@ app.get("/sucesso.html", (req, res) => res.sendFile(path.resolve(__dirname, "suc
 app.get("/sucesso", (req, res) => res.sendFile(path.resolve(__dirname, "sucesso.html")));
 app.get("/deathlog.html", (req, res) => res.sendFile(path.resolve(__dirname, "deathlog.html")));
 app.get("/deathlog", (req, res) => res.sendFile(path.resolve(__dirname, "deathlog.html")));
+app.get("/core.html", (req, res) => res.sendFile(path.resolve(__dirname, "core.html")));
+app.get("/core", (req, res) => res.sendFile(path.resolve(__dirname, "core.html")));
+
+/* =========================================
+   TALENTS PAGES
+========================================= */
+app.use("/talents", express.static(path.resolve(__dirname, "talents")));
+app.get("/talents", (req, res) => res.sendFile(path.resolve(__dirname, "talents", "index.html")));
+app.get("/talents/", (req, res) => res.sendFile(path.resolve(__dirname, "talents", "index.html")));
+app.get("/talents/talent-calc.html", (req, res) => res.sendFile(path.resolve(__dirname, "talents", "talent-calc.html")));
+app.get("/talents/warrior_talents.html", (req, res) => res.sendFile(path.resolve(__dirname, "talents", "warrior_talents.html")));
+app.get("/talents/mage_talents.html", (req, res) => res.sendFile(path.resolve(__dirname, "talents", "mage_talents.html")));
+app.get("/talents/warlock_talents.html", (req, res) => res.sendFile(path.resolve(__dirname, "talents", "warlock_talents.html")));
+app.get("/talents/hunter_talents.html", (req, res) => res.sendFile(path.resolve(__dirname, "talents", "hunter_talents.html")));
+app.get("/talents/shaman_talents.html", (req, res) => res.sendFile(path.resolve(__dirname, "talents", "shaman_talents.html")));
+app.get("/talents/druid_talents.html", (req, res) => res.sendFile(path.resolve(__dirname, "talents", "druid_talents.html")));
+app.get("/talents/rogue_talents.html", (req, res) => res.sendFile(path.resolve(__dirname, "talents", "rogue_talents.html")));
 
 /* =========================================
    API

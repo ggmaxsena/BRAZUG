@@ -1,64 +1,96 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadoras de Talentos — BRAZUG</title>
-<link rel="stylesheet" href="/css/style.css">
-<link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
-body { background: #0b0a07; color: #c8b580; padding-top: 80px; }
-.talents-hub { max-width: 800px; margin: 40px auto; text-align: center; font-family: 'Cinzel', serif; }
-.talents-title { font-size: 36px; color: #f7c14d; margin-bottom: 30px; text-shadow: 0 0 10px rgba(247,193,77,0.3); }
-.classes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-.class-card {
-    background: #14120d; border: 1px solid #4a3a1a; padding: 20px; border-radius: 8px;
-    text-decoration: none; color: #c8b580; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 10px;
-}
-.class-card:hover { border-color: #f7c14d; box-shadow: 0 0 15px rgba(247,193,77,0.2); transform: translateY(-3px); }
-.class-card img { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #4a3a1a; transition: border-color 0.2s; }
-.class-card:hover img { border-color: #f7c14d; }
-.class-name { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Talentos — WoW Forever | BRAZUG</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
+  <style>
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding-top: var(--header-h); }
+    .talents-hub { max-width: 900px; margin: 40px auto; text-align: center; }
+    .talents-title { font-family: 'Cinzel', serif; font-size: 36px; color: var(--gold); margin-bottom: 30px; text-shadow: 0 0 15px var(--gold-glow); text-transform: uppercase; letter-spacing: 2px; }
+    .classes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px; }
+    .class-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 24px; text-decoration: none; color: var(--text); transition: all 0.3s;
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    .class-card:hover { border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 0 20px var(--gold-glow); }
+    .class-card img { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--horde-red); }
+    .class-card span { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text); }
+    .tc-btn {
+      display: inline-block; margin-top: 8px; padding: 10px 24px; background: linear-gradient(135deg, #8f0f0f, #c41e3a);
+      border: 1px solid var(--gold); color: #fff; font-family: 'Cinzel', serif; font-weight: 700; letter-spacing: 2px;
+      border-radius: 5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; font-size: 13px;
+    }
+    .tc-btn:hover { background: linear-gradient(135deg, #a31212, #d62242); box-shadow: 0 0 20px var(--horde-red-glow); transform: translateY(-1px); }
+    .note { margin-top: 30px; font-size: 13px; color: var(--text-muted); font-family: 'Cinzel', serif; border-left: 3px solid var(--horde-red); padding-left: 16px; text-align: left; max-width: 700px; margin: 30px auto 0; line-height: 1.8; }
+  </style>
 </head>
 <body>
-<header class="site-header" id="universal-header"></header>
+  <header class="site-header" id="universal-header"></header>
 
-<div class="talents-hub">
-    <h1 class="talents-title">Calculadoras de Talentos</h1>
+  <div class="talents-hub">
+    <h1 class="talents-title">Calculadora de Talentos — WoW Forever</h1>
+    <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 15px;">
+      Planeje sua build de talentos para o <strong>WoW Forever</strong> (lançamento 04/11/2026).
+      51 pontos no nível 60 · 3 árvores por classe · desbloqueio a cada 5 pontos.
+    </p>
+
     <div class="classes-grid">
-        <a href="/talents/warrior_talents.html" class="class-card">
-            <img src="https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg" alt="Guerreiro">
-            <span class="class-name">Guerreiro</span>
-        </a>
-        <a href="/talents/mage_talents.html" class="class-card">
-            <img src="https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg" alt="Mago">
-            <span class="class-name">Mago</span>
-        </a>
-        <a href="/talents/warlock_talents.html" class="class-card">
-            <img src="https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg" alt="Bruxo">
-            <span class="class-name">Bruxo</span>
-        </a>
-        <a href="/talents/hunter_talents.html" class="class-card">
-            <img src="https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg" alt="Caçador">
-            <span class="class-name">Caçador</span>
-        </a>
-        <a href="/talents/shaman_talents.html" class="class-card">
-            <img src="https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg" alt="Xamã">
-            <span class="class-name">Xamã</span>
-        </a>
-        <a href="/talents/druid_talents.html" class="class-card">
-            <img src="https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg" alt="Druida">
-            <span class="class-name">Druida</span>
-        </a>
-        <a href="/talents/rogue_talents.html" class="class-card">
-            <img src="https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg" alt="Ladino">
-            <span class="class-name">Ladino</span>
-        </a>
+      <a href="/talents/talent-calc.html" class="class-card">
+        <img src="https://wow.zamimg.com/images/wow/icons/large/class_warrior.jpg" alt="Guerreiro">
+        <span>Guerreiro</span>
+      </a>
+      <a href="/talents/talent-calc.html" class="class-card">
+        <img src="https://wow.zamimg.com/images/wow/icons/large/class_paladin.jpg" alt="Paladino">
+        <span>Paladino</span>
+      </a>
+      <a href="/talents/talent-calc.html" class="class-card">
+        <img src="https://wow.zamimg.com/images/wow/icons/large/class_hunter.jpg" alt="Caçador">
+        <span>Caçador</span>
+      </a>
+      <a href="/talents/talent-calc.html" class="class-card">
+        <img src="https://wow.zamimg.com/images/wow/icons/large/class_rogue.jpg" alt="Ladino">
+        <span>Ladino</span>
+      </a>
+      <a href="/talents/talent-calc.html" class="class-card">
+        <img src="https://wow.zamimg.com/images/wow/icons/large/class_priest.jpg" alt="Sacerdote">
+        <span>Sacerdote</span>
+      </a>
+      <a href="/talents/talent-calc.html" class="class-card">
+        <img src="https://wow.zamimg.com/images/wow/icons/large/class_shaman.jpg" alt="Xamã">
+        <span>Xamã</span>
+      </a>
+      <a href="/talents/talent-calc.html" class="class-card">
+        <img src="https://wow.zamimg.com/images/wow/icons/large/class_mage.jpg" alt="Mago">
+        <span>Mago</span>
+      </a>
+      <a href="/talents/talent-calc.html" class="class-card">
+        <img src="https://wow.zamimg.com/images/wow/icons/large/class_warlock.jpg" alt="Bruxo">
+        <span>Bruxo</span>
+      </a>
+      <a href="/talents/talent-calc.html" class="class-card">
+        <img src="https://wow.zamimg.com/images/wow/icons/large/class_druid.jpg" alt="Druida">
+        <span>Druida</span>
+      </a>
     </div>
-</div>
 
-<script src="/js/header.js"></script>
+    <a href="/talents/talent-calc.html" class="tc-btn">Abrir Calculadora</a>
+
+    <div class="note">
+      <strong>Como funciona o WoW Forever:</strong><br>
+      • 9 classes disponíveis (sem Death Knight, Monk, etc.)<br>
+      • 3 árvores de talentos por classe, 7 linhas cada + talento final<br>
+      • 51 pontos no nível 60 (ganhos a partir do nível 10)<br>
+      • Cada linha desbloqueia a cada 5 pontos investidos na árvore<br>
+      • Talentos de ouro nos marcos: 11, 16, 21 e 31 pontos (o de 16 é novo no Forever)<br>
+      <br>
+      <em>Aviso: Os dados de talentos acima são exemplos baseados no Classic. Substitua pelos talentos oficiais do WoW Forever quando a lista completa estiver disponível.</em>
+    </div>
+  </div>
+
+  <script src="/js/header.js"></script>
 </body>
 </html>

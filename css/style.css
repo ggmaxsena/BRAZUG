@@ -19,6 +19,16 @@
 
   --border: rgba(196, 30, 58, 0.2);
   --header-h: 180px;
+
+  --brazug-gold: #f7c14d;
+  --brazug-red: #c41e3a;
+
+  /* Cores de contexto — Transição Classic HC <-> WoW Forever */
+  --classic-red: #c41e3a;
+  --classic-red-glow: rgba(196, 30, 58, 0.4);
+  --forever-blue: #4f6b8a;
+  --forever-blue-glow: rgba(79, 107, 138, 0.3);
+  --forever-text: #a8c4d8;
 }
 
 /* ===================================== */
@@ -896,6 +906,42 @@ select option {
   background: var(--horde-red);
   color: #fff;
 }
+
+/* ===================================== */
+/* TAGS DE CONTEXTO — CLASSIC vs FOREVER */
+/* ===================================== */
+.tag,
+.tag-classic,
+.tag-forever {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Cinzel', serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.tag-classic {
+  background: rgba(196, 30, 58, 0.15);
+  border: 1px solid rgba(196, 30, 58, 0.4);
+  color: var(--gold);
+  box-shadow: 0 0 10px rgba(196, 30, 58, 0.2);
+}
+
+.tag-forever {
+  background: rgba(79, 107, 138, 0.15);
+  border: 1px solid rgba(79, 107, 138, 0.4);
+  color: var(--forever-text);
+  box-shadow: 0 0 10px rgba(79, 107, 138, 0.2);
+}
+
+.tag-classic::before { content: '🏰'; }
+.tag-forever::before { content: '🔮'; }
 
 /* CORNERS */
 .corner {

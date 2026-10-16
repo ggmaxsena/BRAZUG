@@ -44,6 +44,7 @@
           <div class="brazug-timeline-icon">⚔️</div>
           <div class="brazug-timeline-body">
             <p class="brazug-timeline-date">Até 04/11/2026</p>
+            <span class="tag tag-classic" style="margin-bottom: 8px; display: inline-block;">Classic HC — Doomhowl</span>
             <h3 class="brazug-timeline-title">WoW Classic Hardcore — Doomhowl</h3>
             <p class="brazug-timeline-text">Continuaremos firmes no WoW Classic Hardcore, no servidor Doomhowl, até o
               lançamento oficial do WoW Forever. Nosso lar continua sendo Doomhowl e ainda temos história para escrever
@@ -55,6 +56,7 @@
           <div class="brazug-timeline-icon">🧪</div>
           <div class="brazug-timeline-body">
             <p class="brazug-timeline-date">17/09/2026 — Quinta-feira</p>
+            <span class="tag tag-forever" style="margin-bottom: 8px; display: inline-block;">WoW Forever — Beta</span>
             <h3 class="brazug-timeline-title">Beta do WoW Forever</h3>
             <p class="brazug-timeline-text">Estaremos acompanhando e testando o Beta do WoW Forever. Quem não possui
               acesso poderá acompanhar tudo pelas lives da BRAZUG. Será nosso primeiro contato sério com o que nos
@@ -66,6 +68,7 @@
           <div class="brazug-timeline-icon">🔥</div>
           <div class="brazug-timeline-body">
             <p class="brazug-timeline-date">04/11/2026</p>
+            <span class="tag tag-forever" style="margin-bottom: 8px; display: inline-block;">WoW Forever — Lançamento</span>
             <h3 class="brazug-timeline-title">Lançamento do WoW Forever</h3>
             <p class="brazug-timeline-text">O WoW Forever passará a ser o principal foco das atividades da BRAZUG. Nossa
               atividade no Doomhowl diminuirá, mas deixemos claro:</p>
@@ -79,6 +82,7 @@
           <div class="brazug-timeline-icon">☠️</div>
           <div class="brazug-timeline-body">
             <p class="brazug-timeline-date">Início de 2027</p>
+            <span class="tag tag-forever" style="margin-bottom: 8px; display: inline-block;">WoW Forever — Hardcore</span>
             <h3 class="brazug-timeline-title">WoW Forever Hardcore</h3>
             <p class="brazug-timeline-text">O coração da BRAZUG está no Hardcore. Quando o WoW Forever Hardcore estiver
               disponível, a BRAZUG estará presente. Estaremos esperando pelo momento de voltar a colocar tudo em risco
@@ -144,13 +148,75 @@
       </div>
     </section>
 
+    <!-- RECRUTAMENTO WOW FOREVER -->
+    <section id="recrutamento-forever" style="padding: 60px 0; background: linear-gradient(180deg, rgba(79, 107, 138, 0.08) 0%, rgba(0,0,0,0.3) 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-top: 40px;">
+      <div class="card" style="max-width: 700px; margin: 0 auto; text-align: center;">
+        <span class="tag tag-forever" style="margin-bottom: 16px; display: inline-block;">WoW Forever — Recrutamento Aberto</span>
+        <h2 class="section-title" style="font-size: 34px; margin-bottom: 16px;">Junte-se à BRAZUG no WoW Forever</h2>
+        <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 24px; line-height: 1.6;">
+          O lançamento é <strong>04/11/2026</strong>. Estamos organizando a guilda para começar do nível 1 juntos no
+          WoW Forever e, quando o Hardcore chegar, estaremos prontos para colocar tudo em risco novamente.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px;">
+          <a href="/register.html" class="btn-primary" style="padding: 12px 24px;">Criar Cadastro</a>
+          <a href="https://discord.gg/brazug" target="_blank" class="btn-secondary" style="padding: 12px 24px;">Discord da Guilda</a>
+          <a href="/talents/talent-calc.html" class="btn-secondary" style="padding: 12px 24px;">Calculadora de Talentos</a>
+        </div>
+        <p style="color: #888; font-size: 13px; font-style: italic;">
+          Doomhowl continua sendo nosso lar. O recrutamento para o WoW Forever não significa abandono do Classic HC.
+        </p>
+      </div>
+    </section>
+
     <!-- ESTATÍSTICAS DA GUILDA -->
     <section id="guild-stats" style="text-align: center; padding: 40px 20px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); margin-top: 40px; border-radius: 8px;">
       <h2 class="section-title" style="border-left: none; padding-left: 0;">A Nossa Força</h2>
-      <p style="font-size: 28px; color: var(--gold); font-family: 'Cinzel', serif; margin-top: 15px;">
-        <i class="fas fa-users" style="margin-right: 10px;"></i>
-        <span id="guild-member-count">Carregando...</span> Guerreiros Ativos
-      </p>
+      <span class="tag tag-classic" style="margin-bottom: 12px; display: inline-block;">Guilda BRAZUG — Doomhowl • Classic HC</span>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 15px;">
+        <!-- Online no Discord -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="fab fa-discord" style="color: #5865f2; font-size: 20px;"></i>
+          <span id="guild-discord-online" style="font-size: 28px; color: var(--gold); font-family: 'Cinzel', serif;">—</span>
+          <span style="color: var(--text-muted); font-size: 14px;">Online no Discord</span>
+        </div>
+        <!-- Total cadastrados -->
+        <p style="font-size: 28px; color: var(--gold); font-family: 'Cinzel', serif; margin: 0; display: flex; align-items: center; justify-content: center; gap: 12px;">
+          <i class="fas fa-users" style="margin-right: 10px;"></i>
+          <span id="guild-member-count">Carregando...</span>
+          <span style="color: var(--text-muted); font-size: 14px;">Personagens na Guilda (Doomhowl)</span>
+          <button id="btn-refresh-stats" title="Atualizar contagem" style="background: none; border: 1px solid var(--horde-red); color: var(--gold); padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 1px;">↻</button>
+        </p>
+      </div>
+      <p id="guild-stats-error" style="color: #ff6b6b; font-size: 12px; margin-top: 8px; display: none;"></p>
+    </section>
+
+    <!-- GUILDA BRAZUG — FOREVER / CONTADOR REGRESSIVO -->
+    <section id="guild-forever" style="padding: 40px 0; background: linear-gradient(180deg, rgba(79, 107, 138, 0.08) 0%, rgba(0,0,0,0.3) 100%); border-top: 1px solid var(--border);">
+      <div style="max-width: 700px; margin: 0 auto; text-align: center;">
+        <span class="tag tag-forever" style="margin-bottom: 16px; display: inline-block;">Guilda BRAZUG — WoW Forever</span>
+        <h2 class="section-title" style="font-size: 32px; margin-bottom: 24px; color: var(--gold);">Contagem Regressiva</h2>
+        <div id="countdown-forever" style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+          <div class="countdown-item" style="text-align: center;">
+            <div id="countdown-days" style="font-size: 32px; font-weight: 900; color: var(--forever-text); font-family: 'Cinzel', serif;">00</div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Dias</div>
+          </div>
+          <div class="countdown-item" style="text-align: center;">
+            <div id="countdown-hours" style="font-size: 32px; font-weight: 900; color: var(--forever-text); font-family: 'Cinzel', serif;">00</div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Horas</div>
+          </div>
+          <div class="countdown-item" style="text-align: center;">
+            <div id="countdown-mins" style="font-size: 32px; font-weight: 900; color: var(--forever-text); font-family: 'Cinzel', serif;">00</div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Min</div>
+          </div>
+          <div class="countdown-item" style="text-align: center;">
+            <div id="countdown-secs" style="font-size: 32px; font-weight: 900; color: var(--forever-text); font-family: 'Cinzel', serif;">00</div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Seg</div>
+          </div>
+        </div>
+        <p style="margin-top: 16px; color: #888; font-size: 13px; font-style: italic;">
+          Lançamento do <strong style="color: var(--gold);">WoW Forever</strong> — 04 de novembro de 2026
+        </p>
+      </div>
     </section>
 
   </main>
@@ -173,34 +239,129 @@
   <script src="/js/footer.js"></script>
   <script src="/js/controllers/HomeController.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      fetch('/api/guild/stats')
-        .then(res => res.json())
+    const DISCORD_GUILD_ID = '1466121307036061899';
+
+    function carregarDiscordOnline() {
+      const el = document.getElementById('guild-discord-online');
+      if (!el) return;
+
+      fetch(`https://discord.com/api/guilds/${DISCORD_GUILD_ID}/widget.json`)
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
         .then(data => {
-          const el = document.getElementById('guild-member-count');
-          if (el && data.total_members) {
-            // Animação de contagem
-            let start = 0;
-            const end = data.total_members;
-            const duration = 1500;
-            const stepTime = Math.abs(Math.floor(duration / end));
-            
-            const timer = setInterval(() => {
-              start += Math.ceil(end / 50);
-              if (start >= end) {
-                start = end;
-                clearInterval(timer);
-              }
-              el.textContent = start;
-            }, stepTime);
+          const online = data?.presence_count ?? null;
+          if (el && online !== null) {
+            el.textContent = online;
+          } else if (el) {
+            el.textContent = "—";
           }
         })
         .catch(err => {
-          console.error('Erro ao carregar stats da guilda:', err);
-          const el = document.getElementById('guild-member-count');
-          if(el) el.textContent = "Indisponível";
+          console.error('Erro ao carregar online do Discord:', err);
+          if (el) el.textContent = "—";
         });
+    }
+
+    function carregarGuildStats() {
+      const el = document.getElementById('guild-member-count');
+      const errEl = document.getElementById('guild-stats-error');
+      const btn = document.getElementById('btn-refresh-stats');
+
+      if (el) el.textContent = "Carregando…";
+      if (errEl) errEl.style.display = "none";
+      if (btn) btn.disabled = true;
+
+      fetch('/api/guild/stats')
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          const total = data && data.total_members ? parseInt(data.total_members) : 0;
+          if (el) {
+            if (total > 0) {
+              // Animação de contagem
+              let start = 0;
+              const end = total;
+              const duration = 1500;
+              const stepTime = Math.max(10, Math.abs(Math.floor(duration / end)));
+              const increment = Math.ceil(end / 50) || 1;
+
+              const timer = setInterval(() => {
+                start += increment;
+                if (start >= end) {
+                  start = end;
+                  clearInterval(timer);
+                }
+                el.textContent = start;
+              }, stepTime);
+            } else {
+              el.textContent = "0";
+            }
+          }
+          if (btn) btn.disabled = false;
+        })
+        .catch(err => {
+          console.error('Erro ao carregar stats da guilda:', err);
+          if (el) el.textContent = "Indisponível";
+          if (errEl) {
+            errEl.textContent = "Não foi possível carregar a contagem de membros.";
+            errEl.style.display = "block";
+          }
+          if (btn) btn.disabled = false;
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      carregarGuildStats();
+      carregarDiscordOnline();
+
+      const btn = document.getElementById('btn-refresh-stats');
+      if (btn) {
+        btn.addEventListener('click', carregarGuildStats);
+        btn.addEventListener('click', carregarDiscordOnline);
+      }
     });
+  </script>
+
+  <!-- CONTADOR REGRESSIVO — WOW FOREVER -->
+  <script>
+    (function() {
+      const launchDate = new Date('2026-11-04T15:00:00-03:00').getTime(); // 04/11/2026 15:00 (horário de Brasília)
+
+      const daysEl = document.getElementById('countdown-days');
+      const hoursEl = document.getElementById('countdown-hours');
+      const minsEl = document.getElementById('countdown-mins');
+      const secsEl = document.getElementById('countdown-secs');
+
+      function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = launchDate - now;
+
+        if (distance < 0) {
+          if (daysEl) daysEl.textContent = '00';
+          if (hoursEl) hoursEl.textContent = '00';
+          if (minsEl) minsEl.textContent = '00';
+          if (secsEl) secsEl.textContent = '00';
+          return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        if (daysEl) daysEl.textContent = String(days).padStart(2, '0');
+        if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+        if (minsEl) minsEl.textContent = String(minutes).padStart(2, '0');
+        if (secsEl) secsEl.textContent = String(seconds).padStart(2, '0');
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    })();
   </script>
 </body>
 
