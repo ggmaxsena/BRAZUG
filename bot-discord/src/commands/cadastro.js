@@ -127,7 +127,9 @@ module.exports = {
       })();
 
       const description =
-        err.status === 409
+        err.status === 401
+          ? "A API recusou a credencial do bot (ADMIN_API_KEY). Avise a liderança para atualizar a chave no servidor."
+          : err.status === 409
           ? `${err.message}\n\nJá tem conta? Recupere o acesso em ${siteUrl}/forgot-password.html — ` +
             `o link de nova senha chega por e-mail e também por DM aqui no Discord (se seu Discord estiver vinculado).`
           : err.message;

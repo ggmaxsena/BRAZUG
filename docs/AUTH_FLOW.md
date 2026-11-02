@@ -116,3 +116,17 @@ o link novo chega no e-mail e na DM do Discord vinculado.
 | `POST` | `/api/auth/reset-password` | define nova senha (ativa a conta) |
 | `POST` | `/api/auth/resend-verification` | reenvia ativação |
 | `POST` | `/api/v1/admin/register` | cria conta (bot `/cadastro`) — retorna `setup_url` |
+
+---
+
+## 7. Deploy e variáveis em produção
+
+- O deploy em produção é feito pelo **Hostinger ao dar push na `main`** (integração
+  Git do hPanel). O workflow `.github/workflows/deploy.yml` está falhando desde
+  setembro/2026 (etapa SCP) e **não é o caminho usado** hoje.
+- As variáveis de ambiente de produção ficam no **hPanel** (ou no `.env` do VPS),
+  não vêm do workflow. Ao trocar `ADMIN_API_KEY`, atualize os dois lados:
+  - `.env` do backend no servidor;
+  - `.env` do bot (`ADMIN_API_KEY` é a mesma chave).
+- Após alterar variáveis no servidor, reinicie o app Node para recarregar o `.env`.
+
