@@ -16,10 +16,22 @@ const sucessoRoutes = require("./lib/sucesso-routes.cjs");
 const twitch = require("./lib/twitch.cjs");
 const spotifyRoutes = require("./lib/spotify-routes.cjs");
 const deathmapRoutes = require("./lib/deathmap-routes.cjs");
+const coreRoutes = require("./lib/core-routes.cjs");
+const adminApiRoutes = require("./lib/admin-api-routes.cjs");
 
 const app = express();
 app.set('trust proxy', 1); // Trust the first hop (proxy)
 const PORT = process.env.PORT || 3000;
+
+app.use((req, res, next) => {
+  const host = String(req.headers.host || "");
+  const proto = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim();
+  const local = host.startsWith("localhost") || host.startsWith("127.0.0.1");
+  if (proto === "http" && !local) {
+    return res.redirect(301, `https://${host}${req.originalUrl}`);
+  }
+  next();
+});
 
 app.use(express.json({ limit: "10mb" }));
 
@@ -127,6 +139,7 @@ app.get("/perfil.html", (req, res) => res.sendFile(path.resolve(__dirname, "perf
 // Proteção básica para o admin.html no servidor (apenas se usássemos cookies)
 // Como usamos localStorage, o GET inicial sempre funcionará, mas o AdminController vai validar.
 app.get("/admin.html", (req, res) => res.sendFile(path.resolve(__dirname, "admin.html")));
+app.get("/admin-core.html", (req, res) => res.sendFile(path.resolve(__dirname, "admin-core.html")));
 app.get("/cadastro-aventura.html", (req, res) => res.sendFile(path.resolve(__dirname, "cadastro-aventura.html")));
 app.get("/forgot-password.html", (req, res) => res.sendFile(path.resolve(__dirname, "forgot-password.html")));
 app.get("/reset-password.html", (req, res) => res.sendFile(path.resolve(__dirname, "reset-password.html")));
@@ -237,6 +250,8 @@ app.use("/api/sales", salesRoutes.createSalesRouter());
 app.use("/api/sucesso", sucessoRoutes.createSucessoRouter());
 app.use("/api/spotify", spotifyRoutes.createSpotifyRouter());
 app.use("/api/brazug", deathmapRoutes.createDeathmapRouter());
+app.use("/api/core", coreRoutes.createCoreRouter());
+app.use("/api/v1/admin", adminApiRoutes.createAdminApiRouter());
 app.use("/api", characterRoutes.createCharacterRouter());
 
 async function start() {

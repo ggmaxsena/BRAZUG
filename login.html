@@ -23,7 +23,7 @@
         <div class="section">
             <form id="login-form" style="display: flex; flex-direction: column; gap: 20px">
               <div>
-                <label>Usuário</label>
+                <label>Usuário ou e-mail</label>
                 <input
                   type="text"
                   id="login-username"
@@ -45,6 +45,7 @@
               <button type="submit" class="btn-primary" id="login-btn">
                 Acessar Perfil
               </button>
+              <div id="oauth-buttons" style="display:flex; flex-direction:column; gap:10px;"></div>
             </form>
 
             <p id="auth-error" style="color: var(--horde-red); margin-top: 15px; text-align: center; font-weight: bold;" hidden></p>
@@ -80,6 +81,32 @@
         
         var pendingVerificationEmail = '';
 
+        // Mensagens vindas de redirects de erro (ex: OAuth de conta banida)
+        try {
+          var urlError = new URLSearchParams(window.location.search).get('error');
+          if (urlError === 'banned') {
+            authError.textContent = 'Sua conta foi suspensa. Se acha que isso é um erro, fale com a liderança da guild.';
+            authError.hidden = false;
+          } else if (urlError === 'nocadastro') {
+            authError.textContent = 'Nenhuma conta encontrada para este Discord/e-mail. Cadastre-se com /cadastro no nosso Discord!';
+            authError.hidden = false;
+          } else if (urlError === 'oauth') {
+            authError.textContent = 'Não foi possível entrar com o provedor. Tente novamente.';
+            authError.hidden = false;
+          }
+        } catch (e) {}
+
+        fetch('/api/auth/providers').then(function (r) { return r.json(); }).then(function (providers) {
+          var box = document.getElementById('oauth-buttons');
+          if (!box) return;
+          if (providers.discord) {
+            box.innerHTML += '<a class="btn-secondary" href="/api/auth/discord" style="text-align:center;">Entrar com Discord</a>';
+          }
+          if (providers.battlenet) {
+            box.innerHTML += '<a class="btn-secondary" href="/api/auth/battlenet" style="text-align:center;">Entrar com Battle.net</a>';
+          }
+        }).catch(function () {});
+
         loginForm.addEventListener('submit', async function (e) {
           e.preventDefault();
           authError.hidden = true;
@@ -108,7 +135,7 @@
                 throw new Error(data.error || 'Login falhou');
             }
 
-            localStorage.setItem('brazug_admin_token', data.token);
+            localStorage.setItem('brazug_admin_token', 'session');
             localStorage.setItem('brazug_admin_role', data.user.role);
             localStorage.setItem('brazug_admin_user', data.user.username);
 

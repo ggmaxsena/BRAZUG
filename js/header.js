@@ -95,22 +95,26 @@
         }
     }
 
-    async function renderHeader() {
+    async function renderHeader(skipSync) {
         const token    = localStorage.getItem("brazug_admin_token");
         const username = localStorage.getItem("brazug_admin_user");
         const role     = localStorage.getItem("brazug_admin_role");
         const discordUrl = await getDiscordUrl();
 
-        let authItems = `<a href="/login.html" class="nav-link">Login</a>`;
-
-        if (token && username) {
-            authItems = `
+        const staff = ["admin", "guildmaster", "officer"].includes((role || "").toLowerCase());
+        const authItems = (token && username)
+            ? `
+                <span class="nav-user">${username}</span>
                 <a href="/perfil.html" class="nav-link">Perfil</a>
-                <a href="/ficha.html" class="nav-link">Meus Personagens</a>
-                ${role === 'admin' ? '<a href="/admin.html" class="nav-link">Admin</a>' : ''}
-                <a href="#" class="nav-link" style="color: #ff4444;" id="nav-logout-btn">Sair</a>
+                <a href="/ficha.html" class="nav-link">Personagens</a>
+                ${role === "admin" ? '<a href="/admin.html" class="nav-link">Admin</a>' : ""}
+                ${staff ? '<a href="/admin-core.html" class="nav-link">Inscrições</a>' : ""}
+                <a href="#" class="nav-link nav-logout-btn">Sair</a>
+            `
+            : `
+                <a href="/login.html" class="nav-link">Login</a>
+                <a href="/register.html" class="nav-link">Cadastro</a>
             `;
-        }
 
         headerContainer.innerHTML = `
             <div class="header-left">
@@ -118,6 +122,7 @@
                     <a href="/" class="nav-link">Home</a>
                     <a href="/#lives" class="nav-link">Streams ao Vivo</a>
                     <a href="/core.html" class="nav-link">COREs</a>
+                    <div class="nav-auth">${authItems}</div>
                 </nav>
             </div>
 
@@ -178,6 +183,7 @@
                 </div>
                 <!-- / DEATH BADGE -->
 
+                <nav class="account-menu" aria-label="Conta">${authItems}</nav>
                 <a class="discord-btn" id="discord-nav-btn" href="${discordUrl}" target="_blank" rel="noopener noreferrer">
                     <span class="discord-btn-online" id="discord-online-count"></span>
                     Discord
@@ -186,15 +192,26 @@
         `;
 
         // Logout
-        const logoutBtn = document.getElementById('nav-logout-btn');
-        if (logoutBtn) {
-            logoutBtn.onclick = (e) => {
+        document.querySelectorAll(".nav-logout-btn").forEach((logoutBtn) => {
+            logoutBtn.onclick = async (e) => {
                 e.preventDefault();
+                try {
+                    await fetch("/api/auth/logout", { method: "POST" });
+                } catch (err) {}
                 localStorage.removeItem("brazug_admin_token");
                 localStorage.removeItem("brazug_admin_user");
                 localStorage.removeItem("brazug_admin_role");
                 window.location.href = "/";
             };
+        });
+
+        const menuToggle = document.getElementById("menu-toggle");
+        const headerNav = document.getElementById("header-nav");
+        if (menuToggle && headerNav) {
+            menuToggle.onclick = () => headerNav.classList.toggle("active");
+            headerNav.querySelectorAll("a").forEach((link) => {
+                link.addEventListener("click", () => headerNav.classList.remove("active"));
+            });
         }
 
         // Toggle popover no click (mobile-friendly) + fechar ao clicar fora
@@ -218,6 +235,29 @@
         // Hidrata com dados reais assincronamente
         hydrateDeathBadge();
         hydrateDiscordBtn();
+        if (!skipSync) syncSession();
+    }
+
+    async function syncSession() {
+        try {
+            const res = await fetch("/api/auth/me");
+            if (!res.ok) {
+                if (localStorage.getItem("brazug_admin_token") === "session") {
+                    localStorage.removeItem("brazug_admin_token");
+                    localStorage.removeItem("brazug_admin_user");
+                    localStorage.removeItem("brazug_admin_role");
+                    renderHeader(true);
+                }
+                return;
+            }
+            const data = await res.json();
+            if (!data.user) return;
+            const changed = localStorage.getItem("brazug_admin_user") !== data.user.username;
+            localStorage.setItem("brazug_admin_token", "session");
+            localStorage.setItem("brazug_admin_user", data.user.username);
+            localStorage.setItem("brazug_admin_role", data.user.role);
+            if (changed) renderHeader(true);
+        } catch (e) {}
     }
 
     /** Busca membros online via API pública do Discord */

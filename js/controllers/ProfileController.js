@@ -3,11 +3,25 @@
 
   const ProfileController = {
     async init() {
-      const username = localStorage.getItem("brazug_admin_user");
-      const role = localStorage.getItem("brazug_admin_role");
-      const token = localStorage.getItem("brazug_admin_token");
+      let username = localStorage.getItem("brazug_admin_user");
+      let role = localStorage.getItem("brazug_admin_role");
+      let token = localStorage.getItem("brazug_admin_token");
 
-      if (!username) return window.location.href = "/login.html";
+      if (!username || !token || token === "session") {
+        try {
+          const me = await fetch("/api/auth/me");
+          if (!me.ok) return window.location.href = "/login.html";
+          const meData = await me.json();
+          username = meData.user.username;
+          role = meData.user.role;
+          token = "session";
+          localStorage.setItem("brazug_admin_token", token);
+          localStorage.setItem("brazug_admin_user", username);
+          localStorage.setItem("brazug_admin_role", role);
+        } catch (err) {
+          return window.location.href = "/login.html";
+        }
+      }
 
       ProfileView.renderInfo(username, role);
 
