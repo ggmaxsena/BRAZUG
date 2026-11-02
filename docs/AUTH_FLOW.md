@@ -93,6 +93,7 @@ o link novo chega no e-mail e na DM do Discord vinculado.
 |----------|-----|
 | `BASE_URL` | base dos links de e-mail/Discord (ex.: `https://brazug.com`) |
 | `JWT_SECRET` | assinatura dos tokens Bearer legados (fallback: `ADMIN_SECRET`) |
+| `ADMIN_API_KEY` | chave do bot para `/api/v1/admin/*` (mesmo valor no backend e no `.env` do bot) |
 | `DISCORD_BOT_TOKEN` | enviar DMs de recuperação pelo bot |
 | `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` | "Entrar com Discord" (precisa dos dois) |
 | `BLIZZARD_CLIENT_ID` / `BLIZZARD_CLIENT_SECRET` | "Entrar com Battle.net" |

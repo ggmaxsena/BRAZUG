@@ -23,7 +23,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
-          source: "index.html,admin.html,ficha.html,server.js,package.json,package-lock.json,ecosystem.config.cjs,css,js,lib,assets"
+          source: "index.html,admin.html,ficha.html,login.html,register.html,forgot-password.html,reset-password.html,server.js,package.json,package-lock.json,ecosystem.config.cjs,css,js,lib,assets"
           target: ${{ secrets.DEPLOY_PATH }}
           rm: false
 
@@ -54,6 +54,10 @@ jobs:
             set_env TWITCH_CLIENT_SECRET "${{ secrets.TWITCH_CLIENT_SECRET }}"
             set_env DATABASE_URL "${{ secrets.DATABASE_URL }}"
             set_env ADMIN_PASSWORD "${{ secrets.ADMIN_PASSWORD }}"
+            set_env ADMIN_API_KEY "${{ secrets.ADMIN_API_KEY }}"
+            set_env JWT_SECRET "${{ secrets.JWT_SECRET }}"
+            set_env DISCORD_BOT_TOKEN "${{ secrets.DISCORD_BOT_TOKEN }}"
+            set_env SECURITY_EMAIL "${{ secrets.SECURITY_EMAIL }}"
             set_env GUILD_SECRET "${{ secrets.GUILD_SECRET }}"
             set_env PORT "${{ secrets.APP_PORT || '3000' }}"
             set_env NODE_ENV production
