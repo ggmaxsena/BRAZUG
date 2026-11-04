@@ -38,13 +38,6 @@ O cadastro é feito em `/register.html`:
 - Conta não verificada recebe `403` com `needs_verification: true`.
 - Conta banida (`role = banned`) é recusada em **todas** as rotas de login/sessão.
 
-### Login social (opcional)
-
-- **Battle.net** continua disponível via `GET /api/auth/battlenet`, desde que
-  `BLIZZARD_CLIENT_ID` e `BLIZZARD_CLIENT_SECRET` estejam configurados.
-- O login social **não cria conta nova**: só entra quem já tem conta com o mesmo
-  e-mail (o vínculo é feito automaticamente no primeiro login).
-
 ### Sessão
 
 - Sessão em **cookie HttpOnly** `brazug_session` (7 dias), token aleatório com hash SHA-256
@@ -92,7 +85,6 @@ novo chega no e-mail cadastrado.
 |----------|-----|
 | `BASE_URL` | base dos links de e-mail (ex.: `https://brazug.com`) |
 | `JWT_SECRET` | assinatura dos tokens Bearer legados (fallback: `ADMIN_SECRET`) |
-| `BLIZZARD_CLIENT_ID` / `BLIZZARD_CLIENT_SECRET` | "Entrar com Battle.net" (opcional) |
 | `SMTP_*` | envio de e-mails |
 
 ---
@@ -106,8 +98,6 @@ novo chega no e-mail cadastrado.
 | `POST` | `/api/auth/login` | login (usuário ou e-mail) |
 | `GET` | `/api/auth/me` | usuário da sessão |
 | `POST` | `/api/auth/logout` | encerra sessão |
-| `GET` | `/api/auth/providers` | provedores OAuth habilitados |
-| `GET` | `/api/auth/battlenet` | inicia OAuth Battle.net |
 | `POST` | `/api/auth/forgot-password` | pede link de nova senha |
 | `POST` | `/api/auth/reset-password` | define nova senha (ativa a conta) |
 | `POST` | `/api/auth/resend-verification` | reenvia link de ativação/definição de senha |
