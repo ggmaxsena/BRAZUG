@@ -72,7 +72,7 @@
                       <button id="yt-play-btn" class="radio-btn" title="Play/Pause"><i class="fas fa-music" id="yt-icon-main"></i></button>
                       <button id="yt-next-btn" class="radio-btn" title="Próxima"><i class="fas fa-step-forward"></i></button>
                       <button id="yt-mute-btn" class="radio-btn" title="Silenciar"><i class="fas fa-volume-up" id="yt-mute-icon"></i></button>
-                      <input type="range" id="yt-volume-slider" min="0" max="100" value="2" style="width: 60px; cursor: pointer;">
+                      <input type="range" id="yt-volume-slider" min="0" max="100" value="20" style="width: 60px; cursor: pointer;">
                   </div>
               </div>
             </div>
@@ -132,15 +132,17 @@
           events: {
             'onReady': (event) => {
               console.log("[YouTube] Ready");
-              const isMuted = localStorage.getItem('yt_muted') === 'true';
+              const isMuted = localStorage.getItem('yt_muted') === 'true' || this.getYTVolume() <= 0;
               if (isMuted) event.target.mute();
+              else event.target.setVolume(this.getYTVolume());
               this.updateYTMuteUI(isMuted);
             },
             'onStateChange': (event) => {
               const icon = document.getElementById('yt-icon-main');
               if (event.data === YT.PlayerState.PLAYING) {
                 if (icon) icon.className = 'fas fa-pause';
-                this.fadeInVolume(event.target);
+                // Mantém o volume escolhido pelo usuário ao trocar de faixa.
+                this.applyYTVolume(event.target);
               } else {
                 if (icon) icon.className = 'fas fa-music';
               }
@@ -174,7 +176,7 @@
           if (state === YT.PlayerState.PLAYING) {
             this.ytPlayer.pauseVideo();
           } else {
-            this.ytPlayer.unMute(); // Garante som ao dar play
+            this.applyYTVolume(this.ytPlayer);
             this.ytPlayer.playVideo();
           }
         };
@@ -186,42 +188,63 @@
         volumeSlider.oninput = (e) => {
           if (!this.ytPlayer || typeof this.ytPlayer.setVolume !== 'function') return;
 
-          const vol = parseInt(e.target.value);
+          const vol = parseInt(e.target.value, 10);
 
-          // Garante que o player esteja desmutado antes de ajustar volume
           if (vol > 0) {
               this.ytPlayer.unMute();
               this.ytPlayer.setVolume(vol);
+              localStorage.setItem('yt_muted', 'false');
           } else {
               this.ytPlayer.mute();
+              localStorage.setItem('yt_muted', 'true');
           }
 
-          localStorage.setItem('yt_volume', vol);
+          localStorage.setItem('yt_volume', String(vol));
           this.updateYTMuteUI(vol === 0);
         };
 
         // Load saved volume
-        const savedVol = localStorage.getItem('yt_volume') || 2;
-        volumeSlider.value = savedVol;
+        volumeSlider.value = this.getYTVolume();
+      }
+
+      if (ytMuteBtn) {
+        ytMuteBtn.onclick = (e) => {
+          e.stopPropagation();
+          const currentlyMuted = localStorage.getItem('yt_muted') === 'true' || this.getYTVolume() <= 0;
+
+          if (currentlyMuted) {
+            if (this.getYTVolume() <= 0) {
+              localStorage.setItem('yt_volume', '20');
+              if (volumeSlider) volumeSlider.value = 20;
+            }
+            localStorage.setItem('yt_muted', 'false');
+            this.applyYTVolume(this.ytPlayer);
+            this.updateYTMuteUI(false);
+          } else {
+            localStorage.setItem('yt_muted', 'true');
+            if (this.ytPlayer && typeof this.ytPlayer.mute === 'function') this.ytPlayer.mute();
+            this.updateYTMuteUI(true);
+          }
+        };
       }
     },
 
-    fadeInVolume(player) {
-      if (this._fading) return;
-      this._fading = true;
-      let currentVol = 0;
-      player.setVolume(currentVol);
-      player.unMute();
+    getYTVolume() {
+      const saved = parseInt(localStorage.getItem('yt_volume'), 10);
+      if (!Number.isFinite(saved)) return 20;
+      return Math.max(0, Math.min(100, saved));
+    },
 
-      const step = 0.2; // Aumenta 0.2% a cada intervalo
-      const interval = setInterval(() => {
-        currentVol += step;
-        player.setVolume(currentVol);
-        if (currentVol >= 2) {
-          clearInterval(interval);
-          this._fading = false;
-        }
-      }, 1000); // 1000ms * 10 passos = 10 segundos
+    applyYTVolume(player) {
+      if (!player || typeof player.setVolume !== 'function') return;
+      const volume = this.getYTVolume();
+      const isMuted = localStorage.getItem('yt_muted') === 'true' || volume <= 0;
+      if (isMuted) {
+        player.mute();
+        return;
+      }
+      player.unMute();
+      player.setVolume(volume);
     },
 
     updateYTMuteUI(isMuted) {
