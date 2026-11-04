@@ -54,6 +54,12 @@ jobs:
             set_env TWITCH_CLIENT_SECRET "${{ secrets.TWITCH_CLIENT_SECRET }}"
             set_env DATABASE_URL "${{ secrets.DATABASE_URL }}"
             set_env JWT_SECRET "${{ secrets.JWT_SECRET }}"
+            set_env BASE_URL "${{ secrets.BASE_URL || 'https://brazug.com' }}"
+            set_env SMTP_HOST "${{ secrets.SMTP_HOST || 'smtp.hostinger.com' }}"
+            set_env SMTP_PORT "${{ secrets.SMTP_PORT || '465' }}"
+            set_env SMTP_USER "${{ secrets.SMTP_USER || 'noreply@brazug.com' }}"
+            set_env SMTP_PASS "${{ secrets.SMTP_PASS }}"
+            set_env SMTP_SECURE "true"
             set_env PORT "${{ secrets.APP_PORT || '3000' }}"
             set_env NODE_ENV production
             chmod 600 .env
