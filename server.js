@@ -19,15 +19,32 @@ const deathmapRoutes = require("./lib/deathmap-routes.cjs");
 const coreRoutes = require("./lib/core-routes.cjs");
 
 const app = express();
+app.disable("x-powered-by");
 app.set('trust proxy', 1); // Trust the first hop (proxy)
 const PORT = process.env.PORT || 3000;
+
+// Headers de segurança básicos (sem CSP para não quebrar os scripts inline atuais).
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+  const proto = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim();
+  if (req.secure || proto === "https") {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+  next();
+});
 
 app.use((req, res, next) => {
   const host = String(req.headers.host || "");
   const proto = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim();
   const local = host.startsWith("localhost") || host.startsWith("127.0.0.1");
   if (proto === "http" && !local) {
-    return res.redirect(301, `https://${host}${req.originalUrl}`);
+    const base = process.env.BASE_URL
+      ? String(process.env.BASE_URL).replace(/\/$/, "")
+      : `https://${host}`;
+    return res.redirect(301, `${base}${req.originalUrl}`);
   }
   next();
 });
@@ -69,17 +86,6 @@ uploadDirs.forEach(dir => {
     console.log(`[BRAZUG] Static serving: Uploads from ${dir}`);
     app.use("/uploads", express.static(dir));
   }
-});
-
-app.get("/uploads/*", (req, res) => {
-  const subPath = req.params[0];
-  for (const dir of uploadDirs) {
-    const fullPath = path.join(dir, subPath);
-    if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
-      return res.sendFile(fullPath);
-    }
-  }
-  res.status(404).send("Upload file not found");
 });
 
 const iconDir = path.resolve(__dirname, "assets", "icons");
@@ -176,9 +182,22 @@ app.get("/api/config", (req, res) => {
 });
 
 app.get("/api/characters/search", async (req, res) => {
-  const char = await db.getCharacterByName(req.query.name);
-  if (!char) return res.status(404).json({ error: "Não encontrado" });
-  res.json(char);
+  try {
+    const char = await db.getCharacterByName(req.query.name);
+    if (!char) return res.status(404).json({ error: "Não encontrado" });
+
+    const user = await auth.resolveRequestUser(req).catch(() => null);
+    const isOwner = user && String(char.user_id) === String(user.id);
+    const isAdmin = user && user.role === "admin";
+
+    if (char.visibility !== "public" && !isOwner && !isAdmin) {
+      return res.status(404).json({ error: "Não encontrado" });
+    }
+
+    res.json(char);
+  } catch (e) {
+    res.status(500).json({ error: "Erro ao buscar personagem." });
+  }
 });
 
 app.get("/api/live-streams", async (req, res) => {
@@ -233,13 +252,6 @@ app.get("/api/health", async (req, res) => {
     armory: armory,
     fileSystem: fsStatus,
     timestamp: new Date().toISOString()
-  });
-});
-
-app.get("/api/debug-env", (req, res) => {
-  res.json({
-    NODE_ENV: process.env.NODE_ENV,
-    PORT: process.env.PORT
   });
 });
 

@@ -30,6 +30,15 @@
         return d.innerHTML;
     },
 
+    // Escapa um valor para ser usado dentro de uma string JS em atributo HTML.
+    jsArg(s) {
+        const value = String(s == null ? "" : s)
+            .replace(/\\/g, "\\\\")
+            .replace(/'/g, "\\'")
+            .replace(/[\r\n]+/g, " ");
+        return this.escape(value);
+    },
+
     // Tooltip methods
     showTooltip(e, content) {
         const tt = document.getElementById('tooltip');
@@ -88,7 +97,7 @@
                 const iconPath = i.icon_filename ? `/assets/icons/${i.icon_filename}` : '/assets/icons/inv_misc_cape_16.jpg';
                 const rarityClass = `rarity-${(i.quality || 'common').toLowerCase()}`;
                 return `
-                <div class="ah-auction-row" style="cursor:pointer; display:grid; grid-template-columns: 1fr auto; align-items:center; padding: 5px;" onclick="SalesController.selectItemToSell(${i.id}, '${this.escape(i.name)}', ${i.max_stack || 1})">
+                <div class="ah-auction-row" style="cursor:pointer; display:grid; grid-template-columns: 1fr auto; align-items:center; padding: 5px;" onclick="SalesController.selectItemToSell(${i.id}, '${this.jsArg(i.name)}', ${i.max_stack || 1})">
                     <div class="ah-cell ah-cell-name" style="display:flex; align-items:center; gap: 10px;">
                         <div class="ah-item-icon" style="width:24px; height:24px;"><img src="${iconPath}"></div>
                         <span class="${rarityClass}" style="font-size:12px;">${this.escape(i.name)}</span>
@@ -212,7 +221,7 @@
             if (h.my_feedback_rating) {
                 feedbackHtml = `<span style="color:var(--ah-gold);">${'★'.repeat(h.my_feedback_rating)}${'☆'.repeat(5-h.my_feedback_rating)}</span>`;
             } else {
-                feedbackHtml = `<button class="ah-tab" style="padding:2px 8px; font-size:10px; height:auto;" onclick="SalesController.openFeedbackModal('${h.id}', '${this.escape(h.item_name)}')">Avaliar</button>`;
+                feedbackHtml = `<button class="ah-tab" style="padding:2px 8px; font-size:10px; height:auto;" onclick="SalesController.openFeedbackModal('${h.id}', '${this.jsArg(h.item_name)}')">Avaliar</button>`;
             }
 
             return `
@@ -338,7 +347,7 @@
                 const rarityClass = `rarity-${(i.quality || 'common').toLowerCase()}`;
                 return `
                 <div class="ah-auction-row" style="cursor:pointer; border-bottom:1px solid #3a2c10;" 
-                     onclick="SalesController.selectItem(${i.id}, '${this.escape(i.name)}')">
+                     onclick="SalesController.selectItem(${i.id}, '${this.jsArg(i.name)}')">
                     <div class="ah-cell ah-cell-name">
                         <div class="ah-item-icon" style="width:24px; height:24px;"><img src="${iconPath}"></div>
                         <span class="${rarityClass}" style="font-size:12px; font-weight:bold;">${this.escape(i.name)}</span>

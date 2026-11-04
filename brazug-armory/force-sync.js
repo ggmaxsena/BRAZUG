@@ -26,8 +26,8 @@ async function getBlizzardToken() {
 }
 
 async function forceSync(name, realm) {
-  // Parsing original URL to encode password
-  const originalUrl = 'postgresql://brazug:BrazugUgjd8dO2Gmabs!25@2.24.124.162:5432/brazug';
+  const originalUrl = process.env.DATABASE_URL;
+  if (!originalUrl) throw new Error("DATABASE_URL não configurada.");
   const urlObj = new URL(originalUrl);
   const password = encodeURIComponent(urlObj.password);
   const connectionString = `postgresql://${urlObj.username}:${password}@${urlObj.host}${urlObj.pathname}`;

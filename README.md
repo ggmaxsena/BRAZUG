@@ -51,7 +51,7 @@ No painel **Node.js → Environment variables** (ou `.env` local):
 DATABASE_URL=postgresql://brazug:SENHA@IP_DA_VPS:5432/brazug
 TWITCH_CLIENT_ID=...
 TWITCH_CLIENT_SECRET=...
-ADMIN_PASSWORD=...
+JWT_SECRET=...
 PORT=3000
 ```
 
@@ -95,7 +95,6 @@ npm start
 | Variável | Descrição |
 |----------|-----------|
 | `DATABASE_URL` | `postgresql://...@IP_VPS:5432/brazug` |
-| `ADMIN_PASSWORD` | Fallback de segredo para tokens legados |
 | `JWT_SECRET` | Segredo principal dos tokens legados |
 | `TWITCH_*` | API Twitch |
 

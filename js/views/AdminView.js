@@ -51,7 +51,7 @@
               <div style="font-size: 12px; color: #888;">${this.escape(u.email || 'Sem e-mail')}</div>
             </div>
             <div>
-              <button class="btn-small" onclick="AdminController.openEditModal('${u.id}', '${u.username}', '${u.role}', '${u.email || ''}')">Editar</button>
+              <button class="btn-small" onclick="AdminController.openEditModal('${this.jsArg(u.id)}', '${this.jsArg(u.username)}', '${this.jsArg(u.role)}', '${this.jsArg(u.email || '')}')">Editar</button>
               <button class="btn-small danger" onclick="AdminController.handleDeleteUser('${u.id}')">Excluir</button>
             </div>
           </div>
@@ -69,8 +69,16 @@
 
     escape(s) {
       const d = document.createElement("div");
-      d.textContent = s;
+      d.textContent = s == null ? "" : String(s);
       return d.innerHTML;
+    },
+
+    jsArg(s) {
+      const value = String(s == null ? "" : s)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/[\r\n]+/g, " ");
+      return this.escape(value);
     }
   };
 

@@ -237,8 +237,6 @@
             render();
           }
           
-          const logsRes = await AdminModel.api("/logs", "GET", null, token);
-          if (logsRes.logs && document.getElementById("logs-list")) AdminView.renderLogs(logsRes.logs);
         }
       } catch (e) {
         console.error(e);

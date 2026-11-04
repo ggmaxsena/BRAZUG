@@ -20,10 +20,10 @@ async function getBlizzardToken() {
     clientSecret = env.match(/BLIZZARD_CLIENT_SECRET=([^\s\n\r]+)/)?.[1];
   }
 
-  // Fallback
-  clientId = clientId || '29b527628acc4b359ca8264325f7cff4';
-  clientSecret = clientSecret || 'NlyI0r1IhY8hyuYqImqEBfCV6v43kgFv';
-  
+  if (!clientId || !clientSecret) {
+    throw new Error("BLIZZARD_CLIENT_ID e BLIZZARD_CLIENT_SECRET precisam estar no .env");
+  }
+
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
   try {
     const response = await axios.post(

@@ -2,7 +2,7 @@
 #
 # Secrets: SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, DEPLOY_PATH,
 #          TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, DATABASE_URL
-# Opcional: SSH_PORT, APP_PORT, ADMIN_PASSWORD
+# Opcional: SSH_PORT, APP_PORT
 
 name: Deploy (Hostinger)
 
@@ -53,7 +53,6 @@ jobs:
             set_env TWITCH_CLIENT_ID "${{ secrets.TWITCH_CLIENT_ID }}"
             set_env TWITCH_CLIENT_SECRET "${{ secrets.TWITCH_CLIENT_SECRET }}"
             set_env DATABASE_URL "${{ secrets.DATABASE_URL }}"
-            set_env ADMIN_PASSWORD "${{ secrets.ADMIN_PASSWORD }}"
             set_env JWT_SECRET "${{ secrets.JWT_SECRET }}"
             set_env PORT "${{ secrets.APP_PORT || '3000' }}"
             set_env NODE_ENV production
