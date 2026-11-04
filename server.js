@@ -17,7 +17,6 @@ const twitch = require("./lib/twitch.cjs");
 const spotifyRoutes = require("./lib/spotify-routes.cjs");
 const deathmapRoutes = require("./lib/deathmap-routes.cjs");
 const coreRoutes = require("./lib/core-routes.cjs");
-const adminApiRoutes = require("./lib/admin-api-routes.cjs");
 
 const app = express();
 app.set('trust proxy', 1); // Trust the first hop (proxy)
@@ -251,7 +250,6 @@ app.use("/api/sucesso", sucessoRoutes.createSucessoRouter());
 app.use("/api/spotify", spotifyRoutes.createSpotifyRouter());
 app.use("/api/brazug", deathmapRoutes.createDeathmapRouter());
 app.use("/api/core", coreRoutes.createCoreRouter());
-app.use("/api/v1/admin", adminApiRoutes.createAdminApiRouter());
 app.use("/api", characterRoutes.createCharacterRouter());
 
 async function start() {

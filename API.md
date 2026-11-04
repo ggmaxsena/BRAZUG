@@ -6,11 +6,10 @@ A API do BRAZUG é dividida em namespaces para facilitar o gerenciamento de perm
 
 ### `GET /api/health`
 Verifica a saúde do sistema.
-- **Resposta**: JSON com status do Postgres e serviço de Armory.
+- **Resposta**: JSON com status do Postgres e do filesystem.
 
 ### `GET /api/adventures`
 Lista as aventuras publicadas.
-- **Query Params**: `shadow` (opcional) — chave secreta para ver rascunhos.
 - **Resposta**: `{ adventures: [...] }`
 
 ### `GET /api/live-streams`
@@ -22,17 +21,53 @@ Lista membros da guilda ao vivo na Twitch.
 ## 2. Autenticação (`/api/auth`)
 
 ### `POST /api/auth/register`
-Registra um novo usuário.
-- **Body**: `{ username, email, password }`
+Cria a conta e envia ao e-mail cadastrado o link para definir a senha.
+- **Body**: `{ username, email }`
 
 ### `POST /api/auth/login`
-Autentica e retorna um token JWT.
+Autentica e cria a sessão em cookie HttpOnly.
 - **Body**: `{ username, password }`
+
+### `GET /api/auth/me`
+Retorna o usuário da sessão atual.
+
+### `POST /api/auth/logout`
+Encerra a sessão e apaga o cookie.
+
+### `POST /api/auth/forgot-password`
+Envia um link de recuperação para o e-mail cadastrado.
+- **Body**: `{ email }`
+
+### `POST /api/auth/reset-password`
+Define uma nova senha e ativa a conta, se necessário.
+- **Body**: `{ token, password }`
 
 ---
 
 ## 3. Administração (`/api/admin`)
-*Requer token JWT no header Authorization.*
+*Requer sessão autenticada (cookie) ou token JWT no header Authorization.*
+
+### `GET /api/admin/analytics`
+Dashboard consolidado: KPIs, cadastros por mês, classes, raças, níveis, mortes, aventuras e COREs.
+
+### `GET /api/admin/characters`
+Lista personagens com classe, raça, nível, guilda, reino, dono e status.
+- **Query**: `search` (opcional), `limit` (opcional).
+
+### `GET /api/admin/reports/players.csv`
+Exporta o relatório de jogadores cadastrados em CSV.
+
+### `GET /api/admin/reports/characters.csv`
+Exporta o relatório de personagens em CSV.
+
+### `GET /api/admin/reports/classes.csv`
+Exporta o resumo agregado por classe em CSV.
+
+### `GET /api/admin/reports/adventures.csv`
+Exporta as aventuras com autor, status e datas em CSV.
+
+### `GET /api/admin/reports/cores.csv`
+Exporta as inscrições CORE com status e respostas em CSV.
 
 ### `GET /api/admin/adventures`
 Lista todas as aventuras para o painel administrativo.
@@ -60,10 +95,7 @@ Lista personagens públicos.
 
 ---
 
-## 5. Armory Integration
+## 5. Armory
 
-### `GET /api/armory/full/:realm/:name`
-Retorna dados completos do personagem (Blizzard + Perfil local).
-
-### `GET /api/character/fetch/:realm/:name`
-Proxy para buscar dados brutos da Blizzard via serviço Armory.
+O Armory é um serviço separado (Next.js) em `brazug-armory/`. O site não expõe mais
+endpoints de proxy do Armory.

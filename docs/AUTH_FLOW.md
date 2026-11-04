@@ -1,37 +1,31 @@
 # Fluxo de Autenticação — BRAZUG
 
 > Como funciona cadastro, login, sessão e recuperação de senha no site.
-> Atualizado em: 01/11/2026
+> Atualizado em: 03/11/2026
 
 ---
 
-## 1. Cadastro (somente pelo Discord)
+## 1. Cadastro pelo site
 
-O cadastro pelo site está desativado (`POST /api/auth/register` responde `410`).
-O único caminho é o comando `/cadastro` no bot da guilda.
+O cadastro é feito em `/register.html`:
 
-```
-/cadastro usuario:seunome email:seu@email.com
-```
+1. O usuário informa **usuário** e **e-mail**.
+2. O backend valida os dados e impede usuário/e-mail duplicados.
+3. A conta é criada como `guildmember`, ainda **não verificada** e com uma
+   senha temporária aleatória que ninguém conhece.
+4. O backend gera um token de definição de senha válido por **48h**
+   (hash em `verification_tokens`) e envia o link por e-mail
+   (`sendAccountSetupEmail`).
+5. Ao abrir o link (`/reset-password.html?token=...`), o usuário define a própria
+   senha. Como o link prova a posse do e-mail, a conta é ativada automaticamente.
+6. Depois disso, o usuário entra normalmente em `/login.html`.
 
-Fluxo:
+> A senha nunca é escolhida antes de confirmar o e-mail. Quem tiver acesso ao
+> e-mail cadastrado é quem define a senha da conta.
 
-1. Bot valida usuário/e-mail e chama `POST /api/v1/admin/register` (autenticado por `X-API-Key`).
-2. Backend cria a conta com senha temporária aleatória (ninguém a conhece) e vincula o Discord
-   na tabela `accounts` (habilita "Entrar com Discord" futuramente).
-3. Gera token de "definir senha" válido por **48h** e grava o hash em `verification_tokens`
-   (`type = reset`), mantendo também o token legado em `users`.
-4. O **link** é entregue em três canais:
-   - resposta **efêmera** do bot (só quem executou o comando vê);
-   - **DM** do bot (se as DMs estiverem abertas);
-   - **e-mail** (`sendBotRegistrationEmail`) — a cópia de segurança.
-5. Ao abrir o link (`/reset-password.html?token=...`), o usuário define a senha.
-   Como o link prova a posse do e-mail, a conta é **ativada automaticamente**.
-
-Também é possível configurar `SECURITY_EMAIL` no `.env` para receber uma cópia (BCC)
-dos e-mails de cadastro para auditoria da liderança.
-
-> O link é pessoal. Quem tiver o link pode definir a senha da conta.
+> Contas antigas (inclusive as criadas pelo antigo fluxo do Discord) continuam
+> válidas. Quem nunca chegou a definir uma senha pode usar **“Esqueci minha senha”**
+> para receber um novo link no e-mail cadastrado.
 
 ---
 
@@ -44,10 +38,17 @@ dos e-mails de cadastro para auditoria da liderança.
 - Conta não verificada recebe `403` com `needs_verification: true`.
 - Conta banida (`role = banned`) é recusada em **todas** as rotas de login/sessão.
 
+### Login social (opcional)
+
+- **Battle.net** continua disponível via `GET /api/auth/battlenet`, desde que
+  `BLIZZARD_CLIENT_ID` e `BLIZZARD_CLIENT_SECRET` estejam configurados.
+- O login social **não cria conta nova**: só entra quem já tem conta com o mesmo
+  e-mail (o vínculo é feito automaticamente no primeiro login).
+
 ### Sessão
 
 - Sessão em **cookie HttpOnly** `brazug_session` (7 dias), token aleatório com hash SHA-256
-  na tabela `sessions`. Não há mais JWT no `localStorage`.
+  na tabela `sessions`. Não há JWT no `localStorage`.
 - `GET /api/auth/me` devolve o usuário da sessão.
 - `POST /api/auth/logout` apaga a sessão e o cookie.
 - O papel é revalidado no banco a cada requisição: banir um usuário derruba a sessão na hora.
@@ -60,16 +61,14 @@ dos e-mails de cadastro para auditoria da liderança.
 
 `POST /api/auth/forgot-password` (formulário em `/forgot-password.html`):
 
-1. Resposta é sempre genérica (não revela se o e-mail existe).
-2. Se a conta existir, gera token de **1 hora** (hash em `verification_tokens`).
-3. Envia o link:
-   - por **e-mail** (`sendResetPasswordEmail`);
-   - por **DM no Discord**, se a conta tiver Discord vinculado (`lib/discord.cjs`).
-4. `POST /api/auth/reset-password` consome o token (single-use), troca a senha e ativa a
-   conta se ela ainda estiver pendente de verificação.
+1. A resposta é sempre genérica (não revela se o e-mail existe).
+2. Se a conta existir, gera um token de **1 hora** (hash em `verification_tokens`).
+3. Envia o link **somente por e-mail** (`sendResetPasswordEmail`).
+4. `POST /api/auth/reset-password` consome o token (single-use), troca a senha e ativa
+   a conta se ela ainda estiver pendente de verificação.
 
-Se o usuário perder o link do `/cadastro` (48h), o caminho é `/forgot-password.html`:
-o link novo chega no e-mail e na DM do Discord vinculado.
+Se o usuário perder o link de ativação, o caminho é `/forgot-password.html`: o link
+novo chega no e-mail cadastrado.
 
 ---
 
@@ -91,13 +90,9 @@ o link novo chega no e-mail e na DM do Discord vinculado.
 
 | Variável | Uso |
 |----------|-----|
-| `BASE_URL` | base dos links de e-mail/Discord (ex.: `https://brazug.com`) |
+| `BASE_URL` | base dos links de e-mail (ex.: `https://brazug.com`) |
 | `JWT_SECRET` | assinatura dos tokens Bearer legados (fallback: `ADMIN_SECRET`) |
-| `ADMIN_API_KEY` | chave do bot para `/api/v1/admin/*` (mesmo valor no backend e no `.env` do bot) |
-| `DISCORD_BOT_TOKEN` | enviar DMs de recuperação pelo bot |
-| `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` | "Entrar com Discord" (precisa dos dois) |
-| `BLIZZARD_CLIENT_ID` / `BLIZZARD_CLIENT_SECRET` | "Entrar com Battle.net" |
-| `SECURITY_EMAIL` | cópia BCC dos e-mails de cadastro (opcional) |
+| `BLIZZARD_CLIENT_ID` / `BLIZZARD_CLIENT_SECRET` | "Entrar com Battle.net" (opcional) |
 | `SMTP_*` | envio de e-mails |
 
 ---
@@ -106,16 +101,16 @@ o link novo chega no e-mail e na DM do Discord vinculado.
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
+| `POST` | `/api/auth/register` | cria conta e envia link para definir a senha |
+| `GET` | `/api/auth/verify` | ativa a conta pelo token do e-mail |
 | `POST` | `/api/auth/login` | login (usuário ou e-mail) |
 | `GET` | `/api/auth/me` | usuário da sessão |
 | `POST` | `/api/auth/logout` | encerra sessão |
 | `GET` | `/api/auth/providers` | provedores OAuth habilitados |
-| `GET` | `/api/auth/discord` | inicia OAuth Discord |
 | `GET` | `/api/auth/battlenet` | inicia OAuth Battle.net |
 | `POST` | `/api/auth/forgot-password` | pede link de nova senha |
 | `POST` | `/api/auth/reset-password` | define nova senha (ativa a conta) |
-| `POST` | `/api/auth/resend-verification` | reenvia ativação |
-| `POST` | `/api/v1/admin/register` | cria conta (bot `/cadastro`) — retorna `setup_url` |
+| `POST` | `/api/auth/resend-verification` | reenvia link de ativação/definição de senha |
 
 ---
 
@@ -125,8 +120,5 @@ o link novo chega no e-mail e na DM do Discord vinculado.
   Git do hPanel). O workflow `.github/workflows/deploy.yml` está falhando desde
   setembro/2026 (etapa SCP) e **não é o caminho usado** hoje.
 - As variáveis de ambiente de produção ficam no **hPanel** (ou no `.env` do VPS),
-  não vêm do workflow. Ao trocar `ADMIN_API_KEY`, atualize os dois lados:
-  - `.env` do backend no servidor;
-  - `.env` do bot (`ADMIN_API_KEY` é a mesma chave).
+  não vêm do workflow.
 - Após alterar variáveis no servidor, reinicie o app Node para recarregar o `.env`.
-

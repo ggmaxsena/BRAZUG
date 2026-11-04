@@ -529,6 +529,123 @@
       padding-left: 16px;
     }
 
+    /* ── NATIVE FORM FIELDS ── */
+    .core-field {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .core-field label.field-label {
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      color: var(--core-text);
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .core-field .field-hint {
+      display: block;
+      font-size: 12px;
+      color: #888;
+      font-style: italic;
+      margin-bottom: 6px;
+    }
+
+    .core-field .req {
+      color: #ff6b6b;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    .core-field input[type="text"],
+    .core-field input[type="email"] {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--core-border);
+      border-radius: 6px;
+      color: var(--core-text);
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .core-field input[type="text"]:focus,
+    .core-field input[type="email"]:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 8px rgba(247, 193, 77, 0.3);
+    }
+
+    .core-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .core-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-size: 14px;
+      color: var(--core-muted);
+    }
+
+    .core-option:hover {
+      border-color: var(--gold);
+      background: rgba(0,0,0,0.5);
+    }
+
+    .core-option input {
+      accent-color: var(--horde-red);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .core-form-msg {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+
+    .core-form-msg.success {
+      display: block;
+      background: rgba(40, 120, 40, 0.2);
+      border: 1px solid #2a7a2a;
+      color: #7ad07a;
+    }
+
+    .core-form-msg.error {
+      display: block;
+      background: rgba(196, 30, 58, 0.15);
+      border: 1px solid var(--horde-red);
+      color: #ff8a8a;
+    }
+
+    .core-login-required {
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .core-login-required p {
+      color: var(--core-muted);
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .core-title { font-size: 32px; }
@@ -667,67 +784,10 @@
           </ul>
         `;
 
-        // Perguntas do formulário (apenas para CORE do Velho)
-        if (core.id === 'velho') {
-          detailBody.innerHTML += `
-            <div class="core-form-questions">
-              <div class="core-form-questions-title">Perguntas do Formulário de Inscrição</div>
-              <div class="core-form-question">
-                <strong>Qual teu nick no WoW?</strong> <span class="req">*</span>
-                <span>Discord precisa estar o mesmo nick.</span>
-              </div>
-              <div class="core-form-question">
-                <strong>Pretende jogar o HC ou apenas o PVP?</strong> <span class="req">*</span>
-                <ul class="core-form-options">
-                  <li>Sim, vou jogar o HC</li>
-                  <li>Não, apenas o PVP</li>
-                </ul>
-              </div>
-              <div class="core-form-question">
-                <strong>Qual são seus dias da semana disponíveis para raidar?</strong> <span class="req">*</span>
-                <span style="font-size: 12px; font-style: italic;">lembrando, reservar 2hs</span>
-                <ul class="core-form-options">
-                  <li>Segunda</li>
-                  <li>Terça</li>
-                  <li>Quarta</li>
-                  <li>Quinta</li>
-                  <li>Sexta</li>
-                  <li>Sabado</li>
-                  <li>Domingo</li>
-                </ul>
-              </div>
-              <div class="core-form-question">
-                <strong>Quais os melhores horários para raid?</strong> <span class="req">*</span>
-                <ul class="core-form-options">
-                  <li>20:00h - 22:00h</li>
-                  <li>21:00h - 23:00h</li>
-                  <li>22:00h - 00:00h</li>
-                </ul>
-              </div>
-              <div class="core-form-question">
-                <strong>Qual função pretende exercer?</strong> <span class="req">*</span>
-                <ul class="core-form-options">
-                  <li>Tank</li>
-                  <li>Healer</li>
-                  <li>DPS</li>
-                </ul>
-              </div>
-              <div class="core-form-question">
-                <strong>Qual classe pretende criar?</strong> <span class="req">*</span>
-              </div>
-              <div class="core-form-question">
-                <strong>Tem interesse em ser raid leader de core 10-man?</strong> <span class="req">*</span>
-                <ul class="core-form-options">
-                  <li>Sim</li>
-                  <li>Não</li>
-                </ul>
-              </div>
-            </div>
-          `;
-        }
-
-        // Form ou botão em breve
-        if (isActive && core.formUrl) {
+        // Formulário nativo (se o CORE tiver perguntas) ou iframe legado
+        if (isActive && core.questions && core.questions.length) {
+          renderNativeForm(core);
+        } else if (isActive && core.formUrl) {
           detailFormWrap.innerHTML = `
             <div class="core-form-wrap">
               <div class="core-form-title">Inscreva-se para o ${core.name}</div>
@@ -765,6 +825,157 @@
         hubView.style.display = 'none';
         detailView.style.display = 'block';
         window.scrollTo(0, 0);
+      }
+
+      // ── Formulário nativo de inscrição ──
+      function renderQuestionField(q) {
+        const req = q.required ? '<span class="req">*</span>' : '';
+        const hint = q.hint ? `<span class="field-hint">${q.hint}</span>` : '';
+
+        let inputHtml = '';
+        if (q.type === 'text') {
+          inputHtml = `<input type="text" name="${q.id}" placeholder="Sua resposta" />`;
+        } else if (q.type === 'radio') {
+          inputHtml = `<div class="core-options">${(q.options || []).map(opt => `
+            <label class="core-option">
+              <input type="radio" name="${q.id}" value="${opt}" />
+              <span>${opt}</span>
+            </label>
+          `).join('')}</div>`;
+        } else if (q.type === 'checkbox') {
+          inputHtml = `<div class="core-options">${(q.options || []).map(opt => `
+            <label class="core-option">
+              <input type="checkbox" name="${q.id}" value="${opt}" />
+              <span>${opt}</span>
+            </label>
+          `).join('')}</div>`;
+        }
+
+        return `
+          <div class="core-field" data-question-id="${q.id}" data-required="${q.required ? 'true' : 'false'}">
+            <label class="field-label">${q.label}${req}</label>
+            ${hint}
+            ${inputHtml}
+          </div>
+        `;
+      }
+
+      async function renderNativeForm(core) {
+        let token = localStorage.getItem('brazug_admin_token');
+        if (!token || token === 'session') {
+          try {
+            const me = await fetch('/api/auth/me');
+            if (me.ok) {
+              const meData = await me.json();
+              token = 'session';
+              localStorage.setItem('brazug_admin_token', token);
+              localStorage.setItem('brazug_admin_user', meData.user.username);
+              localStorage.setItem('brazug_admin_role', meData.user.role);
+            } else {
+              token = '';
+            }
+          } catch (err) {
+            token = '';
+          }
+        }
+
+        if (!token) {
+          detailFormWrap.innerHTML = `
+            <div class="core-form-wrap">
+              <div class="core-form-title">Inscreva-se para o ${core.name}</div>
+              <div class="core-login-required">
+                <p>Você precisa estar logado para se inscrever no ${core.name}.</p>
+                <a href="/login.html" class="core-btn">Fazer Login</a>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        const fields = (core.questions || []).map(renderQuestionField).join('');
+
+        detailFormWrap.innerHTML = `
+          <div class="core-form-wrap">
+            <div class="core-form-title">Inscreva-se para o ${core.name}</div>
+            <form id="core-application-form">
+              ${fields}
+              <button type="submit" class="core-btn" style="width: 100%; margin-top: 10px;">
+                Enviar Inscrição
+              </button>
+            </form>
+            <div id="core-form-msg" class="core-form-msg"></div>
+          </div>
+        `;
+
+        const form = document.getElementById('core-application-form');
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          submitApplication(core, form);
+        });
+      }
+
+      async function submitApplication(core, form) {
+        const msg = document.getElementById('core-form-msg');
+        const token = localStorage.getItem('brazug_admin_token');
+
+        // Coletar respostas
+        const answers = {};
+        let valid = true;
+
+        for (const q of core.questions) {
+          const field = form.querySelector(`[data-question-id="${q.id}"]`);
+          if (!field) continue;
+
+          if (q.type === 'text') {
+            const input = field.querySelector('input[type="text"]');
+            const val = input ? input.value.trim() : '';
+            if (q.required && !val) valid = false;
+            answers[q.id] = val;
+          } else if (q.type === 'radio') {
+            const checked = field.querySelector('input[type="radio"]:checked');
+            const val = checked ? checked.value : '';
+            if (q.required && !val) valid = false;
+            answers[q.id] = val;
+          } else if (q.type === 'checkbox') {
+            const checked = [...field.querySelectorAll('input[type="checkbox"]:checked')].map(i => i.value);
+            if (q.required && checked.length === 0) valid = false;
+            answers[q.id] = checked;
+          }
+        }
+
+        if (!valid) {
+          msg.className = 'core-form-msg error';
+          msg.textContent = 'Preencha todos os campos obrigatórios (*).';
+          return;
+        }
+
+        msg.className = 'core-form-msg';
+        msg.textContent = '';
+
+        try {
+          const res = await fetch('/api/core/apply', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+              core_id: core.id,
+              core_name: core.name,
+              answers: answers
+            })
+          });
+
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'Erro ao enviar inscrição');
+
+          msg.className = 'core-form-msg success';
+          msg.textContent = 'Inscrição enviada com sucesso! A liderança da BRAZUG analisará sua candidatura.';
+          form.reset();
+        } catch (err) {
+          msg.className = 'core-form-msg error';
+          msg.textContent = err.message;
+        }
       }
 
       // ── Abrir CORE específico ──

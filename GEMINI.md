@@ -18,7 +18,7 @@ O projeto é dividido em dois sistemas com propósitos distintos:
 - **Backend**: Node.js, Express.
 - **Banco de Dados**: PostgreSQL.
 - **Frontend**: Vanilla JS (Padrão MVC Manual), CSS moderno.
-- **Autenticação**: JWT Customizado (HMAC-SHA256).
+- **Autenticação**: Sessão por cookie HttpOnly (JWT legado aceito como fallback).
 
 ---
 
@@ -48,16 +48,16 @@ Utilizado para dados brutos sincronizados da Blizzard.
 ### Endpoints Públicos
 
 - `GET /api/health`: Status do sistema e conexão com BD.
-- `GET /api/adventures`: Lista aventuras publicadas. Aceita `?shadow=...` para ver rascunhos.
+- `GET /api/adventures`: Lista aventuras publicadas.
 - `GET /api/live-streams`: Streams da guilda ativas na Twitch (tag `<BRAZUG>`).
 - `GET /api/characters/search?name=...`: Busca rápida de personagem.
 
 ### Autenticação (`/api/auth`)
 
-- `POST /register`: Registro de novos membros.
-- `POST /login`: Login e obtenção de token JWT.
-- `GET /verify?token=...`: Verificação de e-mail.
-- `POST /forgot-password`: Solicita recuperação de senha.
+- `POST /register`: Cria a conta e envia o link para definir a senha.
+- `POST /login`: Login e criação da sessão em cookie HttpOnly.
+- `GET /me` e `POST /logout`: Consulta e encerramento da sessão.
+- `POST /forgot-password` e `POST /reset-password`: Recuperação de senha por e-mail.
 
 ## 7. Armory Module (Next.js) — Detalhes Técnicos Recentes
 
@@ -84,11 +84,11 @@ Recentemente, foram aplicadas correções críticas para garantir a estabilidade
 O frontend segue uma separação clara de responsabilidades:
 
 1.  **Models (`js/models/`)**: Responsáveis exclusivamente por chamadas de rede e retorno de dados puros.
-    - _Ex: `AdventureModel.fetchAll()`_
+    - _Ex: `StreamsModel.fetchAll()`_
 2.  **Views (`js/views/`)**: Manipulação de DOM e templates HTML (via Template Literals).
-    - _Ex: `AdventureView.renderGrid(data, container)`_
+    - _Ex: `StreamsView.renderGrid(data, container)`_
 3.  **Controllers (`js/controllers/`)**: Orquestram a lógica, chamam o Model para obter dados e a View para exibir.
-    - _Ex: `HomeController.js` coordena o carregamento do mural e heróis._
+    - _Ex: `StreamsController.js` coordena as lives; `HomeController.js` coordena agenda e estatísticas._
 
 ---
 

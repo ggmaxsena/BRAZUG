@@ -17,24 +17,26 @@
         <div class="corner corner-bl"></div>
         <div class="corner corner-br"></div>
 
-        <div class="panel-title" style="text-align: center;">Cadastro pelo Discord</div>
-        <div class="panel-subtitle" style="text-align: center;">Novo modelo: criar conta direto da guilda</div>
+        <div class="panel-title" style="text-align: center;">Criar Conta</div>
+        <div class="panel-subtitle" style="text-align: center;">Junte-se à Horda e comece sua jornada</div>
 
-        <div class="section" style="text-align: center;">
-            <div style="font-size: 3rem; margin: 10px 0;">💬</div>
-            <p style="line-height: 1.7; color: var(--text-muted); margin-bottom: 20px;">
-              A partir de agora, as contas do site são criadas <strong style="color: var(--gold);">pelo nosso Discord</strong>.
-              Entre na guilda e use o comando <strong style="color: var(--gold);">/cadastro</strong> —
-              você define seu usuário e e-mail, recebe um link por e-mail para escolher sua senha, e pronto.
-            </p>
-
-            <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 20px; font-family: monospace; font-size: 1.05rem; color: var(--gold);">
-              /cadastro usuario:seunome email:seu@email.com
-            </div>
-
-            <a id="discord-link" href="https://discord.gg/brazug" target="_blank" rel="noopener" class="btn-primary" style="display:inline-block; width: auto; padding: 12px 32px;">🎮 Entrar no Discord</a>
-
-            <p id="register-msg" style="text-align: center; margin-top: 15px; font-weight: bold; color: var(--horde-red);" hidden></p>
+        <div class="section">
+            <form id="register-form" style="display: flex; flex-direction: column; gap: 15px;">
+              <div>
+                <label>Usuário</label>
+                <input type="text" name="username" placeholder="Seu nome na guilda" minlength="3" maxlength="32" autocomplete="username" required>
+              </div>
+              <div>
+                <label>E-mail</label>
+                <input type="email" name="email" placeholder="seu@email.com" autocomplete="email" required>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                Enviaremos um link para este e-mail. A senha só é definida depois que você abrir o link,
+                o que confirma que o e-mail é seu.
+              </p>
+              <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">Criar Conta</button>
+              <p id="register-msg" style="text-align: center; margin-top: 15px; font-weight: bold;" hidden></p>
+            </form>
         </div>
 
         <div class="divider"></div>
@@ -49,15 +51,35 @@
 
     <script src="/js/header.js"></script>
     <script>
-        // Usa o link oficial do Discord configurado no backend
-        fetch("/api/config")
-          .then(function (r) { return r.json(); })
-          .then(function (cfg) {
-            if (cfg.DISCORD_URL) {
-              document.getElementById("discord-link").href = cfg.DISCORD_URL;
+        document.getElementById("register-form").onsubmit = async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById("register-msg");
+            const fd = new FormData(e.target);
+            const data = Object.fromEntries(fd.entries());
+
+            msg.hidden = true;
+            try {
+                const res = await fetch("/api/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+                const resData = await res.json();
+
+                if (res.ok) {
+                    msg.style.color = "var(--gold)";
+                    msg.textContent = resData.message;
+                    msg.hidden = false;
+                    e.target.reset();
+                } else {
+                    throw new Error(resData.error || "Erro ao cadastrar");
+                }
+            } catch (err) {
+                msg.style.color = "var(--horde-red)";
+                msg.textContent = err.message;
+                msg.hidden = false;
             }
-          })
-          .catch(function () {});
+        };
     </script>
 </body>
 </html>

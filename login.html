@@ -52,7 +52,7 @@
             <div id="resend-verification-container" style="margin-top: 15px; text-align: center;" hidden>
                 <p id="resend-info" style="color: var(--text-muted); margin-bottom: 10px; font-size: 0.9rem;"></p>
                 <button id="resend-btn" class="btn-secondary" style="padding: 8px 15px; font-size: 0.8rem;">
-                    Reenviar E-mail de Verificação
+                    Reenviar Link de Ativação
                 </button>
             </div>
         </div>
@@ -88,7 +88,7 @@
             authError.textContent = 'Sua conta foi suspensa. Se acha que isso é um erro, fale com a liderança da guild.';
             authError.hidden = false;
           } else if (urlError === 'nocadastro') {
-            authError.textContent = 'Nenhuma conta encontrada para este Discord/e-mail. Cadastre-se com /cadastro no nosso Discord!';
+            authError.textContent = 'Nenhuma conta encontrada para este e-mail. Cadastre-se no site.';
             authError.hidden = false;
           } else if (urlError === 'oauth') {
             authError.textContent = 'Não foi possível entrar com o provedor. Tente novamente.';
@@ -99,9 +99,6 @@
         fetch('/api/auth/providers').then(function (r) { return r.json(); }).then(function (providers) {
           var box = document.getElementById('oauth-buttons');
           if (!box) return;
-          if (providers.discord) {
-            box.innerHTML += '<a class="btn-secondary" href="/api/auth/discord" style="text-align:center;">Entrar com Discord</a>';
-          }
           if (providers.battlenet) {
             box.innerHTML += '<a class="btn-secondary" href="/api/auth/battlenet" style="text-align:center;">Entrar com Battle.net</a>';
           }
@@ -129,7 +126,7 @@
             if (!res.ok) {
                 if (data.needs_verification) {
                     pendingVerificationEmail = data.email;
-                    resendInfo.textContent = "Sua conta ainda não foi ativada. Verifique seu e-mail ou reenvie a mensagem.";
+                    resendInfo.textContent = "Sua conta ainda não foi ativada. Verifique seu e-mail ou reenvie o link para definir a senha.";
                     resendContainer.hidden = false;
                 }
                 throw new Error(data.error || 'Login falhou');

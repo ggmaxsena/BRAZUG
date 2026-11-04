@@ -66,8 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 let mediaHtml = '';
-                const imgUrl = item.image_url || '/assets/branding/bg_content.jpg';
-                mediaHtml += `<img src="${imgUrl}" alt="Sucesso" class="sucesso-img" onerror="this.src='/assets/branding/bg_content.jpg'">`;
+                const imgUrl = item.image_url || '/assets/branding/contentbra.png';
+                mediaHtml += `<img src="${imgUrl}" alt="Sucesso" class="sucesso-img" onerror="this.src='/assets/branding/contentbra.png'">`;
                 
                 if (item.video_platform && item.video_id) {
                     if (item.video_platform === 'twitch_clip') {

@@ -151,6 +151,33 @@ nav a:hover, nav a.active { color: var(--gold); text-shadow: 0 0 10px var(--gold
   transition: all 0.3s linear;
 }
 
+.account-menu {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.account-menu a,
+.nav-auth a {
+  font-family: 'Cinzel', serif;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.account-menu a:hover,
+.nav-auth a:hover { color: var(--gold); }
+.nav-logout-btn { color: #ff6666 !important; }
+.nav-user {
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.nav-auth { display: none; }
+
 /* Spotify */
 .spotify-wrap iframe {
     width: 400px;
@@ -1248,6 +1275,36 @@ select option {
 
 .discord-widget-frame:hover {
     box-shadow: 0 12px 60px rgba(88, 101, 242, 0.35), 0 0 0 1px rgba(88, 101, 242, 0.25);
+}
+
+@media (max-width: 980px) {
+  .menu-toggle { display: flex; }
+  .account-menu { display: none; }
+  .site-header { padding: 0 16px; }
+  #header-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 16px 20px 24px;
+    background: rgba(5, 5, 5, 0.98);
+    border-bottom: 2px solid var(--horde-red);
+    z-index: 1002;
+  }
+  #header-nav.active { display: flex; }
+  #header-nav a { max-width: none; justify-content: flex-start; padding: 8px 0; }
+  .nav-auth {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
 }
 
 @media (max-width: 768px) {

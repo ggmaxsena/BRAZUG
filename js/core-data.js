@@ -26,26 +26,44 @@ const BRAZUG_CORES = [
       { icon: 'fa-layer-group', label: '4 Grupos 10-MAN', text: 'GRUPO 1 - RL: FKEALL | GRUPO 2 - RL: STERFTES | GRUPO 3 - RL A DEFINIR | GRUPO 4 - RL A DEFINIR' },
       { icon: 'fa-user-graduate', label: 'Mentoria', text: 'Veteranos ajudam novos membros a entender mecânicas e sobrevivência no HC.' }
     ],
-    requirement: 'Membro ativo da BRAZUG com histórico comprovado no Classic HC. Discord deve estar com o mesmo nick do WoW. Convite via liderança.'
+    requirement: 'Membro ativo da BRAZUG com histórico comprovado no Classic HC. Discord deve estar com o mesmo nick do WoW. Convite via liderança.',
+    questions: [
+      { id: 'nick', type: 'text', label: 'Qual teu nick no WoW?', required: true, hint: 'Discord precisa estar o mesmo nick.' },
+      { id: 'play_mode', type: 'radio', label: 'Pretende jogar o HC ou apenas o PVP?', required: true, options: ['Sim, vou jogar o HC', 'Não, apenas o PVP'] },
+      { id: 'days', type: 'checkbox', label: 'Quais são seus dias da semana disponíveis para raidar?', required: true, hint: 'lembrando, reservar 2hs', options: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'] },
+      { id: 'times', type: 'radio', label: 'Quais os melhores horários para raid?', required: true, options: ['20:00h - 22:00h', '21:00h - 23:00h', '22:00h - 00:00h'] },
+      { id: 'role', type: 'radio', label: 'Qual função pretende exercer?', required: true, options: ['Tank', 'Healer', 'DPS'] },
+      { id: 'class', type: 'text', label: 'Qual classe pretende criar?', required: true },
+      { id: 'leader', type: 'radio', label: 'Tem interesse em ser raid leader de core 10-man?', required: true, options: ['Sim', 'Não'] }
+    ]
   },
   {
     id: 'pvp',
     name: 'CORE PVP',
     subtitle: 'Grupo focado em PVP e guerra mundial no WoW Classic Hardcore',
-    badge: '🔱 EM BREVE',
-    badgeClass: 'soon',
+    badge: '🔱 CORE PVP — Ativo',
+    badgeClass: 'active',
     accent: '#4f6b8a',          // Azul
     accentGlow: 'rgba(79, 107, 138, 0.4)',
     gold: '#a8c4d8',
-    status: 'soon',
+    status: 'active',
     formUrl: null,
-    description: 'O CORE PVP será o grupo dedicado a confrontos entre facções, guerras mundo, BGs e arenas no Classic Hardcore.',
+    description: 'O CORE PVP é o grupo dedicado a confrontos entre facções, guerras mundo, BGs e arenas no Classic Hardcore.',
     features: [
       { icon: 'fa-crossed-swords', label: 'PVP Mundo', text: 'Confrontos entre facções no mundo aberto.' },
       { icon: 'fa-flag', label: 'BGs e Arenas', text: 'Organização de campos de batalha.' },
       { icon: 'fa-skull', label: 'Risco Permanente', text: 'Combate com risco permanente no HC.' }
     ],
-    requirement: null
+    requirement: 'Membro ativo da BRAZUG. Discord deve estar com o mesmo nick do WoW.',
+    questions: [
+      { id: 'nick', type: 'text', label: 'Qual teu nick no WoW?', required: true, hint: 'Discord precisa estar o mesmo nick.' },
+      { id: 'play_mode', type: 'radio', label: 'Pretende jogar o HC ou apenas o PVP?', required: true, options: ['Sim, vou jogar o HC', 'Não, apenas o PVP'] },
+      { id: 'days', type: 'checkbox', label: 'Quais são seus dias da semana disponíveis para jogar?', required: true, options: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'] },
+      { id: 'times', type: 'radio', label: 'Quais os melhores horários para jogar?', required: true, options: ['20:00h - 22:00h', '21:00h - 23:00h', '22:00h - 00:00h'] },
+      { id: 'role', type: 'radio', label: 'Qual função pretende exercer?', required: true, options: ['Tank', 'Healer', 'DPS'] },
+      { id: 'class', type: 'text', label: 'Qual classe pretende criar?', required: true },
+      { id: 'leader', type: 'radio', label: 'Tem interesse em ser líder de grupo?', required: true, options: ['Sim', 'Não'] }
+    ]
   },
   {
     id: 'liga-sombras',

@@ -13,7 +13,7 @@ Armazena as crônicas e histórias do mural.
 - `image_url`: Caminho para a imagem de capa.
 - `event_date`: Data em que a aventura ocorreu.
 - `published`: Booleano (exibido ou não no mural).
-- `visibility`: `public` ou `private`.
+- `visibility`: `public` (valores antigos como `shadow`/`private` são normalizados).
 
 ### `users`
 Contas de acesso ao painel administrativo e perfis.

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscrições dos COREs — BRAZUG</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    .core-admin-wrap { max-width: 1000px; margin: 0 auto; padding: 20px; }
+    .core-admin-title { font-family: 'Cinzel', serif; color: var(--gold); text-align: center; margin: 30px 0 10px; }
+    .core-admin-sub { text-align: center; color: var(--text-muted); margin-bottom: 30px; }
+    .app-card {
+      background: rgba(12, 8, 8, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .app-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 12px;
+    }
+    .app-core-name { font-family: 'Cinzel', serif; color: var(--gold); font-weight: 700; }
+    .app-user { color: var(--text-muted); font-size: 13px; }
+    .app-date { color: #666; font-size: 12px; }
+    .app-answers { display: flex; flex-direction: column; gap: 8px; }
+    .app-answer { font-size: 14px; color: var(--text-muted); }
+    .app-answer strong { color: var(--text); }
+    .app-answer .ans-val { color: var(--gold); }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .status-pending { background: rgba(247, 193, 77, 0.15); border: 1px solid var(--gold); color: var(--gold); }
+    .status-approved { background: rgba(40, 120, 40, 0.2); border: 1px solid #2a7a2a; color: #7ad07a; }
+    .status-rejected { background: rgba(196, 30, 58, 0.15); border: 1px solid var(--horde-red); color: #ff8a8a; }
+    .app-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .app-actions button {
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .app-actions button:hover { border-color: var(--gold); color: var(--gold); }
+    .app-actions button.approve:hover { border-color: #2a7a2a; color: #7ad07a; }
+    .app-actions button.reject:hover { border-color: var(--horde-red); color: #ff8a8a; }
+    .app-actions button.delete:hover { border-color: #ff6b6b; color: #ff6b6b; }
+    .filter-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-bar select, .filter-bar button {
+      padding: 8px 14px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .empty-state { text-align: center; color: #666; padding: 50px; }
+  </style>
+</head>
+<body>
+  <header class="site-header" id="universal-header"></header>
+
+  <div class="core-admin-wrap">
+    <h1 class="core-admin-title">Inscrições dos COREs</h1>
+    <p class="core-admin-sub">Gerencie as candidaturas recebidas pelo formulário do site</p>
+
+    <div class="filter-bar">
+      <select id="filter-core">
+        <option value="">Todos os COREs</option>
+      </select>
+      <select id="filter-status">
+        <option value="">Todos os status</option>
+        <option value="pending">Pendente</option>
+        <option value="approved">Aprovado</option>
+        <option value="rejected">Rejeitado</option>
+      </select>
+      <button id="btn-refresh">↻ Atualizar</button>
+    </div>
+
+    <div id="applications-list"></div>
+  </div>
+
+  <script src="/js/auth-guard.js"></script>
+  <script src="/js/header.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      const role = (localStorage.getItem("brazug_admin_role") || "").trim().toLowerCase();
+      const token = localStorage.getItem("brazug_admin_token");
+
+      // Apenas admin/guildmaster/officer
+      if (!token || !["admin", "guildmaster", "officer"].includes(role)) {
+        document.getElementById("applications-list").innerHTML =
+          '<div class="empty-state">Acesso negado. Você precisa ser admin, guildmaster ou officer.</div>';
+        return;
+      }
+
+      const listEl = document.getElementById("applications-list");
+      const filterCore = document.getElementById("filter-core");
+      const filterStatus = document.getElementById("filter-status");
+      const btnRefresh = document.getElementById("btn-refresh");
+
+      const STATUS_LABELS = {
+        pending: "Pendente",
+        approved: "Aprovado",
+        rejected: "Rejeitado"
+      };
+
+      function escapeHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = s == null ? "" : String(s);
+        return d.innerHTML;
+      }
+
+      function formatAnswer(value) {
+        if (Array.isArray(value)) return value.join(", ");
+        if (value === null || value === undefined || value === "") return "—";
+        return String(value);
+      }
+
+      function renderApplications(apps) {
+        if (!apps.length) {
+          listEl.innerHTML = '<div class="empty-state">Nenhuma inscrição encontrada.</div>';
+          return;
+        }
+
+        listEl.innerHTML = apps.map(app => {
+          const answers = app.answers || {};
+          const answerRows = Object.entries(answers).map(([key, val]) => `
+            <div class="app-answer">
+              <strong>${escapeHtml(key)}:</strong> <span class="ans-val">${escapeHtml(formatAnswer(val))}</span>
+            </div>
+          `).join('');
+
+          return `
+            <div class="app-card" data-id="${app.id}">
+              <div class="app-card-header">
+                <div>
+                  <span class="app-core-name">${escapeHtml(app.core_name)}</span>
+                  <span class="status-badge status-${app.status}">${STATUS_LABELS[app.status] || app.status}</span>
+                </div>
+                <div style="text-align: right;">
+                  <div class="app-user">👤 ${escapeHtml(app.username || "Desconhecido")}</div>
+                  <div class="app-date">${app.created_at ? new Date(app.created_at).toLocaleString("pt-BR") : ""}</div>
+                </div>
+              </div>
+              <div class="app-answers">${answerRows}</div>
+              <div class="app-actions">
+                ${app.status !== "approved" ? `<button class="approve" onclick="setStatus('${app.id}', 'approved')">✓ Aprovar</button>` : ""}
+                ${app.status !== "rejected" ? `<button class="reject" onclick="setStatus('${app.id}', 'rejected')">✗ Rejeitar</button>` : ""}
+                ${app.status !== "pending" ? `<button onclick="setStatus('${app.id}', 'pending')">↩ Voltar para Pendente</button>` : ""}
+                <button class="delete" onclick="deleteApp('${app.id}')">🗑 Excluir</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      async function loadApplications() {
+        listEl.innerHTML = '<div class="empty-state">Carregando...</div>';
+        try {
+          const params = new URLSearchParams();
+          if (filterCore.value) params.set("core_id", filterCore.value);
+          if (filterStatus.value) params.set("status", filterStatus.value);
+
+          const res = await fetch(`/api/core/applications?${params}`, {
+            headers: { "Authorization": "Bearer " + token }
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Erro ao carregar inscrições");
+
+          renderApplications(data.applications || []);
+        } catch (e) {
+          listEl.innerHTML = `<div class="empty-state">Erro: ${escapeHtml(e.message)}</div>`;
+        }
+      }
+
+      window.setStatus = async function (id, status) {
+        try {
+          const res = await fetch(`/api/core/applications/${id}/status`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({ status })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Erro ao atualizar status");
+          loadApplications();
+        } catch (e) {
+          alert("Erro: " + e.message);
+        }
+      };
+
+      window.deleteApp = async function (id) {
+        if (!confirm("Tem certeza que deseja excluir esta inscrição?")) return;
+        try {
+          const res = await fetch(`/api/core/applications/${id}`, {
+            method: "DELETE",
+            headers: { "Authorization": "Bearer " + token }
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Erro ao excluir");
+          loadApplications();
+        } catch (e) {
+          alert("Erro: " + e.message);
+        }
+      };
+
+      filterCore.addEventListener("change", loadApplications);
+      filterStatus.addEventListener("change", loadApplications);
+      btnRefresh.addEventListener("click", loadApplications);
+
+      loadApplications();
+    })();
+  </script>
+</body>
+</html>

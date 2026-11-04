@@ -1,130 +1,1260 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Painel Administrativo — BRAZUG</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
-  </head>
-  <body>
-    <header class="site-header" id="universal-header"></header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — BRAZUG</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+  <header class="site-header" id="universal-header"></header>
 
-    <main class="redesign-container">
-      <section id="dashboard-panel" hidden>
-        <!-- GESTÃO DE USUÁRIOS -->
-        <div id="users-panel" class="panel" hidden>
-          <div class="corner corner-tl"></div>
-          <div class="corner corner-tr"></div>
-          <div class="corner corner-bl"></div>
-          <div class="corner corner-br"></div>
-          
-          <div class="panel-title">Gestão de Usuários</div>
-          <div class="panel-subtitle">Controle de acesso e cargos da guilda</div>
-
-          <div class="section">
-              <form id="user-form" style="display: flex; flex-direction: column; gap: 15px;">
-                <div class="grid-2">
-                  <div><label>Nome</label><input type="text" name="username" required placeholder="Nome do usuário"></div>
-                  <div><label>E-mail</label><input type="email" name="email" placeholder="email@exemplo.com"></div>
-                </div>
-                <div class="grid-2">
-                  <div><label>Senha</label><input type="password" name="password" required placeholder="••••••••"></div>
-                  <div>
-                    <label>Cargo</label>
-                    <select name="role">
-                      <option value="admin">Admin</option>
-                      <option value="guildmaster">Guildmaster</option>
-                      <option value="officer">Officer</option>
-                      <option value="guildmember">Guildmember</option>
-                    </select>
-                  </div>
-                </div>
-                <button type="submit" class="btn-primary">⚔ Adicionar Usuário</button>
-              </form>
-          </div>
-          
-          <div class="divider"></div>
-
-          <div class="section">
-              <input type="text" id="user-search" placeholder="Buscar por nome..." style="margin-bottom: 15px;">
-              <ul id="users-list" style="list-style: none; display: flex; flex-direction: column; gap: 8px;"></ul>
-          </div>
-        </div>
-
-        <!-- RELATÓRIO -->
-        <div id="logs-panel" class="panel" hidden>
-          <div class="corner corner-tl"></div>
-          <div class="corner corner-tr"></div>
-          <div class="corner corner-bl"></div>
-          <div class="corner corner-br"></div>
-          <div class="panel-title">Relatório do Sistema</div>
-          <div class="section">
-              <ul id="logs-list" style="list-style: none; display: flex; flex-direction: column; gap: 5px; font-family: monospace; font-size: 13px;"></ul>
-          </div>
-        </div>
-
-        <!-- CONTEÚDO -->
-        <div class="panel">
-          <div class="corner corner-tl"></div>
-          <div class="corner corner-tr"></div>
-          <div class="corner corner-bl"></div>
-          <div class="corner corner-br"></div>
-          <div class="panel-title">Aventuras</div>
-          <div class="panel-subtitle">Gerenciar crônicas e histórias do mural</div>
-          <div class="section">
-              <a href="/cadastro-aventura.html" class="btn-secondary" style="margin-bottom: 20px;">Nova Aventura</a>
-              <ul id="admin-list" style="list-style: none; display: flex; flex-direction: column; gap: 10px;"></ul>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- MODAL DE EDIÇÃO -->
-    <div id="user-edit-modal" class="mural-modal" hidden onclick="if(event.target==this) this.hidden=true">
-        <div class="mural-modal-panel" style="padding: 30px;">
-            <button type="button" class="mural-modal-close" onclick="document.getElementById('user-edit-modal').hidden = true">×</button>
-            <h2>Editar Usuário</h2>
-            <form id="user-edit-form" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
-                <input type="hidden" id="edit-user-id" />
-                <label>Nome</label><input type="text" id="edit-username" required style="padding: 10px; background: #111; border: 1px solid #333; color: #fff;" />
-                <label>E-mail</label><input type="email" id="edit-email" style="padding: 10px; background: #111; border: 1px solid #333; color: #fff;" />
-                <label>Nova Senha (vazio para manter)</label><input type="password" id="edit-password" style="padding: 10px; background: #111; border: 1px solid #333; color: #fff;" />
-                <label>Cargo</label>
-                <select id="edit-role" style="padding: 10px; background: #111; border: 1px solid #333; color: #fff;">
-                    <option value="admin">Admin</option>
-                    <option value="guildmaster">Guildmaster</option>
-                    <option value="officer">Officer</option>
-                    <option value="guildmember">Guildmember</option>
-                </select>
-                <div style="margin-top: 20px; display: flex; gap: 10px;">
-                    <button type="submit" class="discord-btn" style="border: none;">Salvar Alterações</button>
-                    <button type="button" class="discord-btn" style="background: #444; border: none;" onclick="document.getElementById('user-edit-modal').hidden = true">Cancelar</button>
-                </div>
-            </form>
-        </div>
+  <!-- Login -->
+  <div id="login-screen" class="admin-login-screen">
+    <div class="login-box">
+      <h2>Admin — BRAZUG</h2>
+      <p>Acesso restrito à liderança da guilda.</p>
+      <input type="text" id="admin-username" placeholder="Usuário" autocomplete="username" />
+      <input type="password" id="admin-password" placeholder="Senha" autocomplete="current-password" />
+      <button id="admin-login-btn">Entrar</button>
+      <div id="admin-login-error" class="login-error"></div>
     </div>
+  </div>
 
-    <!-- MODAL DE PREVIEW DA AVENTURA -->
-    <div id="mural-modal" class="mural-modal" hidden>
-      <div class="mural-modal-backdrop" data-action="close"></div>
-      <div class="mural-modal-panel">
-        <button type="button" class="mural-modal-close" data-action="close">×</button>
-        <img id="mural-modal-img" class="mural-modal-img" src="" alt="" />
-        <div class="mural-modal-copy">
-          <p id="mural-modal-date"></p>
-          <h2 id="mural-modal-title"></h2>
-          <div id="mural-modal-body" class="mural-modal-body"></div>
-          <p id="mural-modal-author" style="font-weight: bold; color: var(--gold);"></p>
-        </div>
+  <!-- Dashboard -->
+  <div id="admin-dashboard" hidden>
+    <div class="admin-page">
+      <div class="admin-shell">
+        <aside class="admin-sidebar">
+          <div class="admin-brand">
+            <img src="/assets/branding/contentbra.png" alt="BRAZUG" />
+            <div>
+              <strong>BRAZUG Admin</strong>
+              <span>Dados da guilda</span>
+            </div>
+          </div>
+
+          <nav class="admin-nav" aria-label="Seções do painel">
+            <button type="button" class="active" data-tab="overview"><i class="fa-solid fa-chart-line"></i> Visão geral</button>
+            <button type="button" data-tab="players"><i class="fa-solid fa-users"></i> Jogadores</button>
+            <button type="button" data-tab="characters"><i class="fa-solid fa-shield-halved"></i> Personagens</button>
+            <button type="button" data-tab="adventures"><i class="fa-solid fa-book-open"></i> Aventuras</button>
+            <button type="button" data-tab="cores"><i class="fa-solid fa-people-group"></i> Inscrições CORE</button>
+            <button type="button" data-tab="reports"><i class="fa-solid fa-file-csv"></i> Relatórios</button>
+            <button type="button" data-tab="settings"><i class="fa-solid fa-sliders"></i> Configurações</button>
+          </nav>
+
+          <div class="admin-sidebar-footer">
+            <button type="button" data-action="refresh-all"><i class="fa-solid fa-rotate"></i> Atualizar dados</button>
+            <a href="/"><i class="fa-solid fa-arrow-left"></i> Voltar ao site</a>
+          </div>
+        </aside>
+
+        <main class="admin-main">
+          <div class="admin-topbar">
+            <div>
+              <h1 id="admin-page-title">Visão geral</h1>
+              <p id="admin-page-sub">Métricas consolidadas da comunidade.</p>
+            </div>
+            <div class="admin-topbar-actions">
+              <span class="admin-user-chip"><i class="fa-solid fa-user-shield"></i> <strong id="admin-user-label">admin</strong></span>
+              <button type="button" class="admin-btn" id="btn-refresh"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+            </div>
+          </div>
+
+          <div id="admin-alert" class="admin-alert" hidden></div>
+
+          <!-- OVERVIEW -->
+          <section id="panel-overview" class="admin-panel active">
+            <div id="overview-kpis" class="kpi-grid"></div>
+
+            <div class="admin-grid two">
+              <div class="admin-card">
+                <div class="admin-card-header">
+                  <h2 class="admin-card-title">Cadastros e personagens por mês</h2>
+                  <span class="admin-card-meta">últimos 12 meses</span>
+                </div>
+                <div class="chart-box"><canvas id="chart-activity"></canvas></div>
+              </div>
+
+              <div class="admin-card">
+                <div class="admin-card-header">
+                  <h2 class="admin-card-title">Personagens por classe</h2>
+                  <span class="admin-card-meta" id="classes-total-label">—</span>
+                </div>
+                <div class="chart-box"><canvas id="chart-classes"></canvas></div>
+              </div>
+            </div>
+
+            <div class="admin-grid two">
+              <div class="admin-card">
+                <div class="admin-card-header">
+                  <h2 class="admin-card-title">Faixas de nível</h2>
+                  <span class="admin-card-meta">distribuição dos personagens</span>
+                </div>
+                <div id="level-bars" class="bar-list"></div>
+              </div>
+
+              <div class="admin-card">
+                <div class="admin-card-header">
+                  <h2 class="admin-card-title">Raças</h2>
+                  <span class="admin-card-meta">top raças cadastradas</span>
+                </div>
+                <div id="race-bars" class="bar-list"></div>
+              </div>
+            </div>
+
+            <div class="admin-grid two">
+              <div class="admin-card">
+                <div class="admin-card-header">
+                  <h2 class="admin-card-title">Últimos cadastros</h2>
+                  <span class="admin-card-meta">novos jogadores</span>
+                </div>
+                <div id="recent-users" class="table-wrap"></div>
+              </div>
+
+              <div class="admin-card">
+                <div class="admin-card-header">
+                  <h2 class="admin-card-title">Personagens de destaque</h2>
+                  <span class="admin-card-meta">maiores níveis</span>
+                </div>
+                <div id="top-characters" class="table-wrap"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- PLAYERS -->
+          <section id="panel-players" class="admin-panel">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h2 class="admin-card-title">Jogadores cadastrados</h2>
+                <span class="admin-card-meta" id="players-count-label">—</span>
+              </div>
+
+              <form id="player-create-form" class="admin-form">
+                <input type="text" name="username" placeholder="Usuário" minlength="3" maxlength="32" required />
+                <input type="email" name="email" placeholder="E-mail (opcional)" />
+                <input type="password" name="password" placeholder="Senha inicial" minlength="8" required />
+                <select name="role">
+                  <option value="guildmember">Membro</option>
+                  <option value="officer">Officer</option>
+                  <option value="guildmaster">Guildmaster</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <button type="submit" class="admin-btn primary"><i class="fa-solid fa-plus"></i> Criar jogador</button>
+              </form>
+
+              <div class="admin-toolbar">
+                <input type="search" id="players-search" placeholder="Buscar por usuário ou e-mail" />
+                <span class="spacer"></span>
+                <button type="button" class="admin-btn" data-report="players"><i class="fa-solid fa-file-csv"></i> Exportar CSV</button>
+              </div>
+
+              <div id="players-table" class="table-wrap"></div>
+            </div>
+          </section>
+
+          <!-- CHARACTERS -->
+          <section id="panel-characters" class="admin-panel">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h2 class="admin-card-title">Personagens</h2>
+                <span class="admin-card-meta" id="characters-count-label">—</span>
+              </div>
+
+              <div class="admin-toolbar">
+                <input type="search" id="characters-search" placeholder="Buscar por nome, classe, raça ou dono" />
+                <select id="characters-class-filter"><option value="">Todas as classes</option></select>
+                <select id="characters-status-filter">
+                  <option value="">Todos os status</option>
+                  <option value="alive">Vivos</option>
+                  <option value="dead">Mortos</option>
+                </select>
+                <span class="spacer"></span>
+                <button type="button" class="admin-btn" data-report="characters"><i class="fa-solid fa-file-csv"></i> Exportar CSV</button>
+              </div>
+
+              <div id="characters-table" class="table-wrap"></div>
+            </div>
+          </section>
+
+          <!-- ADVENTURES -->
+          <section id="panel-adventures" class="admin-panel">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h2 class="admin-card-title">Aventuras</h2>
+                <span class="admin-card-meta" id="adventures-count-label">—</span>
+              </div>
+              <div class="admin-toolbar">
+                <select id="adventures-status-filter">
+                  <option value="">Todas</option>
+                  <option value="pending">Pendentes</option>
+                  <option value="approved">Aprovadas</option>
+                </select>
+                <span class="spacer"></span>
+                <button type="button" class="admin-btn" data-action="refresh-tab"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+              </div>
+              <div id="adventures-list" class="stack-list"></div>
+            </div>
+          </section>
+
+          <!-- CORES -->
+          <section id="panel-cores" class="admin-panel">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h2 class="admin-card-title">Inscrições CORE</h2>
+                <span class="admin-card-meta" id="cores-count-label">—</span>
+              </div>
+              <div class="admin-toolbar">
+                <select id="cores-core-filter"><option value="">Todos os COREs</option></select>
+                <select id="cores-status-filter">
+                  <option value="">Todos os status</option>
+                  <option value="pending">Pendente</option>
+                  <option value="approved">Aprovado</option>
+                  <option value="rejected">Rejeitado</option>
+                </select>
+                <span class="spacer"></span>
+                <button type="button" class="admin-btn" data-action="refresh-cores"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+              </div>
+              <div id="cores-list" class="stack-list"></div>
+            </div>
+          </section>
+
+          <!-- REPORTS -->
+          <section id="panel-reports" class="admin-panel">
+            <div id="report-kpis" class="kpi-grid"></div>
+
+            <div class="admin-grid">
+              <div class="report-grid">
+                <div class="report-card">
+                  <h3>Jogadores cadastrados</h3>
+                  <p>Base completa com usuário, e-mail, cargo, personagens, nível máximo e data de cadastro.</p>
+                  <button type="button" class="admin-btn primary" data-report="players"><i class="fa-solid fa-download"></i> Baixar CSV</button>
+                </div>
+                <div class="report-card">
+                  <h3>Personagens</h3>
+                  <p>Relatório detalhado com classe, raça, nível, guilda, reino, status e informações de morte.</p>
+                  <button type="button" class="admin-btn primary" data-report="characters"><i class="fa-solid fa-download"></i> Baixar CSV</button>
+                </div>
+                <div class="report-card">
+                  <h3>Resumo por classe</h3>
+                  <p>Quantidade de personagens, nível médio e mortes agrupados por classe.</p>
+                  <button type="button" class="admin-btn primary" data-report="classes"><i class="fa-solid fa-download"></i> Baixar CSV</button>
+                </div>
+                <div class="report-card">
+                  <h3>Aventuras</h3>
+                  <p>Título, autor, status de aprovação, visibilidade e datas das crônicas enviadas.</p>
+                  <button type="button" class="admin-btn primary" data-report="adventures"><i class="fa-solid fa-download"></i> Baixar CSV</button>
+                </div>
+                <div class="report-card">
+                  <h3>Inscrições CORE</h3>
+                  <p>Jogador, CORE pretendido, status e respostas completas do formulário.</p>
+                  <button type="button" class="admin-btn primary" data-report="cores"><i class="fa-solid fa-download"></i> Baixar CSV</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-grid two">
+              <div class="admin-card">
+                <div class="admin-card-header">
+                  <h2 class="admin-card-title">Resumo por classe</h2>
+                  <span class="admin-card-meta">personagens / nível médio / mortes</span>
+                </div>
+                <div id="report-classes" class="table-wrap"></div>
+              </div>
+
+              <div class="admin-card">
+                <div class="admin-card-header">
+                  <h2 class="admin-card-title">Resumo por raça</h2>
+                  <span class="admin-card-meta">distribuição de personagens</span>
+                </div>
+                <div id="report-races" class="table-wrap"></div>
+              </div>
+            </div>
+
+            <div class="admin-grid two">
+              <div class="admin-card">
+                <div class="admin-card-header">
+                  <h2 class="admin-card-title">Faixas de nível</h2>
+                  <span class="admin-card-meta">personagens por faixa</span>
+                </div>
+                <div id="report-levels" class="table-wrap"></div>
+              </div>
+
+              <div class="admin-card">
+                <div class="admin-card-header">
+                  <h2 class="admin-card-title">Status das inscrições CORE</h2>
+                  <span class="admin-card-meta">pendentes / aprovadas / rejeitadas</span>
+                </div>
+                <div id="report-cores" class="table-wrap"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- SETTINGS -->
+          <section id="panel-settings" class="admin-panel">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <h2 class="admin-card-title">Configurações do site</h2>
+                <span class="admin-card-meta">chave / valor</span>
+              </div>
+              <form id="setting-form" class="admin-form">
+                <input type="text" id="setting-key" placeholder="Chave (ex: weekly_agenda)" required />
+                <input type="text" id="setting-value" placeholder="Valor" required />
+                <button type="submit" class="admin-btn primary"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+              </form>
+              <div id="settings-result" class="empty-state" hidden></div>
+            </div>
+          </section>
+        </main>
       </div>
     </div>
+  </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+  <script src="/js/header.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script>
+    (function () {
+      "use strict";
 
-    <script src="/js/models/AdminModel.js"></script>
-    <script src="/js/views/AdminView.js"></script>
-    <script src="/js/controllers/AdminController.js"></script>
-    <script src="/js/header.js"></script>
-  </body>
+      const state = {
+        analytics: null,
+        users: [],
+        characters: [],
+        adventures: [],
+        cores: [],
+        loaded: {},
+        charts: {}
+      };
+
+      const TAB_META = {
+        overview: { title: "Visão geral", sub: "Métricas consolidadas da comunidade." },
+        players: { title: "Jogadores", sub: "Contas cadastradas e vínculos com personagens." },
+        characters: { title: "Personagens", sub: "Classes, raças, níveis e status Hardcore." },
+        adventures: { title: "Aventuras", sub: "Crônicas enviadas e moderação do mural." },
+        cores: { title: "Inscrições CORE", sub: "Candidaturas e status de aprovação." },
+        reports: { title: "Relatórios", sub: "Exportação e resumos analíticos." },
+        settings: { title: "Configurações", sub: "Chaves dinâmicas do site." }
+      };
+
+      const fmt = new Intl.NumberFormat("pt-BR");
+      const $ = (sel, root) => (root || document).querySelector(sel);
+      const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+      function n(value) {
+        return fmt.format(Number(value) || 0);
+      }
+
+      function pct(value) {
+        return `${Math.round(Number(value) || 0)}%`;
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function fmtDate(value) {
+        if (!value) return "—";
+        const d = new Date(value);
+        return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("pt-BR");
+      }
+
+      function fmtDateTime(value) {
+        if (!value) return "—";
+        const d = new Date(value);
+        return Number.isNaN(d.getTime()) ? "—" : d.toLocaleString("pt-BR");
+      }
+
+      function monthLabel(ym) {
+        if (!ym) return "";
+        const parts = String(ym).split("-");
+        if (parts.length < 2) return ym;
+        const months = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+        const index = Number(parts[1]) - 1;
+        return `${months[index] || parts[1]}/${String(parts[0]).slice(-2)}`;
+      }
+
+      function classColor(name) {
+        const key = String(name || "").toLowerCase();
+        const colors = {
+          warrior: "#C79C6E",
+          paladin: "#F58CBA",
+          hunter: "#ABD473",
+          rogue: "#FFF569",
+          priest: "#FFFFFF",
+          "death knight": "#C41F3B",
+          shaman: "#0070DE",
+          mage: "#40C7EB",
+          warlock: "#8787ED",
+          monk: "#00FF96",
+          druid: "#FF7D0A",
+          "demon hunter": "#A330C9",
+          evoker: "#33937F"
+        };
+        return colors[key] || "#f7c14d";
+      }
+
+      function invalidateAnalytics() {
+        state.analytics = null;
+        state.loaded.overview = false;
+        state.loaded.reports = false;
+      }
+
+      function showAlert(message) {
+        const el = $("#admin-alert");
+        if (!message) {
+          el.hidden = true;
+          el.textContent = "";
+          return;
+        }
+        el.textContent = message;
+        el.hidden = false;
+      }
+
+      async function api(path, options) {
+        const res = await fetch(path, Object.assign({ credentials: "same-origin" }, options || {}));
+        const type = res.headers.get("content-type") || "";
+        const data = type.includes("application/json")
+          ? await res.json().catch(() => ({}))
+          : await res.text();
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            showLogin();
+            throw new Error("Sessão expirada. Entre novamente.");
+          }
+          throw new Error((data && data.error) || ("Erro " + res.status));
+        }
+        return data;
+      }
+
+      /* ── LOGIN ───────────────────────────────────────────── */
+
+      function showLogin() {
+        $("#login-screen").hidden = false;
+        $("#admin-dashboard").hidden = true;
+      }
+
+      function showDashboard() {
+        $("#login-screen").hidden = true;
+        $("#admin-dashboard").hidden = false;
+        $("#admin-user-label").textContent = localStorage.getItem("brazug_admin_user") || "admin";
+        showTab("overview");
+      }
+
+      async function bootstrap() {
+        try {
+          const res = await fetch("/api/auth/me", { credentials: "same-origin" });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.user && data.user.role === "admin") {
+              localStorage.setItem("brazug_admin_token", "session");
+              localStorage.setItem("brazug_admin_role", data.user.role);
+              localStorage.setItem("brazug_admin_user", data.user.username);
+              showDashboard();
+              return;
+            }
+          }
+        } catch (e) {}
+        showLogin();
+      }
+
+      async function login() {
+        const username = $("#admin-username").value.trim();
+        const password = $("#admin-password").value;
+        const errorEl = $("#admin-login-error");
+        const button = $("#admin-login-btn");
+        errorEl.textContent = "";
+        button.disabled = true;
+
+        try {
+          const data = await api("/api/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+          });
+
+          if (!data.user || data.user.role !== "admin") {
+            throw new Error("Acesso negado: esta conta não é admin.");
+          }
+
+          localStorage.setItem("brazug_admin_token", "session");
+          localStorage.setItem("brazug_admin_role", data.user.role);
+          localStorage.setItem("brazug_admin_user", data.user.username);
+          showDashboard();
+        } catch (e) {
+          errorEl.textContent = e.message;
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      /* ── TABS / LOAD ─────────────────────────────────────── */
+
+      function showTab(name) {
+        const meta = TAB_META[name] || TAB_META.overview;
+        $$(".admin-nav button").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === name));
+        $$(".admin-panel").forEach((panel) => panel.classList.remove("active"));
+        const panel = $("#panel-" + name);
+        if (panel) panel.classList.add("active");
+        $("#admin-page-title").textContent = meta.title;
+        $("#admin-page-sub").textContent = meta.sub;
+        showAlert("");
+
+        if (!state.loaded[name]) {
+          loadTab(name).catch((e) => showAlert(e.message));
+        }
+      }
+
+      async function loadTab(name) {
+        if (name === "overview" || name === "reports") {
+          await loadDashboard();
+          return;
+        }
+        if (name === "players") {
+          await loadUsers();
+          return;
+        }
+        if (name === "characters") {
+          await loadCharacters();
+          return;
+        }
+        if (name === "adventures") {
+          await loadAdventures();
+          return;
+        }
+        if (name === "cores") {
+          await loadCores();
+        }
+      }
+
+      async function refreshCurrent() {
+        const active = $(".admin-nav button.active");
+        const name = active ? active.dataset.tab : "overview";
+        state.loaded[name] = false;
+        if (name === "overview" || name === "reports") invalidateAnalytics();
+        await loadTab(name);
+      }
+
+      async function refreshAll() {
+        invalidateAnalytics();
+        state.users = [];
+        state.characters = [];
+        state.adventures = [];
+        state.cores = [];
+        state.loaded = {};
+        const active = $(".admin-nav button.active");
+        await loadTab(active ? active.dataset.tab : "overview");
+      }
+
+      /* ── DASHBOARD ───────────────────────────────────────── */
+
+      async function loadDashboard(force) {
+        if (state.analytics && !force) {
+          renderDashboard();
+          return;
+        }
+
+        const kpis = $("#overview-kpis");
+        if (kpis) kpis.innerHTML = '<div class="loading-state">Carregando métricas...</div>';
+
+        try {
+          state.analytics = await api("/api/admin/analytics");
+          state.loaded.overview = true;
+          state.loaded.reports = true;
+          renderDashboard();
+        } catch (e) {
+          showAlert(e.message);
+          if (kpis) kpis.innerHTML = '<div class="empty-state">Não foi possível carregar as métricas.</div>';
+        }
+      }
+
+      function renderDashboard() {
+        if (!state.analytics) return;
+        renderKpis();
+        renderReportKpis();
+        renderActivityChart();
+        renderClassesChart();
+        renderLevelBars();
+        renderRaceBars();
+        renderRecentUsers();
+        renderTopCharacters();
+        renderReportTables();
+      }
+
+      function kpiCard(icon, label, value, sub) {
+        return `
+          <div class="kpi-card">
+            <div class="kpi-icon"><i class="${icon}"></i></div>
+            <div class="kpi-label">${escapeHtml(label)}</div>
+            <div class="kpi-value">${escapeHtml(value)}</div>
+            <div class="kpi-sub">${escapeHtml(sub)}</div>
+          </div>
+        `;
+      }
+
+      function renderKpis() {
+        const o = state.analytics.overview;
+        const html = [
+          kpiCard("fa-solid fa-users", "Jogadores cadastrados", n(o.totalUsers), `${n(o.newUsers30d)} novos em 30 dias`),
+          kpiCard("fa-solid fa-user-check", "Contas verificadas", n(o.verifiedUsers), `${pct(o.verificationRate)} da base · ${n(o.pendingUsers)} pendentes`),
+          kpiCard("fa-solid fa-shield-halved", "Personagens", n(o.totalCharacters), `Nível médio ${n(o.avgLevel)} · máx. ${n(o.maxLevel)}`),
+          kpiCard("fa-solid fa-skull", "Mortes Hardcore", n(o.deadCharacters), `${n(o.aliveCharacters)} personagens vivos`),
+          kpiCard("fa-solid fa-book-open", "Aventuras", n(o.totalAdventures), `${n(o.pendingAdventures)} aguardando aprovação`),
+          kpiCard("fa-solid fa-people-group", "Inscrições CORE", n(o.totalCoreApplications), `${n(o.pendingCoreApplications)} pendentes`),
+          kpiCard("fa-solid fa-user-shield", "Staff", n(o.staffUsers), "admin, guildmaster e officers"),
+          kpiCard("fa-solid fa-ranking-star", "Maior nível", n(o.maxLevel), "personagem mais alto da base")
+        ].join("");
+        $("#overview-kpis").innerHTML = html;
+      }
+
+      function renderReportKpis() {
+        const o = state.analytics.overview;
+        const el = $("#report-kpis");
+        if (!el) return;
+        el.innerHTML = [
+          kpiCard("fa-solid fa-user-plus", "Novos em 7 dias", n(o.newUsers7d), "cadastros recentes"),
+          kpiCard("fa-solid fa-user-clock", "Aguardando verificação", n(o.pendingUsers), `${pct(100 - o.verificationRate)} da base`),
+          kpiCard("fa-solid fa-scroll", "Aventuras em 30 dias", n(o.adventures30d), `${n(o.approvedAdventures)} aprovadas no total`)
+        ].join("");
+      }
+
+      function destroyChart(key) {
+        if (state.charts[key]) {
+          state.charts[key].destroy();
+          delete state.charts[key];
+        }
+      }
+
+      function chartFallback(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const parent = canvas.parentElement;
+        if (parent) parent.innerHTML = '<div class="empty-state">Gráfico indisponível (Chart.js não carregou).</div>';
+      }
+
+      function renderActivityChart() {
+        const canvas = document.getElementById("chart-activity");
+        if (!canvas) return;
+        if (typeof Chart === "undefined") return chartFallback("chart-activity");
+
+        const users = state.analytics.users.byMonth || [];
+        const characters = state.analytics.characters.byMonth || [];
+        const months = Array.from(new Set([...users.map((r) => r.month), ...characters.map((r) => r.month)])).sort();
+        const userMap = Object.fromEntries(users.map((r) => [r.month, Number(r.count) || 0]));
+        const charMap = Object.fromEntries(characters.map((r) => [r.month, Number(r.count) || 0]));
+
+        destroyChart("activity");
+        state.charts.activity = new Chart(canvas.getContext("2d"), {
+          type: "bar",
+          data: {
+            labels: months.map(monthLabel),
+            datasets: [
+              {
+                label: "Jogadores",
+                data: months.map((m) => userMap[m] || 0),
+                backgroundColor: "rgba(247, 193, 77, 0.75)",
+                borderRadius: 5,
+                maxBarThickness: 22
+              },
+              {
+                label: "Personagens",
+                data: months.map((m) => charMap[m] || 0),
+                backgroundColor: "rgba(196, 30, 58, 0.75)",
+                borderRadius: 5,
+                maxBarThickness: 22
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: "#b9a99b", boxWidth: 12, font: { size: 11 } } },
+              tooltip: { backgroundColor: "#150c0c", borderColor: "rgba(247,193,77,.25)", borderWidth: 1 }
+            },
+            scales: {
+              x: { ticks: { color: "#7a6a4a", font: { size: 10 } }, grid: { display: false } },
+              y: { beginAtZero: true, ticks: { color: "#7a6a4a", precision: 0, font: { size: 10 } }, grid: { color: "rgba(255,255,255,.05)" } }
+            }
+          }
+        });
+      }
+
+      function renderClassesChart() {
+        const canvas = document.getElementById("chart-classes");
+        if (!canvas) return;
+        if (typeof Chart === "undefined") return chartFallback("chart-classes");
+
+        const rows = state.analytics.characters.byClass || [];
+        const total = rows.reduce((sum, r) => sum + (Number(r.count) || 0), 0);
+        const label = $("#classes-total-label");
+        if (label) label.textContent = `${n(total)} personagens`;
+
+        destroyChart("classes");
+        state.charts.classes = new Chart(canvas.getContext("2d"), {
+          type: "doughnut",
+          data: {
+            labels: rows.map((r) => r.class_name),
+            datasets: [{
+              data: rows.map((r) => Number(r.count) || 0),
+              backgroundColor: rows.map((r) => classColor(r.class_name)),
+              borderColor: "#0b0707",
+              borderWidth: 2,
+              hoverOffset: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "58%",
+            plugins: {
+              legend: { position: "right", labels: { color: "#b9a99b", boxWidth: 10, font: { size: 10 }, padding: 10 } },
+              tooltip: {
+                backgroundColor: "#150c0c",
+                borderColor: "rgba(247,193,77,.25)",
+                borderWidth: 1,
+                callbacks: {
+                  label: (ctx) => ` ${ctx.label}: ${n(ctx.raw)} (${total ? Math.round((ctx.raw / total) * 100) : 0}%)`
+                }
+              }
+            }
+          }
+        });
+      }
+
+      function renderBars(containerId, rows, labelKey, valueKey, colorFn) {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        if (!rows.length) {
+          el.innerHTML = '<div class="empty-state">Sem dados suficientes.</div>';
+          return;
+        }
+        const max = Math.max(...rows.map((r) => Number(r[valueKey]) || 0), 1);
+        el.innerHTML = rows.map((row) => {
+          const value = Number(row[valueKey]) || 0;
+          const width = Math.max((value / max) * 100, value ? 3 : 0);
+          const color = colorFn ? colorFn(row) : "linear-gradient(90deg, var(--horde-red), var(--gold))";
+          return `
+            <div class="bar-row">
+              <span class="bar-label" title="${escapeHtml(row[labelKey])}">${escapeHtml(row[labelKey])}</span>
+              <div class="bar-track"><div class="bar-fill" style="width:${width}%; background:${color};"></div></div>
+              <span class="bar-value">${n(value)}</span>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderLevelBars() {
+        renderBars("level-bars", state.analytics.characters.byLevel || [], "bracket", "count");
+      }
+
+      function renderRaceBars() {
+        const rows = (state.analytics.characters.byRace || []).slice(0, 10);
+        renderBars("race-bars", rows, "race", "count");
+      }
+
+      function simpleTable(headers, rows, className) {
+        if (!rows.length) return '<div class="empty-state">Sem dados.</div>';
+        return `
+          <table class="admin-table ${className || ""}">
+            <thead><tr>${headers.map((h) => `<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>
+            <tbody>${rows.join("")}</tbody>
+          </table>
+        `;
+      }
+
+      function renderRecentUsers() {
+        const el = $("#recent-users");
+        if (!el) return;
+        const rows = (state.analytics.users.recent || []).map((u) => `
+          <tr>
+            <td class="strong">${escapeHtml(u.username)}</td>
+            <td>${escapeHtml(u.email || "—")}</td>
+            <td><span class="badge ${u.is_verified ? "green" : "gold"}">${u.is_verified ? "verificado" : "pendente"}</span></td>
+            <td class="muted">${escapeHtml(fmtDate(u.created_at))}</td>
+          </tr>
+        `);
+        el.innerHTML = simpleTable(["Jogador", "E-mail", "Status", "Cadastro"], rows);
+      }
+
+      function renderTopCharacters() {
+        const el = $("#top-characters");
+        if (!el) return;
+        const rows = (state.analytics.characters.top || []).map((c) => `
+          <tr>
+            <td class="strong" style="color:${classColor(c.class)}">${escapeHtml(c.name)}</td>
+            <td>${escapeHtml(c.class || "—")}</td>
+            <td class="num">${n(c.level)}</td>
+            <td>${c.is_dead ? '<span class="badge red">morto</span>' : '<span class="badge green">vivo</span>'}</td>
+          </tr>
+        `);
+        el.innerHTML = simpleTable(["Personagem", "Classe", "Nível", "Status"], rows);
+      }
+
+      function renderReportTables() {
+        const classes = state.analytics.characters.byClass || [];
+        const classRows = classes.map((c) => `
+          <tr>
+            <td class="strong" style="color:${classColor(c.class_name)}">${escapeHtml(c.class_name)}</td>
+            <td class="num">${n(c.count)}</td>
+            <td class="num">${n(c.avg_level)}</td>
+            <td class="num">${n(c.dead)}</td>
+          </tr>
+        `);
+        const classesEl = $("#report-classes");
+        if (classesEl) classesEl.innerHTML = simpleTable(["Classe", "Personagens", "Nível médio", "Mortes"], classRows);
+
+        const races = state.analytics.characters.byRace || [];
+        const raceRows = races.map((r) => `<tr><td class="strong">${escapeHtml(r.race)}</td><td class="num">${n(r.count)}</td></tr>`);
+        const racesEl = $("#report-races");
+        if (racesEl) racesEl.innerHTML = simpleTable(["Raça", "Personagens"], raceRows);
+
+        const levels = state.analytics.characters.byLevel || [];
+        const levelRows = levels.map((l) => `<tr><td class="strong">${escapeHtml(l.bracket)}</td><td class="num">${n(l.count)}</td></tr>`);
+        const levelsEl = $("#report-levels");
+        if (levelsEl) levelsEl.innerHTML = simpleTable(["Faixa", "Personagens"], levelRows);
+
+        const cores = state.analytics.cores.byStatus || [];
+        const coreRows = cores.map((c) => {
+          const tone = c.status === "approved" ? "green" : c.status === "rejected" ? "red" : "gold";
+          return `<tr><td><span class="badge ${tone}">${escapeHtml(c.status)}</span></td><td class="num">${n(c.count)}</td></tr>`;
+        });
+        const coresEl = $("#report-cores");
+        if (coresEl) coresEl.innerHTML = simpleTable(["Status", "Inscrições"], coreRows);
+      }
+
+      /* ── PLAYERS ─────────────────────────────────────────── */
+
+      async function loadUsers() {
+        const el = $("#players-table");
+        el.innerHTML = '<div class="loading-state">Carregando jogadores...</div>';
+        try {
+          const data = await api("/api/admin/users");
+          state.users = data.users || [];
+          state.loaded.players = true;
+          renderPlayers();
+        } catch (e) {
+          showAlert(e.message);
+          el.innerHTML = '<div class="empty-state">Não foi possível carregar jogadores.</div>';
+        }
+      }
+
+      function renderPlayers() {
+        const query = ($("#players-search").value || "").trim().toLowerCase();
+        const users = state.users.filter((u) => {
+          if (!query) return true;
+          return String(u.username || "").toLowerCase().includes(query) ||
+            String(u.email || "").toLowerCase().includes(query);
+        });
+
+        const label = $("#players-count-label");
+        if (label) label.textContent = `${n(state.users.length)} contas · ${n(users.length)} exibidas`;
+
+        const rows = users.map((u) => `
+          <tr>
+            <td class="strong">${escapeHtml(u.username)}</td>
+            <td>${escapeHtml(u.email || "—")}</td>
+            <td>
+              <select data-action="change-role" data-id="${escapeHtml(u.id)}" style="padding:5px 8px; background:rgba(0,0,0,.35); border:1px solid var(--border); border-radius:6px; color:var(--text-muted); font-size:11px;">
+                ${["guildmember", "officer", "guildmaster", "admin"].map((role) => `<option value="${role}" ${u.role === role ? "selected" : ""}>${role}</option>`).join("")}
+              </select>
+            </td>
+            <td class="num">${n(u.characters)}</td>
+            <td class="num">${n(u.max_level)}</td>
+            <td class="num">${n(u.dead_characters)}</td>
+            <td><span class="badge ${u.is_verified ? "green" : "gold"}">${u.is_verified ? "verificado" : "pendente"}</span></td>
+            <td class="muted">${escapeHtml(fmtDate(u.created_at))}</td>
+            <td><button type="button" class="admin-btn danger" data-action="delete-user" data-id="${escapeHtml(u.id)}" data-name="${escapeHtml(u.username)}"><i class="fa-solid fa-trash"></i></button></td>
+          </tr>
+        `);
+        $("#players-table").innerHTML = simpleTable(
+          ["Jogador", "E-mail", "Cargo", "Personagens", "Nível máx.", "Mortes", "Status", "Cadastro", ""],
+          rows
+        );
+      }
+
+      async function createPlayer(form) {
+        const fd = new FormData(form);
+        const payload = {
+          username: String(fd.get("username") || "").trim(),
+          email: String(fd.get("email") || "").trim() || undefined,
+          password: String(fd.get("password") || ""),
+          role: String(fd.get("role") || "guildmember")
+        };
+        await api("/api/admin/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        form.reset();
+        await loadUsers();
+        invalidateAnalytics();
+      }
+
+      async function deleteUser(id) {
+        await api("/api/admin/users/" + encodeURIComponent(id), { method: "DELETE" });
+        await loadUsers();
+        invalidateAnalytics();
+      }
+
+      async function changeRole(id, role) {
+        await api("/api/admin/users/" + encodeURIComponent(id), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role })
+        });
+        const user = state.users.find((item) => String(item.id) === String(id));
+        if (user) user.role = role;
+        invalidateAnalytics();
+      }
+
+      /* ── CHARACTERS ──────────────────────────────────────── */
+
+      async function loadCharacters() {
+        const el = $("#characters-table");
+        el.innerHTML = '<div class="loading-state">Carregando personagens...</div>';
+        try {
+          const data = await api("/api/admin/characters?limit=2000");
+          state.characters = data.characters || [];
+          state.loaded.characters = true;
+          fillCharacterClassFilter();
+          renderCharacters();
+        } catch (e) {
+          showAlert(e.message);
+          el.innerHTML = '<div class="empty-state">Não foi possível carregar personagens.</div>';
+        }
+      }
+
+      function fillCharacterClassFilter() {
+        const select = $("#characters-class-filter");
+        const current = select.value;
+        const classes = Array.from(new Set(state.characters.map((c) => c.class).filter(Boolean))).sort();
+        select.innerHTML = '<option value="">Todas as classes</option>' +
+          classes.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+        if (classes.includes(current)) select.value = current;
+      }
+
+      function renderCharacters() {
+        const query = ($("#characters-search").value || "").trim().toLowerCase();
+        const classFilter = $("#characters-class-filter").value;
+        const statusFilter = $("#characters-status-filter").value;
+
+        const characters = state.characters.filter((c) => {
+          if (classFilter && c.class !== classFilter) return false;
+          if (statusFilter === "alive" && c.is_dead) return false;
+          if (statusFilter === "dead" && !c.is_dead) return false;
+          if (!query) return true;
+          return [c.name, c.class, c.race, c.guild, c.realm, c.username]
+            .some((value) => String(value || "").toLowerCase().includes(query));
+        });
+
+        const label = $("#characters-count-label");
+        if (label) label.textContent = `${n(state.characters.length)} personagens · ${n(characters.length)} exibidos`;
+
+        const rows = characters.map((c) => `
+          <tr>
+            <td class="strong" style="color:${classColor(c.class)}">${escapeHtml(c.name)}</td>
+            <td>${escapeHtml(c.class || "—")}</td>
+            <td>${escapeHtml(c.race || "—")}</td>
+            <td class="num">${n(c.level)}</td>
+            <td>${escapeHtml(c.guild || "—")}</td>
+            <td>${escapeHtml(c.realm || "—")}</td>
+            <td>${escapeHtml(c.username || "—")}</td>
+            <td>${c.is_dead ? '<span class="badge red">morto</span>' : '<span class="badge green">vivo</span>'}</td>
+            <td class="muted">${escapeHtml(fmtDate(c.created_at))}</td>
+          </tr>
+        `);
+        $("#characters-table").innerHTML = simpleTable(
+          ["Personagem", "Classe", "Raça", "Nível", "Guilda", "Reino", "Dono", "Status", "Criado"],
+          rows
+        );
+      }
+
+      /* ── ADVENTURES ──────────────────────────────────────── */
+
+      async function loadAdventures() {
+        const el = $("#adventures-list");
+        el.innerHTML = '<div class="loading-state">Carregando aventuras...</div>';
+        try {
+          const data = await api("/api/admin/adventures");
+          state.adventures = data.adventures || [];
+          state.loaded.adventures = true;
+          renderAdventures();
+        } catch (e) {
+          showAlert(e.message);
+          el.innerHTML = '<div class="empty-state">Não foi possível carregar aventuras.</div>';
+        }
+      }
+
+      function renderAdventures() {
+        const filter = $("#adventures-status-filter").value;
+        const items = state.adventures.filter((a) => {
+          if (filter === "approved") return a.is_approved;
+          if (filter === "pending") return !a.is_approved;
+          return true;
+        });
+
+        const label = $("#adventures-count-label");
+        if (label) label.textContent = `${n(state.adventures.length)} aventuras · ${n(items.length)} exibidas`;
+
+        if (!items.length) {
+          $("#adventures-list").innerHTML = '<div class="empty-state">Nenhuma aventura encontrada.</div>';
+          return;
+        }
+
+        $("#adventures-list").innerHTML = items.map((a) => `
+          <article class="item-card">
+            <div class="item-card-head">
+              <div>
+                <h3 class="item-card-title">${escapeHtml(a.title || "Sem título")}</h3>
+                <div class="item-card-sub">${escapeHtml(a.author || "autor desconhecido")} · ${escapeHtml(fmtDate(a.created_at))}</div>
+              </div>
+              <span class="badge ${a.is_approved ? "green" : "gold"}">${a.is_approved ? "aprovada" : "pendente"}</span>
+            </div>
+            <p class="item-card-body">${escapeHtml(String(a.body || "").replace(/<[^>]*>/g, "").slice(0, 220))}${String(a.body || "").length > 220 ? "..." : ""}</p>
+            <div class="item-card-actions">
+              ${!a.is_approved ? `<button type="button" class="admin-btn success" data-action="approve-adventure" data-id="${escapeHtml(a.id)}"><i class="fa-solid fa-check"></i> Aprovar</button>` : ""}
+              <button type="button" class="admin-btn danger" data-action="delete-adventure" data-id="${escapeHtml(a.id)}"><i class="fa-solid fa-trash"></i> Excluir</button>
+            </div>
+          </article>
+        `).join("");
+      }
+
+      /* ── CORES ───────────────────────────────────────────── */
+
+      async function loadCores() {
+        const el = $("#cores-list");
+        el.innerHTML = '<div class="loading-state">Carregando inscrições...</div>';
+        try {
+          const data = await api("/api/core/applications");
+          state.cores = data.applications || [];
+          state.loaded.cores = true;
+          fillCoreFilter();
+          renderCores();
+        } catch (e) {
+          showAlert(e.message);
+          el.innerHTML = '<div class="empty-state">Não foi possível carregar inscrições.</div>';
+        }
+      }
+
+      function fillCoreFilter() {
+        const select = $("#cores-core-filter");
+        const current = select.value;
+        const cores = Array.from(new Set(state.cores.map((c) => c.core_name).filter(Boolean))).sort();
+        select.innerHTML = '<option value="">Todos os COREs</option>' +
+          cores.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+        if (cores.includes(current)) select.value = current;
+      }
+
+      function renderCores() {
+        const coreFilter = $("#cores-core-filter").value;
+        const statusFilter = $("#cores-status-filter").value;
+        const items = state.cores.filter((c) => {
+          if (coreFilter && c.core_name !== coreFilter) return false;
+          if (statusFilter && c.status !== statusFilter) return false;
+          return true;
+        });
+
+        const label = $("#cores-count-label");
+        if (label) label.textContent = `${n(state.cores.length)} inscrições · ${n(items.length)} exibidas`;
+
+        if (!items.length) {
+          $("#cores-list").innerHTML = '<div class="empty-state">Nenhuma inscrição encontrada.</div>';
+          return;
+        }
+
+        $("#cores-list").innerHTML = items.map((app) => {
+          const answers = app.answers || {};
+          const answerRows = Object.entries(answers).map(([key, value]) => {
+            const display = Array.isArray(value) ? value.join(", ") : (value || "—");
+            return `<div class="answer-item"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(String(display))}</div>`;
+          }).join("");
+          const tone = app.status === "approved" ? "green" : app.status === "rejected" ? "red" : "gold";
+          return `
+            <article class="item-card">
+              <div class="item-card-head">
+                <div>
+                  <h3 class="item-card-title">${escapeHtml(app.core_name || "CORE")}</h3>
+                  <div class="item-card-sub">${escapeHtml(app.username || "Desconhecido")} · ${escapeHtml(fmtDateTime(app.created_at))}</div>
+                </div>
+                <span class="badge ${tone}">${escapeHtml(app.status || "pending")}</span>
+              </div>
+              <div class="answer-grid">${answerRows}</div>
+              <div class="item-card-actions">
+                ${app.status !== "approved" ? `<button type="button" class="admin-btn success" data-action="core-status" data-id="${escapeHtml(app.id)}" data-status="approved"><i class="fa-solid fa-check"></i> Aprovar</button>` : ""}
+                ${app.status !== "rejected" ? `<button type="button" class="admin-btn danger" data-action="core-status" data-id="${escapeHtml(app.id)}" data-status="rejected"><i class="fa-solid fa-xmark"></i> Rejeitar</button>` : ""}
+                ${app.status !== "pending" ? `<button type="button" class="admin-btn" data-action="core-status" data-id="${escapeHtml(app.id)}" data-status="pending"><i class="fa-solid fa-rotate-left"></i> Pendente</button>` : ""}
+                <button type="button" class="admin-btn danger" data-action="delete-core" data-id="${escapeHtml(app.id)}"><i class="fa-solid fa-trash"></i> Excluir</button>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      /* ── REPORTS ─────────────────────────────────────────── */
+
+      async function downloadReport(type) {
+        const res = await fetch(`/api/admin/reports/${encodeURIComponent(type)}.csv`, { credentials: "same-origin" });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Não foi possível gerar o relatório.");
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `brazug-${type}-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      /* ── EVENTS ──────────────────────────────────────────── */
+
+      $("#admin-login-btn").addEventListener("click", login);
+      $("#admin-password").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") login();
+      });
+
+      $$(".admin-nav button").forEach((button) => {
+        button.addEventListener("click", () => showTab(button.dataset.tab));
+      });
+
+      $("#btn-refresh").addEventListener("click", () => {
+        refreshCurrent().catch((e) => showAlert(e.message));
+      });
+
+      document.addEventListener("click", (event) => {
+        const refreshAllBtn = event.target.closest('[data-action="refresh-all"]');
+        if (refreshAllBtn) {
+          refreshAll().catch((e) => showAlert(e.message));
+          return;
+        }
+
+        const refreshTab = event.target.closest('[data-action="refresh-tab"]');
+        if (refreshTab) {
+          refreshCurrent().catch((e) => showAlert(e.message));
+          return;
+        }
+
+        const refreshCores = event.target.closest('[data-action="refresh-cores"]');
+        if (refreshCores) {
+          state.loaded.cores = false;
+          loadCores().catch((e) => showAlert(e.message));
+          return;
+        }
+
+        const reportBtn = event.target.closest("[data-report]");
+        if (reportBtn) {
+          downloadReport(reportBtn.dataset.report).catch((e) => showAlert(e.message));
+          return;
+        }
+
+        const approve = event.target.closest('[data-action="approve-adventure"]');
+        if (approve) {
+          api("/api/admin/adventures/" + encodeURIComponent(approve.dataset.id) + "/approve", { method: "POST" })
+            .then(() => { state.loaded.adventures = false; return loadAdventures(); })
+            .catch((e) => showAlert(e.message));
+          return;
+        }
+
+        const removeAdventure = event.target.closest('[data-action="delete-adventure"]');
+        if (removeAdventure) {
+          if (!confirm("Excluir esta aventura?")) return;
+          api("/api/admin/adventures/" + encodeURIComponent(removeAdventure.dataset.id), { method: "DELETE" })
+            .then(() => { state.loaded.adventures = false; return loadAdventures(); })
+            .catch((e) => showAlert(e.message));
+          return;
+        }
+
+        const coreStatus = event.target.closest('[data-action="core-status"]');
+        if (coreStatus) {
+          api("/api/core/applications/" + encodeURIComponent(coreStatus.dataset.id) + "/status", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: coreStatus.dataset.status })
+          })
+            .then(() => { state.loaded.cores = false; invalidateAnalytics(); return loadCores(); })
+            .catch((e) => showAlert(e.message));
+          return;
+        }
+
+        const removeCore = event.target.closest('[data-action="delete-core"]');
+        if (removeCore) {
+          if (!confirm("Excluir esta inscrição?")) return;
+          api("/api/core/applications/" + encodeURIComponent(removeCore.dataset.id), { method: "DELETE" })
+            .then(() => { state.loaded.cores = false; invalidateAnalytics(); return loadCores(); })
+            .catch((e) => showAlert(e.message));
+          return;
+        }
+
+        const deletePlayer = event.target.closest('[data-action="delete-user"]');
+        if (deletePlayer) {
+          if (!confirm(`Excluir o jogador "${deletePlayer.dataset.name}"?`)) return;
+          deleteUser(deletePlayer.dataset.id).catch((e) => showAlert(e.message));
+        }
+      });
+
+      document.addEventListener("change", (event) => {
+        const roleSelect = event.target.closest('[data-action="change-role"]');
+        if (roleSelect) {
+          changeRole(roleSelect.dataset.id, roleSelect.value)
+            .then(() => showAlert(""))
+            .catch((e) => {
+              showAlert(e.message);
+              loadUsers().catch(() => {});
+            });
+        }
+      });
+
+      $("#players-search").addEventListener("input", renderPlayers);
+      $("#characters-search").addEventListener("input", renderCharacters);
+      $("#characters-class-filter").addEventListener("change", renderCharacters);
+      $("#characters-status-filter").addEventListener("change", renderCharacters);
+      $("#adventures-status-filter").addEventListener("change", renderAdventures);
+      $("#cores-core-filter").addEventListener("change", renderCores);
+      $("#cores-status-filter").addEventListener("change", renderCores);
+
+      $("#player-create-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        createPlayer(event.target).catch((e) => showAlert(e.message));
+      });
+
+      $("#setting-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const key = $("#setting-key").value.trim();
+        const value = $("#setting-value").value;
+        const result = $("#settings-result");
+        try {
+          await api("/api/admin/settings/" + encodeURIComponent(key), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ value })
+          });
+          result.hidden = false;
+          result.textContent = "Configuração salva com sucesso.";
+          result.style.color = "var(--gold)";
+          $("#setting-key").value = "";
+          $("#setting-value").value = "";
+        } catch (e) {
+          result.hidden = false;
+          result.textContent = "Erro: " + e.message;
+          result.style.color = "#ff8a8a";
+        }
+      });
+
+      bootstrap();
+    })();
+  </script>
+</body>
 </html>

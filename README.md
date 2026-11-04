@@ -59,9 +59,7 @@ Build: `npm install && npm run build`
 Start: `npm start`
 
 - Site: `https://brazug.com`
-- Health: `https://brazug.com/api/health` → `"postgres": { "ok": true }`
-
-No primeiro boot é criado o usuário **admin** (`ADMIN_PASSWORD`).
+- Health: `https://brazug.com/api/health` → `"database": { "ok": true }`
 
 ---
 
@@ -97,14 +95,16 @@ npm start
 | Variável | Descrição |
 |----------|-----------|
 | `DATABASE_URL` | `postgresql://...@IP_VPS:5432/brazug` |
-| `ADMIN_PASSWORD` | Senha do admin inicial |
+| `ADMIN_PASSWORD` | Fallback de segredo para tokens legados |
+| `JWT_SECRET` | Segredo principal dos tokens legados |
 | `TWITCH_*` | API Twitch |
 
 ---
 
 ## Docker (opcional)
 
-Só o banco usa Compose. A imagem `Dockerfile` é opcional se um dia quiser containerizar o app:
+O `docker-compose.yml` atual sobe apenas o **Armory** (porta 3001). O Postgres fica
+na VPS separada. A imagem `Dockerfile` é opcional se um dia quiser containerizar o site:
 
 ```bash
 docker build -t brazug-web .
@@ -115,9 +115,9 @@ docker build -t brazug-web .
 ## Scripts
 
 - `npm start` — app Node
-- `npm run docker:up` — sobe Postgres na máquina atual
-- `npm run docker:logs` — logs do Postgres
-- `npm run docker:down` — para o Postgres
+- `npm run docker:up` — sobe o Armory
+- `npm run docker:logs` — logs do Armory
+- `npm run docker:down` — para o Armory
 
 ## API
 

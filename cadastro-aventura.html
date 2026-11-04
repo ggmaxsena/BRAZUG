@@ -126,17 +126,5 @@
     <script src="/js/views/AdminView.js"></script>
     <script src="/js/controllers/AdminController.js"></script>
     <script src="/js/header.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const role = localStorage.getItem("brazug_admin_role");
-        if (role === 'admin' || role === 'guildmaster') {
-            const select = document.getElementById('visibility-select');
-            const opt = document.createElement('option');
-            opt.value = 'shadow';
-            opt.textContent = 'Shadow / Sombras';
-            select.appendChild(opt);
-        }
-      });
-    </script>
   </body>
 </html>

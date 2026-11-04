@@ -10,13 +10,11 @@ Este documento lista as melhorias planejadas, bugs conhecidos e ideias para o fu
     - [ ] Garantir que o `SyncButton.tsx` no Next.js atualize corretamente o banco de dados principal.
 - [ ] **Sistema de Notificações**: Feedback visual mais claro ao salvar aventuras ou personagens (atualmente usa `alert`).
 - [ ] **Melhoria no Upload**: Adicionar compressão de imagem no frontend antes do upload para economizar espaço em disco na VPS.
-- [ ] **Filtros no Mural**: Adicionar filtros por categoria (RP, Incursão, Morte Heroica) no mural da página inicial.
 - [ ] **SEO & Meta Tags**: Otimizar o compartilhamento de links de aventuras (OpenGraph tags dinâmicas).
 
 ## 🟡 Prioridade Média (Médio Prazo)
 
 - [ ] **Comentários nas Aventuras**: Permitir que membros logados deixem comentários ou "reações" (honra) nas histórias do mural.
-- [ ] **Integração Discord**: Webhook para avisar automaticamente no canal da guilda quando uma nova aventura for publicada.
 - [ ] **Dashboard Estatístico**: Gráficos no painel administrativo mostrando crescimento de membros e atividade do mural.
 - [ ] **Sistema de Conquistas (RP)**: Atribuir medalhas manuais nos perfis para destacar feitos lendários.
 - [ ] **Simulador de Set BiS / Planejador**: Criar interface para montar sets de itens (ex: "Set BiS Lvl 30") e simular como ficarão os atributos finais do personagem.
@@ -30,10 +28,8 @@ Este documento lista as melhorias planejadas, bugs conhecidos e ideias para o fu
 
 ## 🐞 Bugs & Ajustes Técnicos
 
-- [ ] **Validar E-mails**: Implementar regex mais rigorosa no registro.
-- [ ] **Rate Limiting**: Adicionar limite de requisições nas rotas de login/register para evitar força bruta.
 - [ ] **Logs de Auditoria**: Registrar quem deletou ou editou aventuras no banco de dados.
 - [ ] **Cache de Armory**: Implementar Redis ou cache em memória para evitar hits excessivos na API da Blizzard.
 
 ---
-*Atualizado em: 29 de Maio de 2026*
+*Atualizado em: 03 de Novembro de 2026*
