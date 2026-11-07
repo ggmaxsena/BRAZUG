@@ -15,6 +15,7 @@ Lista as aventuras publicadas.
 ### `GET /api/live-streams`
 Lista membros da guilda ao vivo na Twitch.
 - **Resposta**: `{ streams: [...], tag: "<BRAZUG>" }`
+- Canais bloqueados ficam de fora. A blacklist é editada no admin (Configurações → Blacklist de streams) e salva em `site_settings` com a chave `stream_blacklist` (um link ou login por linha).
 
 ---
 

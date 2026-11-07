@@ -5,6 +5,16 @@
    As páginas são geradas automaticamente a partir destes dados.
    ============================================================ */
 
+const VELHO_QUESTIONS = [
+  { id: 'nick', type: 'text', label: 'Qual teu nick no WoW?', required: true, hint: 'Discord precisa estar o mesmo nick.' },
+  { id: 'play_mode', type: 'radio', label: 'Pretende jogar o HC ou apenas o PVP?', required: true, options: ['Sim, vou jogar o HC', 'Não, apenas o PVP'] },
+  { id: 'days', type: 'checkbox', label: 'Quais são seus dias da semana disponíveis para raidar?', required: true, hint: 'lembrando, reservar 2hs', options: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'] },
+  { id: 'times', type: 'radio', label: 'Quais os melhores horários para raid?', required: true, options: ['20:00h - 22:00h', '21:00h - 23:00h', '22:00h - 00:00h'] },
+  { id: 'role', type: 'radio', label: 'Qual função pretende exercer?', required: true, options: ['Tank', 'Healer', 'DPS'] },
+  { id: 'class', type: 'text', label: 'Qual classe pretende criar?', required: true },
+  { id: 'leader', type: 'radio', label: 'Tem interesse em ser raid leader de core 10-man?', required: true, options: ['Sim', 'Não'] }
+];
+
 const BRAZUG_CORES = [
   {
     id: 'velho',
@@ -27,26 +37,96 @@ const BRAZUG_CORES = [
       { icon: 'fa-user-graduate', label: 'Mentoria', text: 'Veteranos ajudam novos membros a entender mecânicas e sobrevivência no HC.' }
     ],
     requirement: 'Membro ativo da BRAZUG com histórico comprovado no Classic HC. Discord deve estar com o mesmo nick do WoW. Convite via liderança.',
-    questions: [
-      { id: 'nick', type: 'text', label: 'Qual teu nick no WoW?', required: true, hint: 'Discord precisa estar o mesmo nick.' },
-      { id: 'play_mode', type: 'radio', label: 'Pretende jogar o HC ou apenas o PVP?', required: true, options: ['Sim, vou jogar o HC', 'Não, apenas o PVP'] },
-      { id: 'days', type: 'checkbox', label: 'Quais são seus dias da semana disponíveis para raidar?', required: true, hint: 'lembrando, reservar 2hs', options: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'] },
-      { id: 'times', type: 'radio', label: 'Quais os melhores horários para raid?', required: true, options: ['20:00h - 22:00h', '21:00h - 23:00h', '22:00h - 00:00h'] },
-      { id: 'role', type: 'radio', label: 'Qual função pretende exercer?', required: true, options: ['Tank', 'Healer', 'DPS'] },
-      { id: 'class', type: 'text', label: 'Qual classe pretende criar?', required: true },
-      { id: 'leader', type: 'radio', label: 'Tem interesse em ser raid leader de core 10-man?', required: true, options: ['Sim', 'Não'] }
-    ]
+    groups: [
+      { id: 'velho-40', name: '40 MAN', size: 40, leaderName: 'Fkeall', description: 'Raid principal de 40 jogadores.' },
+      { id: 'velho-20', name: '20 MAN', size: 20, leaderName: 'Fkeall / Sterftes', description: 'Dois grupos de 20 jogadores.' },
+      { id: 'velho-10', name: '10 MAN', size: 10, leaderName: 'A definir', description: 'Quatro grupos de 10 jogadores.' }
+    ],
+    questions: VELHO_QUESTIONS
+  },
+  {
+    id: 'velho-40',
+    parentId: 'velho',
+    hiddenFromHub: true,
+    name: 'CORE do Velho — 40 MAN',
+    subtitle: 'Raid principal de 40 jogadores do CORE do Velho',
+    badge: '⚔️ 40 MAN — Ativo',
+    badgeClass: 'active',
+    accent: '#c41e3a',
+    accentGlow: 'rgba(196, 30, 58, 0.4)',
+    gold: '#f7c14d',
+    status: 'active',
+    registrationOpen: true,
+    formUrl: null,
+    leaderName: 'Fkeall',
+    description: 'Raid principal do CORE do Velho, com 40 jogadores e foco em progressão, estratégia e consistência no Classic Hardcore.',
+    features: [
+      { icon: 'fa-users', label: 'Formato', text: '40 jogadores' },
+      { icon: 'fa-comments', label: 'Raid Leader', text: 'Fkeall' },
+      { icon: 'fa-calendar-days', label: 'Raid', text: 'Horário definido pela liderança' }
+    ],
+    requirement: 'Membro ativo da BRAZUG com histórico comprovado no Classic HC. Discord deve estar com o mesmo nick do WoW.',
+    questions: VELHO_QUESTIONS
+  },
+  {
+    id: 'velho-20',
+    parentId: 'velho',
+    hiddenFromHub: true,
+    name: 'CORE do Velho — 20 MAN',
+    subtitle: 'Grupos de 20 jogadores do CORE do Velho',
+    badge: '⚔️ 20 MAN — Ativo',
+    badgeClass: 'active',
+    accent: '#c41e3a',
+    accentGlow: 'rgba(196, 30, 58, 0.4)',
+    gold: '#f7c14d',
+    status: 'active',
+    registrationOpen: true,
+    formUrl: null,
+    leaderName: 'Fkeall / Sterftes',
+    description: 'Dois grupos de 20 jogadores do CORE do Velho, com raid leaders dedicados e foco em progressão consistente.',
+    features: [
+      { icon: 'fa-users', label: 'Formato', text: '2 grupos de 20 jogadores' },
+      { icon: 'fa-comments', label: 'Raid Leaders', text: 'Fkeall e Sterftes' },
+      { icon: 'fa-calendar-days', label: 'Raid', text: 'Horário definido pela liderança' }
+    ],
+    requirement: 'Membro ativo da BRAZUG com histórico comprovado no Classic HC. Discord deve estar com o mesmo nick do WoW.',
+    questions: VELHO_QUESTIONS
+  },
+  {
+    id: 'velho-10',
+    parentId: 'velho',
+    hiddenFromHub: true,
+    name: 'CORE do Velho — 10 MAN',
+    subtitle: 'Grupos de 10 jogadores do CORE do Velho',
+    badge: '⚔️ 10 MAN — Ativo',
+    badgeClass: 'active',
+    accent: '#c41e3a',
+    accentGlow: 'rgba(196, 30, 58, 0.4)',
+    gold: '#f7c14d',
+    status: 'active',
+    registrationOpen: true,
+    formUrl: null,
+    leaderName: 'A definir',
+    description: 'Quatro grupos de 10 jogadores do CORE do Velho, ideais para conteúdo menor, mentoria e progressão em grupo.',
+    features: [
+      { icon: 'fa-users', label: 'Formato', text: '4 grupos de 10 jogadores' },
+      { icon: 'fa-comments', label: 'Raid Leaders', text: 'Fkeall, Sterftes e líderes a definir' },
+      { icon: 'fa-calendar-days', label: 'Raid', text: 'Horário definido pela liderança' }
+    ],
+    requirement: 'Membro ativo da BRAZUG com histórico comprovado no Classic HC. Discord deve estar com o mesmo nick do WoW.',
+    questions: VELHO_QUESTIONS
   },
   {
     id: 'pvp',
     name: 'CORE PVP',
     subtitle: 'Grupo focado em PVP e guerra mundial no WoW Classic Hardcore',
-    badge: '🔱 CORE PVP — Ativo',
+    badge: '🔒 CORE PVP — Inscrições Fechadas',
     badgeClass: 'active',
     accent: '#4f6b8a',          // Azul
     accentGlow: 'rgba(79, 107, 138, 0.4)',
     gold: '#a8c4d8',
     status: 'active',
+    registrationOpen: false,
     formUrl: null,
     description: 'O CORE PVP é o grupo dedicado a confrontos entre facções, guerras mundo, BGs e arenas no Classic Hardcore.',
     features: [

@@ -62,6 +62,57 @@
     .app-actions button.approve:hover { border-color: #2a7a2a; color: #7ad07a; }
     .app-actions button.reject:hover { border-color: var(--horde-red); color: #ff8a8a; }
     .app-actions button.delete:hover { border-color: #ff6b6b; color: #ff6b6b; }
+    .app-actions button.needs-info:hover { border-color: #ff9d3c; color: #ffb86b; }
+    .status-needs_info { background: rgba(255, 157, 60, 0.12); border: 1px solid #ff9d3c; color: #ffb86b; }
+    .app-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-left: 3px solid #ff9d3c;
+      border-radius: 6px;
+      background: rgba(255, 157, 60, 0.08);
+      color: #ffb86b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .core-page-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .core-page-form input,
+    .core-page-form select,
+    .core-page-form textarea {
+      width: 100%;
+      padding: 9px 11px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+    }
+    .core-page-form textarea { min-height: 100px; resize: vertical; }
+    .core-page-form .full { grid-column: 1 / -1; }
+    .core-page-form button {
+      padding: 10px 16px;
+      background: var(--horde-red);
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      cursor: pointer;
+    }
+    .core-page-form .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .core-page-form .check-row input { width: auto; }
+    .core-page-msg { font-size: 13px; color: var(--gold); min-height: 18px; }
+    @media (max-width: 700px) {
+      .core-page-form { grid-template-columns: 1fr; }
+    }
     .filter-bar { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
     .filter-bar select, .filter-bar button {
       padding: 8px 14px;
@@ -79,8 +130,43 @@
   <header class="site-header" id="universal-header"></header>
 
   <div class="core-admin-wrap">
-    <h1 class="core-admin-title">Inscrições dos COREs</h1>
-    <p class="core-admin-sub">Gerencie as candidaturas recebidas pelo formulário do site</p>
+    <h1 class="core-admin-title">Painel dos COREs</h1>
+    <p class="core-admin-sub">Personalize as páginas e gerencie as candidaturas recebidas</p>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <span class="app-core-name">Personalizar página do CORE</span>
+        <span class="app-date">Raid Leader / Staff</span>
+      </div>
+      <form id="core-page-form" class="core-page-form">
+        <select id="core-page-select" class="full"></select>
+        <input type="text" name="name" placeholder="Nome do CORE" />
+        <input type="text" name="subtitle" placeholder="Subtítulo" />
+        <input type="text" name="badge" placeholder="Badge (ex: 🔥 CORE ATIVO)" />
+        <select name="leaderUserId" id="core-leader-user">
+          <option value="">Sem raid leader vinculado</option>
+        </select>
+        <input type="text" name="leaderName" placeholder="Nome exibido do Raid Leader" />
+        <input type="text" name="imageUrl" placeholder="URL da imagem da página" class="full" />
+        <input type="file" id="core-image-file" accept="image/jpeg,image/png,image/webp,image/gif" class="full" />
+        <input type="text" name="accent" placeholder="Cor de destaque (ex: #c41e3a)" />
+        <select name="status">
+          <option value="active">Ativo</option>
+          <option value="soon">Em breve</option>
+          <option value="closed">Fechado</option>
+        </select>
+        <label class="check-row full">
+          <input type="checkbox" name="registrationOpen" checked />
+          Aceitando novas inscrições
+        </label>
+        <input type="text" name="requirement" placeholder="Requisito para entrar" class="full" />
+        <textarea name="description" placeholder="Descrição da página do CORE" class="full"></textarea>
+        <button type="submit" class="full">Salvar página do CORE</button>
+        <div id="core-page-msg" class="core-page-msg full"></div>
+      </form>
+    </div>
+
+    <h2 class="core-admin-title" style="font-size: 24px; margin-top: 30px;">Inscrições recebidas</h2>
 
     <div class="filter-bar">
       <select id="filter-core">
@@ -91,6 +177,7 @@
         <option value="pending">Pendente</option>
         <option value="approved">Aprovado</option>
         <option value="rejected">Rejeitado</option>
+        <option value="needs_info">Pendência</option>
       </select>
       <button id="btn-refresh">↻ Atualizar</button>
     </div>
@@ -100,19 +187,17 @@
 
   <script src="/js/auth-guard.js"></script>
   <script src="/js/header.js"></script>
+  <script src="/js/core-data.js"></script>
   <script>
     (function () {
       "use strict";
 
-      const role = (localStorage.getItem("brazug_admin_role") || "").trim().toLowerCase();
-      const token = localStorage.getItem("brazug_admin_token");
-
-      // Apenas admin/guildmaster/officer
-      if (!token || !["admin", "guildmaster", "officer"].includes(role)) {
-        document.getElementById("applications-list").innerHTML =
-          '<div class="empty-state">Acesso negado. Você precisa ser admin, guildmaster ou officer.</div>';
-        return;
-      }
+      let token = localStorage.getItem("brazug_admin_token");
+      let isStaffUser = false;
+      let ledCoreIds = [];
+      let leaderOptions = [];
+      const STAFF_ROLES = ["admin", "guildmaster", "officer"];
+      const ACCESS_DENIED = '<div class="empty-state">Acesso negado. Você precisa ser admin, guildmaster, officer ou raid leader de um CORE.</div>';
 
       const listEl = document.getElementById("applications-list");
       const filterCore = document.getElementById("filter-core");
@@ -122,8 +207,15 @@
       const STATUS_LABELS = {
         pending: "Pendente",
         approved: "Aprovado",
-        rejected: "Rejeitado"
+        rejected: "Rejeitado",
+        needs_info: "Pendência"
       };
+
+      const corePageForm = document.getElementById("core-page-form");
+      const corePageSelect = document.getElementById("core-page-select");
+      const corePageMsg = document.getElementById("core-page-msg");
+      let corePages = [];
+      let corePagesById = {};
 
       function escapeHtml(s) {
         const d = document.createElement("div");
@@ -164,8 +256,10 @@
                 </div>
               </div>
               <div class="app-answers">${answerRows}</div>
+              ${app.review_note ? `<div class="app-note"><strong>Pendência:</strong> ${escapeHtml(app.review_note)}</div>` : ""}
               <div class="app-actions">
                 ${app.status !== "approved" ? `<button class="approve" onclick="setStatus('${app.id}', 'approved')">✓ Aprovar</button>` : ""}
+                ${app.status !== "needs_info" ? `<button class="needs-info" onclick="setStatus('${app.id}', 'needs_info')">⚠ Pendência</button>` : ""}
                 ${app.status !== "rejected" ? `<button class="reject" onclick="setStatus('${app.id}', 'rejected')">✗ Rejeitar</button>` : ""}
                 ${app.status !== "pending" ? `<button onclick="setStatus('${app.id}', 'pending')">↩ Voltar para Pendente</button>` : ""}
                 <button class="delete" onclick="deleteApp('${app.id}')">🗑 Excluir</button>
@@ -174,6 +268,144 @@
           `;
         }).join('');
       }
+
+      function mergeCore(base, override) {
+        const merged = { ...base };
+        for (const [key, value] of Object.entries(override || {})) {
+          if (value !== null && value !== undefined && value !== "") merged[key] = value;
+        }
+        return merged;
+      }
+
+      async function loadLeaderOptions() {
+        if (!isStaffUser) return;
+        try {
+          const res = await fetch("/api/core/leader-options");
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Erro ao carregar usuários");
+          leaderOptions = data.users || [];
+          const select = document.getElementById("core-leader-user");
+          select.innerHTML = '<option value="">Sem raid leader vinculado</option>' +
+            leaderOptions.map(user => `<option value="${escapeHtml(user.id)}">${escapeHtml(user.username)} (${escapeHtml(user.role)})</option>`).join("");
+        } catch (e) {
+          corePageMsg.textContent = "Erro ao carregar líderes: " + e.message;
+        }
+      }
+
+      async function loadCorePages() {
+        try {
+          const res = await fetch("/api/core/pages");
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Erro ao carregar páginas");
+
+          corePagesById = {};
+          for (const page of data.pages || []) corePagesById[page.coreId] = page;
+          const defaults = (window.BRAZUG_CORES || []).filter(core => isStaffUser || ledCoreIds.includes(core.id));
+          corePages = defaults.map(core => mergeCore(core, corePagesById[core.id]));
+
+          corePageSelect.innerHTML = corePages
+            .map(core => `<option value="${escapeHtml(core.id)}">${escapeHtml(core.name)}</option>`)
+            .join("");
+
+          filterCore.innerHTML = '<option value="">Todos os COREs</option>' +
+            corePages.map(core => `<option value="${escapeHtml(core.id)}">${escapeHtml(core.name)}</option>`).join("");
+
+          if (corePages.length) fillCoreForm(corePageSelect.value);
+          else corePageMsg.textContent = "Nenhum CORE vinculado ao seu usuário.";
+        } catch (e) {
+          corePageMsg.textContent = "Erro: " + e.message;
+        }
+      }
+
+      function fillCoreForm(coreId) {
+        const core = corePages.find(item => item.id === coreId);
+        if (!core) return;
+        const form = corePageForm.elements;
+        form.name.value = core.name || "";
+        form.subtitle.value = core.subtitle || "";
+        form.badge.value = core.badge || "";
+        const leaderSelect = document.getElementById("core-leader-user");
+        leaderSelect.disabled = !isStaffUser;
+        leaderSelect.value = core.leaderUserId || "";
+        form.leaderName.value = core.leaderName || core.leader_name || "";
+        form.imageUrl.value = core.imageUrl || core.image_url || "";
+        form.accent.value = core.accent || "";
+        form.status.value = core.status || "active";
+        form.registrationOpen.checked = core.registrationOpen !== false;
+        form.requirement.value = core.requirement || "";
+        form.description.value = core.description || "";
+        corePageMsg.textContent = "";
+      }
+
+      corePageSelect.addEventListener("change", () => fillCoreForm(corePageSelect.value));
+
+      document.getElementById("core-leader-user").addEventListener("change", (event) => {
+        const selected = leaderOptions.find(user => user.id === event.target.value);
+        if (selected) corePageForm.elements.leaderName.value = selected.username;
+      });
+
+      corePageForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const coreId = corePageSelect.value;
+        if (!coreId) return;
+
+        const form = corePageForm.elements;
+        corePageMsg.textContent = "Salvando...";
+        corePageMsg.style.color = "var(--text-muted)";
+
+        try {
+          let imageUrl = form.imageUrl.value.trim();
+          const fileInput = document.getElementById("core-image-file");
+          const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+
+          if (file) {
+            const uploadData = new FormData();
+            uploadData.append("image", file);
+            const uploadRes = await fetch("/api/admin/upload", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + token },
+              body: uploadData
+            });
+            const uploadJson = await uploadRes.json().catch(() => ({}));
+            if (!uploadRes.ok) throw new Error(uploadJson.error || "Erro no upload da imagem");
+            imageUrl = uploadJson.url;
+            form.imageUrl.value = imageUrl;
+            fileInput.value = "";
+          }
+
+          const res = await fetch(`/api/core/pages/${encodeURIComponent(coreId)}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify({
+              name: form.name.value.trim(),
+              subtitle: form.subtitle.value.trim(),
+              badge: form.badge.value.trim(),
+              leaderUserId: form.leaderUserId.value || null,
+              leaderName: form.leaderName.value.trim(),
+              imageUrl: imageUrl,
+              accent: form.accent.value.trim(),
+              status: form.status.value,
+              registrationOpen: form.registrationOpen.checked,
+              requirement: form.requirement.value.trim(),
+              description: form.description.value.trim()
+            })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Erro ao salvar a página");
+
+          await loadCorePages();
+          corePageSelect.value = coreId;
+          fillCoreForm(coreId);
+          corePageMsg.textContent = "Página salva com sucesso.";
+          corePageMsg.style.color = "var(--gold)";
+        } catch (e) {
+          corePageMsg.textContent = "Erro: " + e.message;
+          corePageMsg.style.color = "#ff8a8a";
+        }
+      });
 
       async function loadApplications() {
         listEl.innerHTML = '<div class="empty-state">Carregando...</div>';
@@ -195,6 +427,11 @@
       }
 
       window.setStatus = async function (id, status) {
+        let note = "";
+        if (status === "needs_info") {
+          note = prompt("O que falta na inscrição? Ex: horário disponível, role, nick no WoW...");
+          if (!note || !note.trim()) return;
+        }
         try {
           const res = await fetch(`/api/core/applications/${id}/status`, {
             method: "PATCH",
@@ -202,7 +439,7 @@
               "Content-Type": "application/json",
               "Authorization": "Bearer " + token
             },
-            body: JSON.stringify({ status })
+            body: JSON.stringify({ status, note })
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(data.error || "Erro ao atualizar status");
@@ -231,7 +468,39 @@
       filterStatus.addEventListener("change", loadApplications);
       btnRefresh.addEventListener("click", loadApplications);
 
-      loadApplications();
+      async function bootstrap() {
+        try {
+          const me = await fetch("/api/auth/me");
+          if (!me.ok) throw new Error("Sessão inválida");
+          const meData = await me.json();
+          const role = String(meData.user.role || "").toLowerCase();
+
+          isStaffUser = STAFF_ROLES.includes(role);
+          token = "session";
+          localStorage.setItem("brazug_admin_token", token);
+          localStorage.setItem("brazug_admin_role", meData.user.role);
+          localStorage.setItem("brazug_admin_user", meData.user.username);
+
+          if (!isStaffUser) {
+            const leadRes = await fetch("/api/core/my-leadership");
+            const leadData = await leadRes.json().catch(() => ({}));
+            ledCoreIds = leadData.coreIds || [];
+          }
+
+          if (!isStaffUser && !ledCoreIds.length) {
+            listEl.innerHTML = ACCESS_DENIED;
+            return;
+          }
+
+          if (isStaffUser) await loadLeaderOptions();
+          await loadCorePages();
+          await loadApplications();
+        } catch (e) {
+          listEl.innerHTML = ACCESS_DENIED;
+        }
+      }
+
+      bootstrap();
     })();
   </script>
 </body>

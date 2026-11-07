@@ -436,6 +436,7 @@
 .badge.gold { background: rgba(247, 193, 77, 0.12); border: 1px solid rgba(247, 193, 77, 0.35); color: var(--gold); }
 .badge.green { background: rgba(40, 160, 70, 0.14); border: 1px solid rgba(80, 200, 110, 0.3); color: #8fe59f; }
 .badge.red { background: rgba(196, 30, 58, 0.16); border: 1px solid rgba(196, 30, 58, 0.4); color: #ff9d9d; }
+.badge.orange { background: rgba(255, 157, 60, 0.12); border: 1px solid rgba(255, 157, 60, 0.4); color: #ffb86b; }
 .badge.muted { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-dim); }
 
 /* Forms */
@@ -461,8 +462,24 @@
   outline: none;
 }
 
+.admin-form textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+}
+
 .admin-form input:focus,
 .admin-form select:focus,
+.admin-form textarea:focus,
 .admin-toolbar input:focus,
 .admin-toolbar select:focus {
   border-color: rgba(247, 193, 77, 0.5);

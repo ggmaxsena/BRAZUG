@@ -646,11 +646,132 @@
       margin-bottom: 20px;
     }
 
+    .core-card-image {
+      display: block;
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-bottom: 1px solid var(--core-border);
+    }
+
+    .core-hero-image {
+      display: block;
+      width: 100%;
+      max-height: 340px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid var(--core-border);
+      margin-bottom: 20px;
+    }
+
+    .core-leader-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 6px 12px;
+      border: 1px solid var(--core-border);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(0, 0, 0, 0.3);
+      font-size: 13px;
+    }
+
+    .core-application-box {
+      text-align: center;
+    }
+
+    .core-application-status {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 14px;
+    }
+
+    .core-application-status.pending { color: var(--gold); border: 1px solid var(--gold); background: rgba(247, 193, 77, 0.1); }
+    .core-application-status.approved { color: #7ad07a; border: 1px solid #2a7a2a; background: rgba(40, 120, 40, 0.15); }
+    .core-application-status.rejected { color: #ff8a8a; border: 1px solid var(--horde-red); background: rgba(196, 30, 58, 0.12); }
+    .core-application-status.needs_info { color: #ffb86b; border: 1px solid #ff9d3c; background: rgba(255, 157, 60, 0.1); }
+
+    .core-application-note {
+      max-width: 620px;
+      margin: 0 auto 16px;
+      padding: 12px 14px;
+      border-left: 3px solid #ff9d3c;
+      border-radius: 6px;
+      background: rgba(255, 157, 60, 0.08);
+      color: var(--core-muted);
+      font-size: 13px;
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    .core-application-note strong { color: #ffb86b; }
+
+    .core-groups-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .core-group-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 18px;
+      border: 1px solid var(--core-border);
+      border-radius: 10px;
+      background: var(--core-panel);
+    }
+
+    .core-group-card h3 {
+      margin: 0;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+    }
+
+    .core-group-card p {
+      margin: 0;
+      color: var(--core-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .core-group-meta {
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+
+    .core-group-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 9px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--gold);
+      background: var(--horde-red);
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      text-decoration: none;
+    }
+
+    .core-group-link:hover { filter: brightness(1.12); color: #fff; }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .core-title { font-size: 32px; }
       .core-detail-title { font-size: 32px; }
       .core-form iframe { height: 700px; }
+      .core-groups-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -707,11 +828,43 @@
       const urlParams = new URLSearchParams(window.location.search);
       const coreId = urlParams.get('id');
 
+      let cores = [];
+      let pagesById = {};
+
+      function escapeHtml(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function mergeCore(base, override) {
+        const merged = { ...base };
+        for (const [key, value] of Object.entries(override || {})) {
+          if (value !== null && value !== undefined && value !== "") merged[key] = value;
+        }
+        return merged;
+      }
+
+      async function loadCorePages() {
+        const defaults = Array.isArray(window.BRAZUG_CORES) ? window.BRAZUG_CORES : [];
+        try {
+          const res = await fetch('/api/core/pages');
+          if (res.ok) {
+            const data = await res.json();
+            pagesById = {};
+            for (const page of data.pages || []) pagesById[page.coreId] = page;
+          }
+        } catch (e) {
+          console.warn('[CORE] Não foi possível carregar as páginas personalizadas:', e.message);
+        }
+        cores = defaults.map(core => mergeCore(core, pagesById[core.id]));
+      }
+
       // Encontrar CORE pelo ID
-      const findCore = (id) => {
-        if (typeof BRAZUG_CORES === 'undefined') return null;
-        return BRAZUG_CORES.find(c => c.id === id) || null;
-      };
+      const findCore = (id) => cores.find(c => c.id === id) || null;
 
       // Gerar classes de acento baseadas na cor
       const getAccentClass = (accent) => {
@@ -724,32 +877,38 @@
 
       // ── Renderizar Hub (todos os COREs) ──
       function renderHub() {
-        if (!BRAZUG_CORES) {
+        if (!cores.length) {
           coreCardsGrid.innerHTML = '<p style="color: #ff6b6b; text-align: center; padding: 50px;">Erro: dados dos COREs não carregaram.</p>';
           return;
         }
-        coreCardsGrid.innerHTML = BRAZUG_CORES.map(core => `
-          <div class="core-card ${getAccentClass(core.accent)} ${core.status === 'active' ? 'active' : ''}" onclick="openCore('${core.id}')">
+        coreCardsGrid.innerHTML = cores.filter(core => !core.hiddenFromHub).map(core => {
+          const hasGroups = Array.isArray(core.groups) && core.groups.length > 0;
+          const canApply = !hasGroups && core.status === 'active' && core.registrationOpen !== false;
+          const ctaText = hasGroups ? 'Ver grupos' : (canApply ? 'Inscrever-se' : (core.status === 'soon' ? 'Em Breve' : 'Inscrições Fechadas'));
+          return `
+          <div class="core-card ${getAccentClass(core.accent)} ${core.status === 'active' ? 'active' : ''}" onclick="openCore('${escapeHtml(core.id)}')">
+            ${core.imageUrl ? `<img class="core-card-image" src="${escapeHtml(core.imageUrl)}" alt="${escapeHtml(core.name)}" />` : ''}
             <div class="core-card-header">
-              <span class="core-card-badge ${core.status}">
-                ${core.badge}
+              <span class="core-card-badge ${escapeHtml(core.status)}">
+                ${escapeHtml(core.badge)}
               </span>
-              <h2 class="core-card-title ${core.status}">${core.name}</h2>
-              <p class="core-card-sub">${core.subtitle}</p>
+              <h2 class="core-card-title ${escapeHtml(core.status)}">${escapeHtml(core.name)}</h2>
+              <p class="core-card-sub">${escapeHtml(core.subtitle)}</p>
             </div>
             <div class="core-card-body">
-              <p class="core-card-text">${core.description}</p>
-              <ul class="core-list ${core.status}">
-                ${core.features.map(f => `
-                  <li><i class="fas ${f.icon}"></i> <strong>${f.label}:</strong> ${f.text}</li>
+              <p class="core-card-text">${escapeHtml(core.description)}</p>
+              <ul class="core-list ${escapeHtml(core.status)}">
+                ${(core.features || []).map(f => `
+                  <li><i class="fas ${escapeHtml(f.icon)}"></i> <strong>${escapeHtml(f.label)}:</strong> ${escapeHtml(f.text)}</li>
                 `).join('')}
               </ul>
             </div>
-            <button class="core-cta ${core.status === 'soon' ? 'soon' : ''}">
-              ${core.status === 'active' ? 'Inscrever-se' : 'Em Breve'}
+            <button class="core-cta ${canApply ? '' : 'soon'}">
+              ${escapeHtml(ctaText)}
             </button>
           </div>
-        `).join('');
+        `;
+        }).join('');
       }
 
       // ── Renderizar Detail (um CORE específico) ──
@@ -761,33 +920,41 @@
         }
 
         const isActive = core.status === 'active';
+        const hasGroups = Array.isArray(core.groups) && core.groups.length > 0;
+        const canApply = !hasGroups && isActive && core.registrationOpen !== false;
+        const registrationClosed = core.status === 'closed' || (isActive && core.registrationOpen === false);
 
         // Header
         detailHeader.innerHTML = `
-          <span class="core-detail-badge ${core.status}">
-            ${core.badge}
+          <span class="core-detail-badge ${escapeHtml(core.status)}">
+            ${escapeHtml(core.badge)}
           </span>
-          <h1 class="core-detail-title">${core.name}</h1>
-          <p class="core-detail-sub">${core.subtitle}</p>
+          <h1 class="core-detail-title">${escapeHtml(core.name)}</h1>
+          <p class="core-detail-sub">${escapeHtml(core.subtitle)}</p>
         `;
 
         // Body
         detailBody.innerHTML = `
-          <p class="core-detail-text">${core.description}</p>
+          ${core.imageUrl ? `<img class="core-hero-image" src="${escapeHtml(core.imageUrl)}" alt="${escapeHtml(core.name)}" />` : ''}
+          <p class="core-detail-text">${escapeHtml(core.description)}</p>
+          ${core.leaderName ? `<div class="core-leader-line"><i class="fas fa-crown"></i> Raid Leader: <strong>${escapeHtml(core.leaderName)}</strong></div>` : ''}
           <ul class="core-detail-list">
-            ${core.features.map(f => `
-              <li><i class="fas ${f.icon}"></i> <strong>${f.label}:</strong> ${f.text}</li>
+            ${(core.features || []).map(f => `
+              <li><i class="fas ${escapeHtml(f.icon)}"></i> <strong>${escapeHtml(f.label)}:</strong> ${escapeHtml(f.text)}</li>
             `).join('')}
             ${core.requirement ? `
-              <li><i class="fas fa-info-circle"></i> <strong>Requisito:</strong> ${core.requirement}</li>
+              <li><i class="fas fa-info-circle"></i> <strong>Requisito:</strong> ${escapeHtml(core.requirement)}</li>
             ` : ''}
           </ul>
         `;
 
+        // Sub-COREs (ex: CORE do Velho → 40/20/10 MAN)
+        if (hasGroups) {
+          renderGroups(core);
         // Formulário nativo (se o CORE tiver perguntas) ou iframe legado
-        if (isActive && core.questions && core.questions.length) {
+        } else if (canApply && core.questions && core.questions.length) {
           renderNativeForm(core);
-        } else if (isActive && core.formUrl) {
+        } else if (canApply && core.formUrl) {
           detailFormWrap.innerHTML = `
             <div class="core-form-wrap">
               <div class="core-form-title">Inscreva-se para o ${core.name}</div>
@@ -812,10 +979,10 @@
         } else {
           detailFormWrap.innerHTML = `
             <div style="text-align: center; margin-top: 40px;">
-              <button class="core-btn-soon">Em Breve</button>
+              <button class="core-btn-soon">${registrationClosed ? 'Inscrições Fechadas' : 'Em Breve'}</button>
             </div>
             <div class="soon-note" style="max-width: 800px; margin: 30px auto; text-align: center; font-size: 13px; color: #666; font-family: 'Cinzel', serif; line-height: 1.8; border-left: 3px solid #666; padding-left: 16px;">
-              <strong>Em Breve:</strong> O ${core.name} ainda não está aceitando inscrições. Quando lançado, você poderá se candidatar aqui. <br><br>
+              <strong>${registrationClosed ? 'Inscrições Fechadas:' : 'Em Breve:'}</strong> ${registrationClosed ? `O ${core.name} não está aceitando novas inscrições no momento.` : `O ${core.name} ainda não está aceitando inscrições. Quando lançado, você poderá se candidatar aqui.`} <br><br>
               <strong>WoW Forever:</strong> Quando o WoW Forever lançar (04/11/2026), este CORE continuando como divisão da BRAZUG.
             </div>
           `;
@@ -825,6 +992,32 @@
         hubView.style.display = 'none';
         detailView.style.display = 'block';
         window.scrollTo(0, 0);
+      }
+
+      function renderGroups(core) {
+        detailFormWrap.innerHTML = `
+          <div class="core-form-wrap">
+            <div class="core-form-title">Escolha o grupo do ${escapeHtml(core.name)}</div>
+            <p style="color: var(--core-muted); font-size: 13px; line-height: 1.6; margin: 0 0 4px;">
+              Cada grupo tem sua própria página e formulário de inscrição.
+            </p>
+            <div class="core-groups-grid">
+              ${(core.groups || []).map(group => {
+                const target = findCore(group.id) || group;
+                return `
+                  <article class="core-group-card">
+                    <h3>${escapeHtml(target.name || group.name)}</h3>
+                    <p>${escapeHtml(target.subtitle || group.description || '')}</p>
+                    <div class="core-group-meta"><i class="fas fa-crown"></i> ${escapeHtml(target.leaderName || group.leaderName || 'A definir')}</div>
+                    <a class="core-group-link" href="core.html?id=${encodeURIComponent(group.id)}">
+                      Abrir inscrição <i class="fas fa-arrow-right"></i>
+                    </a>
+                  </article>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
       }
 
       // ── Formulário nativo de inscrição ──
@@ -860,7 +1053,53 @@
         `;
       }
 
+      async function fetchMyApplication(coreId) {
+        try {
+          const res = await fetch('/api/core/my');
+          if (!res.ok) return null;
+          const data = await res.json();
+          return (data.applications || []).find(app => String(app.core_id) === String(coreId)) || null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function renderExistingApplication(core, app) {
+        const labels = {
+          pending: 'Em análise',
+          approved: 'Aprovado',
+          rejected: 'Rejeitado',
+          needs_info: 'Pendência'
+        };
+        const messages = {
+          pending: 'Sua inscrição está em análise pela liderança.',
+          approved: 'Você foi aceito neste CORE. Fale com o raid leader para os próximos passos.',
+          rejected: 'Sua inscrição não foi aprovada neste momento.',
+          needs_info: 'A liderança precisa de mais informações para concluir sua análise.'
+        };
+        const note = app.review_note
+          ? `<div class="core-application-note"><strong>Observação da liderança:</strong> ${escapeHtml(app.review_note)}</div>`
+          : '';
+
+        detailFormWrap.innerHTML = `
+          <div class="core-form-wrap core-application-box">
+            <div class="core-form-title">Sua inscrição — ${escapeHtml(core.name)}</div>
+            <span class="core-application-status ${escapeHtml(app.status)}">${escapeHtml(labels[app.status] || app.status)}</span>
+            ${note}
+            <p style="color: var(--core-muted); font-size: 13px; line-height: 1.6; margin: 0;">
+              ${escapeHtml(messages[app.status] || 'Inscrição registrada.')}
+            </p>
+          </div>
+        `;
+      }
+
       async function renderNativeForm(core) {
+        const existing = await fetchMyApplication(core.id);
+        if (existing) {
+          renderExistingApplication(core, existing);
+          return;
+        }
+
         let token = localStorage.getItem('brazug_admin_token');
         if (!token || token === 'session') {
           try {
@@ -972,6 +1211,7 @@
           msg.className = 'core-form-msg success';
           msg.textContent = 'Inscrição enviada com sucesso! A liderança da BRAZUG analisará sua candidatura.';
           form.reset();
+          renderNativeForm(core);
         } catch (err) {
           msg.className = 'core-form-msg error';
           msg.textContent = err.message;
@@ -993,25 +1233,29 @@
       };
 
       // ── Inicializar ──
-      if (coreId) {
-        const core = findCore(coreId);
-        if (core) {
-          renderDetail(core);
+      (async function initCores() {
+        await loadCorePages();
+
+        if (coreId) {
+          const core = findCore(coreId);
+          if (core) {
+            renderDetail(core);
+          } else {
+            renderHub();
+          }
         } else {
           renderHub();
         }
-      } else {
-        renderHub();
-      }
 
-      // Adicionar listener para o botão de voltar
-      const backBtns = document.querySelectorAll('.core-back');
-      backBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          backToHub();
+        // Adicionar listener para o botão de voltar
+        const backBtns = document.querySelectorAll('.core-back');
+        backBtns.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            backToHub();
+          });
         });
-      });
+      })();
     });
   </script>
 </body>

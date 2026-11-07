@@ -26,7 +26,12 @@
     localStorage.setItem("brazug_admin_user", data.user.username);
 
     if (needsAdmin && role !== "admin") return deny("/perfil.html");
-    if (needsStaff && ["admin", "guildmaster", "officer"].indexOf(role) === -1) return deny("/perfil.html");
+    if (needsStaff && ["admin", "guildmaster", "officer"].indexOf(role) === -1) {
+      // Raid leaders de um CORE também podem entrar no painel de COREs.
+      var leadRes = await fetch("/api/core/my-leadership");
+      var leadData = leadRes.ok ? await leadRes.json().catch(function () { return {}; }) : {};
+      if (!leadData.coreIds || !leadData.coreIds.length) return deny("/perfil.html");
+    }
   } catch (e) {
     deny("/login.html");
   }

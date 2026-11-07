@@ -215,8 +215,10 @@
                   <option value="pending">Pendente</option>
                   <option value="approved">Aprovado</option>
                   <option value="rejected">Rejeitado</option>
+                  <option value="needs_info">Pendência</option>
                 </select>
                 <span class="spacer"></span>
+                <a class="admin-btn" href="/admin-core.html"><i class="fa-solid fa-pen"></i> Personalizar páginas</a>
                 <button type="button" class="admin-btn" data-action="refresh-cores"><i class="fa-solid fa-rotate"></i> Atualizar</button>
               </div>
               <div id="cores-list" class="stack-list"></div>
@@ -307,6 +309,27 @@
                 <button type="submit" class="admin-btn primary"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
               </form>
               <div id="settings-result" class="empty-state" hidden></div>
+            </div>
+
+            <div class="admin-card" style="margin-top: 18px;">
+              <div class="admin-card-header">
+                <h2 class="admin-card-title">Blacklist de streams</h2>
+                <span class="admin-card-meta">canais que nunca aparecem na home</span>
+              </div>
+              <form id="stream-blacklist-form" class="admin-form" style="flex-direction: column; align-items: stretch;">
+                <label for="stream-blacklist" style="color: var(--text-dim); font-size: 12px;">
+                  Um link ou nome de canal por linha. Quem estiver aqui não aparece em “Streams da Guilda”, mesmo com
+                  <strong>&lt;BRAZUG&gt;</strong> no título.
+                </label>
+                <textarea id="stream-blacklist" rows="8"
+                  placeholder="https://www.twitch.tv/nome_do_canal&#10;outro_canal"></textarea>
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                  <button type="submit" class="admin-btn primary">
+                    <i class="fa-solid fa-ban"></i> Salvar blacklist
+                  </button>
+                  <span id="stream-blacklist-result" class="admin-card-meta" hidden></span>
+                </div>
+              </form>
             </div>
           </section>
         </main>
@@ -533,7 +556,19 @@
         }
         if (name === "cores") {
           await loadCores();
+          return;
         }
+        if (name === "settings") {
+          await loadStreamBlacklist();
+        }
+      }
+
+      async function loadStreamBlacklist() {
+        const field = $("#stream-blacklist");
+        if (!field) return;
+        const data = await api("/api/admin/settings/" + encodeURIComponent("stream_blacklist"));
+        field.value = data && data.value ? String(data.value) : "";
+        state.loaded.settings = true;
       }
 
       async function refreshCurrent() {
@@ -1078,7 +1113,9 @@
             const display = Array.isArray(value) ? value.join(", ") : (value || "—");
             return `<div class="answer-item"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(String(display))}</div>`;
           }).join("");
-          const tone = app.status === "approved" ? "green" : app.status === "rejected" ? "red" : "gold";
+          const statusLabels = { pending: "Pendente", approved: "Aprovado", rejected: "Rejeitado", needs_info: "Pendência" };
+          const tone = app.status === "approved" ? "green" : app.status === "rejected" ? "red" : app.status === "needs_info" ? "orange" : "gold";
+          const note = app.review_note ? `<div class="item-card-body" style="border-left:3px solid #ff9d3c;padding-left:10px;color:#ffb86b;"><strong>Pendência:</strong> ${escapeHtml(app.review_note)}</div>` : "";
           return `
             <article class="item-card">
               <div class="item-card-head">
@@ -1086,11 +1123,13 @@
                   <h3 class="item-card-title">${escapeHtml(app.core_name || "CORE")}</h3>
                   <div class="item-card-sub">${escapeHtml(app.username || "Desconhecido")} · ${escapeHtml(fmtDateTime(app.created_at))}</div>
                 </div>
-                <span class="badge ${tone}">${escapeHtml(app.status || "pending")}</span>
+                <span class="badge ${tone}">${escapeHtml(statusLabels[app.status] || app.status || "pending")}</span>
               </div>
               <div class="answer-grid">${answerRows}</div>
+              ${note}
               <div class="item-card-actions">
                 ${app.status !== "approved" ? `<button type="button" class="admin-btn success" data-action="core-status" data-id="${escapeHtml(app.id)}" data-status="approved"><i class="fa-solid fa-check"></i> Aprovar</button>` : ""}
+                ${app.status !== "needs_info" ? `<button type="button" class="admin-btn" data-action="core-status" data-id="${escapeHtml(app.id)}" data-status="needs_info"><i class="fa-solid fa-triangle-exclamation"></i> Pendência</button>` : ""}
                 ${app.status !== "rejected" ? `<button type="button" class="admin-btn danger" data-action="core-status" data-id="${escapeHtml(app.id)}" data-status="rejected"><i class="fa-solid fa-xmark"></i> Rejeitar</button>` : ""}
                 ${app.status !== "pending" ? `<button type="button" class="admin-btn" data-action="core-status" data-id="${escapeHtml(app.id)}" data-status="pending"><i class="fa-solid fa-rotate-left"></i> Pendente</button>` : ""}
                 <button type="button" class="admin-btn danger" data-action="delete-core" data-id="${escapeHtml(app.id)}"><i class="fa-solid fa-trash"></i> Excluir</button>
@@ -1179,10 +1218,15 @@
 
         const coreStatus = event.target.closest('[data-action="core-status"]');
         if (coreStatus) {
+          let note = "";
+          if (coreStatus.dataset.status === "needs_info") {
+            note = prompt("O que falta na inscrição? Ex: horário disponível, role, nick no WoW...");
+            if (!note || !note.trim()) return;
+          }
           api("/api/core/applications/" + encodeURIComponent(coreStatus.dataset.id) + "/status", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: coreStatus.dataset.status })
+            body: JSON.stringify({ status: coreStatus.dataset.status, note })
           })
             .then(() => { state.loaded.cores = false; invalidateAnalytics(); return loadCores(); })
             .catch((e) => showAlert(e.message));
@@ -1246,6 +1290,28 @@
           result.style.color = "var(--gold)";
           $("#setting-key").value = "";
           $("#setting-value").value = "";
+        } catch (e) {
+          result.hidden = false;
+          result.textContent = "Erro: " + e.message;
+          result.style.color = "#ff8a8a";
+        }
+      });
+
+      $("#stream-blacklist-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const result = $("#stream-blacklist-result");
+        const value = $("#stream-blacklist").value.trim();
+        try {
+          await api("/api/admin/settings/" + encodeURIComponent("stream_blacklist"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ value })
+          });
+          result.hidden = false;
+          result.textContent = value
+            ? "Blacklist salva. A lista da home já foi atualizada."
+            : "Blacklist vazia: todas as streams voltam a aparecer.";
+          result.style.color = "var(--gold)";
         } catch (e) {
           result.hidden = false;
           result.textContent = "Erro: " + e.message;
