@@ -1080,158 +1080,76 @@ select option {
 }
 
 /* ===================================== */
-/* VOD EM DESTAQUE                       */
-/* ===================================== */
-#vod-destaque {
-  margin-bottom: 60px;
-}
-
-#vod-destaque h2 {
-  margin-bottom: 1.5rem;
-}
-
-.vod-wrapper {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 40px rgba(196, 30, 58, 0.15), 0 0 0 1px rgba(247, 193, 77, 0.08);
-  transition: box-shadow 0.3s ease;
-}
-
-.vod-wrapper:hover {
-  box-shadow: 0 8px 60px rgba(196, 30, 58, 0.25), 0 0 0 1px rgba(247, 193, 77, 0.2);
-}
-
-.vod-wrapper iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-/* ===================================== */
 /* BRAZUG TIMELINE (Comunicado)          */
 /* ===================================== */
-.brazug-timeline {
+/* Comunicado oficial em destaque */
+.brazug-announcement {
+    background: linear-gradient(135deg, rgba(196, 30, 58, 0.10), rgba(247, 193, 77, 0.05));
+    border: 1px solid rgba(247, 193, 77, 0.25);
+    border-left: 4px solid var(--horde-red);
+    border-radius: 10px;
+    padding: 28px 30px;
+    margin: 32px 0 40px;
+}
+
+.brazug-announcement-greeting {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: var(--horde-red);
+    margin-bottom: 18px;
+    text-shadow: 0 0 20px rgba(196, 30, 58, 0.35);
+}
+
+.brazug-announcement-text {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #c0b8b0;
+    margin-bottom: 12px;
+}
+
+.brazug-announcement-title {
+    font-family: 'Cinzel', serif;
+    font-size: 17px;
+    color: var(--gold);
+    margin: 24px 0 12px;
+}
+
+.brazug-announcement-list {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 0;
-    margin: 40px 0;
+    gap: 10px;
+}
+
+.brazug-announcement-list li {
     position: relative;
-}
-.brazug-timeline::before {
-    content: '';
-    position: absolute;
-    left: 28px;
-    top: 0; bottom: 0;
-    width: 2px;
-    background: linear-gradient(to bottom, var(--horde-red), var(--gold), var(--horde-red));
-    opacity: 0.4;
-}
-
-.brazug-timeline-item {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    padding: 20px 0 20px 0;
-    position: relative;
-}
-.brazug-timeline-item + .brazug-timeline-item {
-    border-top: 1px solid rgba(255,255,255,0.05);
-}
-
-.brazug-timeline-item--highlight .brazug-timeline-body {
-    background: rgba(196, 30, 58, 0.05);
-    border: 1px solid rgba(196, 30, 58, 0.2);
-    border-radius: 8px;
-    padding: 16px;
-}
-
-.brazug-timeline-icon {
-    width: 56px;
-    height: 56px;
-    min-width: 56px;
-    background: rgba(0,0,0,0.5);
-    border: 1px solid rgba(247, 193, 77, 0.25);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    z-index: 1;
-}
-
-.brazug-timeline-body {
-    flex: 1;
-    padding-top: 4px;
-}
-
-.brazug-timeline-date {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--gold);
-    margin-bottom: 4px;
-    opacity: 0.8;
-}
-
-.brazug-timeline-title {
-    font-family: 'Cinzel', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #f0e6d2;
-    margin-bottom: 8px;
-}
-
-.brazug-timeline-text {
+    padding-left: 18px;
     font-size: 14px;
-    color: #a8a0a0;
     line-height: 1.7;
-    margin-bottom: 8px;
-}
-
-.brazug-timeline-emphasis {
-    font-family: 'Cinzel', serif;
-    font-size: 16px;
-    font-weight: 900;
-    color: var(--horde-red);
-    letter-spacing: 1px;
-    margin: 10px 0;
-    text-shadow: 0 0 20px rgba(196,30,58,0.4);
-}
-
-/* Banner de comunidade */
-.brazug-community-banner {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    background: linear-gradient(135deg, rgba(247,193,77,0.06), rgba(196,30,58,0.06));
-    border: 1px solid rgba(247, 193, 77, 0.2);
-    border-radius: 10px;
-    padding: 24px;
-    margin: 20px 0 32px 0;
-}
-.brazug-community-icon {
-    font-size: 32px;
-    line-height: 1;
-    flex-shrink: 0;
-}
-.brazug-community-title {
-    font-family: 'Cinzel', serif;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--gold);
-    margin-bottom: 8px;
-}
-.brazug-community-text {
-    font-size: 14px;
     color: #c0b8b0;
-    line-height: 1.7;
+}
+
+.brazug-announcement-list li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--gold);
+    font-size: 10px;
+}
+
+.brazug-announcement-emphasis {
+    font-family: 'Cinzel', serif;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: var(--horde-red);
+    margin: 20px 0 10px;
+    text-shadow: 0 0 20px rgba(196, 30, 58, 0.35);
 }
 
 /* Saudação final */

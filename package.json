@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "node server.js",
-    "build": "node --check server.js && node --check lib/twitch.cjs && node --check lib/db.cjs && node --check lib/auth.cjs && node --check lib/admin-routes.cjs",
+    "build": "node --check server.js && node --check lib/twitch.cjs && node --check lib/forever.cjs && node --check lib/db.cjs && node --check lib/auth.cjs && node --check lib/admin-routes.cjs",
     "start": "node server.js",
     "check": "npm run build",
     "docker:up": "docker compose up -d",

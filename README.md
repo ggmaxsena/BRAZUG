@@ -123,4 +123,5 @@ docker build -t brazug-web .
 - `GET /api/health`
 - `GET /api/adventures`
 - `GET /api/live-streams`
+- `GET /api/forever/guilds`
 - Rotas em `/api/admin/*`

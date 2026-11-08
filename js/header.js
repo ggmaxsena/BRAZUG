@@ -4,17 +4,15 @@
     const headerContainer = document.getElementById('universal-header');
     if (!headerContainer) return;
 
-    async function getDiscordUrl() {
-        if (window.BRAZUG_CONFIG && window.BRAZUG_CONFIG.DISCORD_URL) {
-            return window.BRAZUG_CONFIG.DISCORD_URL;
-        }
+    async function getConfig() {
+        if (window.BRAZUG_CONFIG) return window.BRAZUG_CONFIG;
         try {
             const res = await fetch('/api/config');
             const config = await res.json();
             window.BRAZUG_CONFIG = config;
-            return config.DISCORD_URL;
+            return config;
         } catch (e) {
-            return 'https://discord.gg/brazug';
+            return { DISCORD_URL: 'https://discord.gg/brazug', FOREVER_HC_ACTIVE: false };
         }
     }
 
@@ -99,7 +97,9 @@
         const token    = localStorage.getItem("brazug_admin_token");
         const username = localStorage.getItem("brazug_admin_user");
         const role     = localStorage.getItem("brazug_admin_role");
-        const discordUrl = await getDiscordUrl();
+        const config = await getConfig();
+        const discordUrl = config.DISCORD_URL || 'https://discord.gg/brazug';
+        const showDeathlog = Boolean(config.FOREVER_HC_ACTIVE);
 
         const staff = ["admin", "guildmaster", "officer"].includes((role || "").toLowerCase());
         const authItems = (token && username)
@@ -137,8 +137,8 @@
                     <span></span><span></span><span></span>
                 </button>
 
-                <!-- ☠ DEATH BADGE -->
-                <div class="death-badge-wrap" id="death-badge-wrap">
+                <!-- ☠ DEATH BADGE (oculto até o HC do WoW Forever começar) -->
+                <div class="death-badge-wrap" id="death-badge-wrap"${showDeathlog ? "" : ' style="display: none;"'}>
                     <button class="death-badge-btn" id="death-badge-btn" aria-haspopup="true" aria-expanded="false">
                         <span class="death-badge-skull">☠️</span>
                         
@@ -159,7 +159,7 @@
                                 <span class="death-pop-skull-icon">☠</span>
                                 <span class="death-pop-title">Mural de Baixas</span>
                             </div>
-                            <span class="death-pop-realm">DOOMHOWL</span>
+                            <span class="death-pop-realm">WOW FOREVER</span>
                         </div>
 
                         <div class="death-pop-stats">
@@ -233,7 +233,7 @@
         }
 
         // Hidrata com dados reais assincronamente
-        hydrateDeathBadge();
+        if (showDeathlog) hydrateDeathBadge();
         hydrateDiscordBtn();
         if (!skipSync) syncSession();
     }

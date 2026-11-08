@@ -17,6 +17,11 @@ Lista membros da guilda ao vivo na Twitch.
 - **Resposta**: `{ streams: [...], tag: "<BRAZUG>" }`
 - Canais bloqueados ficam de fora. A blacklist é editada no admin (Configurações → Blacklist de streams) e salva em `site_settings` com a chave `stream_blacklist` (um link ou login por linha).
 
+### `GET /api/forever/guilds`
+Dados públicos das guildas BRAZUG e BRAZUG II no World of Warcraft: Forever (Battle.net API).
+- **Resposta**: `{ guilds: [...], totals: { guilds, members, maxLevel, avgLevel }, updatedAt }`
+- Cache em memória de 5 minutos; usa as credenciais `BLIZZARD_CLIENT_ID` / `BLIZZARD_CLIENT_SECRET` e o namespace `profile-forever-{BLIZZARD_REGION}`.
+
 ---
 
 ## 2. Autenticação (`/api/auth`)

@@ -14,6 +14,7 @@ const characterRoutes = require("./lib/character-routes.cjs");
 const salesRoutes = require("./lib/sales-routes.cjs");
 const sucessoRoutes = require("./lib/sucesso-routes.cjs");
 const twitch = require("./lib/twitch.cjs");
+const forever = require("./lib/forever.cjs");
 const spotifyRoutes = require("./lib/spotify-routes.cjs");
 const deathmapRoutes = require("./lib/deathmap-routes.cjs");
 const coreRoutes = require("./lib/core-routes.cjs");
@@ -22,6 +23,8 @@ const app = express();
 app.disable("x-powered-by");
 app.set('trust proxy', 1); // Trust the first hop (proxy)
 const PORT = process.env.PORT || 3000;
+// DeathLog e badge de mortes ficam ocultos até o Hardcore do WoW Forever começar.
+const FOREVER_HC_ACTIVE = /^(1|true|yes|on)$/i.test(String(process.env.FOREVER_HC_ACTIVE || ""));
 
 // Headers de segurança básicos (sem CSP para não quebrar os scripts inline atuais).
 app.use((req, res, next) => {
@@ -152,8 +155,14 @@ app.get("/ficha.html", (req, res) => res.sendFile(path.resolve(__dirname, "ficha
 app.get("/vendas.html", (req, res) => res.sendFile(path.resolve(__dirname, "vendas.html")));
 app.get("/sucesso.html", (req, res) => res.sendFile(path.resolve(__dirname, "sucesso.html")));
 app.get("/sucesso", (req, res) => res.sendFile(path.resolve(__dirname, "sucesso.html")));
-app.get("/deathlog.html", (req, res) => res.sendFile(path.resolve(__dirname, "deathlog.html")));
-app.get("/deathlog", (req, res) => res.sendFile(path.resolve(__dirname, "deathlog.html")));
+app.get("/deathlog.html", (req, res) => {
+  if (!FOREVER_HC_ACTIVE) return res.redirect(302, "/");
+  res.sendFile(path.resolve(__dirname, "deathlog.html"));
+});
+app.get("/deathlog", (req, res) => {
+  if (!FOREVER_HC_ACTIVE) return res.redirect(302, "/");
+  res.sendFile(path.resolve(__dirname, "deathlog.html"));
+});
 app.get("/core.html", (req, res) => res.sendFile(path.resolve(__dirname, "core.html")));
 app.get("/core", (req, res) => res.sendFile(path.resolve(__dirname, "core.html")));
 
@@ -177,7 +186,8 @@ app.get("/talents/rogue_talents.html", (req, res) => res.sendFile(path.resolve(_
 ========================================= */
 app.get("/api/config", (req, res) => {
   res.json({
-    DISCORD_URL: process.env.DISCORD_URL || "https://discord.gg/brazug"
+    DISCORD_URL: process.env.DISCORD_URL || "https://discord.gg/brazug",
+    FOREVER_HC_ACTIVE
   });
 });
 
@@ -207,6 +217,17 @@ app.get("/api/live-streams", async (req, res) => {
   } catch (err) {
     console.error("[API] Twitch Error:", err.message);
     res.status(500).json({ error: "Falha ao carregar streams" });
+  }
+});
+
+app.get("/api/forever/guilds", async (req, res) => {
+  try {
+    const data = await forever.getForeverGuilds();
+    res.set("Cache-Control", "public, max-age=60");
+    res.json(data);
+  } catch (err) {
+    console.error("[API] Blizzard Forever Error:", err.message);
+    res.status(502).json({ error: "Falha ao carregar os dados da guilda no WoW Forever." });
   }
 });
 

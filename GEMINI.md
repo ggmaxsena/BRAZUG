@@ -50,6 +50,7 @@ Utilizado para dados brutos sincronizados da Blizzard.
 - `GET /api/health`: Status do sistema e conexão com BD.
 - `GET /api/adventures`: Lista aventuras publicadas.
 - `GET /api/live-streams`: Streams da guilda ativas na Twitch (tag `<BRAZUG>`).
+- `GET /api/forever/guilds`: Guildas BRAZUG e BRAZUG II no WoW Forever via Battle.net API (cache de 5 min).
 - `GET /api/characters/search?name=...`: Busca rápida de personagem.
 
 ### Autenticação (`/api/auth`)
