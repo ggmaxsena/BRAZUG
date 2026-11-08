@@ -16,6 +16,7 @@ Lista as aventuras publicadas.
 Lista membros da guilda ao vivo na Twitch.
 - **Resposta**: `{ streams: [...], tag: "<BRAZUG>" }`
 - Canais bloqueados ficam de fora. A blacklist é editada no admin (Configurações → Blacklist de streams) e salva em `site_settings` com a chave `stream_blacklist` (um link ou login por linha).
+- Canais monitorados são verificados diretamente na Twitch, mesmo fora das categorias de WoW ou com poucos espectadores. A lista fica em `site_settings` com a chave `stream_channels` e também inclui automaticamente os `twitch_url` dos personagens cadastrados.
 
 ### `GET /api/forever/guilds`
 Dados públicos das guildas BRAZUG e BRAZUG II no World of Warcraft: Forever (Battle.net API).

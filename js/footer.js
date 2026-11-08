@@ -31,7 +31,7 @@
               <div class="album-carousel" id="album-carousel">
                   <!-- Spotify Artist Embed -->
                   <div class="carousel-container">
-                      <iframe src="https://open.spotify.com/embed/artist/7d2pfUNb5463ZeyejrDwdI?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                      <iframe src="https://open.spotify.com/embed/artist/7d2pfUNb5463ZeyejrDwdI?utm_source=generator" width="100%" height="352" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
                   </div>
               </div>
 
@@ -127,7 +127,8 @@
             'disablekb': 1,
             'fs': 0,
             'modestbranding': 1,
-            'loop': 1
+            'loop': 1,
+            'origin': window.location.origin
           },
           events: {
             'onReady': (event) => {

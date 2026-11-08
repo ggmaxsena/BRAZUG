@@ -16,17 +16,36 @@
         const res = await fetch("/api/admin/settings/weekly_agenda");
         const data = await res.json();
         const isManagement = ["admin", "guildmaster"].includes(role);
-        
-        if (data.value) {
-            agendaImg.src = data.value;
-            agendaImg.style.display = "block";
+        const agendaTitle = agendaContainer.querySelector('.section-title');
+
+        const showMissingAgenda = (titleText) => {
+            agendaImg.style.display = "none";
+            if (!isManagement) {
+                agendaContainer.style.display = "none";
+                return;
+            }
             agendaContainer.style.display = "block";
+            if (agendaTitle) agendaTitle.textContent = titleText;
+        };
+
+        agendaImg.onerror = () => showMissingAgenda("Agenda da Semana (Imagem indisponível)");
+
+        if (data.value) {
+            // Evita um <img> quebrado quando o arquivo foi removido do servidor.
+            const imageExists = await fetch(data.value, { method: "HEAD", cache: "no-store" })
+                .then((r) => r.ok)
+                .catch(() => false);
+
+            if (imageExists) {
+                agendaImg.src = data.value;
+                agendaImg.style.display = "block";
+                agendaContainer.style.display = "block";
+            } else {
+                showMissingAgenda("Agenda da Semana (Imagem indisponível)");
+            }
         } else if (isManagement) {
             // Se for admin/gm e não tiver agenda, mostra o container com texto de aviso
-            agendaContainer.style.display = "block";
-            agendaImg.style.display = "none";
-            const title = agendaContainer.querySelector('.section-title');
-            if (title) title.textContent = "Agenda da Semana (Vazio)";
+            showMissingAgenda("Agenda da Semana (Vazio)");
         } else {
             // Usuário comum sem agenda: esconde tudo
             agendaContainer.style.display = "none";
@@ -74,11 +93,21 @@
     async updateAgenda(token) {
         const fileInput = document.createElement("input");
         fileInput.type = "file";
-        fileInput.accept = "image/*";
+        fileInput.accept = "image/jpeg,image/png,image/webp,image/gif";
         
         fileInput.onchange = async () => {
             const file = fileInput.files[0];
             if (!file) return;
+
+            const allowedTypes = ["image/jpeg", "image/jpg", "image/pjpeg", "image/png", "image/webp", "image/gif"];
+            if (!allowedTypes.includes(file.type)) {
+                alert("Formato inválido. Envie uma imagem JPG, PNG, WEBP ou GIF.");
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Imagem muito grande. O limite é 5 MB.");
+                return;
+            }
 
             const formData = new FormData();
             formData.append("image", file);
