@@ -8,7 +8,7 @@
   <link rel="icon" href="/assets/branding/contentbra.png" type="image/png" />
   <style>
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding-top: var(--header-h); }
-    .talents-hub { max-width: 900px; margin: 40px auto; text-align: center; }
+    .talents-hub { max-width: 900px; margin: 40px auto; padding: 0 16px; text-align: center; }
     .talents-title { font-family: 'Cinzel', serif; font-size: 36px; color: var(--gold); margin-bottom: 30px; text-shadow: 0 0 15px var(--gold-glow); text-transform: uppercase; letter-spacing: 2px; }
     .classes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; margin-bottom: 40px; }
     .class-card {
@@ -26,6 +26,19 @@
     }
     .tc-btn:hover { background: linear-gradient(135deg, #a31212, #d62242); box-shadow: 0 0 20px var(--horde-red-glow); transform: translateY(-1px); }
     .note { margin-top: 30px; font-size: 13px; color: var(--text-muted); font-family: 'Cinzel', serif; border-left: 3px solid var(--horde-red); padding-left: 16px; text-align: left; max-width: 700px; margin: 30px auto 0; line-height: 1.8; }
+
+    @media (max-width: 600px) {
+      .talents-hub { margin: 24px auto; }
+      .talents-title { font-size: clamp(26px, 8vw, 36px); }
+      .classes-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .class-card { padding: 16px 10px; gap: 10px; }
+      .class-card span { font-size: 13px; }
+      .class-card img { width: 48px; height: 48px; }
+      .tc-btn { width: 100%; min-height: 44px; }
+    }
   </style>
 </head>
 <body>

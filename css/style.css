@@ -40,6 +40,13 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+[id] { scroll-margin-top: calc(var(--header-h) + 16px); }
+
 body {
     background: 
         radial-gradient(circle at top, #330000 0%, var(--bg) 60%),
@@ -62,6 +69,20 @@ body::before {
 }
 
 a { text-decoration: none; color: inherit; transition: color 0.3s; }
+
+img, svg, video, iframe { max-width: 100%; }
+
+input[type="checkbox"],
+input[type="radio"] { width: auto; }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
 
 /* ===================================== */
 /* HEADER GLOBAL */
@@ -204,6 +225,12 @@ nav a:hover, nav a.active { color: var(--gold); text-shadow: 0 0 10px var(--gold
     text-decoration: none;
 }
 .discord-btn:hover { background: var(--horde-red); transform: translateY(-2px); box-shadow: 0 0 20px var(--horde-red-glow); }
+
+.discord-btn-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
 
 /* Badge de membros online no botão Discord */
 .discord-btn-online {
@@ -485,6 +512,24 @@ nav a:hover, nav a.active { color: var(--gold); text-shadow: 0 0 10px var(--gold
   z-index: 1;
 }
 
+.page-title-redesign {
+  margin: 1.5rem 0 0.35rem;
+  font-family: 'Cinzel', serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--gold);
+  text-transform: uppercase;
+  text-shadow: 0 0 18px var(--gold-glow);
+}
+
+.page-subtitle-redesign {
+  margin-bottom: 2rem;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
 section { padding: 60px 0; }
 
 #lives .eyebrow {
@@ -541,7 +586,7 @@ section { padding: 60px 0; }
 /* ===================================== */
 .grid-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
     gap: 30px;
 }
 
@@ -1165,6 +1210,269 @@ select option {
 }
 
 /* ===================================== */
+/* ADDON LFG — LATERAL DA HOME            */
+/* ===================================== */
+.intro-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 48px;
+    align-items: start;
+}
+
+.intro-main {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+}
+
+.intro-rail {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+}
+
+/* Mantém o anúncio visível ao rolar o comunicado (só em telas altas) */
+@media (min-width: 1101px) and (min-height: 820px) {
+    .intro-rail {
+        position: sticky;
+        top: calc(var(--header-h) + 24px);
+    }
+}
+
+.addon-promo {
+    position: relative;
+    padding: 26px 24px 24px;
+    border-radius: 12px;
+    border: 1px solid rgba(247, 193, 77, 0.28);
+    background:
+        radial-gradient(circle at 100% 0%, rgba(79, 107, 138, 0.35) 0%, transparent 55%),
+        radial-gradient(circle at 0% 100%, rgba(196, 30, 58, 0.22) 0%, transparent 60%),
+        linear-gradient(155deg, rgba(18, 13, 10, 0.98), rgba(7, 5, 5, 0.98));
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.65);
+    overflow: hidden;
+}
+
+.addon-promo::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--horde-red), var(--gold) 50%, var(--forever-blue));
+}
+
+.addon-promo-kicker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.addon-promo-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(35, 165, 89, 0.14);
+    border: 1px solid rgba(35, 165, 89, 0.45);
+    color: #6fe39b;
+    letter-spacing: 1px;
+}
+
+.addon-promo-new::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #23a559;
+    box-shadow: 0 0 10px rgba(35, 165, 89, 0.9);
+    animation: addon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes addon-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.45; transform: scale(0.8); }
+}
+
+.addon-promo-title {
+    margin-bottom: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 34px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 1px;
+    color: #f5f5f5;
+    text-shadow: 0 0 24px rgba(196, 30, 58, 0.35);
+}
+
+.addon-promo-title span {
+    color: var(--gold);
+    text-shadow: 0 0 24px var(--gold-glow);
+}
+
+.addon-promo-author {
+    margin-bottom: 14px;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    color: var(--text-dim);
+}
+
+.addon-promo-author strong {
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.addon-promo-desc {
+    margin-bottom: 18px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #c0b8b0;
+}
+
+.addon-promo-features {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px 12px;
+    margin: 0 0 18px;
+    padding: 0;
+    list-style: none;
+}
+
+.addon-promo-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #d0c8c0;
+}
+
+.addon-promo-features i {
+    width: 13px;
+    margin-top: 2px;
+    font-size: 11px;
+    text-align: center;
+    color: var(--gold);
+}
+
+.addon-command {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 9px 9px 9px 12px;
+    border: 1px dashed rgba(247, 193, 77, 0.35);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.addon-command-label {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.addon-command-code {
+    margin-left: auto;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.addon-command-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid rgba(247, 193, 77, 0.3);
+    border-radius: 6px;
+    background: rgba(247, 193, 77, 0.06);
+    color: var(--gold);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.addon-command-copy:hover {
+    border-color: var(--gold);
+    background: var(--gold);
+    color: #1a1208;
+}
+
+.addon-command-copy.is-copied {
+    border-color: #23a559;
+    background: #23a559;
+    color: #fff;
+}
+
+.addon-promo-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--gold);
+    border-radius: 6px;
+    background: linear-gradient(135deg, #8f0f0f, #c41e3a);
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-align: center;
+    text-transform: uppercase;
+    transition: 0.2s;
+}
+
+.addon-promo-cta:hover {
+    background: linear-gradient(135deg, #a31212, #d62242);
+    box-shadow: 0 0 24px var(--horde-red-glow);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.addon-promo-support {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 10px;
+    letter-spacing: 0.3px;
+    color: var(--text-muted);
+}
+
+.addon-promo-support:hover {
+    color: var(--gold);
+}
+
+@media (max-width: 1100px) {
+    .intro-layout {
+        grid-template-columns: 1fr;
+        gap: 36px;
+    }
+
+    .intro-main,
+    .intro-rail {
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    .addon-promo {
+        max-width: 520px;
+    }
+}
+
+/* ===================================== */
 /* DISCORD SECTION                       */
 /* ===================================== */
 #discord-section {
@@ -1195,30 +1503,307 @@ select option {
     box-shadow: 0 12px 60px rgba(88, 101, 242, 0.35), 0 0 0 1px rgba(88, 101, 242, 0.25);
 }
 
+/* ===================================== */
+/* FICHA DO PERSONAGEM                   */
+/* ===================================== */
+.hero-portrait {
+    width: 350px;
+    max-width: 100%;
+    aspect-ratio: 1;
+    height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.hero-info {
+    flex: 1 1 300px;
+    min-width: 0;
+}
+
+.hero-name {
+    font-size: 56px;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+    .hero-portrait {
+        width: 100%;
+        max-height: 420px;
+    }
+    .hero-name { font-size: clamp(32px, 9vw, 44px); }
+}
+
+/* ===================================== */
+/* RECRUTAMENTO WOW FOREVER              */
+/* ===================================== */
+.recrutamento-section {
+    padding: 60px 0;
+    margin-top: 40px;
+    background: linear-gradient(180deg, rgba(79, 107, 138, 0.08) 0%, rgba(0, 0, 0, 0.3) 100%);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.recrutamento-card {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.recrutamento-tag {
+    display: inline-block;
+    margin-bottom: 16px;
+}
+
+.recrutamento-title {
+    font-size: 34px;
+    margin-bottom: 16px;
+}
+
+.recrutamento-text {
+    margin-bottom: 24px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+.recrutamento-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.recrutamento-actions .btn-primary,
+.recrutamento-actions .btn-secondary {
+    padding: 12px 24px;
+}
+
+.recrutamento-note {
+    font-size: 13px;
+    font-style: italic;
+    color: #888;
+}
+
+@media (max-width: 600px) {
+    .recrutamento-section { padding: 40px 0; }
+    .recrutamento-card { padding: 24px 18px; }
+    .recrutamento-title { font-size: clamp(26px, 8vw, 32px); }
+    .recrutamento-text { font-size: 15px; }
+    .recrutamento-actions { flex-direction: column; }
+    .recrutamento-actions .btn-primary,
+    .recrutamento-actions .btn-secondary { width: 100%; }
+}
+
+/* ===================================== */
+/* ESTATÍSTICAS DA GUILDA                */
+/* ===================================== */
+.guild-stats-section {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+    border-radius: 8px;
+}
+
+.guild-stats-title {
+    border-left: none;
+    padding-left: 0;
+}
+
+.guild-stats-tag {
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+.guild-stats-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.guild-stat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.guild-stat-icon {
+    color: var(--gold);
+    font-size: 20px;
+}
+
+.guild-stat-icon--discord {
+    color: #5865f2;
+}
+
+.guild-stat-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.guild-stat-value {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    line-height: 1.1;
+    color: var(--gold);
+}
+
+.guild-stat-label {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.guild-stat-refresh {
+    padding: 4px 10px;
+    border: 1px solid var(--horde-red);
+    border-radius: 4px;
+    background: none;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.guild-stat-refresh:hover {
+    background: var(--horde-red);
+    color: #fff;
+}
+
+.guild-stat-refresh:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+.guild-stats-breakdown {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.guild-stats-site {
+    margin: 0;
+    font-size: 13px;
+    color: #777;
+}
+
+.guild-stats-updated {
+    margin: 0;
+    font-size: 11px;
+    color: #666;
+}
+
+.guild-stats-error {
+    display: none;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #ff6b6b;
+}
+
+@media (max-width: 600px) {
+    .guild-stats-section { padding: 32px 14px; }
+    .guild-stats-tag {
+        white-space: normal;
+        max-width: 100%;
+        line-height: 1.5;
+    }
+    .guild-stat { gap: 4px 10px; }
+    .guild-stat--members { flex-direction: column; }
+    .guild-stat-value { font-size: 26px; }
+    .guild-stat-label { width: 100%; font-size: 13px; }
+}
+
+/* ===================================== */
+/* HEADER RESPONSIVO                      */
+/* ===================================== */
 @media (max-width: 980px) {
-  .menu-toggle { display: flex; }
+  :root { --header-h: 112px; }
+
+  .menu-toggle {
+    display: flex;
+    width: 44px;
+    height: 44px;
+    padding: 11px 9px;
+    flex-shrink: 0;
+  }
+
   .account-menu { display: none; }
-  .site-header { padding: 0 16px; }
+
+  .site-header {
+    grid-template-columns: 1fr auto 1fr;
+    padding: 0 16px;
+  }
+
+  .logo-img {
+    height: 104px;
+    margin-top: 0;
+  }
+
+  .header-right {
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .discord-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .discord-btn-icon { width: 20px; height: 20px; }
+  .discord-btn-label,
+  .discord-btn-online { display: none !important; }
+
   #header-nav {
     display: none;
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
+    bottom: auto;
+    height: calc(100vh - var(--header-h));
+    height: calc(100dvh - var(--header-h));
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
-    padding: 16px 20px 24px;
-    background: rgba(5, 5, 5, 0.98);
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 16px 20px 32px;
+    background: #050505;
     border-bottom: 2px solid var(--horde-red);
     z-index: 1002;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
+
   #header-nav.active { display: flex; }
-  #header-nav a { max-width: none; justify-content: flex-start; padding: 8px 0; }
+  body.menu-open { overflow: hidden; }
+  #header-nav a {
+    max-width: none;
+    min-height: 48px;
+    justify-content: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
   .nav-auth {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     margin-top: 8px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
@@ -1226,15 +1811,103 @@ select option {
 }
 
 @media (max-width: 768px) {
-    .discord-section-inner {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-    .discord-widget-frame iframe {
-        width: 100%;
-        max-width: 350px;
-    }
+  .container { padding: 28px 16px; }
+  section { padding: 44px 0; }
+
+  .section-title { font-size: clamp(28px, 7vw, 38px); }
+
+  .card { padding: 22px; }
+  .grid-layout { gap: 20px; }
+
+  .redesign-container { padding: 0 16px; }
+
+  .panel-title {
+    font-size: 19px;
+    padding: 1.25rem 1.15rem 0.4rem;
+    letter-spacing: 1.5px;
+  }
+  .panel-subtitle { padding: 0 1.15rem 0.9rem; }
+  .section { padding: 1.15rem; }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-search {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea { font-size: 16px; }
+
+  .brazug-announcement { padding: 22px 18px; }
+  .brazug-announcement-greeting { font-size: 18px; }
+  .addon-promo { padding: 22px 18px; }
+  .addon-promo-title { font-size: 30px; }
+  .brazug-salute { font-size: 17px; letter-spacing: 2px; }
+
+  .status-row { grid-template-columns: 1fr; }
+  .blizz-box { padding: 1rem; }
+
+  .discord-section-inner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 32px;
+  }
+
+  .discord-section-cta { min-width: 0; }
+
+  .discord-widget-frame {
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .discord-widget-frame iframe {
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .footer-container { gap: 28px; }
+  .footer-bottom {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  :root { --header-h: 92px; }
+
+  .site-header { padding: 0 12px; }
+  .logo-img { height: 82px; }
+  .header-right { gap: 6px; }
+
+  .discord-btn,
+  .menu-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .menu-toggle { padding: 10px 7px; }
+
+  .brazug-announcement-list li { font-size: 13px; }
+  .addon-promo-features { grid-template-columns: 1fr; }
+  .addon-promo-features li { font-size: 12px; }
+  .addon-command-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 

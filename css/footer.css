@@ -219,13 +219,35 @@
     }
 }
 
+@media (max-width: 768px) {
+    .brazug-footer { padding: 40px 0 24px; }
+    .footer-container { gap: 28px; }
+    .footer-section h4 { margin-bottom: 16px; }
+    .footer-links a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+    }
+    .footer-brand { order: 4; }
+    .album-carousel { max-width: 100%; }
+    .album-carousel iframe { height: 152px; }
+    #yt-player-container { height: 0 !important; }
+    .youtube-radio-mini { padding: 10px; }
+}
+
 @media (max-width: 500px) {
     .footer-container {
         grid-template-columns: 1fr;
+        padding: 0 16px;
     }
     .footer-bottom {
         flex-direction: column;
         gap: 20px;
         text-align: center;
+        padding: 24px 16px 0;
+    }
+    .footer-bottom .copyright span {
+        display: block;
+        margin: 6px 0 0 !important;
     }
 }

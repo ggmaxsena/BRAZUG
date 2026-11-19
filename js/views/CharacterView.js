@@ -95,10 +95,10 @@
       html += `
             <div class="card">
                 <div style="display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start;">
-                    <img src="${this.escape(char.image_url || "/assets/branding/contentbra.png")}" style="width: 350px; height: 350px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
-                    <div style="flex: 1; min-width: 300px;">
+                    <img class="hero-portrait" src="${this.escape(char.image_url || "/assets/branding/contentbra.png")}" alt="${this.escape(char.name)}">
+                    <div class="hero-info">
                         <p class="eyebrow" style="color: var(--gold); margin-bottom: 10px;">Herói de Brazug</p>
-                        <h1 style="font-size: 56px; margin-bottom: 5px; color: var(--gold); line-height: 1.1;">${this.escape(char.name)}</h1>
+                        <h1 class="hero-name" style="margin-bottom: 5px; color: var(--gold); line-height: 1.1;">${this.escape(char.name)}</h1>
                         ${this.reputationBanner(char)}
                         <p style="font-size: 24px; color: var(--text-muted); margin-bottom: 10px;">Level ${char.is_dead ? (char.death_level || char.level) : char.level} ${char.class}</p>
                         <p style="color: var(--text-muted); font-size: 18px;">${this.escape(char.race)} | ${this.escape(char.guild)}${(() => { const rl = { "forever-pvp": "Forever PVP", "forever-hc": "Forever HC" }; return char.realm && rl[char.realm] ? ` | ${rl[char.realm]}` : ""; })()}</p>

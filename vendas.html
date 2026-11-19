@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Casa de Leilões — BRAZUG</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/modern-ux.css">
@@ -110,6 +111,136 @@
             background: rgba(0,0,0,0.5) !important;
             border-top: 1px solid var(--border) !important;
             color: var(--text-dim) !important;
+        }
+
+        .ah-character-notice {
+            padding: 10px 14px;
+            background: rgba(247, 193, 77, 0.08);
+            border-bottom: 1px solid rgba(247, 193, 77, 0.3);
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .ah-character-notice a {
+            color: var(--gold);
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        /* ── RESPONSIVO ── */
+        @media (max-width: 768px) {
+            .ah-window {
+                width: calc(100% - 16px) !important;
+                margin: 20px auto !important;
+            }
+
+            .ah-titlebar {
+                padding: 10px 44px !important;
+                font-size: 13px !important;
+            }
+
+            .ah-avatar {
+                width: 34px;
+                height: 34px;
+                font-size: 16px;
+                top: 2px;
+            }
+
+            .ah-searchbar {
+                padding: 10px !important;
+                gap: 8px !important;
+            }
+
+            .ah-field-group {
+                flex: 1 1 100%;
+                min-width: 0;
+            }
+
+            .ah-field-group .ah-wow-input,
+            .ah-field-group .ah-select-rarity {
+                width: 100% !important;
+            }
+
+            .ah-search-btn {
+                flex: 1 1 calc(50% - 4px);
+                min-height: 40px;
+                height: 40px;
+            }
+
+            .ah-main-body {
+                flex-direction: column !important;
+                height: auto !important;
+                min-height: 0 !important;
+            }
+
+            .ah-sidebar {
+                width: 100% !important;
+                flex-direction: row !important;
+                padding: 6px !important;
+                gap: 4px !important;
+                border-right: none !important;
+                border-bottom: 1px solid var(--ah-panel-border) !important;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+            .ah-cat-btn {
+                flex: 0 0 auto;
+                margin-bottom: 0 !important;
+                white-space: nowrap;
+                border-left: none !important;
+                border-bottom: 2px solid transparent !important;
+            }
+
+            .ah-cat-btn.active {
+                border-left: none !important;
+                border-bottom-color: var(--horde-red) !important;
+            }
+
+            .ah-results-panel { overflow-x: auto; }
+            .ah-col-headers,
+            .ah-auction-row { min-width: 620px; }
+            .ah-results-list { max-height: 58vh; }
+
+            .ah-statusbar {
+                flex-wrap: wrap;
+                gap: 4px 12px;
+            }
+
+            .ah-tabs {
+                width: calc(100% - 16px) !important;
+                margin-top: -10px !important;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .ah-tab {
+                flex: 1 1 auto;
+                min-height: 40px;
+            }
+
+            #tab-auctions-content .ah-searchbar {
+                flex-direction: column;
+                align-items: stretch !important;
+                justify-content: flex-start !important;
+            }
+
+            #sell_item_name,
+            #sell_gold,
+            #sell_silver,
+            #sell_copper,
+            #sell_quantity,
+            #sell_duration {
+                width: 100% !important;
+            }
+
+            #feedback-modal {
+                width: calc(100% - 24px) !important;
+                max-height: calc(100vh - 24px);
+                overflow-y: auto;
+            }
         }
     </style>
 </head>
@@ -345,8 +476,6 @@
     </div>
 </div>
 <div id="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999;"></div>
-
-</main>
 
 <!-- Tooltip -->
 <div class="ah-tooltip" id="tooltip"></div>

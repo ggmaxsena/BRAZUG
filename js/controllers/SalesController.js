@@ -5,11 +5,18 @@
     async init() {
       const urlParams = new URLSearchParams(window.location.search);
       const characterId = urlParams.get('character_id');
-      if (!characterId) return alert("Personagem não definido.");
-
-      this.characterId = characterId;
+      this.characterId = characterId || null;
       this.currentCategory = "";
-      
+
+      if (!this.characterId) {
+        const win = document.getElementById("ahWindow");
+        const notice = document.createElement("div");
+        notice.className = "ah-character-notice";
+        notice.innerHTML =
+          '⚠️ Selecione um personagem no <a href="/ficha.html">Painel do Herói</a> para comprar, anunciar e avaliar.';
+        win.insertBefore(notice, win.querySelector(".ah-titlebar"));
+      }
+
       // Carregamento inicial
       document.getElementById("btn-create-sale").onclick = () => this.createSale();
       
@@ -21,6 +28,19 @@
       document.addEventListener('mousemove', e => {
         if (document.getElementById('tooltip').style.display === 'block') this.moveTip(e);
       });
+    },
+
+    requireCharacter(container) {
+      if (this.characterId) return true;
+      const message =
+        'Selecione um personagem no <a href="/ficha.html" style="color:var(--ah-gold);">Painel do Herói</a> para negociar.';
+      if (container) {
+        container.innerHTML = `<div style="padding:20px; color:var(--ah-gold); text-align:center;">${message}</div>`;
+      } else {
+        const status = document.getElementById("statusText");
+        if (status) status.innerHTML = message;
+      }
+      return false;
     },
 
     escape(s) {
@@ -72,7 +92,9 @@
         const query = document.getElementById("sell_filter_name").value;
         const container = document.getElementById("sell-items-container");
         const paginationContainer = document.getElementById("sell-pagination-container");
-        
+
+        if (!this.requireCharacter(container)) return;
+
         if (query.length < 2) {
             container.innerHTML = '<div style="padding: 20px; color: var(--ah-gold);">Digite ao menos 2 caracteres.</div>';
             return;
@@ -142,6 +164,7 @@
 
     async loadMyAuctions() {
         const container = document.getElementById("my-active-auctions-container");
+        if (!this.requireCharacter(container)) return;
         container.innerHTML = '<div style="padding:20px; color:var(--ah-gold);">Carregando leilões...</div>';
 
         try {
@@ -190,6 +213,7 @@
     async loadHistory() {
         const token = localStorage.getItem("brazug_admin_token");
         const container = document.getElementById("history-container");
+        if (!this.requireCharacter(container)) return;
         container.innerHTML = '<div style="padding:20px; color:var(--ah-gold);">Carregando histórico...</div>';
 
         try {
@@ -560,6 +584,7 @@
     },
 
     async purchaseItem(saleId) {
+        if (!this.requireCharacter()) return;
         if (!confirm("Confirmar arremate deste item?")) return;
 
         const token = localStorage.getItem("brazug_admin_token");
@@ -635,6 +660,7 @@
     },
 
     async createSale() {
+      if (!this.requireCharacter()) return;
       const token = localStorage.getItem("brazug_admin_token");
       if (!token) {
         alert("Você precisa estar logado.");

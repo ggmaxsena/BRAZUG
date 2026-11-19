@@ -925,6 +925,15 @@ const DeathlogController = {
    BOOT
 ═══════════════════════════════════════════════ */
 document.addEventListener("DOMContentLoaded", () => {
+  const mobileFilterBtn = document.getElementById("btn-mobile-filters");
+  const filtersPanel = document.getElementById("deathlog-filters");
+  if (mobileFilterBtn && filtersPanel) {
+    mobileFilterBtn.addEventListener("click", () => {
+      const isOpen = filtersPanel.classList.toggle("is-open");
+      mobileFilterBtn.setAttribute("aria-expanded", String(isOpen));
+    });
+  }
+
   DeathlogController.init().catch(err => {
     console.error("[DeathLog] Boot error:", err);
   });

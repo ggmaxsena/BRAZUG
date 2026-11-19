@@ -41,8 +41,6 @@
             <div class="footer-section">
               <h4>Navegação</h4>
               <ul class="footer-links">
-                <li><a href="/index.html">Mural de Aventuras</a></li>
-                <li><a href="/vendas.html">Casa de Leilões</a></li>
                 <li><a href="/login.html">Painel do Herói</a></li>
               </ul>
             </div>
@@ -52,7 +50,7 @@
               <h4>Comunidade</h4>
               <ul class="footer-links">
                 <li><a href="${discordUrl}" target="_blank">Discord Oficial</a></li>
-                <li><a href="https://twitch.tv/directory/game/World%20of%20Warcraft" target="_blank">Streams da Guilda</a></li>
+                <li><a href="https://www.twitch.tv/search?term=brazug" target="_blank" rel="noopener noreferrer">Streams da Guilda</a></li>
                 <li><a href="/register.html">Alistar-se</a></li>
               </ul>
             </div>

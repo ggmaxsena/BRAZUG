@@ -31,7 +31,7 @@
       background: var(--tc-bg);
       color: var(--tc-text);
       font-family: 'Inter', sans-serif;
-      padding: 20px;
+      padding: calc(var(--header-h) + 20px) 20px 20px;
       min-height: 100vh;
     }
 
@@ -523,6 +523,7 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
+      body { padding: calc(var(--header-h) + 16px) 12px 20px; }
       .tc-trees { flex-direction: column; align-items: center; }
       .tc-tree { width: 100%; max-width: 340px; }
       .tc-header { flex-direction: column; align-items: flex-start; gap: 14px; }

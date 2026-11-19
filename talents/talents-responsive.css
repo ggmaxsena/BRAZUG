@@ -1,0 +1,132 @@
+/* ============================================================
+   BRAZUG — Talent trees: mobile / tablet layout
+   Mantém as árvores com o tamanho original e permite rolagem
+   horizontal controlada em telas pequenas.
+   ============================================================ */
+
+@media (max-width: 900px) {
+  body {
+    min-width: 0 !important;
+    padding: 12px !important;
+    overflow-x: hidden;
+  }
+
+  .war-header,
+  .hu-header,
+  .mg-header,
+  .dr-header,
+  .rogue-header,
+  .sha-header,
+  .wl-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .war-title,
+  .hu-title,
+  .mg-title,
+  .dr-title,
+  .rogue-title,
+  .sha-title,
+  .wl-title {
+    font-size: 20px;
+    letter-spacing: 1px;
+  }
+
+  .war-sub,
+  .hu-sub,
+  .mg-sub,
+  .dr-sub,
+  .rogue-sub,
+  .sha-sub,
+  .wl-sub {
+    letter-spacing: 1px;
+  }
+
+  .war-pts-wrap,
+  .hu-pts-wrap,
+  .mg-pts-wrap,
+  .dr-pts-wrap,
+  .rogue-pts-wrap,
+  .sha-pts-wrap,
+  .wl-pts-wrap {
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .war-pts-bar-wrap,
+  .hu-pts-bar-wrap,
+  .mg-pts-bar-wrap,
+  .dr-pts-bar-wrap,
+  .rogue-pts-bar-wrap,
+  .sha-pts-bar-wrap,
+  .wl-pts-bar-wrap {
+    width: 100%;
+  }
+
+  .war-reset-btn,
+  .hu-reset-btn,
+  .mg-reset-btn,
+  .dr-reset-btn,
+  .rogue-reset-btn,
+  .sha-reset-btn,
+  .wl-reset-btn {
+    margin-left: auto;
+    min-height: 40px;
+  }
+
+  .spec-badges {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+
+  .war-trees,
+  .hu-trees,
+  .mg-trees,
+  .dr-trees,
+  .rogue-trees,
+  .sha-trees,
+  .wl-trees {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .war-tree,
+  .hu-tree,
+  .mg-tree,
+  .dr-tree,
+  .rogue-tree,
+  .sha-tree,
+  .wl-tree {
+    flex: 0 0 auto;
+    width: 252px;
+  }
+}
+
+@media (max-width: 480px) {
+  .war-title,
+  .hu-title,
+  .mg-title,
+  .dr-title,
+  .rogue-title,
+  .sha-title,
+  .wl-title {
+    font-size: 18px;
+  }
+
+  .war-class-icon,
+  .hu-class-icon,
+  .mg-class-icon,
+  .dr-class-icon,
+  .rogue-class-icon,
+  .sha-class-icon,
+  .wl-class-icon {
+    width: 40px;
+    height: 40px;
+  }
+}

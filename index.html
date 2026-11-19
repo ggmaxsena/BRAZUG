@@ -29,65 +29,146 @@
 
         <p class="subtitle">A voz da Horda ecoa pelo WoW Forever.</p>
 
-        <div class="brazug-announcement">
-          <p class="brazug-announcement-greeting">LOK'TAR OGAR, BRAZUGUERS! ⚔️</p>
+        <div class="intro-layout">
+          <!-- LATERAL: ADDON DA GUILDA -->
+          <aside class="intro-rail" id="addon-lfg" aria-labelledby="addon-lfg-title">
+            <article class="addon-promo">
+              <p class="addon-promo-kicker"><span class="addon-promo-new">Novo</span> Addon da Guilda</p>
 
-          <p class="brazug-announcement-text">
-            Nossa comunidade continua crescendo e a BRAZUG está próxima de atingir o limite de
-            <strong>1.000 personagens</strong> permitido pelo jogo!
-          </p>
+              <h2 class="addon-promo-title" id="addon-lfg-title">BRAZUG <span>LFG</span></h2>
+              <p class="addon-promo-author">por <strong>VoxxVolkov</strong> · WoW Forever</p>
 
-          <p class="brazug-announcement-text">
-            Para continuar recebendo novos membros, anunciamos a criação da <strong>BRAZUG II</strong>, nossa primeira
-            guilda de apoio.
-          </p>
+              <p class="addon-promo-desc">
+                Encontre grupo dentro da própria guilda para masmorras e raides, sem depender do chat global.
+              </p>
 
-          <h3 class="brazug-announcement-title">📜 Como funcionará?</h3>
-          <ul class="brazug-announcement-list">
-            <li>
-              <strong>BRAZUG II:</strong> receberá os novos jogadores quando a guilda principal atingir sua capacidade
-              máxima.
-            </li>
-            <li>
-              <strong>Migração:</strong> conforme o fluxo de novos membros estabilizar e forem liberadas vagas pela
-              remoção de personagens inativos, buscaremos transferir os jogadores da BRAZUG II para a guilda original.
-            </li>
-            <li>
-              <strong>Expansão permanente:</strong> caso a comunidade continue crescendo, manteremos múltiplas guildas
-              para comportar todos os jogadores.
-            </li>
-          </ul>
+              <ul class="addon-promo-features">
+                <li>
+                  <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                  <span>Filas Tank / Heal / DPS</span>
+                </li>
+                <li>
+                  <i class="fa-solid fa-dragon" aria-hidden="true"></i>
+                  <span>Masmorras e raides</span>
+                </li>
+                <li>
+                  <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+                  <span>Eventos agendados</span>
+                </li>
+                <li>
+                  <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+                  <span>Posição no mapa-múndi</span>
+                </li>
+                <li>
+                  <i class="fa-solid fa-list-ol" aria-hidden="true"></i>
+                  <span>Contador de runs</span>
+                </li>
+                <li>
+                  <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+                  <span>Pódio da atividade</span>
+                </li>
+              </ul>
 
-          <p class="brazug-announcement-emphasis">⚔️ IMPORTANTE</p>
-          <p class="brazug-announcement-text">
-            A <strong>BRAZUG</strong> e a <strong>BRAZUG II</strong> fazem parte da mesma comunidade! Todos continuarão
-            compartilhando nosso Discord, eventos, raids e atividades.
-          </p>
-          <p class="brazug-announcement-text">
-            Podem existir várias guildas no jogo, mas a <strong>BRAZUG é uma só!</strong>
-          </p>
-        </div>
+              <div class="addon-command">
+                <span class="addon-command-label">Abra com</span>
+                <code class="addon-command-code" id="addon-command-code">/blfg</code>
+                <button
+                  type="button"
+                  class="addon-command-copy"
+                  id="addon-copy-command"
+                  data-command="/blfg"
+                  title="Copiar comando"
+                  aria-label="Copiar comando /blfg"
+                >
+                  <i class="fa-regular fa-copy" aria-hidden="true"></i>
+                </button>
+              </div>
 
-        <p class="brazug-salute">HONRA E GLÓRIA! 🩸</p>
+              <a
+                class="addon-promo-cta"
+                href="https://www.curseforge.com/wow/addons/brazug-lfg"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fa-solid fa-download" aria-hidden="true"></i>
+                Baixar no CurseForge
+              </a>
 
-        <!-- AGENDA DA SEMANA -->
-        <div id="agenda-container" style="margin-top: 60px; display: none; text-align: center">
-          <h2
-            class="section-title"
-            style="font-size: 32px; border-left: none; padding-left: 0; text-align: center; margin-bottom: 30px"
-          >
-            Agenda da Semana
-          </h2>
-          <img
-            id="agenda-img"
-            src=""
-            alt="Agenda da Semana"
-            style="width: 100%; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow)"
-          />
-          <div id="agenda-admin-actions" style="margin-top: 20px; display: none">
-            <button id="btn-update-agenda" class="btn-primary" style="font-size: 12px; padding: 10px 20px">
-              ⚔ Atualizar Agenda
-            </button>
+              <a
+                class="addon-promo-support"
+                href="https://discord.gg/brazug"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="fa-brands fa-discord" aria-hidden="true"></i>
+                Dúvidas? Fale conosco no Discord
+              </a>
+            </article>
+          </aside>
+
+          <div class="intro-main">
+            <div class="brazug-announcement">
+              <p class="brazug-announcement-greeting">LOK'TAR OGAR, BRAZUGUERS! ⚔️</p>
+
+              <p class="brazug-announcement-text">
+                Nossa comunidade continua crescendo e a BRAZUG está próxima de atingir o limite de
+                <strong>1.000 personagens</strong> permitido pelo jogo!
+              </p>
+
+              <p class="brazug-announcement-text">
+                Para continuar recebendo novos membros, anunciamos a criação da <strong>BRAZUG II</strong>, nossa
+                primeira guilda de apoio.
+              </p>
+
+              <h3 class="brazug-announcement-title">📜 Como funcionará?</h3>
+              <ul class="brazug-announcement-list">
+                <li>
+                  <strong>BRAZUG II:</strong> receberá os novos jogadores quando a guilda principal atingir sua
+                  capacidade máxima.
+                </li>
+                <li>
+                  <strong>Migração:</strong> conforme o fluxo de novos membros estabilizar e forem liberadas vagas pela
+                  remoção de personagens inativos, buscaremos transferir os jogadores da BRAZUG II para a guilda
+                  original.
+                </li>
+                <li>
+                  <strong>Expansão permanente:</strong> caso a comunidade continue crescendo, manteremos múltiplas
+                  guildas para comportar todos os jogadores.
+                </li>
+              </ul>
+
+              <p class="brazug-announcement-emphasis">⚔️ IMPORTANTE</p>
+              <p class="brazug-announcement-text">
+                A <strong>BRAZUG</strong> e a <strong>BRAZUG II</strong> fazem parte da mesma comunidade! Todos
+                continuarão compartilhando nosso Discord, eventos, raids e atividades.
+              </p>
+              <p class="brazug-announcement-text">
+                Podem existir várias guildas no jogo, mas a <strong>BRAZUG é uma só!</strong>
+              </p>
+            </div>
+
+            <p class="brazug-salute">HONRA E GLÓRIA! 🩸</p>
+
+            <!-- AGENDA DA SEMANA -->
+            <div id="agenda-container" style="margin-top: 60px; display: none; text-align: center">
+              <h2
+                class="section-title"
+                style="font-size: 32px; border-left: none; padding-left: 0; text-align: center; margin-bottom: 30px"
+              >
+                Agenda da Semana
+              </h2>
+              <img
+                id="agenda-img"
+                src=""
+                alt="Agenda da Semana"
+                style="width: 100%; border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow)"
+              />
+              <div id="agenda-admin-actions" style="margin-top: 20px; display: none">
+                <button id="btn-update-agenda" class="btn-primary" style="font-size: 12px; padding: 10px 20px">
+                  ⚔ Atualizar Agenda
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -133,109 +214,60 @@
       </section>
 
       <!-- RECRUTAMENTO WOW FOREVER -->
-      <section
-        id="recrutamento-forever"
-        style="
-          padding: 60px 0;
-          background: linear-gradient(180deg, rgba(79, 107, 138, 0.08) 0%, rgba(0, 0, 0, 0.3) 100%);
-          border-top: 1px solid var(--border);
-          border-bottom: 1px solid var(--border);
-          margin-top: 40px;
-        "
-      >
-        <div class="card" style="max-width: 700px; margin: 0 auto; text-align: center">
-          <span class="tag tag-forever" style="margin-bottom: 16px; display: inline-block"
-            >WoW Forever — Recrutamento Aberto</span
-          >
-          <h2 class="section-title" style="font-size: 34px; margin-bottom: 16px">Junte-se à BRAZUG no WoW Forever</h2>
-          <p style="color: var(--text-muted); font-size: 16px; margin-bottom: 24px; line-height: 1.6">
+      <section id="recrutamento-forever" class="recrutamento-section">
+        <div class="card recrutamento-card">
+          <span class="tag tag-forever recrutamento-tag">WoW Forever — Recrutamento Aberto</span>
+          <h2 class="section-title recrutamento-title">Junte-se à BRAZUG no WoW Forever</h2>
+          <p class="recrutamento-text">
             O WoW Forever já está no ar desde <strong>04/11/2026</strong>. Estamos construindo a guilda do nível 1
             juntos e, quando o Hardcore chegar, estaremos prontos para colocar tudo em risco novamente.
           </p>
-          <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px">
-            <a href="/register.html" class="btn-primary" style="padding: 12px 24px">Criar Cadastro</a>
-            <a href="https://discord.gg/brazug" target="_blank" class="btn-secondary" style="padding: 12px 24px"
-              >Discord da Guilda</a
-            >
-            <a href="/talents/talent-calc.html" class="btn-secondary" style="padding: 12px 24px"
-              >Calculadora de Talentos</a
-            >
+          <div class="recrutamento-actions">
+            <a href="/register.html" class="btn-primary">Criar Cadastro</a>
+            <a href="https://discord.gg/brazug" target="_blank" class="btn-secondary">Discord da Guilda</a>
+            <a href="/talents/talent-calc.html" class="btn-secondary">Calculadora de Talentos</a>
           </div>
-          <p style="color: #888; font-size: 13px; font-style: italic">
+          <p class="recrutamento-note">
             Recrutamento aberto para todos que querem construir a BRAZUG no WoW Forever.
           </p>
         </div>
       </section>
 
       <!-- ESTATÍSTICAS DA GUILDA -->
-      <section
-        id="guild-stats"
-        style="
-          text-align: center;
-          padding: 40px 20px;
-          background: rgba(0, 0, 0, 0.4);
-          border-top: 1px solid var(--border);
-          margin-top: 40px;
-          border-radius: 8px;
-        "
-      >
-        <h2 class="section-title" style="border-left: none; padding-left: 0">A Nossa Força</h2>
-        <span class="tag tag-forever" style="margin-bottom: 12px; display: inline-block"
-          >Guildas BRAZUG &amp; BRAZUG II — WoW Forever</span
-        >
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 15px">
+      <section id="guild-stats" class="guild-stats-section">
+        <h2 class="section-title guild-stats-title">A Nossa Força</h2>
+        <span class="tag tag-forever guild-stats-tag">Guildas BRAZUG &amp; BRAZUG II — WoW Forever</span>
+        <div class="guild-stats-body">
           <!-- Online no Discord -->
-          <div style="display: flex; align-items: center; gap: 10px">
-            <i class="fab fa-discord" style="color: #5865f2; font-size: 20px"></i>
-            <span id="guild-discord-online" style="font-size: 28px; color: var(--gold); font-family: 'Cinzel', serif"
-              >—</span
-            >
-            <span style="color: var(--text-muted); font-size: 14px">Online no Discord</span>
+          <div class="guild-stat guild-stat--discord">
+            <i class="fab fa-discord guild-stat-icon guild-stat-icon--discord" aria-hidden="true"></i>
+            <span class="guild-stat-value" id="guild-discord-online">—</span>
+            <span class="guild-stat-label">Online no Discord</span>
           </div>
+
           <!-- Total de membros no Forever -->
-          <p
-            style="
-              font-size: 28px;
-              color: var(--gold);
-              font-family: 'Cinzel', serif;
-              margin: 0;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 12px;
-            "
-          >
-            <i class="fas fa-users" style="margin-right: 10px"></i>
-            <span id="guild-member-count">Carregando...</span>
-            <span style="color: var(--text-muted); font-size: 14px">Membros no WoW Forever</span>
-            <button
-              id="btn-refresh-stats"
-              title="Atualizar contagem"
-              style="
-                background: none;
-                border: 1px solid var(--horde-red);
-                color: var(--gold);
-                padding: 4px 10px;
-                border-radius: 4px;
-                font-size: 12px;
-                cursor: pointer;
-                font-family: 'Cinzel', serif;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-              "
-            >
-              ↻
-            </button>
-          </p>
-          <p id="guild-forever-breakdown" style="font-size: 13px; color: var(--text-muted); margin: 0">
-            BRAZUG — • BRAZUG II —
-          </p>
-          <p style="font-size: 13px; color: #777; margin: 0">
-            <span id="guild-site-count">—</span> aventureiros cadastrados no site
-          </p>
-          <p id="guild-stats-updated" style="font-size: 11px; color: #666; margin: 0"></p>
+          <div class="guild-stat guild-stat--members">
+            <i class="fas fa-users guild-stat-icon" aria-hidden="true"></i>
+            <span class="guild-stat-main">
+              <span class="guild-stat-value" id="guild-member-count">Carregando...</span>
+              <button
+                id="btn-refresh-stats"
+                class="guild-stat-refresh"
+                type="button"
+                title="Atualizar contagem"
+                aria-label="Atualizar contagem de membros"
+              >
+                ↻
+              </button>
+            </span>
+            <span class="guild-stat-label">Membros no WoW Forever</span>
+          </div>
+
+          <p id="guild-forever-breakdown" class="guild-stats-breakdown">BRAZUG — • BRAZUG II —</p>
+          <p class="guild-stats-site"><span id="guild-site-count">—</span> aventureiros cadastrados no site</p>
+          <p id="guild-stats-updated" class="guild-stats-updated"></p>
+          <p id="guild-stats-error" class="guild-stats-error"></p>
         </div>
-        <p id="guild-stats-error" style="color: #ff6b6b; font-size: 12px; margin-top: 8px; display: none"></p>
       </section>
     </main>
 
@@ -373,6 +405,39 @@
         if (btn) {
           btn.addEventListener('click', carregarGuildStats);
           btn.addEventListener('click', carregarDiscordOnline);
+        }
+
+        // Copiar o comando do addon BRAZUG LFG
+        const addonCopyBtn = document.getElementById('addon-copy-command');
+        if (addonCopyBtn) {
+          addonCopyBtn.addEventListener('click', async function () {
+            const command = addonCopyBtn.dataset.command || '/blfg';
+            const icon = addonCopyBtn.querySelector('i');
+
+            try {
+              await navigator.clipboard.writeText(command);
+            } catch (err) {
+              // Fallback para navegadores sem permissão de clipboard
+              const codeEl = document.getElementById('addon-command-code');
+              if (codeEl) {
+                const range = document.createRange();
+                range.selectNodeContents(codeEl);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+              }
+            }
+
+            addonCopyBtn.classList.add('is-copied');
+            addonCopyBtn.setAttribute('aria-label', 'Comando copiado');
+            if (icon) icon.className = 'fa-solid fa-check';
+
+            setTimeout(function () {
+              addonCopyBtn.classList.remove('is-copied');
+              addonCopyBtn.setAttribute('aria-label', 'Copiar comando /blfg');
+              if (icon) icon.className = 'fa-regular fa-copy';
+            }, 1800);
+          });
         }
 
         // Mantém os números atualizados a cada 5 minutos (mesmo TTL do cache no servidor).
